@@ -1,4 +1,4 @@
-# web17-boostcamp
+# web17-Busy
 web17 group project
 
 
