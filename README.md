@@ -73,49 +73,15 @@ VIBR는 이 과정을 한 화면에서 연결합니다.
 
 ## 🛠️ 기술 스택 (Technology Stack)
 
-### 🏗️ Common Infrastructure
-<p>
-  <img src="https://img.shields.io/badge/pnpm-111111?style=for-the-badge&logo=pnpm&logoColor=F69220" />
-  <img src="https://img.shields.io/badge/Turborepo-111111?style=for-the-badge&logo=turborepo&logoColor=white" />
-  <img src="https://img.shields.io/badge/TypeScript-111111?style=for-the-badge&logo=typescript&logoColor=3178C6" />
-  <img src="https://img.shields.io/badge/Husky-111111?style=for-the-badge&logo=git&logoColor=white" />
-  <img src="https://img.shields.io/badge/lint--staged-111111?style=for-the-badge&logo=github&logoColor=white" />
-</p>
-
-### 💻 Frontend
-<p>
-  <img src="https://img.shields.io/badge/React-111111?style=for-the-badge&logo=react&logoColor=61DAFB" />
-  <img src="https://img.shields.io/badge/Vite-111111?style=for-the-badge&logo=vite&logoColor=646CFF" />
-  <img src="https://img.shields.io/badge/Zustand-111111?style=for-the-badge&logo=react&logoColor=white" />
-  <img src="https://img.shields.io/badge/TailwindCSS-111111?style=for-the-badge&logo=tailwindcss&logoColor=38BDF8" />
-  <img src="https://img.shields.io/badge/SVGR-111111?style=for-the-badge&logo=svg&logoColor=white" />
-</p>
-
-### 🗄️ Backend
-<p>
-  <img src="https://img.shields.io/badge/NestJS-111111?style=for-the-badge&logo=nestjs&logoColor=E0234E" />
-  <img src="https://img.shields.io/badge/TypeORM-111111?style=for-the-badge&logo=typeorm&logoColor=FE0803" />
-  <img src="https://img.shields.io/badge/MySQL-111111?style=for-the-badge&logo=mysql&logoColor=4479A1" />
-  <img src="https://img.shields.io/badge/Redis-111111?style=for-the-badge&logo=redis&logoColor=DC382D" />
-</p>
-
-### 🧪 Quality & Testing
-<p>
-  <img src="https://img.shields.io/badge/ESLint-111111?style=for-the-badge&logo=eslint&logoColor=4B32C3" />
-  <img src="https://img.shields.io/badge/Prettier-111111?style=for-the-badge&logo=prettier&logoColor=F7B93E" />
-  <img src="https://img.shields.io/badge/Vitest-111111?style=for-the-badge&logo=vitest&logoColor=6E9F18" />
-  <img src="https://img.shields.io/badge/Jest-111111?style=for-the-badge&logo=jest&logoColor=C21325" />
-</p>
-
-### ☁️ Infra / CI-CD
-<p>
-  <img src="https://img.shields.io/badge/NCP-03C75A?style=for-the-badge&logoColor=white" />
-  <img src="https://img.shields.io/badge/Docker-111111?style=for-the-badge&logo=docker&logoColor=2496ED" />
-  <img src="https://img.shields.io/badge/GitHub%20Actions-111111?style=for-the-badge&logo=githubactions&logoColor=2088FF" />
-</p>
+| Category | Stack |
+|---|---|
+| 🏗️ Common Infrastructure | <img src="https://img.shields.io/badge/pnpm-111111?style=for-the-badge&logo=pnpm&logoColor=F69220" /> <img src="https://img.shields.io/badge/Turborepo-111111?style=for-the-badge&logo=turborepo&logoColor=white" /> <img src="https://img.shields.io/badge/TypeScript-111111?style=for-the-badge&logo=typescript&logoColor=3178C6" /> <img src="https://img.shields.io/badge/Husky-111111?style=for-the-badge&logo=git&logoColor=white" /> <img src="https://img.shields.io/badge/lint--staged-111111?style=for-the-badge&logo=github&logoColor=white" /> |
+| 💻 Frontend | <img src="https://img.shields.io/badge/React-111111?style=for-the-badge&logo=react&logoColor=61DAFB" /> <img src="https://img.shields.io/badge/Vite-111111?style=for-the-badge&logo=vite&logoColor=646CFF" /> <img src="https://img.shields.io/badge/Zustand-111111?style=for-the-badge&logo=react&logoColor=white" /> <img src="https://img.shields.io/badge/TailwindCSS-111111?style=for-the-badge&logo=tailwindcss&logoColor=38BDF8" /> <img src="https://img.shields.io/badge/SVGR-111111?style=for-the-badge&logo=svg&logoColor=white" /> |
+| 🗄️ Backend | <img src="https://img.shields.io/badge/NestJS-111111?style=for-the-badge&logo=nestjs&logoColor=E0234E" /> <img src="https://img.shields.io/badge/TypeORM-111111?style=for-the-badge&logo=typeorm&logoColor=FE0803" /> <img src="https://img.shields.io/badge/MySQL-111111?style=for-the-badge&logo=mysql&logoColor=4479A1" /> <img src="https://img.shields.io/badge/Redis-111111?style=for-the-badge&logo=redis&logoColor=DC382D" /> |
+| 🧪 Quality & Testing | <img src="https://img.shields.io/badge/ESLint-111111?style=for-the-badge&logo=eslint&logoColor=4B32C3" /> <img src="https://img.shields.io/badge/Prettier-111111?style=for-the-badge&logo=prettier&logoColor=F7B93E" /> <img src="https://img.shields.io/badge/Vitest-111111?style=for-the-badge&logo=vitest&logoColor=6E9F18" /> <img src="https://img.shields.io/badge/Jest-111111?style=for-the-badge&logo=jest&logoColor=C21325" /> |
+| ☁️ Infra / CI-CD | <img src="https://img.shields.io/badge/NCP-03C75A?style=for-the-badge&logoColor=white" /> <img src="https://img.shields.io/badge/Docker-111111?style=for-the-badge&logo=docker&logoColor=2496ED" /> <img src="https://img.shields.io/badge/GitHub%20Actions-111111?style=for-the-badge&logo=githubactions&logoColor=2088FF" /> |
 
 ---
-
 
 ## 🌟 Team Members
 
