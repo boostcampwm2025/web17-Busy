@@ -2,7 +2,6 @@
   <img src="https://capsule-render.vercel.app/api?type=venom&height=200&text=VIBR&fontSize=70&color=gradient&animation=twinkling" />
 </p>
 
-
 <p align="center">
   <b>Connect through Music</b><br/>
   <sub>추천하고 · 바로 듣고 · 반응하고 · 저장하고 · 사람을 통해 다시 발견합니다.</sub>
@@ -49,41 +48,104 @@ VIBR는 이 과정을 한 화면에서 연결합니다.
 
 ## ⚡ 핵심 플로우 (MVP)
 
-1) 곡 검색(Spotify/Apple 메타데이터)  
-2) 추천 포스트 작성(단일 곡 + 코멘트)  
-3) 피드에서 전곡 바로듣기  
-4) 좋아요/댓글 반응  
-5) 보관함/프라이빗 플레이리스트 저장  
-6) 추천자 프로필 탐색 → 팔로우로 취향 그래프 확장  
+1. 곡 검색(Spotify/Apple 메타데이터)
+2. 추천 포스트 작성(단일 곡 + 코멘트)
+3. 피드에서 전곡 바로듣기
+4. 좋아요/댓글 반응
+5. 보관함/프라이빗 플레이리스트 저장
+6. 추천자 프로필 탐색 → 팔로우로 취향 그래프 확장
 
 ---
 
 ## 🧩 핵심 기능
 
-| 기능 | 하는 일 | 왜 중요한가 |
-|---|---|---|
-| 🏠 **피드(Feed)** | 팔로우한 사람의 추천 음악을 타임라인으로 제공 + 즉시 미리듣기/저장/반응 | 링크 공유의 단절 제거 |
-| ✍️ **포스트(Post)** | 곡 선택 + 한 줄 코멘트로 ‘맥락 있는 추천’ 생성 | 큐레이션의 이유가 남음 |
-| 👤 **프로필(Profile)** | 추천한 곡이 쌓이는 시각적 프로필 | 취향이 ‘정체성’으로 축적 |
-| 📚 **보관함(Library)** | 나중에 듣기/프라이빗 플레이리스트 관리 | 재방문과 습관 형성 |
-| 🔍 **검색(Search)** | 곡/아티스트 + 사용자 검색 | 사람 기반 탐색 확장 |
-| 🤝 **협업 플레이리스트** | 함께 담고(공동 편집) 같이 듣는(동시 청취) 세션 | 피드 이상의 소셜 경험 |
+| 기능                     | 하는 일                                                                 | 왜 중요한가              |
+| ------------------------ | ----------------------------------------------------------------------- | ------------------------ |
+| 🏠 **피드(Feed)**        | 팔로우한 사람의 추천 음악을 타임라인으로 제공 + 즉시 미리듣기/저장/반응 | 링크 공유의 단절 제거    |
+| ✍️ **포스트(Post)**      | 곡 선택 + 한 줄 코멘트로 ‘맥락 있는 추천’ 생성                          | 큐레이션의 이유가 남음   |
+| 👤 **프로필(Profile)**   | 추천한 곡이 쌓이는 시각적 프로필                                        | 취향이 ‘정체성’으로 축적 |
+| 📚 **보관함(Library)**   | 나중에 듣기/프라이빗 플레이리스트 관리                                  | 재방문과 습관 형성       |
+| 🔍 **검색(Search)**      | 곡/아티스트 + 사용자 검색                                               | 사람 기반 탐색 확장      |
+| 🤝 **협업 플레이리스트** | 함께 담고(공동 편집) 같이 듣는(동시 청취) 세션                          | 피드 이상의 소셜 경험    |
 
 ---
 
 ## 🛠️ 기술 스택 (Technology Stack)
-| Category | Stack |
-|---|---|
+
+| Category                 | Stack                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 🏗️ Common Infrastructure | <img src="https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" /> <img src="https://img.shields.io/badge/Turborepo-000000?style=for-the-badge&logo=turborepo&logoColor=white" /> <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" /> <img src="https://img.shields.io/badge/Husky-111111?style=for-the-badge&logo=git&logoColor=white" /> <img src="https://img.shields.io/badge/lint--staged-2A2A2A?style=for-the-badge&logo=github&logoColor=white" /> |
-| 💻 Frontend | <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" /> <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" /> <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />  <img src="https://img.shields.io/badge/Zustand-111111?style=for-the-badge&logo=react&logoColor=white" /> <img src="https://img.shields.io/badge/TailwindCSS-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=111111" />|
-| 🗄️ Backend | <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" /> <img src="https://img.shields.io/badge/TypeORM-FE0803?style=for-the-badge&logo=typeorm&logoColor=white" /> <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" /> <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" /> |
-| 🧪 Quality & Testing | <img src="https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white" /> <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=111111" /> <img src="https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white" /> <img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" /> |
-| ☁️ Infra / CI-CD | <img src="https://img.shields.io/badge/NCP-03C75A?style=for-the-badge&logo=naver&logoColor=white" /> <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" /> <img src="https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" /> |
+| 💻 Frontend              | <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" /> <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" /> <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" /> <img src="https://img.shields.io/badge/Zustand-111111?style=for-the-badge&logo=react&logoColor=white" /> <img src="https://img.shields.io/badge/TailwindCSS-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=111111" />   |
+| 🗄️ Backend               | <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" /> <img src="https://img.shields.io/badge/TypeORM-FE0803?style=for-the-badge&logo=typeorm&logoColor=white" /> <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" /> <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" />                                                                                                                        |
+| 🧪 Quality & Testing     | <img src="https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white" /> <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=111111" /> <img src="https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white" /> <img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" />                                                                                                                     |
+| ☁️ Infra / CI-CD         | <img src="https://img.shields.io/badge/NCP-03C75A?style=for-the-badge&logo=naver&logoColor=white" /> <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" /> <img src="https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" />                                                                                                                                                                                                                  |
+
+---
+
+## 🧑‍💻 Local Setup (Workspace)
+
+### Requirements
+
+- **Node.js >= 18** (권장: LTS)
+- **pnpm** (workspace 기준)
+
+### Install
+
+```bash
+corepack enable
+pnpm -v
+pnpm install
+```
+
+### Run (Dev)
+
+```bash
+pnpm dev
+```
+
+### Useful Commands
+
+```bash
+pnpm lint
+pnpm check-types
+pnpm build
+pnpm format
+```
+
+---
+
+## ✅ Git Hooks & Commit Convention
+
+이 레포는 **Husky + lint-staged + commitlint**로 커밋 품질을 자동으로 보장
+
+- `pre-commit`: staged 파일 기준으로 **Prettier/ESLint 자동 적용**
+- `commit-msg`: **Conventional Commits** 규칙을 강제 (commitlint)
+
+### Commit message format
+
+```bash
+type(scope): summary #issueNumber
+```
+
+**Allowed types**
+
+`feat | fix | docs | style | refactor | test | chore | revert | perf | ci | design`
+
+예시)
+
+```bash
+chore(tooling): stabilize husky hooks #21
+feat(feed): add infinite scroll #34
+```
+
+> 커밋이 막히는 경우 대부분 훅에서 포맷/린트/커밋 메시지 규칙 위반이 원인입니다. 출력되는 로그를 먼저 확인해주세요.
+
+---
 
 ## 🌟 Team Members
 
-| 구분 | J048 김승호 | J055 김예빈 | J100 문예찬 | J237 장재혁 |
-|:---:|:---:|:---:|:---:|:---:|
-| Avatar | <img src="https://github.com/seunghok22.png" width="120"/> | <img src="https://github.com/yebinGold.png" width="120"/> | <img src="https://github.com/myc0603.png" width="120"/> | <img src="https://github.com/Jae-Hyuk-Jang.png" width="120"/> |
-| 이름&nbsp;/&nbsp;영문 | **J048&nbsp;김승호**<br/>Seung-Ho Kim | **J055&nbsp;김예빈**<br/>Ye-Bin Kim | **J100&nbsp;문예찬**<br/>Ye-Chan Moon | **J237&nbsp;장재혁**<br/>Jae-Hyuk Jang |
-| GitHub | [seunghok22](https://github.com/seunghok22) | [yebinGold](https://github.com/yebinGold) | [myc0603](https://github.com/myc0603) | [Jae-Hyuk-Jang](https://github.com/Jae-Hyuk-Jang) |
+|         구분          |                        J048 김승호                         |                        J055 김예빈                        |                       J100 문예찬                       |                          J237 장재혁                          |
+| :-------------------: | :--------------------------------------------------------: | :-------------------------------------------------------: | :-----------------------------------------------------: | :-----------------------------------------------------------: |
+|        Avatar         | <img src="https://github.com/seunghok22.png" width="120"/> | <img src="https://github.com/yebinGold.png" width="120"/> | <img src="https://github.com/myc0603.png" width="120"/> | <img src="https://github.com/Jae-Hyuk-Jang.png" width="120"/> |
+| 이름&nbsp;/&nbsp;영문 |           **J048&nbsp;김승호**<br/>Seung-Ho Kim            |            **J055&nbsp;김예빈**<br/>Ye-Bin Kim            |          **J100&nbsp;문예찬**<br/>Ye-Chan Moon          |            **J237&nbsp;장재혁**<br/>Jae-Hyuk Jang             |
+|        GitHub         |        [seunghok22](https://github.com/seunghok22)         |         [yebinGold](https://github.com/yebinGold)         |          [myc0603](https://github.com/myc0603)          |       [Jae-Hyuk-Jang](https://github.com/Jae-Hyuk-Jang)       |
