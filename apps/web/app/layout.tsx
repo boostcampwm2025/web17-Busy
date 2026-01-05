@@ -19,7 +19,7 @@ export default function RootLayout({
           {/* 좌측 사이드바 영역 */}
           <Sidebar />
 
-          <section className="flex flex-col w-full h-full lg:flex-row">
+          <div className="flex flex-col w-full h-full lg:flex-row">
             {/* 중앙 페이지 라우팅 영역 */}
             <main className="h-full lg:w-full overflow-y-auto">{children}</main>
 
@@ -29,7 +29,7 @@ export default function RootLayout({
         lg:w-lg lg:h-full lg:flex lg:flex-col lg:border-t-0 lg:border-l-2
         transition-all duration-200 ease-in-out"
             ></aside>
-          </section>
+          </div>
         </div>
       </body>
     </html>
