@@ -1,7 +1,7 @@
-export default function Home() {
+export default function Feed() {
   return (
-    <div>
-      <p className="text-3xl">Hello</p>
+    <div className="flex h-full justify-center items-center">
+      <p className="text-xl">페이지 영역</p>
     </div>
   );
 }

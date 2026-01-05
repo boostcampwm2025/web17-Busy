@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import Sidebar from '@components/sidebar/Sidebar';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -13,7 +14,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="kr">
-      <body>{children}</body>
+      <body>
+        <div className="flex h-screen">
+          {/* 좌측 사이드바 영역 */}
+          <Sidebar />
+
+          <section className="flex flex-col w-full h-full lg:flex-row">
+            {/* 중앙 페이지 라우팅 영역 */}
+            <main className="h-full lg:w-full overflow-y-auto">{children}</main>
+
+            {/* 우측 뮤직 플레이어 영역 */}
+            <aside
+              className="bg-accent-pink self-end w-full min-h-16 border-t-2 border-primary 
+        lg:w-lg lg:h-full lg:flex lg:flex-col lg:border-t-0 lg:border-l-2
+        transition-all duration-200 ease-in-out"
+            ></aside>
+          </section>
+        </div>
+      </body>
     </html>
   );
 }
