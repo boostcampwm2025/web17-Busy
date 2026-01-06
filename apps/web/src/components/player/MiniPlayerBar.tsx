@@ -1,24 +1,43 @@
 'use client';
 
-import { FolderPlus, Pause, Play, PlusCircle, SkipBack, SkipForward } from 'lucide-react';
+import { FolderPlus, Pause, Play, PlusCircle, SkipBack, SkipForward, ListPlus } from 'lucide-react';
 import type { Music } from '@/types';
 
 interface MiniPlayerBarProps {
   currentMusic: Music | null;
   isPlaying: boolean;
 
-  onTogglePlay: () => void;
+  canPrev: boolean;
+  canNext: boolean;
 
-  /** 이번 이슈에서는 비활성/빈 핸들러 */
+  isQueueOpen: boolean;
+
+  onTogglePlay: () => void;
   onPrev: () => void;
   onNext: () => void;
+
+  onToggleQueue: () => void;
+
+  /** 이번 이슈에서는 비활성/빈 핸들러 */
   onPost: () => void;
   onSave: () => void;
 }
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';
 
-export default function MiniPlayerBar({ currentMusic, isPlaying, onTogglePlay, onPrev, onNext, onPost, onSave }: MiniPlayerBarProps) {
+export default function MiniPlayerBar({
+  currentMusic,
+  isPlaying,
+  canPrev,
+  canNext,
+  isQueueOpen,
+  onTogglePlay,
+  onPrev,
+  onNext,
+  onToggleQueue,
+  onPost,
+  onSave,
+}: MiniPlayerBarProps) {
   const isPlayable = Boolean(currentMusic);
 
   const handleTogglePlayClick = () => {
@@ -29,11 +48,21 @@ export default function MiniPlayerBar({ currentMusic, isPlaying, onTogglePlay, o
   };
 
   const handlePrevClick = () => {
+    if (!canPrev) {
+      return;
+    }
     onPrev();
   };
 
   const handleNextClick = () => {
+    if (!canNext) {
+      return;
+    }
     onNext();
+  };
+
+  const handleToggleQueueClick = () => {
+    onToggleQueue();
   };
 
   const handlePostClick = () => {
@@ -44,8 +73,10 @@ export default function MiniPlayerBar({ currentMusic, isPlaying, onTogglePlay, o
     onSave();
   };
 
+  const queueTitle = isQueueOpen ? '재생목록 닫기' : '재생목록 열기';
+
   return (
-    <section className="flex lg:hidden h-full items-center gap-3 px-4 bg-white">
+    <section className="relative z-50 flex lg:hidden h-full items-center gap-3 px-4 bg-white">
       <div className="w-12 h-12 rounded border border-gray-3 overflow-hidden bg-gray-4 shrink-0">
         {currentMusic ? <img src={currentMusic.albumCoverUrl} alt={currentMusic.title} className="w-full h-full object-cover" /> : null}
       </div>
@@ -55,13 +86,13 @@ export default function MiniPlayerBar({ currentMusic, isPlaying, onTogglePlay, o
         <p className="text-xs font-bold text-gray-1 truncate">{currentMusic ? currentMusic.artistName : ' '}</p>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={handlePrevClick}
-          disabled
-          title={DISABLED_ACTION_TITLE}
-          className="p-2 text-gray-2 opacity-50 cursor-not-allowed"
+          disabled={!canPrev}
+          title={canPrev ? '이전 곡' : '이전 곡 없음'}
+          className="p-2 text-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipBack className="w-5 h-5" />
         </button>
@@ -79,13 +110,24 @@ export default function MiniPlayerBar({ currentMusic, isPlaying, onTogglePlay, o
         <button
           type="button"
           onClick={handleNextClick}
-          disabled
-          title={DISABLED_ACTION_TITLE}
-          className="p-2 text-gray-2 opacity-50 cursor-not-allowed"
+          disabled={!canNext}
+          title={canNext ? '다음 곡' : '다음 곡 없음'}
+          className="p-2 text-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipForward className="w-5 h-5" />
         </button>
 
+        {/* 재생목록 열기/닫기 */}
+        <button
+          type="button"
+          onClick={handleToggleQueueClick}
+          title={queueTitle}
+          className="p-2 text-primary hover:bg-gray-4 rounded-full transition-colors"
+        >
+          <ListPlus className="w-5 h-5" />
+        </button>
+
+        {/* Quick Actions: 이번 이슈에서는 disabled */}
         <button
           type="button"
           onClick={handlePostClick}
