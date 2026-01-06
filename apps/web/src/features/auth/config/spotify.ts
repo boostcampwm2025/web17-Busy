@@ -11,4 +11,13 @@ export const SPOTIFY_SCOPES = [
 
 export const SPOTIFY_COOKIE_KEYS = {
   PKCE_VERIFIER: 'spotify_pkce_verifier',
-};
+  OAUTH_STATE: 'spotify_oauth_state',
+} as const;
+
+export const SPOTIFY_OAUTH_TMP_COOKIE_OPTIONS = {
+  httpOnly: true,
+  path: '/api/auth/spotify',
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 60 * 10, // 10분
+} as const;
