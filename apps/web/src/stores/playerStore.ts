@@ -22,6 +22,9 @@ interface PlayerActions {
   playMusic: (music: Music) => void;
   togglePlay: () => void;
 
+  playPrev: () => void;
+  playNext: () => void;
+
   addToQueue: (music: Music | Music[]) => void;
   removeFromQueue: (musicId: string) => void;
 
@@ -69,6 +72,20 @@ const swap = (queue: Music[], from: number, to: number): Music[] => {
   return next;
 };
 
+const ensureCurrentInQueue = (queue: Music[], current: Music | null): Music[] => {
+  if (!current) {
+    return queue;
+  }
+  return prependIfMissing(queue, current);
+};
+
+const findCurrentIndex = (queue: Music[], current: Music | null): number => {
+  if (!current) {
+    return -1;
+  }
+  return queue.findIndex((item) => item.musicId === current.musicId);
+};
+
 /**
  * usePlayerStore
  * - 컴포넌트에서 usePlayerStore((s) => s.currentMusic) 형태로 구독 가능
@@ -102,6 +119,48 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   /** 재생/일시정지 UI 상태만 토글 (실제 Spotify 재생 호출은 비범위) */
   togglePlay: () => {
     set((state) => ({ isPlaying: !state.isPlaying }));
+  },
+
+  playPrev: () => {
+    const { currentMusic, queue, isPlaying } = get();
+    const normalizedQueue = ensureCurrentInQueue(queue, currentMusic);
+    const currentIndex = findCurrentIndex(normalizedQueue, currentMusic);
+
+    if (currentIndex <= 0) {
+      return;
+    }
+
+    set({
+      queue: normalizedQueue,
+      currentMusic: normalizedQueue[currentIndex - 1] ?? null,
+      isPlaying,
+    });
+  },
+
+  playNext: () => {
+    const { currentMusic, queue, isPlaying } = get();
+    const normalizedQueue = ensureCurrentInQueue(queue, currentMusic);
+    const currentIndex = findCurrentIndex(normalizedQueue, currentMusic);
+
+    if (normalizedQueue.length === 0) {
+      return;
+    }
+
+    // currentMusic이 큐에 없으면 0번째로 이동
+    if (currentIndex === -1) {
+      set({ queue: normalizedQueue, currentMusic: normalizedQueue[0] ?? null, isPlaying });
+      return;
+    }
+
+    if (currentIndex >= normalizedQueue.length - 1) {
+      return;
+    }
+
+    set({
+      queue: normalizedQueue,
+      currentMusic: normalizedQueue[currentIndex + 1] ?? null,
+      isPlaying,
+    });
   },
 
   /** 큐에 음악 추가 (중복은 제거 후 뒤에 append) */
