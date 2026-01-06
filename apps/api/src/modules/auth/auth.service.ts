@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { URLSearchParams } from 'url';
-import {
-  SpotifyGetCurrentUserResponse as SpotifyCurrentUserResponse,
-  SpotifyTokenResponse,
-} from './types';
+import { SpotifyCurrentUserResponse, SpotifyTokenResponse } from './types';
 
 @Injectable()
 export class AuthService {
@@ -30,14 +27,49 @@ export class AuthService {
 
     const raw = (await res.json()) as SpotifyTokenResponse;
 
-    // raw에서 필요한 것만 return
+    // raw에서 요한 것만 return
     return {
       accessToken: raw.access_token,
       refreshToken: raw.refresh_token,
     };
   }
 
-  async verifyUser(accessToken: string, refreshToken: string) {}
+  async verifyUser(accessToken: string, refreshToken: string) {
+    const apiBaseUrl = 'https://api.spotify.com/v1';
+    const url = apiBaseUrl + '/me';
+    const res = await fetch(url, {
+      headers: {
+        Authorization: 'Bearer ' + accessToken,
+      },
+    });
+
+    if (!res.ok) {
+      // todo - 예외 처리
+    }
+
+    const raw = (await res.json()) as SpotifyCurrentUserResponse;
+
+    const {
+      id: providerUserId,
+      display_name: nickname,
+      // email,
+    } = raw;
+
+    const profileImgUrl = raw.images[0]?.url;
+
+    // user type?
+    const user = await userService.verifyUser({
+      nickname,
+      provider: 'spotify',
+      providerUserId,
+      // email,
+      profileImgUrl,
+      refreshToken,
+    });
+
+    // jwt 생성에 사용
+    return user;
+  }
 
   buildJwtWith() {}
 }

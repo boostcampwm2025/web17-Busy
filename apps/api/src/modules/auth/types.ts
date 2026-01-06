@@ -6,7 +6,7 @@ export type SpotifyTokenResponse = {
   refresh_token: string;
 };
 
-export type SpotifyGetCurrentUserResponse = {
+export type SpotifyCurrentUserResponse = {
   country: string;
   display_name: string;
   email: string;
