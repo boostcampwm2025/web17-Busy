@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   // access token - url fragment로 브라우저에 전달
   const url = new URL('/', request.url);
-  url.hash = `spotifyAccessToken=${encodeURIComponent(result.spotifyAccessToken)}`;
+  url.hash = `spotifyAccessToken=${encodeURIComponent(result.spotifyAccessToken)}&spotifyTokenExpiresIn=${encodeURIComponent(result.spotifyTokenExpiresIn)}`;
 
   const res = NextResponse.redirect('/');
   deleteTmpCookies(res);

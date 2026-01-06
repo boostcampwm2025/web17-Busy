@@ -24,6 +24,7 @@ export async function exchangeSpotifyCodeWithBackend(args: { code: string; verif
 
   const data = (await res.json()) as {
     spotifyAccessToken: string;
+    spotifyTokenExpiresIn: number;
     appJwt: string;
   };
   return { ok: true as const, ...data };

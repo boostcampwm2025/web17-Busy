@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ExchangeTokenDto } from './dto/exchangeDto';
 
@@ -19,11 +19,12 @@ export class AuthController {
 
     return {
       spotifyAccessToken: spotifyTokens.accessToken,
+      spotifyTokenExpiresIn: spotifyTokens.expiresIn,
       appJwt,
     };
   }
 
-  @Post('spotify/refresh')
+  @Get('spotify/token')
   refresh() {
     // todo
     // access token 새로 받아오기

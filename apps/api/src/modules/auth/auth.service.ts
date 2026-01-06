@@ -18,6 +18,7 @@ export class AuthService {
     verifier: string,
   ): Promise<{
     accessToken: string;
+    expiresIn: number;
     refreshToken: string;
   }> {
     const tokenUrl = this.configService.get<string>('SPOTIFY_TOKEN_URL')!;
@@ -45,6 +46,7 @@ export class AuthService {
 
     return {
       accessToken: spotifyTokenResponse.access_token,
+      expiresIn: spotifyTokenResponse.expires_in,
       refreshToken: spotifyTokenResponse.refresh_token,
     };
   }
@@ -58,7 +60,7 @@ export class AuthService {
 
     const res = await fetch(url, {
       headers: {
-        Authorization: 'Bearer ' + spotifyTokens.accessToken,
+        Authorization: `Bearer ${spotifyTokens.accessToken}`,
       },
     });
 
