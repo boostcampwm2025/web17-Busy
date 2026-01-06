@@ -16,15 +16,17 @@ export default function Sidebar() {
   const [activeItem, setActiveItem] = useState(pathname === '/' ? SidebarItemType.HOME : pathname.slice(1));
   const [activeDrawer, setActiveDrawer] = useState<SidebarItemType | null>(null);
 
-  /** 사이드바 확장 토글 핸들러 */
+  /** 사이드바 확장 상태 토글 핸들러 */
   const handleToggleSidebar = () => setIsExpanded((prev) => !prev);
 
   /** 버튼 아이템 클릭 이벤트 핸들러 */
   const handleItemClick = (type: SidebarItemType) => {
     setActiveItem(type); // 선택한 버튼 아이템 활성화
+    activeDrawer && setActiveDrawer(null); // 열려있는 드로어 있으면 닫기
 
     // 드로어 아이템이면 사이드바 닫고 해당 type 드로어 활성화
     if (drawerTypes.includes(type)) {
+      if (activeDrawer === type) return;
       isExpanded && handleToggleSidebar();
       setActiveDrawer(type);
     }
