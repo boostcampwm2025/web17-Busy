@@ -9,16 +9,18 @@ export class AuthController {
   @Post('spotify/exchange')
   async exchange(@Body() { code, verifier }: ExchangeTokenDto) {
     // 1. get access token by authorization code
-    const { accessToken, refreshToken } = await this.authService.exchange(
-      code,
-      verifier,
-    );
+    const spotifyTokens = await this.authService.exchange(code, verifier);
 
     // 2. request user info
-    this.authService.verifyUser(accessToken, refreshToken);
+    const user = await this.authService.handleSpotifySignIn(spotifyTokens);
 
-    // 3. build jwt by user info
-    this.authService.buildJwtWith();
+    // 3. issue jwt by user info
+    const appJwt = await this.authService.issueJwt(user);
+
+    return {
+      spotifyAccessToken: spotifyTokens.accessToken,
+      appJwt,
+    };
   }
 
   @Post('spotify/refresh')

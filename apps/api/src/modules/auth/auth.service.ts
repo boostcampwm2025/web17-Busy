@@ -2,12 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { URLSearchParams } from 'url';
 import { SpotifyCurrentUserResponse, SpotifyTokenResponse } from './types';
 import { UserService } from '../user/user.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async exchange(code: string, verifier: string) {
+  async exchange(
+    code: string,
+    verifier: string,
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
     const tokenUrl = 'https://accounts.spotify.com/api/token';
 
     const res = await fetch(tokenUrl, {
@@ -28,21 +38,24 @@ export class AuthService {
       // todo - 예외 처리
     }
 
-    const raw = (await res.json()) as SpotifyTokenResponse;
+    const spotifyTokenResponse = (await res.json()) as SpotifyTokenResponse;
 
-    // raw에서 요한 것만 return
     return {
-      accessToken: raw.access_token,
-      refreshToken: raw.refresh_token,
+      accessToken: spotifyTokenResponse.access_token,
+      refreshToken: spotifyTokenResponse.refresh_token,
     };
   }
 
-  async verifyUser(accessToken: string, refreshToken: string) {
+  async handleSpotifySignIn(spotifyTokens: {
+    accessToken: string;
+    refreshToken: string;
+  }) {
     const apiBaseUrl = 'https://api.spotify.com/v1';
     const url = apiBaseUrl + '/me';
+
     const res = await fetch(url, {
       headers: {
-        Authorization: 'Bearer ' + accessToken,
+        Authorization: 'Bearer ' + spotifyTokens.accessToken,
       },
     });
 
@@ -50,29 +63,41 @@ export class AuthService {
       // todo - 예외 처리
     }
 
-    const raw = (await res.json()) as SpotifyCurrentUserResponse;
+    const spotifyCurrentUserResponse =
+      (await res.json()) as SpotifyCurrentUserResponse;
 
     const {
-      id: providerUserId,
+      id: spotifyUserId,
       display_name: nickname,
-      // email,
-    } = raw;
+      email,
+      images,
+    } = spotifyCurrentUserResponse;
+    const profileImgUrl = images[0]?.url;
 
-    const profileImgUrl = raw.images[0]?.url;
-
-    // user type?
-    const user = await this.userService.verifyUser({
+    // user entity 설계 다시 해야 할 듯
+    const user = await this.userService.findOrCreateBySpotify(spotifyUserId, {
       nickname,
-      provider: 'spotify',
-      providerUserId,
-      // email,
+      email,
       profileImgUrl,
-      refreshToken,
+      refreshToken: spotifyTokens.refreshToken,
     });
 
     // jwt 생성에 사용
     return user;
   }
 
-  buildJwtWith() {}
+  async issueJwt(user: any) {
+    const payload = {
+      sub: user.id,
+      // exp: ,
+      // iat: ,
+      // iss: ,
+      // aud: ,
+
+      nickname: user.nickname,
+      profileImgUrl: user.profileImgUrl,
+    };
+
+    return await this.jwtService.signAsync(payload, {});
+  }
 }

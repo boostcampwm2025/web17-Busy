@@ -2,17 +2,13 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
-  async verifyUser({
-    nickname,
-    provider,
-    providerUserId,
-    profileImgUrl,
-    refreshToken,
-  }: {
-    nickname: string;
-    provider: string;
-    providerUserId: string;
-    profileImgUrl: string;
-    refreshToken: string;
-  }) {}
+  async findOrCreateBySpotify(
+    spotifyUserId: string,
+    profile: {
+      nickname: string;
+      email: string;
+      profileImgUrl: string;
+      refreshToken: string;
+    },
+  ) {}
 }
