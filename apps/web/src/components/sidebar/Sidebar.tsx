@@ -3,30 +3,52 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Bell, Box, Home, LogIn, Menu, PlusCircle, RefreshCcw, Search, Settings, User } from 'lucide-react';
-import { SidebarItemType } from '@/types/sidebar';
+import { drawerTypes, SidebarItemType } from '@/types/sidebar';
 import MenuButton from './MenuButton';
+import Drawer from './Drawer';
 
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeItem, setActiveItem] = useState(pathname === '/' ? 'home' : pathname.slice(1));
+  const [activeItem, setActiveItem] = useState(pathname === '/' ? SidebarItemType.HOME : pathname.slice(1));
+  const [activeDrawer, setActiveDrawer] = useState<SidebarItemType | null>(null);
+
+  const isSearchOpen = activeDrawer === SidebarItemType.SEARCH && activeItem === SidebarItemType.SEARCH;
+  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATIONS && activeItem === SidebarItemType.NOTIFICATIONS;
+  const isSyncOpen = activeDrawer === SidebarItemType.SYNC && activeItem === SidebarItemType.SYNC;
 
   const toggleSidebar = () => setIsExpanded((prev) => !prev);
 
   const menuItems = [
-    { type: SidebarItemType.HOME, icon: Home, label: '홈', handleClick: () => router.push('/') },
-    { type: SidebarItemType.SEARCH, icon: Search, label: '검색', handleClick: () => isExpanded && toggleSidebar() },
-    { type: SidebarItemType.NOTIFICATIONS, icon: Bell, label: '알림', handleClick: () => isExpanded && toggleSidebar() },
-    { type: SidebarItemType.ARCHIVE, icon: Box, label: '보관함', handleClick: () => router.push('/') },
-    { type: SidebarItemType.SYNC, icon: RefreshCcw, label: 'Sync / 협업', handleClick: () => {} },
-    { type: SidebarItemType.PROFILE, icon: User, label: '프로필', handleClick: () => router.push('/profile') },
-    { type: SidebarItemType.SETTINGS, icon: Settings, label: '설정', handleClick: () => {} },
+    { type: SidebarItemType.HOME, icon: Home, label: '홈' },
+    { type: SidebarItemType.SEARCH, icon: Search, label: '검색' },
+    { type: SidebarItemType.NOTIFICATIONS, icon: Bell, label: '알림' },
+    { type: SidebarItemType.ARCHIVE, icon: Box, label: '보관함' },
+    { type: SidebarItemType.SYNC, icon: RefreshCcw, label: 'Sync / 협업' },
+    { type: SidebarItemType.PROFILE, icon: User, label: '프로필' },
+    { type: SidebarItemType.SETTINGS, icon: Settings, label: '설정' },
   ];
+
+  const handleItemClick = (type: SidebarItemType) => {
+    // 선택한 버튼 아이템 활성화
+    setActiveItem(type);
+
+    // 드로어 아이템이면 사이드바 닫고 해당 type 드로어 활성화
+    if (drawerTypes.includes(type)) {
+      isExpanded && toggleSidebar();
+      setActiveDrawer(type);
+    }
+    // 내비게이션 아이템이면 해당 type 경로로 라우팅 처리
+    else {
+      router.push(type === SidebarItemType.HOME ? '/' : type);
+    }
+  };
 
   return (
     <div className="flex h-full relative z-30">
+      {/** 메뉴 버튼 영역 */}
       <nav
         className={`
           h-full bg-white border-r-2 border-primary flex flex-col justify-between py-6 transition-all duration-200 ease-in-out relative z-40 overflow-y-scroll
@@ -57,10 +79,7 @@ export default function Sidebar() {
               key={item.type}
               Icon={item.icon}
               label={item.label}
-              handleClick={() => {
-                setActiveItem(item.type);
-                item.handleClick();
-              }}
+              handleClick={() => handleItemClick(item.type)}
               isActive={item.type === activeItem}
               shouldShowSpan={isExpanded}
             />
@@ -71,7 +90,7 @@ export default function Sidebar() {
           {/* 컨텐츠 생성 버튼 */}
           <button
             className={`
-              flex items-center p-3 rounded-xl transition-all duration-200 group mb-2
+              flex items-center p-3 rounded-xl transition-all duration-150 mb-2
               bg-primary text-white hover:bg-secondary hover:shadow-[2px_2px_0px_0px_#00ebc7]
             `}
             title="생성"
@@ -87,6 +106,19 @@ export default function Sidebar() {
           {isExpanded && <span className="ml-4 font-medium text-sm hover:font-bold">로그인</span>}
         </button>
       </nav>
+
+      {/** 드로어(drawer) 영역 */}
+      <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded}>
+        <div className="flex h-full justify-center items-center text-lg">검색 드로어</div>
+      </Drawer>
+
+      <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
+        <div className="flex h-full justify-center items-center text-lg">알림 드로어</div>
+      </Drawer>
+
+      <Drawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
+        <div className="flex h-full justify-center items-center text-lg">협업 드로어</div>
+      </Drawer>
     </div>
   );
 }

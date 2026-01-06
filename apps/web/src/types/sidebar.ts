@@ -8,3 +8,5 @@ export enum SidebarItemType {
   SETTINGS = 'settings',
   CREATE = 'create',
 }
+
+export const drawerTypes = [SidebarItemType.SEARCH, SidebarItemType.NOTIFICATIONS, SidebarItemType.SYNC];
