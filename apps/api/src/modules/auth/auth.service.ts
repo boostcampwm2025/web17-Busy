@@ -82,18 +82,12 @@ export class AuthService {
       refreshToken: spotifyTokens.refreshToken,
     });
 
-    // jwt 생성에 사용
     return user;
   }
 
   async issueJwt(user: any) {
     const payload = {
       sub: user.id,
-      // exp: ,
-      // iat: ,
-      // iss: ,
-      // aud: ,
-
       nickname: user.nickname,
       profileImgUrl: user.profileImgUrl,
     };
