@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useModalStore } from '@components/stores/useModalStore';
+import { useModalStore } from '@/stores/useModalStore';
 import { X, FolderOpen } from 'lucide-react';
 import { Music, Playlist } from '@/types';
 

@@ -2,7 +2,7 @@
 
 import { LogIn, Menu, PlusCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useModalStore, MODAL_TYPES } from '@components/stores/useModalStore';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
