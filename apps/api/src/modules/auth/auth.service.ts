@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { URLSearchParams } from 'url';
 import { SpotifyCurrentUserResponse, SpotifyTokenResponse } from './types';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
+  constructor(private readonly userService: UserService) {}
+
   async exchange(code: string, verifier: string) {
     const tokenUrl = 'https://accounts.spotify.com/api/token';
 
@@ -58,7 +61,7 @@ export class AuthService {
     const profileImgUrl = raw.images[0]?.url;
 
     // user type?
-    const user = await userService.verifyUser({
+    const user = await this.userService.verifyUser({
       nickname,
       provider: 'spotify',
       providerUserId,
