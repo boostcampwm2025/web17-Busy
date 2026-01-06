@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Sidebar from '@components/sidebar/Sidebar';
+import Sidebar from '@/components/sidebar/Sidebar';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
