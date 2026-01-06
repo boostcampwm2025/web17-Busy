@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Sidebar from '@components/sidebar/Sidebar';
+import ModalContainer from '@components/modals/ModalContainer';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -15,6 +16,8 @@ export default function RootLayout({
   return (
     <html lang="kr">
       <body>
+        <ModalContainer />
+
         <div className="flex h-screen">
           {/* 좌측 사이드바 영역 */}
           <Sidebar />

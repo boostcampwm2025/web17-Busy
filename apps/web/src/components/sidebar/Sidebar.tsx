@@ -2,9 +2,12 @@
 
 import { LogIn, Menu, PlusCircle } from 'lucide-react';
 import { useState } from 'react';
+import { useModalStore, MODAL_TYPES } from '@components/stores/useModalStore';
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const { openModal } = useModalStore();
 
   const toggleSidebar = () => setIsExpanded((prev) => !prev);
 
@@ -43,6 +46,7 @@ export default function Sidebar() {
 
           {/* 컨텐츠 생성 버튼 */}
           <button
+            onClick={() => openModal(MODAL_TYPES.WRITE)}
             className={`
               flex items-center p-3 rounded-xl transition-all duration-200 group mb-2
               bg-primary text-white hover:bg-secondary hover:shadow-[3px_3px_0px_0px_#00ebc7]
