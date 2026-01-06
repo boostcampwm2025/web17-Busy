@@ -2,8 +2,9 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Bell, Box, Home, LogIn, Menu, PlusCircle, RefreshCcw, Search, Settings, User } from 'lucide-react';
+import { LogIn, Menu, PlusCircle } from 'lucide-react';
 import { drawerTypes, SidebarItemType } from '@/types/sidebar';
+import { menuItems } from '@/constants/sidebar';
 import MenuButton from './MenuButton';
 import Drawer from './Drawer';
 
@@ -15,29 +16,16 @@ export default function Sidebar() {
   const [activeItem, setActiveItem] = useState(pathname === '/' ? SidebarItemType.HOME : pathname.slice(1));
   const [activeDrawer, setActiveDrawer] = useState<SidebarItemType | null>(null);
 
-  const isSearchOpen = activeDrawer === SidebarItemType.SEARCH && activeItem === SidebarItemType.SEARCH;
-  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATIONS && activeItem === SidebarItemType.NOTIFICATIONS;
-  const isSyncOpen = activeDrawer === SidebarItemType.SYNC && activeItem === SidebarItemType.SYNC;
+  /** 사이드바 확장 토글 핸들러 */
+  const handleToggleSidebar = () => setIsExpanded((prev) => !prev);
 
-  const toggleSidebar = () => setIsExpanded((prev) => !prev);
-
-  const menuItems = [
-    { type: SidebarItemType.HOME, icon: Home, label: '홈' },
-    { type: SidebarItemType.SEARCH, icon: Search, label: '검색' },
-    { type: SidebarItemType.NOTIFICATIONS, icon: Bell, label: '알림' },
-    { type: SidebarItemType.ARCHIVE, icon: Box, label: '보관함' },
-    { type: SidebarItemType.SYNC, icon: RefreshCcw, label: 'Sync / 협업' },
-    { type: SidebarItemType.PROFILE, icon: User, label: '프로필' },
-    { type: SidebarItemType.SETTINGS, icon: Settings, label: '설정' },
-  ];
-
+  /** 버튼 아이템 클릭 이벤트 핸들러 */
   const handleItemClick = (type: SidebarItemType) => {
-    // 선택한 버튼 아이템 활성화
-    setActiveItem(type);
+    setActiveItem(type); // 선택한 버튼 아이템 활성화
 
     // 드로어 아이템이면 사이드바 닫고 해당 type 드로어 활성화
     if (drawerTypes.includes(type)) {
-      isExpanded && toggleSidebar();
+      isExpanded && handleToggleSidebar();
       setActiveDrawer(type);
     }
     // 내비게이션 아이템이면 해당 type 경로로 라우팅 처리
@@ -45,6 +33,10 @@ export default function Sidebar() {
       router.push(type === SidebarItemType.HOME ? '/' : type);
     }
   };
+
+  const isSearchOpen = activeDrawer === SidebarItemType.SEARCH && activeItem === SidebarItemType.SEARCH;
+  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATIONS && activeItem === SidebarItemType.NOTIFICATIONS;
+  const isSyncOpen = activeDrawer === SidebarItemType.SYNC && activeItem === SidebarItemType.SYNC;
 
   return (
     <div className="flex h-full relative z-30">
@@ -58,7 +50,7 @@ export default function Sidebar() {
         {/* 사이드바 열기/닫기 버튼 */}
         <div className="px-4 mb-8 flex items-center justify-between">
           <button
-            onClick={toggleSidebar}
+            onClick={handleToggleSidebar}
             className="p-2 rounded-lg transition-colors border-2 border-transparent hover:bg-accent-cyan hover:border-primary"
             title="사이드바 열기"
           >
