@@ -37,7 +37,7 @@ export default function Sidebar() {
   };
 
   const isSearchOpen = activeDrawer === SidebarItemType.SEARCH && activeItem === SidebarItemType.SEARCH;
-  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATIONS && activeItem === SidebarItemType.NOTIFICATIONS;
+  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION && activeItem === SidebarItemType.NOTIFICATION;
   const isSyncOpen = activeDrawer === SidebarItemType.SYNC && activeItem === SidebarItemType.SYNC;
 
   return (

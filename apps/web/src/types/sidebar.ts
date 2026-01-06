@@ -1,12 +1,12 @@
 export enum SidebarItemType {
   PROFILE = 'profile',
   SEARCH = 'search',
-  NOTIFICATIONS = 'notifications',
+  NOTIFICATION = 'notification',
   ARCHIVE = 'archive',
   SYNC = 'sync',
   HOME = 'home',
-  SETTINGS = 'settings',
+  SETTING = 'setting',
   CREATE = 'create',
 }
 
-export const drawerTypes = [SidebarItemType.SEARCH, SidebarItemType.NOTIFICATIONS, SidebarItemType.SYNC];
+export const drawerTypes = [SidebarItemType.SEARCH, SidebarItemType.NOTIFICATION, SidebarItemType.SYNC];
