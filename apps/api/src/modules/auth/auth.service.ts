@@ -3,12 +3,14 @@ import { URLSearchParams } from 'url';
 import { SpotifyCurrentUserResponse, SpotifyTokenResponse } from './types';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async exchange(
@@ -18,7 +20,7 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
   }> {
-    const tokenUrl = 'https://accounts.spotify.com/api/token';
+    const tokenUrl = this.configService.get<string>('SPOTIFY_TOKEN_URL')!;
 
     const res = await fetch(tokenUrl, {
       method: 'POST',
@@ -26,10 +28,10 @@ export class AuthService {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: '',
+        client_id: this.configService.get<string>('SPOTIFY_CLIENT_ID')!,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: '',
+        redirect_uri: this.configService.get<string>('SPOTIFY_REDIRECT_URI')!,
         code_verifier: verifier,
       }),
     });
@@ -50,7 +52,7 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
   }) {
-    const apiBaseUrl = 'https://api.spotify.com/v1';
+    const apiBaseUrl = this.configService.get<string>('SPOTIFY_API_BASE_URL')!;
     const url = apiBaseUrl + '/me';
 
     const res = await fetch(url, {
