@@ -22,12 +22,16 @@ export async function GET(request: NextRequest) {
   if (stateCookie !== stateQuery) return redirectAuthFail(request, 'state_mismatch');
 
   const result = await exchangeSpotifyCodeWithBackend({ code, verifier });
-
   if (!result.ok) return redirectAuthFail(request, 'token_exchange_failed');
+
+  // access token - url fragment로 브라우저에 전달
+  const url = new URL('/', request.url);
+  url.hash = `spotifyAccessToken=${encodeURIComponent(result.spotifyAccessToken)}`;
 
   const res = NextResponse.redirect('/');
   deleteTmpCookies(res);
 
+  // jwt - http only cookie로 브라우저에 전달
   res.cookies.set('jwt', result.appJwt, {
     httpOnly: true,
     secure: true,
@@ -35,7 +39,6 @@ export async function GET(request: NextRequest) {
     path: '/',
   });
 
-  // todo access token은?
   return res;
 }
 
