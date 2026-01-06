@@ -45,7 +45,7 @@ export default function Sidebar() {
       {/** 메뉴 버튼 영역 */}
       <nav
         className={`
-          h-full bg-white border-r-2 border-primary flex flex-col justify-between py-6 transition-all duration-200 ease-in-out relative z-40 overflow-y-scroll
+          h-full bg-white border-r-2 border-primary flex flex-col justify-between py-6 transition-all duration-200 ease-in-out relative z-40 overflow-y-auto
           ${isExpanded ? 'w-64' : 'w-20'}
         `}
       >
@@ -90,14 +90,14 @@ export default function Sidebar() {
             title="생성"
           >
             <PlusCircle className="w-6 h-6" />
-            {isExpanded && <span className="ml-4 font-bold">생성</span>}
+            {isExpanded && <span className="ml-4 font-bold whitespace-nowrap overflow-hidden">생성</span>}
           </button>
         </div>
 
         {/* 로그인/로그아웃 버튼 */}
         <button className="flex items-center p-6" title="로그인">
           <LogIn className="w-6 h-6" />
-          {isExpanded && <span className="ml-4 font-medium text-sm hover:font-bold">로그인</span>}
+          {isExpanded && <span className="ml-4 font-medium text-sm hover:font-bold whitespace-nowrap overflow-hidden">로그인</span>}
         </button>
       </nav>
 
