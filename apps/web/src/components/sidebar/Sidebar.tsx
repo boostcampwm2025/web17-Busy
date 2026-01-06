@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { LogIn, Menu, PlusCircle } from 'lucide-react';
-import { drawerTypes, SidebarItemType } from '@/types/sidebar';
+import { drawerTypes, SidebarItemType, SidebarItemTypeValues } from '@/types/sidebar';
 import { menuItems } from '@/constants/sidebar';
 import MenuButton from './MenuButton';
 import Drawer from './Drawer';
@@ -14,18 +14,18 @@ export default function Sidebar() {
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeItem, setActiveItem] = useState(pathname === '/' ? SidebarItemType.HOME : pathname.slice(1));
-  const [activeDrawer, setActiveDrawer] = useState<SidebarItemType | null>(null);
+  const [activeDrawer, setActiveDrawer] = useState<SidebarItemTypeValues | null>(null);
 
   /** 사이드바 확장 상태 토글 핸들러 */
   const handleToggleSidebar = () => setIsExpanded((prev) => !prev);
 
   /** 버튼 아이템 클릭 이벤트 핸들러 */
-  const handleItemClick = (type: SidebarItemType) => {
+  const handleItemClick = (type: SidebarItemTypeValues) => {
     setActiveItem(type); // 선택한 버튼 아이템 활성화
     activeDrawer && setActiveDrawer(null); // 열려있는 드로어 있으면 닫기
 
     // 드로어 아이템이면 사이드바 닫고 해당 type 드로어 활성화
-    if (drawerTypes.includes(type)) {
+    if ((drawerTypes as readonly SidebarItemTypeValues[]).includes(type)) {
       if (activeDrawer === type) return;
       isExpanded && handleToggleSidebar();
       setActiveDrawer(type);
