@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { URLSearchParams } from 'url';
 import { SpotifyCurrentUserResponse, SpotifyTokenResponse } from './types';
 import { UserService } from '../user/user.service';
@@ -38,6 +38,7 @@ export class AuthService {
 
     if (!res.ok) {
       // todo - 예외 처리
+      throw new UnauthorizedException('Access Token 받는 데 실패했습니다.');
     }
 
     const spotifyTokenResponse = (await res.json()) as SpotifyTokenResponse;
@@ -63,6 +64,9 @@ export class AuthService {
 
     if (!res.ok) {
       // todo - 예외 처리
+      throw new UnauthorizedException(
+        'Spotify에서 사용자의 정보를 불러들이는데 실패했습니다.',
+      );
     }
 
     const spotifyCurrentUserResponse =
@@ -77,17 +81,24 @@ export class AuthService {
     const profileImgUrl = images[0]?.url;
 
     // user entity 설계 다시 해야 할 듯
-    const user = await this.userService.findOrCreateBySpotify(spotifyUserId, {
-      nickname,
-      email,
-      profileImgUrl,
-      refreshToken: spotifyTokens.refreshToken,
-    });
+    const user = await this.userService.findOrCreateBySpotifyUserId(
+      spotifyUserId,
+      {
+        nickname,
+        email,
+        profileImgUrl,
+        refreshToken: spotifyTokens.refreshToken,
+      },
+    );
 
     return user;
   }
 
-  async issueJwt(user: any) {
+  async issueJwt(user: {
+    id: string;
+    nickname: string;
+    profileImgUrl?: string;
+  }) {
     const payload = {
       sub: user.id,
       nickname: user.nickname,
