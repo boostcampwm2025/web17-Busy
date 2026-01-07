@@ -5,34 +5,43 @@ import { Music, Playlist } from '@/types';
 // 목업 데이터 | 음악, {내 플레이리스트}
 const MOCK_MUSICS: Music[] = [
   {
-    id: '1',
+    musicId: '1',
     title: 'we cant be friends',
-    artist: 'Ariana Grande',
-    coverUrl: 'https://i.scdn.co/image/ab67616d0000b273c09e663da6711c2653303c6a',
+    artistName: 'Ariana Grande',
+    albumCoverUrl: 'https://i.scdn.co/image/ab67616d0000b273c09e663da6711c2653303c6a',
+    trackUri: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
+    provider: 'SPOTIFY',
+    durationMs: 300,
   },
   {
-    id: '2',
+    musicId: '2',
     title: 'Die For You',
-    artist: 'The Weekend',
-    coverUrl: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
+    artistName: 'The Weekend',
+    albumCoverUrl: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
+    trackUri: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
+    provider: 'SPOTIFY',
+    durationMs: 300,
   },
   {
-    id: '3',
+    musicId: '3',
     title: 'Ditto',
-    artist: 'NewJeans',
-    coverUrl: 'https://i.scdn.co/image/ab67616d0000b2739d28fd018590e3a6c116d447',
+    artistName: 'NewJeans',
+    albumCoverUrl: 'https://i.scdn.co/image/ab67616d0000b2739d28fd018590e3a6c116d447',
+    trackUri: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
+    provider: 'SPOTIFY',
+    durationMs: 300,
   },
 ];
 
 const MOCK_PLAYLISTS: Playlist[] = [
   {
-    id: 'p1',
-    name: '비 오는 날 듣기 좋은 노래',
+    playlistId: 'p1',
+    title: '비 오는 날 듣기 좋은 노래',
     musics: [MOCK_MUSICS[0]!, MOCK_MUSICS[1]!],
   },
   {
-    id: 'p2',
-    name: '노동요',
+    playlistId: 'p2',
+    title: '노동요',
     musics: [MOCK_MUSICS[2]!],
   },
 ];
@@ -51,7 +60,7 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
 
   // 실제 필터링 로직 (API 연동 시 여기서 호출하거나 상위에서 받아옴)
   const filteredMusics = MOCK_MUSICS.filter(
-    (s) => s.title.toLowerCase().includes(searchQuery.toLowerCase()) || s.artist.toLowerCase().includes(searchQuery.toLowerCase()),
+    (s) => s.title.toLowerCase().includes(searchQuery.toLowerCase()) || s.artistName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -88,7 +97,7 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
                 {MOCK_PLAYLISTS.length > 0 ? (
                   MOCK_PLAYLISTS.map((playlist) => (
                     <button
-                      key={playlist.id}
+                      key={playlist.playlistId}
                       onClick={() => onAddPlaylist(playlist)}
                       className="w-full flex items-center px-4 py-3 hover:bg-gray-4 transition-colors text-left group"
                     >
@@ -96,14 +105,14 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
                         <div className="absolute top-1 right-[-4px] w-10 h-10 bg-gray-2 border border-gray-3 rounded-lg transform rotate-6"></div>
                         <div className="absolute top-0.5 right-[-2px] w-10 h-10 bg-gray-3 border border-gray-3 rounded-lg transform rotate-3"></div>
                         <img
-                          src={playlist.musics[0]?.coverUrl}
+                          src={playlist.musics[0]?.albumCoverUrl}
                           alt="playlist"
                           className="relative w-10 h-10 rounded-lg border border-gray-3 object-cover z-10"
                         />
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-sm text-primary truncate group-hover:text-accent-cyan transition-colors">{playlist.name}</p>
+                        <p className="font-bold text-sm text-primary truncate group-hover:text-accent-cyan transition-colors">{playlist.title}</p>
                         <div className="flex items-center text-xs text-gray-1 mt-0.5">
                           <Library className="w-3 h-3 mr-1" />
                           <span>{playlist.musics.length}곡</span>
@@ -130,14 +139,14 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
                 {filteredMusics.length > 0 ? (
                   filteredMusics.map((music) => (
                     <button
-                      key={music.id}
+                      key={music.musicId}
                       onClick={() => onAddMusic(music)}
                       className="w-full flex items-center px-4 py-2 hover:bg-gray-4 transition-colors text-left group"
                     >
-                      <img src={music.coverUrl} alt="art" className="w-10 h-10 rounded object-cover mr-3 border border-gray-3" />
+                      <img src={music.albumCoverUrl} alt="art" className="w-10 h-10 rounded object-cover mr-3 border border-gray-3" />
                       <div>
                         <p className="font-bold text-sm text-primary group-hover:text-accent-cyan transition-colors">{music.title}</p>
-                        <p className="text-xs text-gray-1">{music.artist}</p>
+                        <p className="text-xs text-gray-1">{music.artistName}</p>
                       </div>
                     </button>
                   ))

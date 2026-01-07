@@ -18,7 +18,7 @@ export const ContentWriteModal = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // 현재 커버 이미지 계산 (커스텀 > 첫 번째 곡 커버 > 기본 이미지)
-  const activeCover = customCover || selectedMusics[0]?.coverUrl || 'https://via.placeholder.com/400?text=No+Music';
+  const activeCover = customCover || selectedMusics[0]?.albumCoverUrl || 'https://via.placeholder.com/400?text=No+Music';
 
   // --- 핸들러 함수 ---
   // 파일 업로드
@@ -33,7 +33,7 @@ export const ContentWriteModal = () => {
   // 음악 추가
   const handleAddMusic = (music: Music) => {
     // 중복 체크
-    if (!selectedMusics.find((m) => m.id === music.id)) {
+    if (!selectedMusics.find((m) => m.musicId === music.musicId)) {
       setSelectedMusics([...selectedMusics, music]);
     }
     // 추가 후 검색창 초기화 및 닫기
@@ -43,7 +43,7 @@ export const ContentWriteModal = () => {
 
   // 플레이리스트 통으로 추가
   const handleAddPlaylist = (playlist: Playlist) => {
-    const newMusics = playlist.musics.filter((pMusic) => !selectedMusics.some((selected) => selected.id === pMusic.id));
+    const newMusics = playlist.musics.filter((pMusic) => !selectedMusics.some((selected) => selected.musicId === pMusic.musicId));
 
     if (newMusics.length > 0) {
       setSelectedMusics([...selectedMusics, ...newMusics]);
@@ -54,7 +54,7 @@ export const ContentWriteModal = () => {
 
   // 음악 삭제 핸들러
   const handleRemoveMusic = (id: string) => {
-    setSelectedMusics(selectedMusics.filter((m) => m.id !== id));
+    setSelectedMusics(selectedMusics.filter((m) => m.musicId !== id));
   };
 
   // 음악 순서 변경
