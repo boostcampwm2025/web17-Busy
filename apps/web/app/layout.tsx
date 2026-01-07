@@ -3,6 +3,7 @@ import './globals.css';
 import Sidebar from '@/components/sidebar/Sidebar';
 import RightPanel from '@/components/player/RightPanel';
 import ModalContainer from '@/components/modals/ModalContainer';
+import SpotifyPlayerProvider from '@/features/player/spotify/SpotifyPlayerProvider';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -17,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="kr">
       <body>
+        <SpotifyPlayerProvider />
         <ModalContainer />
 
         <div className="flex h-screen">
