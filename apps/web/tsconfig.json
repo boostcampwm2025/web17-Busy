@@ -8,8 +8,7 @@
     ],
     "baseUrl": ".", // 프로젝트 루트를 기준으로 경로 설정
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", "next.config.js", ".next/types/**/*.ts"],
