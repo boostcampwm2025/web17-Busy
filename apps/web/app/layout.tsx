@@ -4,6 +4,7 @@ import Sidebar from '@/components/sidebar/Sidebar';
 import RightPanel from '@/components/player/RightPanel';
 import ModalContainer from '@/components/modals/ModalContainer';
 import SpotifyPlayerProvider from '@/features/player/spotify/SpotifyPlayerProvider';
+import SpotifyTokenFromHash from '@/features/auth/client/SpotifyTokenFromHash';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="kr">
       <body>
+        <SpotifyTokenFromHash />
         <SpotifyPlayerProvider />
         <ModalContainer />
 

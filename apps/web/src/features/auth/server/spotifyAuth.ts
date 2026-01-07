@@ -1,3 +1,4 @@
+import { url } from 'inspector';
 import { SPOTIFY_AUTH_URL, SPOTIFY_SCOPES } from '../config/spotify';
 
 export function buildSpotifyAuthorizeUrl(params: { clientId: string; redirectUri: string; codeChallenge: string; state: string }) {
@@ -13,8 +14,9 @@ export function buildSpotifyAuthorizeUrl(params: { clientId: string; redirectUri
 }
 
 export async function exchangeSpotifyCodeWithBackend(args: { code: string; verifier: string }) {
-  const backendUrl = process.env.BACKEND_URL!;
-  const res = await fetch(`${backendUrl}/auth/spotify/exchange`, {
+  const backendUrl = process.env.NEXT_PUBLIC_APP_URL!;
+  const url = new URL('/auth/spotify/exchange', backendUrl);
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(args),

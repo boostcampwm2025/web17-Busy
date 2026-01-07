@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   const url = new URL('/', request.url);
   url.hash = `spotifyAccessToken=${encodeURIComponent(result.spotifyAccessToken)}&spotifyTokenExpiresIn=${encodeURIComponent(result.spotifyTokenExpiresIn)}`;
 
-  const res = NextResponse.redirect('/');
+  const res = NextResponse.redirect(url);
   deleteTmpCookies(res);
 
   // jwt - http only cookie로 브라우저에 전달
@@ -57,6 +57,6 @@ function redirectAuthFail(request: NextRequest, reason: string) {
 }
 
 function deleteTmpCookies(res: NextResponse) {
-  res.cookies.delete(SPOTIFY_COOKIE_KEYS.PKCE_VERIFIER);
-  res.cookies.delete(SPOTIFY_COOKIE_KEYS.OAUTH_STATE);
+  res.cookies.set(SPOTIFY_COOKIE_KEYS.PKCE_VERIFIER, '', { path: '/api/auth/spotify', maxAge: 0 });
+  res.cookies.set(SPOTIFY_COOKIE_KEYS.OAUTH_STATE, '', { path: '/api/auth/spotify', maxAge: 0 });
 }
