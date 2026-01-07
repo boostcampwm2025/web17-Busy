@@ -10,9 +10,10 @@ import SearchInput from './SearchInput';
 import SearchState from './SearchState';
 import TrackItem from './TrackItem';
 
-type SearchStatus = 'idle' | 'loading' | 'success' | 'empty';
+type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
 const LOADING_DELAY_MS = 200;
+const ERROR_TRIGGER_KEYWORD = 'error';
 
 const MOCK_MUSICS: Music[] = [
   {
@@ -44,40 +45,48 @@ const MOCK_MUSICS: Music[] = [
   },
 ];
 
+function filterMusicsByQuery(musics: Music[], query: string): Music[] {
+  const q = query.trim().toLowerCase();
+  if (!q) {
+    return [];
+  }
+  return musics.filter((m) => m.title.toLowerCase().includes(q) || m.artistName.toLowerCase().includes(q));
+}
+
 function SearchDrawerInner() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<SearchStatus>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) {
-      return [];
-    }
-    return MOCK_MUSICS.filter((m) => m.title.toLowerCase().includes(q) || m.artistName.toLowerCase().includes(q));
-  }, [query]);
+  const filtered = useMemo(() => filterMusicsByQuery(MOCK_MUSICS, query), [query]);
 
   useEffect(() => {
     const q = query.trim();
 
     if (!q) {
       setStatus('idle');
+      setErrorMessage(null);
       return;
     }
 
     setStatus('loading');
+    setErrorMessage(null);
 
     const timer = window.setTimeout(() => {
-      if (q.toLowerCase() === 'error') {
-        throw new Error('검색 실패(테스트): error를 입력하면 오류가 발생합니다.');
+      if (q.toLowerCase() === ERROR_TRIGGER_KEYWORD) {
+        setStatus('error');
+        setErrorMessage('검색 실패(테스트): error를 입력하면 오류 상태가 표시됩니다.');
+        return;
       }
+
       setStatus(filtered.length > 0 ? 'success' : 'empty');
     }, LOADING_DELAY_MS);
 
     return () => window.clearTimeout(timer);
   }, [query, filtered.length]);
 
-  const handleQueryChange = (next: string) => {
-    setQuery(next);
+  const handleQueryChange = (nextValue: string) => {
+    setQuery(nextValue);
   };
 
   const handleQueryClear = () => {
@@ -91,6 +100,10 @@ function SearchDrawerInner() {
 
     if (status === 'loading') {
       return <LoadingSpinner />;
+    }
+
+    if (status === 'error') {
+      return <SearchState variant="error" message={errorMessage ?? undefined} />;
     }
 
     if (status === 'empty') {
