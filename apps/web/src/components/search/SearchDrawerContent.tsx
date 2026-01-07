@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Music } from '@/types';
 import { LoadingSpinner } from '@/components';
@@ -9,80 +9,103 @@ import SearchInput from './SearchInput';
 import SearchState from './SearchState';
 import TrackItem from './TrackItem';
 
+import useDebouncedValue from '@/hooks/useDebouncedValue';
+import { useSpotifyAuthStore } from '@/stores';
+import { searchSpotifyTracks } from '@/api';
+import { spotifyTrackToMusic } from '@/mappers';
+
 type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
-const LOADING_DELAY_MS = 200;
-const ERROR_TRIGGER_KEYWORD = 'error';
-
-const MOCK_MUSICS: Music[] = [
-  {
-    musicId: 'm1',
-    trackUri: 'spotify:track:m1',
-    provider: 'SPOTIFY',
-    albumCoverUrl: 'https://picsum.photos/seed/art3/400/400',
-    title: "we can't be friends",
-    artistName: 'Ariana Grande',
-    durationMs: 222_000,
-  },
-  {
-    musicId: 'm2',
-    trackUri: 'spotify:track:m2',
-    provider: 'SPOTIFY',
-    albumCoverUrl: 'https://picsum.photos/seed/art8/400/400',
-    title: 'Die For You',
-    artistName: 'The Weeknd',
-    durationMs: 240_000,
-  },
-  {
-    musicId: 'm3',
-    trackUri: 'spotify:track:m3',
-    provider: 'SPOTIFY',
-    albumCoverUrl: 'https://picsum.photos/seed/art9/400/400',
-    title: 'Ditto',
-    artistName: 'NewJeans',
-    durationMs: 188_000,
-  },
-];
-
-function filterMusicsByQuery(musics: Music[], query: string): Music[] {
-  const q = query.trim().toLowerCase();
-  if (!q) {
-    return [];
-  }
-  return musics.filter((m) => m.title.toLowerCase().includes(q) || m.artistName.toLowerCase().includes(q));
-}
+const DEBOUNCE_MS = 300;
+const MIN_QUERY_LENGTH = 2;
+const MARKET: 'KR' = 'KR';
+const DEFAULT_LIMIT = 20;
+const DEFAULT_OFFSET = 0;
 
 function SearchDrawerInner() {
+  const ensureValidToken = useSpotifyAuthStore((s) => s.ensureValidToken);
+
   const [query, setQuery] = useState('');
+  const debouncedQuery = useDebouncedValue(query, DEBOUNCE_MS);
+
   const [status, setStatus] = useState<SearchStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [results, setResults] = useState<Music[]>([]);
 
-  const filtered = useMemo(() => filterMusicsByQuery(MOCK_MUSICS, query), [query]);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const trimmed = useMemo(() => debouncedQuery.trim(), [debouncedQuery]);
 
   useEffect(() => {
-    const q = query.trim();
+    abortRef.current?.abort();
+    abortRef.current = null;
 
-    if (!q) {
+    if (trimmed.length === 0) {
       setStatus('idle');
       setErrorMessage(null);
+      setResults([]);
       return;
     }
+
+    if (trimmed.length < MIN_QUERY_LENGTH) {
+      setStatus('idle');
+      setErrorMessage(null);
+      setResults([]);
+      return;
+    }
+
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     setStatus('loading');
     setErrorMessage(null);
 
-    const timer = window.setTimeout(() => {
-      if (q.toLowerCase() === ERROR_TRIGGER_KEYWORD) {
+    let isActive = true;
+
+    const run = async () => {
+      try {
+        const token = await ensureValidToken();
+
+        const tracks = await searchSpotifyTracks({
+          query: trimmed,
+          token,
+          market: MARKET,
+          limit: DEFAULT_LIMIT,
+          offset: DEFAULT_OFFSET,
+          signal: controller.signal,
+        });
+
+        const mapped = tracks.map(spotifyTrackToMusic);
+
+        if (!isActive) {
+          return;
+        }
+
+        setResults(mapped);
+        setStatus(mapped.length > 0 ? 'success' : 'empty');
+      } catch (e) {
+        if (!isActive) {
+          return;
+        }
+
+        const err = e as { name?: string; message?: string };
+        if (err?.name === 'AbortError') {
+          return;
+        }
+
+        setResults([]);
         setStatus('error');
-        setErrorMessage('검색 실패(테스트): error를 입력하면 오류 상태가 표시됩니다.');
-        return;
+        setErrorMessage(err?.message ?? '검색 중 오류가 발생했습니다.');
       }
+    };
 
-      setStatus(filtered.length > 0 ? 'success' : 'empty');
-    }, LOADING_DELAY_MS);
+    void run();
 
-    return () => window.clearTimeout(timer);
-  }, [query, filtered.length]);
+    return () => {
+      isActive = false;
+      controller.abort();
+    };
+  }, [trimmed, ensureValidToken]);
 
   const handleQueryChange = (nextValue: string) => {
     setQuery(nextValue);
@@ -94,7 +117,8 @@ function SearchDrawerInner() {
 
   const renderBody = () => {
     if (status === 'idle') {
-      return <SearchState variant="hint" />;
+      const message = trimmed.length > 0 && trimmed.length < MIN_QUERY_LENGTH ? '2글자 이상 입력해주세요.' : undefined;
+      return <SearchState variant="hint" message={message} />;
     }
 
     if (status === 'loading') {
@@ -111,7 +135,7 @@ function SearchDrawerInner() {
 
     return (
       <div className="space-y-1">
-        {filtered.map((music) => (
+        {results.map((music) => (
           <TrackItem key={music.musicId} music={music} disabledActions />
         ))}
       </div>
@@ -122,7 +146,7 @@ function SearchDrawerInner() {
     <div className="flex flex-col h-full">
       <div className="p-6 border-b-2 border-primary/10">
         <h2 className="text-3xl font-black text-primary mb-6">검색</h2>
-        <SearchInput value={query} onChange={handleQueryChange} onClear={handleQueryClear} placeholder="음악 검색" />
+        <SearchInput value={query} onChange={handleQueryChange} onClear={handleQueryClear} placeholder="음악 검색 (Spotify)" />
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">{renderBody()}</div>
