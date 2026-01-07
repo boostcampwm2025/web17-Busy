@@ -7,6 +7,7 @@ import { LogIn, Menu, PlusCircle } from 'lucide-react';
 import { menuItems } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
 import { useModalStore, MODAL_TYPES } from '@/stores';
+import { SearchDrawerContent } from '@/components';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
@@ -134,7 +135,9 @@ export default function Sidebar() {
 
       {/* 드로어 영역 */}
       <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded}>
-        <div className="flex h-full justify-center items-center text-lg">검색 드로어</div>
+        <div className="flex h-full justify-center items-center text-lg">
+          <SearchDrawerContent />
+        </div>
       </Drawer>
 
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
