@@ -25,8 +25,6 @@ export default function Sidebar() {
   const handleItemClick = (type: SidebarItemTypeValues) => {
     setActiveItem(type); // 선택한 버튼 아이템 활성화
     activeDrawer && setActiveDrawer(null); // 열려있는 드로어 있으면 닫기
-
-    const toggleSidebar = () => setIsExpanded((prev) => !prev);
     // 드로어 아이템이면 사이드바 닫고 해당 type 드로어 활성화
     if ((drawerTypes as readonly SidebarItemTypeValues[]).includes(type)) {
       if (activeDrawer === type) return;
