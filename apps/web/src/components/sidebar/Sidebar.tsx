@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { LogIn, Menu, PlusCircle } from 'lucide-react';
 import { drawerTypes, SidebarItemType, SidebarItemTypeValues } from '@/types/sidebar';
 import { menuItems } from '@/constants/sidebar';
@@ -24,6 +25,9 @@ export default function Sidebar() {
     setActiveItem(type); // 선택한 버튼 아이템 활성화
     activeDrawer && setActiveDrawer(null); // 열려있는 드로어 있으면 닫기
 
+  const { openModal } = useModalStore();
+
+  const toggleSidebar = () => setIsExpanded((prev) => !prev);
     // 드로어 아이템이면 사이드바 닫고 해당 type 드로어 활성화
     if ((drawerTypes as readonly SidebarItemTypeValues[]).includes(type)) {
       if (activeDrawer === type) return;
@@ -83,6 +87,7 @@ export default function Sidebar() {
 
           {/* 컨텐츠 생성 버튼 */}
           <button
+            onClick={() => openModal(MODAL_TYPES.WRITE)}
             className={`
               flex items-center p-3 rounded-xl transition-all duration-150 mb-2
               bg-primary text-white hover:bg-secondary hover:shadow-[2px_2px_0px_0px_#00ebc7]
