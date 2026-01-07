@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Sidebar from '@components/sidebar/Sidebar';
+import Sidebar from '@/components/sidebar/Sidebar';
+import RightPanel from '@/components/player/RightPanel';
+import ModalContainer from '@/components/modals/ModalContainer';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -15,20 +17,20 @@ export default function RootLayout({
   return (
     <html lang="kr">
       <body>
+        <ModalContainer />
+
         <div className="flex h-screen">
-          {/* 좌측 사이드바 영역 */}
+          {/* 좌측 사이드바 */}
           <Sidebar />
 
-          <div className="flex flex-col w-full h-full lg:flex-row">
-            {/* 중앙 페이지 라우팅 영역 */}
-            <main className="h-full lg:w-full overflow-y-auto">{children}</main>
+          <div className="flex flex-col flex-1 h-full lg:flex-row">
+            {/* 중앙 컨텐츠: column 레이아웃에서 flex-1로 높이 차지 */}
+            <main className="flex-1 overflow-y-auto">{children}</main>
 
-            {/* 우측 뮤직 플레이어 영역 */}
-            <aside
-              className="bg-accent-pink self-end w-full min-h-16 border-t-2 border-primary 
-        lg:w-lg lg:h-full lg:flex lg:flex-col lg:border-t-0 lg:border-l-2
-        transition-all duration-200 ease-in-out"
-            ></aside>
+            {/* 우측/하단 플레이어 영역 */}
+            <aside className="shrink-0 w-full h-24 border-t-2 border-primary lg:w-95 lg:h-full lg:border-t-0 lg:border-l-2">
+              <RightPanel />
+            </aside>
           </div>
         </div>
       </body>
