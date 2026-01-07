@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 
 import type { Music } from '@/types';
-import { ErrorScreen, LoadingSpinner } from '@/components';
+import { LoadingSpinner } from '@/components';
 
 import SearchInput from './SearchInput';
 import SearchState from './SearchState';
@@ -20,7 +19,7 @@ const MOCK_MUSICS: Music[] = [
     musicId: 'm1',
     trackUri: 'spotify:track:m1',
     provider: 'SPOTIFY',
-    albumCoverUrl: 'https://i.scdn.co/image/ab67616d0000b273c09e663da6711c2653303c6a',
+    albumCoverUrl: 'https://picsum.photos/seed/art3/400/400',
     title: "we can't be friends",
     artistName: 'Ariana Grande',
     durationMs: 222_000,
@@ -29,7 +28,7 @@ const MOCK_MUSICS: Music[] = [
     musicId: 'm2',
     trackUri: 'spotify:track:m2',
     provider: 'SPOTIFY',
-    albumCoverUrl: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
+    albumCoverUrl: 'https://picsum.photos/seed/art8/400/400',
     title: 'Die For You',
     artistName: 'The Weeknd',
     durationMs: 240_000,
@@ -38,7 +37,7 @@ const MOCK_MUSICS: Music[] = [
     musicId: 'm3',
     trackUri: 'spotify:track:m3',
     provider: 'SPOTIFY',
-    albumCoverUrl: 'https://i.scdn.co/image/ab67616d0000b2739d28fd018590e3a6c116d447',
+    albumCoverUrl: 'https://picsum.photos/seed/art9/400/400',
     title: 'Ditto',
     artistName: 'NewJeans',
     durationMs: 188_000,
@@ -132,9 +131,5 @@ function SearchDrawerInner() {
 }
 
 export default function SearchDrawerContent() {
-  return (
-    <ErrorBoundary FallbackComponent={ErrorScreen}>
-      <SearchDrawerInner />
-    </ErrorBoundary>
-  );
+  return <SearchDrawerInner />;
 }

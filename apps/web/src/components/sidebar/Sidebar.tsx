@@ -1,17 +1,19 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, Suspense, lazy } from 'react';
 import { LogIn, Menu, PlusCircle } from 'lucide-react';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import { menuItems } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
 import { useModalStore, MODAL_TYPES } from '@/stores';
-import { SearchDrawerContent } from '@/components';
+import { ErrorScreen, LoadingSpinner } from '@/components';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
 
+const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);
 
 export default function Sidebar() {
@@ -135,9 +137,11 @@ export default function Sidebar() {
 
       {/* 드로어 영역 */}
       <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded}>
-        <div className="flex h-full justify-center items-center text-lg">
-          <SearchDrawerContent />
-        </div>
+        <ErrorBoundary FallbackComponent={ErrorScreen}>
+          <Suspense fallback={<LoadingSpinner />}>
+            <SearchDrawerContent />
+          </Suspense>
+        </ErrorBoundary>
       </Drawer>
 
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
