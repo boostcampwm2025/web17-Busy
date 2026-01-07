@@ -102,8 +102,8 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
                       className="w-full flex items-center px-4 py-3 hover:bg-gray-4 transition-colors text-left group"
                     >
                       <div className="relative mr-4">
-                        <div className="absolute top-1 right-[-4px] w-10 h-10 bg-gray-2 border border-gray-3 rounded-lg transform rotate-6"></div>
-                        <div className="absolute top-0.5 right-[-2px] w-10 h-10 bg-gray-3 border border-gray-3 rounded-lg transform rotate-3"></div>
+                        <div className="absolute top-1 -right-1 w-10 h-10 bg-gray-2 border border-gray-3 rounded-lg transform rotate-6"></div>
+                        <div className="absolute top-0.5 1right-0.5 w-10 h-10 bg-gray-3 border border-gray-3 rounded-lg transform rotate-3"></div>
                         <img
                           src={playlist.musics[0]?.albumCoverUrl}
                           alt="playlist"
