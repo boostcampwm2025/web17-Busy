@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div role="status" className="flex flex-col w-full items-center py-8 px-8 gap-y-4">
+    <div role="status" className="flex flex-col w-full max-w-[780px] mx-auto py-8 px-8 gap-y-4">
       <PostCardPulse />
       <PostCardPulse />
     </div>
@@ -9,7 +9,7 @@ export default function Loading() {
 
 function PostCardPulse() {
   return (
-    <div className="animate-pulse w-full max-w-[680px] flex flex-col gap-5 border-2 border-gray-3 rounded-2xl p-6 overflow-hidden">
+    <div className="animate-pulse w-full flex flex-col gap-5 border-2 border-gray-3 rounded-2xl p-6 overflow-hidden">
       <div className="flex gap-2 items-center">
         <div className="size-14 rounded-full bg-gray-3" />
         <div className="flex flex-col gap-1">

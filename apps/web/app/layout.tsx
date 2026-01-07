@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Sidebar from '@/components/sidebar/Sidebar';
-import RightPanel from '@/components/player/RightPanel';
-import ModalContainer from '@/components/modals/ModalContainer';
-import Header from '@/components/layout/Header';
+import { Header, Sidebar, RightPanel, ModalContainer } from '@/components';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
