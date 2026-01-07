@@ -23,7 +23,7 @@ export const useSpotifyAuthStore = create<SpotifyAuthState>((set, get) => ({
     const { accessToken, expiresAt } = get();
 
     // expiresAt이 30초도 안 남았으면 갱신
-    const isValid = accessToken && expiresAt && expiresAt - Date.now() < 30_000;
+    const isValid = accessToken && expiresAt && expiresAt - Date.now() > 30_000;
 
     if (isValid) return accessToken;
 
