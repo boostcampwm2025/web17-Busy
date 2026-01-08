@@ -8,7 +8,7 @@ const MOCK_MUSICS: Music[] = [
     musicId: '1',
     title: 'we cant be friends',
     artistName: 'Ariana Grande',
-    albumCoverUrl: 'https://i.scdn.co/image/ab67616d0000b273c09e663da6711c2653303c6a',
+    albumCoverUrl: 'https://picsum.photos/seed/art3/400/400',
     trackUri: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
     provider: 'SPOTIFY',
     durationMs: 300,
@@ -17,7 +17,7 @@ const MOCK_MUSICS: Music[] = [
     musicId: '2',
     title: 'Die For You',
     artistName: 'The Weekend',
-    albumCoverUrl: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
+    albumCoverUrl: 'https://picsum.photos/seed/art8/400/400',
     trackUri: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
     provider: 'SPOTIFY',
     durationMs: 300,
@@ -26,7 +26,7 @@ const MOCK_MUSICS: Music[] = [
     musicId: '3',
     title: 'Ditto',
     artistName: 'NewJeans',
-    albumCoverUrl: 'https://i.scdn.co/image/ab67616d0000b2739d28fd018590e3a6c116d447',
+    albumCoverUrl: 'https://picsum.photos/seed/art9/400/400',
     trackUri: 'https://i.scdn.co/image/ab67616d0000b27390635da24c3031d277a83d09',
     provider: 'SPOTIFY',
     durationMs: 300,
@@ -102,8 +102,8 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
                       className="w-full flex items-center px-4 py-3 hover:bg-gray-4 transition-colors text-left group"
                     >
                       <div className="relative mr-4">
-                        <div className="absolute top-1 right-[-4px] w-10 h-10 bg-gray-2 border border-gray-3 rounded-lg transform rotate-6"></div>
-                        <div className="absolute top-0.5 right-[-2px] w-10 h-10 bg-gray-3 border border-gray-3 rounded-lg transform rotate-3"></div>
+                        <div className="absolute top-1 -right-1 w-10 h-10 bg-gray-2 border border-gray-3 rounded-lg transform rotate-6"></div>
+                        <div className="absolute top-0.5 1right-0.5 w-10 h-10 bg-gray-3 border border-gray-3 rounded-lg transform rotate-3"></div>
                         <img
                           src={playlist.musics[0]?.albumCoverUrl}
                           alt="playlist"

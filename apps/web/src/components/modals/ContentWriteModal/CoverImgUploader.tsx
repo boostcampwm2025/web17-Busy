@@ -10,7 +10,7 @@ export const CoverImgUploader = ({ currentCover, onFileChange }: CoverImgUploade
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="w-full md:w-1/3 flex-shrink-0">
+    <div className="w-full md:w-1/3 shrink-0">
       <div
         className="group relative w-full aspect-square rounded-xl border-2 border-primary overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-all bg-gray-4"
         onClick={() => fileInputRef.current?.click()}

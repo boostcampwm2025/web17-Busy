@@ -76,7 +76,7 @@ export default function MiniPlayerBar({
   const queueTitle = isQueueOpen ? '재생목록 닫기' : '재생목록 열기';
 
   return (
-    <section className="relative z-50 flex lg:hidden h-full items-center gap-3 px-4 bg-white">
+    <section className="relative z-20 flex lg:hidden h-full items-center gap-3 px-4 bg-white">
       <div className="w-12 h-12 rounded border border-gray-3 overflow-hidden bg-gray-4 shrink-0">
         {currentMusic ? <img src={currentMusic.albumCoverUrl} alt={currentMusic.title} className="w-full h-full object-cover" /> : null}
       </div>

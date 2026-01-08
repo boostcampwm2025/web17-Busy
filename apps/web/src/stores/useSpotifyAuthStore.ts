@@ -8,6 +8,8 @@ type SpotifyAuthState = {
   ensureValidToken: () => Promise<string>;
 };
 
+const TOKEN_REFRESH_THRESHOLD_MS = 30_000;
+
 export const useSpotifyAuthStore = create<SpotifyAuthState>((set, get) => ({
   accessToken: null,
   expiresAt: null,
@@ -22,17 +24,20 @@ export const useSpotifyAuthStore = create<SpotifyAuthState>((set, get) => ({
   ensureValidToken: async () => {
     const { accessToken, expiresAt } = get();
 
-    // expiresAt이 30초도 안 남았으면 갱신
-    const isValid = accessToken && expiresAt && expiresAt - Date.now() > 30_000;
+    const isValid = Boolean(accessToken) && Boolean(expiresAt) && (expiresAt as number) - Date.now() > TOKEN_REFRESH_THRESHOLD_MS;
 
-    if (isValid) return accessToken;
+    if (isValid) {
+      return accessToken as string;
+    }
 
     const res = await fetch('/api/auth/spotify/token');
-    if (!res.ok) throw new Error('스포티파이 access token을 받아오는데 실패했습니다.');
+    if (!res.ok) {
+      throw new Error('스포티파이 access token을 받아오는데 실패했습니다.');
+    }
 
     const data = (await res.json()) as { accessToken: string; expiresIn: number };
-
     get().setAccessToken(data.accessToken, data.expiresIn);
+
     return data.accessToken;
   },
 }));
