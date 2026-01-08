@@ -14,7 +14,7 @@ interface TrackItemProps {
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';
 
-export default function TrackItem({ music, disabledActions = false, onPlay, onAddToArchive, onOpenWrite }: TrackItemProps) {
+export default function TrackItem({ music, disabledActions = true, onPlay, onAddToArchive, onOpenWrite }: TrackItemProps) {
   const handlePlayClick = () => {
     if (disabledActions) {
       return;
@@ -74,8 +74,7 @@ export default function TrackItem({ music, disabledActions = false, onPlay, onAd
         <button
           type="button"
           onClick={handleWriteClick}
-          disabled={disabledActions}
-          title={disabledActions ? DISABLED_ACTION_TITLE : '컨텐츠 작성'}
+          title="컨텐츠 작성"
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
         >
