@@ -11,13 +11,14 @@ export const useSpotifySDK = () => {
   const isPausedRef = useRef(true);
 
   // SDK 사용을 위한 spotify 토큰
-  const { ensureValidToken } = useSpotifyAuthStore();
+  const { ensureValidToken, accessToken } = useSpotifyAuthStore();
   // UI 동기화 및 음악 track URI 요청함수
   const playNext = usePlayerStore((state) => state.playNext);
   const currentMusic = usePlayerStore((state) => state.currentMusic);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
 
   useEffect(() => {
+    if (!accessToken) return;
     // Spotify SDK 스크립트 로드
     const scriptTag = document.getElementById('spotify-player-script');
     if (!scriptTag) {
@@ -36,13 +37,17 @@ export const useSpotifySDK = () => {
 
   useEffect(() => {
     if (!isSdkReady) return;
-
+    if (!accessToken || !isSdkReady) return;
     // 플레이어 초기화
     const newPlayer = new window.Spotify.Player({
       name: 'VIBR Web Player',
       getOAuthToken: async (cb) => {
-        const token = await ensureValidToken();
-        cb(token);
+        try {
+          const token = await ensureValidToken();
+          if (token) cb(token);
+        } catch (e) {
+          console.error('Token fetch failed', e);
+        }
       },
       volume: 0.5,
     });
@@ -94,6 +99,7 @@ export const useSpotifySDK = () => {
   const playTrackByOrder = async (current: Music | null) => {
     const uri = current!.trackUri;
     const token = ensureValidToken();
+    if (!token) return;
 
     await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
       method: 'PUT',
