@@ -9,6 +9,7 @@ import SearchInput from './SearchInput';
 import SearchStateMessage from './SearchStateMessage';
 import TrackItem from './TrackItem';
 
+import useMusicActions from '@/hooks/useMusicActions';
 import useDebouncedValue from '@/hooks/useDebouncedValue';
 import { useSpotifyAuthStore } from '@/stores';
 import { searchSpotifyTracks } from '@/api';
@@ -23,6 +24,7 @@ const DEFAULT_LIMIT = 20;
 const DEFAULT_OFFSET = 0;
 
 function SearchDrawerInner() {
+  const { addMusicToPlayer, openWriteModalWithMusic } = useMusicActions();
   const ensureValidToken = useSpotifyAuthStore((s) => s.ensureValidToken);
 
   const [query, setQuery] = useState('');
@@ -136,7 +138,7 @@ function SearchDrawerInner() {
     return (
       <div className="space-y-1">
         {results.map((music) => (
-          <TrackItem key={music.musicId} music={music} disabledActions />
+          <TrackItem key={music.musicId} music={music} onPlay={addMusicToPlayer} onOpenWrite={openWriteModalWithMusic} />
         ))}
       </div>
     );
