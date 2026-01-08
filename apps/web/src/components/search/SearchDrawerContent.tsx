@@ -6,7 +6,7 @@ import type { Music } from '@/types';
 import { LoadingSpinner } from '@/components';
 
 import SearchInput from './SearchInput';
-import SearchState from './SearchState';
+import SearchStateMessage from './SearchStateMessage';
 import TrackItem from './TrackItem';
 
 import useDebouncedValue from '@/hooks/useDebouncedValue';
@@ -118,7 +118,7 @@ function SearchDrawerInner() {
   const renderBody = () => {
     if (status === 'idle') {
       const message = trimmed.length > 0 && trimmed.length < MIN_QUERY_LENGTH ? '2글자 이상 입력해주세요.' : undefined;
-      return <SearchState variant="hint" message={message} />;
+      return <SearchStateMessage variant="hint" message={message} />;
     }
 
     if (status === 'loading') {
@@ -126,11 +126,11 @@ function SearchDrawerInner() {
     }
 
     if (status === 'error') {
-      return <SearchState variant="error" message={errorMessage ?? undefined} />;
+      return <SearchStateMessage variant="error" message={errorMessage ?? undefined} />;
     }
 
     if (status === 'empty') {
-      return <SearchState variant="empty" />;
+      return <SearchStateMessage variant="empty" />;
     }
 
     return (
