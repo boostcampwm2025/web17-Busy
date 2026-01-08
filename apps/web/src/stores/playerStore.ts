@@ -169,7 +169,18 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
     set((state) => {
       const deduped = items.filter((item) => !hasMusic(state.queue, item.musicId));
-      return { queue: [...state.queue, ...deduped] };
+      const nextQueue = [...state.queue, ...deduped];
+
+      // 기존 큐가 비어있었고, 새로운 곡이 추가되었다면
+      if (state.queue.length === 0 && nextQueue.length > 0) {
+        return {
+          queue: nextQueue,
+          currentMusic: nextQueue[0],
+          isPlaying: true,
+        };
+      }
+
+      return { queue: nextQueue };
     });
   },
 
