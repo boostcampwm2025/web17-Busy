@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState, Suspense, lazy } from 'react';
+import { PropsWithChildren, ReactNode, useMemo, useState, Suspense, lazy } from 'react';
 import { LogIn, Menu, PlusCircle } from 'lucide-react';
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -15,6 +15,23 @@ import MenuButton from './MenuButton';
 
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);
+
+// 공통 래퍼: Drawer + ErrorBoundary + Suspense
+type SafeDrawerProps = PropsWithChildren<{
+  isOpen: boolean;
+  isSidebarExpanded: boolean;
+  fallback?: ReactNode;
+}>;
+
+function SafeDrawer({ isOpen, isSidebarExpanded, children, fallback = <LoadingSpinner /> }: SafeDrawerProps) {
+  return (
+    <Drawer isOpen={isOpen} isSidebarExpanded={isSidebarExpanded}>
+      <ErrorBoundary FallbackComponent={ErrorScreen}>
+        <Suspense fallback={fallback}>{children}</Suspense>
+      </ErrorBoundary>
+    </Drawer>
+  );
+}
 
 export default function Sidebar() {
   const router = useRouter();
@@ -136,29 +153,17 @@ export default function Sidebar() {
       </nav>
 
       {/* 드로어 영역 */}
-      <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded}>
-        <ErrorBoundary FallbackComponent={ErrorScreen}>
-          <Suspense fallback={<LoadingSpinner />}>
-            <SearchDrawerContent />
-          </Suspense>
-        </ErrorBoundary>
-      </Drawer>
+      <SafeDrawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded}>
+        <SearchDrawerContent />
+      </SafeDrawer>
 
-      <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
-        <ErrorBoundary FallbackComponent={ErrorScreen}>
-          <Suspense fallback={<LoadingSpinner />}>
-            <div className="flex h-full justify-center items-center text-lg">알림 드로어</div>
-          </Suspense>
-        </ErrorBoundary>
-      </Drawer>
+      <SafeDrawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
+        <div className="flex h-full justify-center items-center text-lg">알림 드로어</div>
+      </SafeDrawer>
 
-      <Drawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
-        <ErrorBoundary FallbackComponent={ErrorScreen}>
-          <Suspense fallback={<LoadingSpinner />}>
-            <div className="flex h-full justify-center items-center text-lg">협업 드로어</div>
-          </Suspense>
-        </ErrorBoundary>
-      </Drawer>
+      <SafeDrawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
+        <div className="flex h-full justify-center items-center text-lg">협업 드로어</div>
+      </SafeDrawer>
     </div>
   );
 }
