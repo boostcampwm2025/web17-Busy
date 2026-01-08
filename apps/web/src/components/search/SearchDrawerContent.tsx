@@ -24,7 +24,7 @@ const DEFAULT_LIMIT = 20;
 const DEFAULT_OFFSET = 0;
 
 function SearchDrawerInner() {
-  const { openWriteModalWithMusic } = useMusicActions();
+  const { addMusicToPlayer, openWriteModalWithMusic } = useMusicActions();
   const ensureValidToken = useSpotifyAuthStore((s) => s.ensureValidToken);
 
   const [query, setQuery] = useState('');
@@ -138,7 +138,7 @@ function SearchDrawerInner() {
     return (
       <div className="space-y-1">
         {results.map((music) => (
-          <TrackItem key={music.musicId} music={music} onOpenWrite={openWriteModalWithMusic} />
+          <TrackItem key={music.musicId} music={music} onPlay={addMusicToPlayer} onOpenWrite={openWriteModalWithMusic} />
         ))}
       </div>
     );
