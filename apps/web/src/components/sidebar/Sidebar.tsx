@@ -145,11 +145,19 @@ export default function Sidebar() {
       </Drawer>
 
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
-        <div className="flex h-full justify-center items-center text-lg">알림 드로어</div>
+        <ErrorBoundary FallbackComponent={ErrorScreen}>
+          <Suspense fallback={<LoadingSpinner />}>
+            <div className="flex h-full justify-center items-center text-lg">알림 드로어</div>
+          </Suspense>
+        </ErrorBoundary>
       </Drawer>
 
       <Drawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
-        <div className="flex h-full justify-center items-center text-lg">협업 드로어</div>
+        <ErrorBoundary FallbackComponent={ErrorScreen}>
+          <Suspense fallback={<LoadingSpinner />}>
+            <div className="flex h-full justify-center items-center text-lg">협업 드로어</div>
+          </Suspense>
+        </ErrorBoundary>
       </Drawer>
     </div>
   );
