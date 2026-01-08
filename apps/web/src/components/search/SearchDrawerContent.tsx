@@ -64,7 +64,6 @@ function SearchDrawerInner() {
 
     let isActive = true;
 
-    /**
     const run = async () => {
       try {
         const token = await ensureValidToken();
@@ -100,31 +99,6 @@ function SearchDrawerInner() {
         setStatus('error');
         setErrorMessage(err?.message ?? '검색 중 오류가 발생했습니다.');
       }
-    };
-    */
-
-    const run = () => {
-      setResults([
-        {
-          musicId: 'mock-1',
-          trackUri: 'spotify:track:mock',
-          provider: 'SPOTIFY',
-          albumCoverUrl: 'https://picsum.photos/seed/vibr-mock-1/600/600',
-          title: 'City (Mock)',
-          artistName: 'VIBR',
-          durationMs: 222_000,
-        },
-        {
-          musicId: 'mock-2',
-          trackUri: 'spotify:track:mock2',
-          provider: 'SPOTIFY',
-          albumCoverUrl: 'https://picsum.photos/seed/vibr-mock-1/600/600',
-          title: 'Lights (Mock)',
-          artistName: 'VIBRRR',
-          durationMs: 222_000,
-        },
-      ]);
-      setStatus('success');
     };
 
     void run();
