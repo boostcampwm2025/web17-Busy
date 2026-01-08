@@ -61,7 +61,7 @@ export default function TrackItem({ music, disabledActions = false, onPlay, onAd
         <button
           type="button"
           onClick={handleAction(onAddToArchive)}
-          disabled={disabledActions || isProcessing}
+          disabled={true}
           title={disabledActions ? DISABLED_ACTION_TITLE : '보관함 추가'}
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
