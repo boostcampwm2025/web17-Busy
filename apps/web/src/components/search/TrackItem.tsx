@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Box, Play, PlusCircle } from 'lucide-react';
 import type { Music } from '@/types';
 
@@ -14,27 +15,24 @@ interface TrackItemProps {
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';
 
-export default function TrackItem({ music, disabledActions = true, onPlay, onAddToArchive, onOpenWrite }: TrackItemProps) {
-  const handlePlayClick = () => {
-    if (disabledActions) {
-      return;
-    }
-    onPlay?.(music);
-  };
+export default function TrackItem({ music, disabledActions = false, onPlay, onAddToArchive, onOpenWrite }: TrackItemProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleArchiveClick = () => {
-    if (disabledActions) {
-      return;
-    }
-    onAddToArchive?.(music);
-  };
+  const handleAction = (action?: (music: Music) => void) => {
+    return () => {
+      // 액션이 비활성화 상태이거나 다른 액션이 처리 중이면 중단
+      if (disabledActions || isProcessing) {
+        return;
+      }
 
-  const handleWriteClick = () => {
-    if (disabledActions) {
-      return;
-    }
-    onOpenWrite?.(music);
-    console.log('clicked');
+      setIsProcessing(true);
+      try {
+        action?.(music);
+      } finally {
+        // 액션 실행 후, 500ms 뒤에 다시 활성화 (연타 방지)
+        setTimeout(() => setIsProcessing(false), 500);
+      }
+    };
   };
 
   return (
@@ -51,8 +49,8 @@ export default function TrackItem({ music, disabledActions = true, onPlay, onAdd
       <div className="flex items-center gap-2 ml-3">
         <button
           type="button"
-          onClick={handlePlayClick}
-          disabled={disabledActions}
+          onClick={handleAction(onPlay)}
+          disabled={disabledActions || isProcessing}
           title={disabledActions ? DISABLED_ACTION_TITLE : '재생'}
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
@@ -62,8 +60,8 @@ export default function TrackItem({ music, disabledActions = true, onPlay, onAdd
 
         <button
           type="button"
-          onClick={handleArchiveClick}
-          disabled={disabledActions}
+          onClick={handleAction(onAddToArchive)}
+          disabled={disabledActions || isProcessing}
           title={disabledActions ? DISABLED_ACTION_TITLE : '보관함 추가'}
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
@@ -73,8 +71,9 @@ export default function TrackItem({ music, disabledActions = true, onPlay, onAdd
 
         <button
           type="button"
-          onClick={handleWriteClick}
-          title="컨텐츠 작성"
+          onClick={handleAction(onOpenWrite)}
+          disabled={disabledActions || isProcessing}
+          title={disabledActions ? DISABLED_ACTION_TITLE : '컨텐츠 작성'}
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
         >
