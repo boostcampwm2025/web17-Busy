@@ -18,7 +18,6 @@ export const useSpotifySDK = () => {
   const isPlaying = usePlayerStore((state) => state.isPlaying);
 
   useEffect(() => {
-    if (!accessToken) return;
     // Spotify SDK 스크립트 로드
     const scriptTag = document.getElementById('spotify-player-script');
     if (!scriptTag) {
