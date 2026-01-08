@@ -69,6 +69,10 @@ export default function Sidebar() {
     openModal(MODAL_TYPES.WRITE);
   };
 
+  const handlerOpenLoginModal = () => {
+    openModal(MODAL_TYPES.LOGIN);
+  };
+
   const isSearchOpen = activeDrawer === SidebarItemType.SEARCH && activeItem === SidebarItemType.SEARCH;
   const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION && activeItem === SidebarItemType.NOTIFICATION;
   const isSyncOpen = activeDrawer === SidebarItemType.SYNC && activeItem === SidebarItemType.SYNC;
@@ -127,7 +131,7 @@ export default function Sidebar() {
           </button>
         </div>
 
-        <button type="button" className="flex items-center p-6" title="로그인">
+        <button type="button" onClick={handlerOpenLoginModal} className="flex items-center p-6" title="로그인">
           <LogIn className="w-6 h-6" />
           {isExpanded && <span className="ml-4 font-medium text-sm hover:font-bold whitespace-nowrap overflow-hidden">로그인</span>}
         </button>
