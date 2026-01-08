@@ -1,19 +1,19 @@
 import { LucideProps } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
-type MenuButtonProps = {
+interface MenuButtonProps {
   Icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
   label: string;
-  handleClick: () => void;
+  onClick: () => void;
   isActive: boolean;
   shouldShowSpan: boolean;
-};
+}
 
-export default function MenuButton({ Icon, label, handleClick, isActive, shouldShowSpan }: MenuButtonProps) {
+export default function MenuButton({ Icon, label, onClick, isActive, shouldShowSpan }: MenuButtonProps) {
   return (
     <button
       title={label}
-      onClick={handleClick}
+      onClick={onClick}
       className={`w-full flex items-center p-3 rounded-xl transition-all duration-200
                   border-2 ${
                     isActive

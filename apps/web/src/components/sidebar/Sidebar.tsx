@@ -105,7 +105,7 @@ export default function Sidebar() {
               key={item.type}
               Icon={item.icon}
               label={item.label}
-              handleClick={() => handleItemClick(item.type)}
+              onClick={() => handleItemClick(item.type)}
               isActive={item.type === activeItem}
               shouldShowSpan={isExpanded}
             />
