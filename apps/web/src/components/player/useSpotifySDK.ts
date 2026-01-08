@@ -1,0 +1,140 @@
+import { useEffect, useState, useRef } from 'react';
+import { useSpotifyAuthStore } from '@/stores/useSpotifyAuthStore';
+import { usePlayerStore } from '@/stores';
+import { Music } from '@/types';
+
+export const useSpotifySDK = () => {
+  const [player, setPlayer] = useState<Spotify.Player | null>(null);
+
+  const [isSdkReady, setIsSdkReady] = useState(false);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const isPausedRef = useRef(true);
+
+  // SDK 사용을 위한 spotify 토큰
+  const { ensureValidToken, accessToken } = useSpotifyAuthStore();
+  // UI 동기화 및 음악 track URI 요청함수
+  const playNext = usePlayerStore((state) => state.playNext);
+  const currentMusic = usePlayerStore((state) => state.currentMusic);
+  const isPlaying = usePlayerStore((state) => state.isPlaying);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    // Spotify SDK 스크립트 로드
+    const scriptTag = document.getElementById('spotify-player-script');
+    if (!scriptTag) {
+      const script = document.createElement('script');
+      script.id = 'spotify-player-script';
+      script.src = 'https://sdk.scdn.co/spotify-player.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
+    // SDK 준비 완료 시 실행될 콜백
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      setIsSdkReady(true);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isSdkReady) return;
+    if (!accessToken || !isSdkReady) return;
+    // 플레이어 초기화
+    const newPlayer = new window.Spotify.Player({
+      name: 'VIBR Web Player',
+      getOAuthToken: async (cb) => {
+        try {
+          const token = await ensureValidToken();
+          if (token) cb(token);
+        } catch (e) {
+          console.error('Token fetch failed', e);
+        }
+      },
+      volume: 0.5,
+    });
+
+    // 이벤트 리스너 영역
+
+    // device id 생성
+    newPlayer.addListener('ready', async ({ device_id }) => {
+      setDeviceId(device_id);
+      const token = await ensureValidToken();
+      // 기기 연결
+      await fetch('https://api.spotify.com/v1/me/player', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          device_ids: [device_id],
+          play: false,
+        }),
+      });
+    });
+
+    // 준비 안됨
+    newPlayer.addListener('not_ready', ({ device_id }) => {
+      console.log('Device ID has gone offline', device_id);
+    });
+
+    // 곡 종료시 orderIndex 변경
+    newPlayer.addListener('player_state_changed', (state) => {
+      if (!state) return;
+
+      if (!isPausedRef.current && state.paused && state.position === 0) {
+        isPausedRef.current = true;
+        playNext();
+      }
+    });
+
+    newPlayer.connect();
+    setPlayer(newPlayer);
+
+    return () => {
+      newPlayer.disconnect();
+    };
+  }, [isSdkReady, ensureValidToken]);
+
+  // 순서를 통해 트랙 재생
+  const playByMusic = async (current: Music | null) => {
+    if (!current) return;
+    const uri = current?.trackUri ?? '';
+    const token = ensureValidToken();
+    if (!token) return;
+
+    await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uris: [uri],
+      }),
+    });
+  };
+
+  // 곡 변경
+  useEffect(() => {
+    playByMusic(currentMusic);
+  }, [currentMusic]);
+
+  // 일시정지
+  useEffect(() => {
+    if (!player) return;
+
+    player.getCurrentState().then((state) => {
+      // 플레이어가 아직 활성화되지 않았으면 무시
+      if (!state) return;
+      // 켜기
+      if (isPlaying && state.paused) {
+        player.resume();
+      }
+      // 끄기
+      else if (!isPlaying && !state.paused) {
+        player.pause();
+      }
+    });
+  }, [isPlaying, player]);
+  return null;
+};
