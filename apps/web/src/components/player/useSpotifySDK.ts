@@ -96,7 +96,7 @@ export const useSpotifySDK = () => {
   }, [isSdkReady, ensureValidToken]);
 
   // 순서를 통해 트랙 재생
-  const playTrackByOrder = async (current: Music | null) => {
+  const playByMusic = async (current: Music | null) => {
     const uri = current!.trackUri;
     const token = ensureValidToken();
     if (!token) return;
@@ -115,13 +115,25 @@ export const useSpotifySDK = () => {
 
   // 곡 변경
   useEffect(() => {
-    playTrackByOrder(currentMusic);
+    playByMusic(currentMusic);
   }, [currentMusic]);
 
   // 일시정지
   useEffect(() => {
-    player?.togglePlay();
-  }, [isPlaying]);
+    if (!player) return;
 
+    player.getCurrentState().then((state) => {
+      // 플레이어가 아직 활성화되지 않았으면 무시
+      if (!state) return;
+      // 켜기
+      if (isPlaying && state.paused) {
+        player.resume();
+      }
+      // 끄기
+      else if (!isPlaying && !state.paused) {
+        player.pause();
+      }
+    });
+  }, [isPlaying, player]);
   return null;
 };
