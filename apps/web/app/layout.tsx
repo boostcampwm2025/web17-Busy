@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Header, Sidebar, RightPanel, ModalContainer } from '@/components';
+import SpotifyTokenFromHash from '@/features/auth/client/SpotifyTokenFromHash';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="kr">
       <body>
+        <SpotifyTokenFromHash />
         <ModalContainer />
 
         <div className="flex h-screen">
