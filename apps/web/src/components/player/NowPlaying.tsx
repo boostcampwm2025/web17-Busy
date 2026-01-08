@@ -93,9 +93,42 @@ export default function NowPlaying({
     return (
       <div className="p-5 border-b-2 border-primary">
         <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-3 text-center">Now Playing</h2>
-        <div className="py-8 text-center">
+
+        <div className="mx-auto w-full max-w-65 aspect-square rounded-2xl border-2 border-primary overflow-hidden bg-gray-4 mb-3 relative flex items-center justify-center">
+          <span className="text-sm font-bold text-gray-2">No Music</span>
+        </div>
+
+        <div className="text-center mb-3">
           <p className="font-bold text-gray-1">재생 중인 음악이 없습니다.</p>
           <p className="text-sm text-gray-2 mt-1">피드/검색에서 음악을 선택해보세요.</p>
+        </div>
+
+        <div className="mb-4">
+          <div className="w-full bg-gray-3 h-2 rounded-full overflow-hidden border border-primary opacity-50">
+            <div className="h-full bg-accent-cyan rounded-full" style={{ width: '0%' }} />
+          </div>
+          <div className="flex justify-between text-[11px] font-bold text-gray-2 mt-2 opacity-50">
+            <span>0:00</span>
+            <span>0:00</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center gap-5 opacity-50">
+          <button type="button" disabled className="text-gray-2 cursor-not-allowed">
+            <Shuffle className="w-5 h-5" />
+          </button>
+          <button type="button" disabled className="text-gray-2 cursor-not-allowed">
+            <SkipBack className="w-7 h-7" />
+          </button>
+          <button type="button" disabled className="w-14 h-14 rounded-full bg-gray-2 text-white flex items-center justify-center cursor-not-allowed">
+            <Play className="w-7 h-7 ml-0.5" />
+          </button>
+          <button type="button" disabled className="text-gray-2 cursor-not-allowed">
+            <SkipForward className="w-7 h-7" />
+          </button>
+          <button type="button" disabled className="text-gray-2 cursor-not-allowed">
+            <Repeat className="w-5 h-5" />
+          </button>
         </div>
       </div>
     );

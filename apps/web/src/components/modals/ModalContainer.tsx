@@ -1,7 +1,7 @@
 'use client';
 
-import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { ContentWriteModal } from '@/components/modals/ContentWriteModal';
+import { useModalStore, MODAL_TYPES } from '@/stores';
+import { ContentWriteModal } from './ContentWriteModal';
 
 export default function ModalContainer() {
   const { modalType, isOpen } = useModalStore();
