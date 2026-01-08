@@ -97,7 +97,8 @@ export const useSpotifySDK = () => {
 
   // 순서를 통해 트랙 재생
   const playByMusic = async (current: Music | null) => {
-    const uri = current!.trackUri;
+    if (!current) return;
+    const uri = current?.trackUri ?? '';
     const token = ensureValidToken();
     if (!token) return;
 
