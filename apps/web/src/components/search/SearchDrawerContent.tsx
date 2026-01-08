@@ -9,6 +9,7 @@ import SearchInput from './SearchInput';
 import SearchStateMessage from './SearchStateMessage';
 import TrackItem from './TrackItem';
 
+import useMusicActions from '@/hooks/useMusicActions';
 import useDebouncedValue from '@/hooks/useDebouncedValue';
 import { useSpotifyAuthStore } from '@/stores';
 import { searchSpotifyTracks } from '@/api';
@@ -23,6 +24,7 @@ const DEFAULT_LIMIT = 20;
 const DEFAULT_OFFSET = 0;
 
 function SearchDrawerInner() {
+  const { openWriteModalWithMusic } = useMusicActions();
   const ensureValidToken = useSpotifyAuthStore((s) => s.ensureValidToken);
 
   const [query, setQuery] = useState('');
@@ -62,6 +64,7 @@ function SearchDrawerInner() {
 
     let isActive = true;
 
+    /**
     const run = async () => {
       try {
         const token = await ensureValidToken();
@@ -97,6 +100,31 @@ function SearchDrawerInner() {
         setStatus('error');
         setErrorMessage(err?.message ?? '검색 중 오류가 발생했습니다.');
       }
+    };
+    */
+
+    const run = () => {
+      setResults([
+        {
+          musicId: 'mock-1',
+          trackUri: 'spotify:track:mock',
+          provider: 'SPOTIFY',
+          albumCoverUrl: 'https://picsum.photos/seed/vibr-mock-1/600/600',
+          title: 'City (Mock)',
+          artistName: 'VIBR',
+          durationMs: 222_000,
+        },
+        {
+          musicId: 'mock-2',
+          trackUri: 'spotify:track:mock2',
+          provider: 'SPOTIFY',
+          albumCoverUrl: 'https://picsum.photos/seed/vibr-mock-1/600/600',
+          title: 'Lights (Mock)',
+          artistName: 'VIBRRR',
+          durationMs: 222_000,
+        },
+      ]);
+      setStatus('success');
     };
 
     void run();
@@ -136,7 +164,7 @@ function SearchDrawerInner() {
     return (
       <div className="space-y-1">
         {results.map((music) => (
-          <TrackItem key={music.musicId} music={music} disabledActions />
+          <TrackItem key={music.musicId} music={music} onOpenWrite={openWriteModalWithMusic} />
         ))}
       </div>
     );

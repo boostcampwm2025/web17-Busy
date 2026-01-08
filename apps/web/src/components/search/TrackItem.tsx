@@ -14,7 +14,7 @@ interface TrackItemProps {
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';
 
-export default function TrackItem({ music, disabledActions = true, onPlay, onAddToArchive, onOpenWrite }: TrackItemProps) {
+export default function TrackItem({ music, disabledActions = false, onPlay, onAddToArchive, onOpenWrite }: TrackItemProps) {
   const handlePlayClick = () => {
     if (disabledActions) {
       return;
@@ -34,6 +34,7 @@ export default function TrackItem({ music, disabledActions = true, onPlay, onAdd
       return;
     }
     onOpenWrite?.(music);
+    console.log('clicked');
   };
 
   return (
