@@ -82,16 +82,13 @@ export class AuthService {
     } = spotifyCurrentUserResponse;
     const profileImgUrl = images[0]?.url;
 
-    // user entity 설계 다시 해야 할 듯
-    const user = await this.userService.findOrCreateBySpotifyUserId(
+    const user = await this.userService.findOrCreateBySpotifyUserId({
       spotifyUserId,
-      {
-        nickname,
-        email,
-        profileImgUrl,
-        refreshToken: spotifyTokens.refreshToken,
-      },
-    );
+      nickname,
+      email,
+      profileImgUrl,
+      refreshToken: spotifyTokens.refreshToken,
+    });
 
     return user;
   }
