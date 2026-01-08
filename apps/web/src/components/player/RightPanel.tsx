@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { QueueList, MiniPlayerBar, MobileQueueModal, NowPlaying } from './index';
 import { usePlayerStore } from '@/stores';
+import { useSpotifySDK } from './useSpotifySDK';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
   if (!currentMusicId) {
@@ -12,6 +13,7 @@ const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): nu
 };
 
 export default function RightPanel() {
+  useSpotifySDK();
   const [isMobileQueueOpen, setIsMobileQueueOpen] = useState(false);
 
   const currentMusic = usePlayerStore((state) => state.currentMusic);
