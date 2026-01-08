@@ -1,37 +1,18 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { PropsWithChildren, ReactNode, useMemo, useState, Suspense, lazy } from 'react';
+import { useMemo, useState, lazy } from 'react';
 import { LogIn, Menu, PlusCircle } from 'lucide-react';
-import { ErrorBoundary } from 'react-error-boundary';
 
 import { menuItems } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
 import { useModalStore, MODAL_TYPES } from '@/stores';
-import { ErrorScreen, LoadingSpinner } from '@/components';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
 
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);
-
-// 공통 래퍼: Drawer + ErrorBoundary + Suspense
-type SafeDrawerProps = PropsWithChildren<{
-  isOpen: boolean;
-  isSidebarExpanded: boolean;
-  fallback?: ReactNode;
-}>;
-
-function SafeDrawer({ isOpen, isSidebarExpanded, children, fallback = <LoadingSpinner /> }: SafeDrawerProps) {
-  return (
-    <Drawer isOpen={isOpen} isSidebarExpanded={isSidebarExpanded}>
-      <ErrorBoundary FallbackComponent={ErrorScreen}>
-        <Suspense fallback={fallback}>{children}</Suspense>
-      </ErrorBoundary>
-    </Drawer>
-  );
-}
 
 export default function Sidebar() {
   const router = useRouter();
@@ -153,17 +134,17 @@ export default function Sidebar() {
       </nav>
 
       {/* 드로어 영역 */}
-      <SafeDrawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded}>
+      <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded}>
         <SearchDrawerContent />
-      </SafeDrawer>
+      </Drawer>
 
-      <SafeDrawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
+      <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
         <div className="flex h-full justify-center items-center text-lg">알림 드로어</div>
-      </SafeDrawer>
+      </Drawer>
 
-      <SafeDrawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
+      <Drawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
         <div className="flex h-full justify-center items-center text-lg">협업 드로어</div>
-      </SafeDrawer>
+      </Drawer>
     </div>
   );
 }
