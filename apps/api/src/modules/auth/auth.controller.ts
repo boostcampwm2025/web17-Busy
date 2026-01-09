@@ -12,16 +12,16 @@ export class AuthController {
       // 1. get access token by authorization code
       const spotifyTokens = await this.authService.exchange(code, verifier);
 
-      // 2. request user info
-      const user = await this.authService.handleSpotifySignIn(spotifyTokens);
+      // // 2. request user info
+      // const user = await this.authService.handleSpotifySignIn(spotifyTokens);
 
-      // 3. issue jwt by user info
-      const appJwt = await this.authService.issueJwt(user);
+      // // 3. issue jwt by user info
+      // const appJwt = await this.authService.issueJwt(user);
 
       return {
         spotifyAccessToken: spotifyTokens.accessToken,
         spotifyTokenExpiresIn: spotifyTokens.expiresIn,
-        appJwt,
+        // appJwt,
       };
     } catch (err) {
       console.error(err);
