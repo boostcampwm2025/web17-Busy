@@ -7,11 +7,11 @@ import { CoverImgUploader } from './CoverImgUploader';
 import { MusicSearch } from './MusicSearch';
 import { SelectedMusicList } from './SelectedMusicList';
 
-export const ContentWriteModal = () => {
+export const ContentWriteModal = ({ initialMusic }: { initialMusic: Music }) => {
   const { closeModal } = useModalStore();
 
   // --- 지역상태 관리 ---
-  const [selectedMusics, setSelectedMusics] = useState<Music[]>([]);
+  const [selectedMusics, setSelectedMusics] = useState<Music[]>(initialMusic ? [initialMusic] : []);
   const [content, setContent] = useState('');
   const [customCover, setCustomCover] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
