@@ -1,16 +1,10 @@
+import type { Provider } from 'src/common/constants';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
-const Provider = {
-  SPOTIFY: 'spotify',
-  GOOGLE: 'google',
-} as const;
-
-type Provider = (typeof Provider)[keyof typeof Provider];
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid', { name: 'user_id' })
-  userId: string;
+  id: string;
 
   @Column('varchar', { length: 12 })
   nickname: string;

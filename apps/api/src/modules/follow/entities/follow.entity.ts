@@ -24,6 +24,6 @@ export class Follow {
   @JoinColumn({ name: 'followed_user_id' })
   followedUser: User;
 
-  @CreateDateColumn()
-  createAt: Date;
+  @CreateDateColumn({ name: 'create_at' })
+  createdAt: Date;
 }
