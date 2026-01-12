@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import type { Post, Music } from '@/types';
 import { usePlayerStore } from '@/stores';
-import PostCard from './PostCard';
+import { PostCard, PostDetailModal } from './index';
 
 interface FeedListProps {
   posts: Post[];
@@ -51,10 +51,13 @@ export default function FeedList({ posts }: FeedListProps) {
       <div className="max-w-2xl mx-auto">
         <div className="space-y-4">{renderPosts}</div>
       </div>
-      {/* PostDetailModal 연결 예정 */}
-      {selectedPost ? null : null}
-      {/* 닫기 핸들러는 사용 예정 */}
-      void handleCloseDetail;
+      <PostDetailModal
+        isOpen={!!selectedPost}
+        post={selectedPost}
+        onClose={handleCloseDetail}
+        onPlay={handlePlay}
+        isPlaying={isPlaying && currentMusicId === selectedPost?.musics[0]?.musicId}
+      />
     </div>
   );
 }
