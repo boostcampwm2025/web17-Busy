@@ -152,13 +152,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       return;
     }
 
-    if (currentIndex >= normalizedQueue.length - 1) {
-      return;
-    }
+    // 마지막 곡이면 처음 곡으로 순환
+    const nextIndex = currentIndex >= normalizedQueue.length - 1 ? 0 : currentIndex + 1;
 
     set({
       queue: normalizedQueue,
-      currentMusic: normalizedQueue[currentIndex + 1] ?? null,
+      currentMusic: normalizedQueue[nextIndex] ?? null,
       isPlaying,
     });
   },
