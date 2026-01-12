@@ -6,7 +6,7 @@ import type { Music } from '@/types';
 import { LoadingSpinner } from '@/components';
 import { SearchInput, SearchStateMessage, TrackItem } from './index';
 
-import useDebouncedValue from '@/hooks/useDebouncedValue';
+import { useDebouncedValue, useMusicActions } from '@/hooks';
 import { searchItunesSongs } from '@/api';
 import { itunesSongToMusic } from '@/mappers';
 
@@ -24,10 +24,16 @@ function SearchDrawerInner() {
   const [status, setStatus] = useState<SearchStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [results, setResults] = useState<Music[]>([]);
+  const [openPreviewMusicId, setOpenPreviewMusicId] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
 
   const trimmed = useMemo(() => debouncedQuery.trim(), [debouncedQuery]);
+  const { addMusicToPlayer } = useMusicActions();
+
+  const handleTogglePreview = (musicId: string) => {
+    setOpenPreviewMusicId((prev) => (prev === musicId ? null : musicId));
+  };
 
   useEffect(() => {
     abortRef.current?.abort();
@@ -128,7 +134,7 @@ function SearchDrawerInner() {
     return (
       <div className="space-y-1">
         {results.map((music) => (
-          <TrackItem key={music.musicId} music={music} disabledActions />
+          <TrackItem key={music.musicId} music={music} disabledActions onPlay={addMusicToPlayer} />
         ))}
       </div>
     );
