@@ -9,8 +9,6 @@ services:
       MYSQL_DATABASE: "vibr"
       TZ: "Asia/Seoul"
     command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci" ]
-    volumes:
-      - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p1234" ]
       interval: 5s

@@ -9,7 +9,7 @@ import {
 import { Playlist } from './playlist.entity';
 import { Music } from 'src/modules/music/entities/music.entity';
 
-import { v7 as uuidv7 } from 'uuid';
+import { v7 as uuidV7 } from 'uuid';
 
 @Entity()
 export class PlaylistMusic {
@@ -18,7 +18,7 @@ export class PlaylistMusic {
 
   @BeforeInsert()
   setId() {
-    this.id ??= uuidv7();
+    this.id ??= uuidV7();
   }
 
   @ManyToOne(() => Playlist)

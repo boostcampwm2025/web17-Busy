@@ -1,7 +1,7 @@
 import { Provider } from 'src/common/constants';
 import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { v7 as uuidv7 } from 'uuid';
+import { v7 as uuidV7 } from 'uuid';
 
 @Entity()
 export class Music {
@@ -10,10 +10,10 @@ export class Music {
 
   @BeforeInsert()
   setId() {
-    this.id ??= uuidv7();
+    this.id ??= uuidV7();
   }
 
-  @Column({ name: 'track_uri' })
+  @Column({ name: 'track_uri', length: 1000 })
   trackUri: string;
 
   @Column('varchar', { length: 255 })

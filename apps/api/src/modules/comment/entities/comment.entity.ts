@@ -12,7 +12,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { v7 as uuidv7 } from 'uuid';
+import { v7 as uuidV7 } from 'uuid';
 
 @Entity()
 export class Comment {
@@ -21,7 +21,7 @@ export class Comment {
 
   @BeforeInsert()
   setId() {
-    this.id ??= uuidv7();
+    this.id ??= uuidV7();
   }
 
   @ManyToOne(() => User)

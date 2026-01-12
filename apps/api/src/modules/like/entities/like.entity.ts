@@ -10,14 +10,14 @@ import {
 
 @Entity()
 export class Like {
-  @PrimaryColumn('uuid', { name: 'user_id' })
+  @PrimaryColumn('char', { name: 'user_id', length: 36 })
   userId: string;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @PrimaryColumn('uuid', { name: 'post_id' })
+  @PrimaryColumn('char', { name: 'post_id', length: 36 })
   postId: string;
 
   @ManyToOne(() => Post)

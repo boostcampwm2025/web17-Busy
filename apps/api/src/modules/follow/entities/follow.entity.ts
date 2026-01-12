@@ -10,14 +10,14 @@ import {
 
 @Entity()
 export class Follow {
-  @PrimaryColumn('uuid', { name: 'following_user_id' })
+  @PrimaryColumn('char', { name: 'following_user_id', length: 36 })
   followingUserId: string;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'following_user_id' })
   followingUser: User;
 
-  @PrimaryColumn('uuid', { name: 'followed_user_id' })
+  @PrimaryColumn('char', { name: 'followed_user_id', length: 36 })
   followedUserId: string;
 
   @ManyToOne(() => User)

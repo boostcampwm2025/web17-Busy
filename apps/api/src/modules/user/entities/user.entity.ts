@@ -1,16 +1,16 @@
 import type { Provider } from 'src/common/constants';
 import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { v7 as uuidv7 } from 'uuid';
+import { v7 as uuidV7 } from 'uuid';
 
 @Entity()
 export class User {
-  @PrimaryColumn('uuid', { name: 'user_id' })
+  @PrimaryColumn('char', { name: 'user_id', length: 36 })
   id: string;
 
   @BeforeInsert()
   setId() {
-    this.id ??= uuidv7();
+    this.id ??= uuidV7();
   }
   @Column('varchar', { length: 12 })
   nickname: string;

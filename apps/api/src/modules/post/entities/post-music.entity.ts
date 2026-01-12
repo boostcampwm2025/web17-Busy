@@ -9,16 +9,16 @@ import {
 import { Post } from './post.entity';
 import { Music } from 'src/modules/music/entities/music.entity';
 
-import { v7 as uuidv7 } from 'uuid';
+import { v7 as uuidV7 } from 'uuid';
 
 @Entity()
 export class PostMusic {
-  @PrimaryColumn('uuid', { name: 'post_music_id' })
+  @PrimaryColumn('char', { name: 'post_music_id', length: 36 })
   id: string;
 
   @BeforeInsert()
   setId() {
-    this.id ??= uuidv7();
+    this.id ??= uuidV7();
   }
   @ManyToOne(() => Post)
   @JoinColumn({ name: 'post_id' })
