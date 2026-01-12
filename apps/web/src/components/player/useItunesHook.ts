@@ -1,68 +1,116 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePlayerStore } from '@/stores';
 
-export const useItunesHook = () => {
-  // HTML5 Audio 객체 생성 (렌더링과 무관하게 유지)
+type PlayerProgress = {
+  positionMs: number;
+  durationMs: number;
+};
+
+const DEFAULT_VOLUME = 0.5;
+
+export const useItunesHook = (): PlayerProgress => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  // UI 동기화 및 음악 track URI 요청함수
-  const currentMusic = usePlayerStore((state) => state.currentMusic);
-  const isPlaying = usePlayerStore((state) => state.isPlaying);
-  const playNext = usePlayerStore((state) => state.playNext);
-  const togglePlay = usePlayerStore((state) => state.togglePlay);
 
-  // Audio 객체 초기화
-  if (!audioRef.current && typeof window !== 'undefined') {
-    audioRef.current = new Audio();
-  }
+  const currentMusic = usePlayerStore((s) => s.currentMusic);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const playNext = usePlayerStore((s) => s.playNext);
+  const togglePlay = usePlayerStore((s) => s.togglePlay);
+  const queueLength = usePlayerStore((s) => s.queue.length);
 
-  // 곡이 변경되었을 때: 소스 변경 및 재생
+  const [progress, setProgress] = useState<PlayerProgress>({ positionMs: 0, durationMs: 0 });
+
+  // Audio 객체는 effect에서 1회 생성
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const audio = new Audio();
+    audio.volume = DEFAULT_VOLUME;
+    audioRef.current = audio;
+
+    return () => {
+      audio.pause();
+      audioRef.current = null;
+    };
+  }, []);
+
+  // 1곡이면 loop=true로 안정적으로 반복
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !currentMusic) return;
+    if (!audio) return;
 
-    // 미리듣기 주소 설정
-    audio.src = currentMusic.trackUri;
-    audio.volume = 0.5; // 기본 볼륨
+    audio.loop = queueLength <= 1;
+  }, [queueLength]);
 
-    // 재생 상태라면 바로 재생
-    if (isPlaying) {
-      audio.play().catch((e) => console.error('Playback failed:', e));
+  // currentMusic 변경 시 소스 변경 + 초기 progress 리셋
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (!currentMusic) {
+      audio.pause();
+      audio.src = '';
+      setProgress({ positionMs: 0, durationMs: 0 });
+      return;
     }
-  }, [currentMusic]);
 
-  // Play/Pause 상태 동기화
+    audio.src = currentMusic.trackUri;
+    audio.load(); // 브라우저별 ended -> 재생 안정성 개선
+    setProgress({ positionMs: 0, durationMs: currentMusic.durationMs ?? 0 });
+
+    if (!isPlaying) return;
+
+    void audio.play().catch(() => {
+      togglePlay();
+    });
+  }, [currentMusic, isPlaying, togglePlay]);
+
+  // play/pause 동기화
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (isPlaying) {
-      audio.play().catch(() => {
-        // 자동 재생 정책 등으로 실패 시 UI도 멈춤 처리
+      void audio.play().catch(() => {
         togglePlay();
       });
-    } else {
-      audio.pause();
+      return;
     }
+
+    audio.pause();
   }, [isPlaying, togglePlay]);
 
-  // 이벤트 리스너: 곡이 끝나면 다음 곡으로
+  // timeupdate/loadedmetadata/ended 이벤트로 progress 동기화
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handleEnded = () => {
-      playNext(); // 다음 곡 재생
+    const handleTimeUpdate = () => {
+      setProgress((prev) => ({ ...prev, positionMs: Math.floor(audio.currentTime * 1000) }));
     };
 
+    const handleLoadedMetadata = () => {
+      const durationMs = Number.isFinite(audio.duration) ? Math.floor(audio.duration * 1000) : 0;
+      setProgress((prev) => ({ ...prev, durationMs: durationMs || prev.durationMs }));
+    };
+
+    const handleEnded = () => {
+      // 1곡이면 loop가 처리하므로 아무 것도 하지 않음
+      if (queueLength <= 1) return;
+      playNext();
+    };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
 
     return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
-      audio.pause(); // 컴포넌트 언마운트 시 정지
     };
-  }, [playNext]);
+  }, [playNext, queueLength]); // queueLength deps 추가
 
-  return null; // UI를 렌더링하지 않는 훅
+  return progress;
 };
