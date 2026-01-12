@@ -1,11 +1,17 @@
 import type { Provider } from 'src/common/constants';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
+
+import { v7 as uuidv7 } from 'uuid';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn('uuid', { name: 'user_id' })
+  @PrimaryColumn('uuid', { name: 'user_id' })
   id: string;
 
+  @BeforeInsert()
+  setId() {
+    this.id ??= uuidv7();
+  }
   @Column('varchar', { length: 12 })
   nickname: string;
 

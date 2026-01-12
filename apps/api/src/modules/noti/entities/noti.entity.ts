@@ -1,18 +1,26 @@
 import type { NotiType } from 'src/common/constants';
 import { User } from 'src/modules/user/entities/user.entity';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from 'typeorm';
+
+import { v7 as uuidv7 } from 'uuid';
 
 @Entity()
 export class Noti {
-  @PrimaryGeneratedColumn('uuid', { name: 'noti_id' })
+  @PrimaryColumn('char', { name: 'noti_id', length: 36 })
   id: string;
+
+  @BeforeInsert()
+  setId() {
+    this.id ??= uuidv7();
+  }
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'receiver_id' })

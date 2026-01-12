@@ -1,18 +1,25 @@
 import {
+  BeforeInsert,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from 'typeorm';
 import { Post } from './post.entity';
 import { Music } from 'src/modules/music/entities/music.entity';
 
+import { v7 as uuidv7 } from 'uuid';
+
 @Entity()
 export class PostMusic {
-  @PrimaryGeneratedColumn('uuid', { name: 'post_music_id' })
+  @PrimaryColumn('uuid', { name: 'post_music_id' })
   id: string;
 
+  @BeforeInsert()
+  setId() {
+    this.id ??= uuidv7();
+  }
   @ManyToOne(() => Post)
   @JoinColumn({ name: 'post_id' })
   post: Post;

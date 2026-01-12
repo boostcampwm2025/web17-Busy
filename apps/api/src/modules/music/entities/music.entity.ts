@@ -1,10 +1,17 @@
 import { Provider } from 'src/common/constants';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
+
+import { v7 as uuidv7 } from 'uuid';
 
 @Entity()
 export class Music {
-  @PrimaryGeneratedColumn('uuid', { name: 'music_id' })
+  @PrimaryColumn('char', { name: 'music_id', length: 36 })
   id: string;
+
+  @BeforeInsert()
+  setId() {
+    this.id ??= uuidv7();
+  }
 
   @Column({ name: 'track_uri' })
   trackUri: string;
