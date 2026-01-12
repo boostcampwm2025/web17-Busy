@@ -5,7 +5,7 @@ import { Search, Sparkles, Library, Music as MusicIcon } from 'lucide-react';
 import type { Music, Playlist } from '@/types';
 import { searchItunesSongs } from '@/api';
 import { itunesSongToMusic } from '@/mappers';
-import useDebouncedValue from '@/hooks/useDebouncedValue';
+import { useDebouncedValue } from '@/hooks';
 
 type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
