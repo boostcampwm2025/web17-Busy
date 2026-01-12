@@ -17,7 +17,7 @@ interface PostListProps {
 }
 
 export default function PostList({ initialData }: { initialData: PostListProps }) {
-  const { ref, inView } = useInView({ threshold: 1.0, delay: 500 });
+  const { ref, inView } = useInView({ threshold: 1.0, delay: 800 });
 
   const [posts, setPosts] = useState(initialData.posts);
   const [hasNext, setHasNext] = useState(initialData.hasNext);
@@ -25,20 +25,18 @@ export default function PostList({ initialData }: { initialData: PostListProps }
   const [isLoading, setIsLoading] = useState(false); // 중복 요청 방지 flag
 
   const loadMorePosts = useCallback(async () => {
-    if (isLoading) return;
     setIsLoading(true);
-
     const newData = await getFeedPosts(nextCursor);
 
     setPosts((prevPosts) => [...prevPosts, ...newData.posts]);
     setHasNext(newData.hasNext);
     setNextCursor(newData.nextCursor);
     setIsLoading(false);
-  }, [isLoading]);
+  }, [nextCursor]);
 
   useEffect(() => {
-    if (inView && hasNext) loadMorePosts();
-  }, [inView, loadMorePosts]);
+    if (inView && hasNext && !isLoading) loadMorePosts();
+  }, [inView]);
 
   return (
     <>
