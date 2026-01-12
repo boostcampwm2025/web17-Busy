@@ -78,3 +78,63 @@ VIBR는 **“링크 공유”로 끝나던 음악 추천을, 한 화면에서 �
 ## ☁️ NCP 인프라 아키텍처 설계도
 
 <img width="934" height="688" alt="image" src="https://github.com/user-attachments/assets/8225ba82-1afa-402d-996e-51cc7a99013d" />
+
+---
+
+## 🧑‍💻 Local Setup (Workspace)
+
+### Requirements
+
+- **Node.js >= 18** (권장: LTS)
+- **pnpm** (workspace 기준)
+
+### Install
+
+```bash
+corepack enable
+pnpm -v
+pnpm install
+```
+
+### Run (Dev)
+
+```bash
+pnpm dev
+```
+
+### Useful Commands
+
+```bash
+pnpm lint
+pnpm check-types
+pnpm build
+pnpm format
+```
+
+---
+
+## ✅ Git Hooks & Commit Convention
+
+이 레포는 **Husky + lint-staged + commitlint**로 커밋 품질을 자동으로 보장
+
+- `pre-commit`: staged 파일 기준으로 **Prettier/ESLint 자동 적용**
+- `commit-msg`: **Conventional Commits** 규칙을 강제 (commitlint)
+
+### Commit message format
+
+```bash
+type(scope): summary #issueNumber
+```
+
+**Allowed types**
+
+`feat | fix | docs | style | refactor | test | chore | revert | perf | ci | design`
+
+예시)
+
+```bash
+chore(tooling): stabilize husky hooks #21
+feat(feed): add infinite scroll #34
+```
+
+> 커밋이 막히는 경우 대부분 훅에서 포맷/린트/커밋 메시지 규칙 위반이 원인입니다. 출력되는 로그를 먼저 확인해주세요.
