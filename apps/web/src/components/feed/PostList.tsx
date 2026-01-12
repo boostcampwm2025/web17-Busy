@@ -17,7 +17,7 @@ interface PostListProps {
 }
 
 export default function PostList({ initialData }: { initialData: PostListProps }) {
-  const { ref, inView } = useInView({ threshold: 1.0, delay: 800 });
+  const { ref, inView } = useInView({ threshold: 0.8, rootMargin: '200px' });
 
   const [posts, setPosts] = useState(initialData.posts);
   const [hasNext, setHasNext] = useState(initialData.hasNext);
@@ -26,6 +26,8 @@ export default function PostList({ initialData }: { initialData: PostListProps }
 
   const loadMorePosts = useCallback(async () => {
     setIsLoading(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 500)); // 로딩 스피너 짧게 노출
     const newData = await getFeedPosts(nextCursor);
 
     setPosts((prevPosts) => [...prevPosts, ...newData.posts]);
