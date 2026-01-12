@@ -13,21 +13,21 @@ export class Music {
     this.id ??= uuidV7();
   }
 
-  @Column({ name: 'track_uri', length: 1000 })
+  @Column({ name: 'track_uri', length: 1000, nullable: false })
   trackUri: string;
 
-  @Column('varchar', { length: 255 })
+  @Column('varchar', { length: 255, nullable: false })
   provider: Provider;
 
-  @Column('varchar', { name: 'album_cover_url', length: 2083 })
+  @Column('varchar', { name: 'album_cover_url', length: 2083, nullable: false })
   albumCoverUrl: string;
 
-  @Column('varchar', { length: 1000 })
+  @Column('varchar', { length: 1000, nullable: false })
   title: string;
 
-  @Column('varchar', { name: 'artist_name', length: 1000 })
+  @Column('varchar', { name: 'artist_name', length: 1000, nullable: false })
   artistName: string;
 
-  @Column('int', { name: 'duration_ms' })
+  @Column('int', { name: 'duration_ms', nullable: false })
   durationMs: number;
 }

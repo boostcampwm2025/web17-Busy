@@ -12,24 +12,28 @@ export class User {
   setId() {
     this.id ??= uuidV7();
   }
-  @Column('varchar', { length: 12 })
+  @Column('varchar', { length: 12, nullable: false })
   nickname: string;
 
-  @Column('varchar', { length: 255 })
+  @Column('varchar', { length: 255, nullable: true })
   email: string;
 
-  @Column('varchar', { name: 'profile_img_url', length: 2083 })
+  @Column('varchar', { name: 'profile_img_url', length: 2083, nullable: true })
   profileImgUrl: string;
 
-  @Column('varchar', { length: 255 })
+  @Column('varchar', { length: 255, nullable: true })
   bio: string;
 
-  @Column('varchar', { length: 255 })
+  @Column('varchar', { length: 255, nullable: true })
   provider: Provider;
 
-  @Column('varchar', { name: 'provider_user_id', length: 255 })
+  @Column('varchar', { name: 'provider_user_id', length: 255, nullable: true })
   providerUserId: string;
 
-  @Column('varchar', { name: 'provider_refresh_token', length: 1000 })
+  @Column('varchar', {
+    name: 'provider_refresh_token',
+    length: 1000,
+    nullable: true,
+  })
   providerRefreshToken: string;
 }

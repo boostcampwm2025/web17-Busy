@@ -20,10 +20,10 @@ export class Playlist {
     this.id ??= uuidV7();
   }
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'owner_id' })
   owner: User;
 
-  @Column('varchar', { length: 20 })
+  @Column('varchar', { length: 20, nullable: false })
   title: string;
 }

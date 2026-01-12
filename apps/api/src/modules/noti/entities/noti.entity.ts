@@ -22,21 +22,21 @@ export class Noti {
     this.id ??= uuidV7();
   }
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'receiver_id' })
   receiver: User;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'actor_id' })
   actor: User;
 
-  @Column('varchar', { length: 10 })
+  @Column('varchar', { length: 10, nullable: false })
   type: NotiType;
 
-  @Column('char', { name: 'related_id', length: 36 })
+  @Column('char', { name: 'related_id', length: 36, nullable: true })
   relatedId: string;
 
-  @Column('bool', { name: 'is_read' })
+  @Column('bool', { name: 'is_read', nullable: false })
   isRead: boolean;
 
   @CreateDateColumn({ name: 'created_at' })

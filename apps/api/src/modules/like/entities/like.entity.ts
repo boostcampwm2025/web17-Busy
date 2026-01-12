@@ -13,14 +13,14 @@ export class Like {
   @PrimaryColumn('char', { name: 'user_id', length: 36 })
   userId: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
   @PrimaryColumn('char', { name: 'post_id', length: 36 })
   postId: string;
 
-  @ManyToOne(() => Post)
+  @ManyToOne(() => Post, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id' })
   post: Post;
 

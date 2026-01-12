@@ -21,14 +21,14 @@ export class NowPlaylistMusic {
     this.id ??= uuidV7();
   }
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Music)
+  @ManyToOne(() => Music, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'music_id' })
   music: Music;
 
-  @Column('int', { name: 'order_index' })
+  @Column('int', { name: 'order_index', nullable: false })
   orderIndex: number;
 }

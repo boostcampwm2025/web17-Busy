@@ -23,20 +23,20 @@ export class Post {
     this.id ??= uuidV7();
   }
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'author_id' })
   author: User;
 
-  @Column('varchar', { name: 'cover_img_url', length: 2083 })
+  @Column('varchar', { name: 'cover_img_url', length: 2083, nullable: false })
   coverImgUrl: string;
 
-  @Column('varchar', { length: 2300 })
+  @Column('varchar', { length: 2300, nullable: true })
   content: string;
 
-  @Column('int', { name: 'like_count' })
+  @Column('int', { name: 'like_count', nullable: false })
   likeCount: number;
 
-  @Column('int', { name: 'comment_count' })
+  @Column('int', { name: 'comment_count', nullable: false })
   commentCount: number;
 
   @CreateDateColumn({ name: 'created_at' })

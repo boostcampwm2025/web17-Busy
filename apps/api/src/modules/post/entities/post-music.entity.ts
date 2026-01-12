@@ -20,14 +20,14 @@ export class PostMusic {
   setId() {
     this.id ??= uuidV7();
   }
-  @ManyToOne(() => Post)
+  @ManyToOne(() => Post, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id' })
   post: Post;
 
-  @ManyToOne(() => Music)
+  @ManyToOne(() => Music, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'music_id' })
   music: Music;
 
-  @Column('int', { name: 'order_index' })
+  @Column('int', { name: 'order_index', nullable: false })
   orderIndex: number;
 }

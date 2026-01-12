@@ -24,15 +24,15 @@ export class Comment {
     this.id ??= uuidV7();
   }
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'author_id' })
   author: User;
 
-  @ManyToOne(() => Post)
+  @ManyToOne(() => Post, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id' })
   post: Post;
 
-  @Column('varchar', { length: 2300 })
+  @Column('varchar', { length: 2300, nullable: false })
   content: string;
 
   @CreateDateColumn({ name: 'create_at' })
