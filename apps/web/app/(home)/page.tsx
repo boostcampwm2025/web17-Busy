@@ -1,8 +1,13 @@
-import { FeedList } from '@/components';
-import { MOCK_POSTS } from '@/constants';
+import { getFeedPosts } from '@/api/feed';
+import PostList from '@/components/feed/PostList';
 
 export default async function Home() {
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  // 초기 데이터 fetch
+  const initialData = await getFeedPosts();
 
-  return <FeedList posts={MOCK_POSTS} />;
+  return (
+    <div className="flex flex-col h-screen items-center gap-4 py-8">
+      <PostList initialData={initialData} />
+    </div>
+  );
 }
