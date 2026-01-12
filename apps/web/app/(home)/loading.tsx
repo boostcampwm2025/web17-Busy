@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div role="status" className="flex flex-col w-full max-w-[780px] mx-auto py-8 px-8 gap-y-4">
+    <div role="status" className="flex flex-col w-full max-w-195 mx-auto py-8 px-8 gap-y-4">
       <PostCardPulse />
       <PostCardPulse />
     </div>
