@@ -2,7 +2,8 @@
 
 import { getFeedPosts } from '@/api/feed';
 import { LoadingSpinner } from '@/components';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 
 interface Post {
   id: number;
@@ -16,18 +17,17 @@ interface PostListProps {
 }
 
 export default function PostList({ initialData }: { initialData: PostListProps }) {
+  const { ref, inView } = useInView({ threshold: 1.0, delay: 500 });
+
   const [posts, setPosts] = useState(initialData.posts);
   const [hasNext, setHasNext] = useState(initialData.hasNext);
   const [nextCursor, setNextCursor] = useState(initialData.nextCursor);
   const [isLoading, setIsLoading] = useState(false); // 중복 요청 방지 flag
 
-  const targetRef = useRef<HTMLDivElement>(null); // fetch 요청 트리거
-
   const loadMorePosts = useCallback(async () => {
-    if (!hasNext || isLoading) return;
+    if (isLoading) return;
     setIsLoading(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     const newData = await getFeedPosts(nextCursor);
 
     setPosts((prevPosts) => [...prevPosts, ...newData.posts]);
@@ -37,26 +37,8 @@ export default function PostList({ initialData }: { initialData: PostListProps }
   }, [isLoading]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          loadMorePosts();
-        }
-      },
-      { threshold: 1.0 },
-    );
-
-    const currentTarget = targetRef.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [loadMorePosts]);
+    if (inView && hasNext) loadMorePosts();
+  }, [inView, loadMorePosts]);
 
   return (
     <>
@@ -66,7 +48,7 @@ export default function PostList({ initialData }: { initialData: PostListProps }
         </div>
       ))}
       {hasNext && (
-        <div ref={targetRef}>
+        <div ref={ref}>
           <LoadingSpinner hStyle="py-4" />
         </div>
       )}
