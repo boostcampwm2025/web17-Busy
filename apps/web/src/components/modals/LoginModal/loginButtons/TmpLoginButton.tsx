@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 
 export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname: string }) => {
   const [loading, setLoading] = useState(false);

@@ -7,9 +7,11 @@ import { UserModule } from './modules/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { join } from 'path';
+import { SeedModule } from './modules/seed/seed.module';
 
 @Module({
   imports: [
+    SeedModule,
     AuthModule,
     UserModule,
     ConfigModule.forRoot({
