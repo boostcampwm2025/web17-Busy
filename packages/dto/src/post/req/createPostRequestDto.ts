@@ -4,10 +4,11 @@ interface MusicRequest {
   artistName: string;
   albumCoverUrl: string;
   trackUri: string;
+  provider?: string;
 }
 
 export class CreatePostRequestDto {
   musics: MusicRequest[];
   content: string;
-  thumbnailImgUrl: string;
+  thumbnailImgUrl?: string;
 }

@@ -20,7 +20,7 @@ export interface PostResponse {
   content: string;
   likeCount: number;
   commentCount: number;
-  createAt: Date;
+  createdAt: Date;
   isEdited: boolean;
   isLiked: boolean;
 }
