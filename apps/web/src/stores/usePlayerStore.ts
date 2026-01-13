@@ -46,10 +46,10 @@ const normalizeToArray = (music: Music | Music[]): Music[] => (Array.isArray(mus
 const hasMusic = (queue: Music[], musicId: string): boolean => queue.some((item) => item.musicId === musicId);
 
 /**
- * 큐에 곡이 없으면 맨 앞에 삽입.
- * playMusic에서 "재생한 곡이 큐에 없으면 맨 앞 삽입" 규칙을 담당.
+ * 큐에 곡이 없으면 맨 뒤에 삽입.
+ * playMusic에서 "재생한 곡이 큐에 없으면 맨 뒤 삽입" 규칙을 담당.
  */
-const prependIfMissing = (queue: Music[], music: Music): Music[] => (hasMusic(queue, music.musicId) ? queue : [music, ...queue]);
+const appendIfMissing = (queue: Music[], music: Music): Music[] => (hasMusic(queue, music.musicId) ? queue : [...queue, music]);
 
 /** 큐에서 특정 곡 제거 */
 const removeById = (queue: Music[], musicId: string): Music[] => queue.filter((item) => item.musicId !== musicId);
@@ -76,7 +76,7 @@ const ensureCurrentInQueue = (queue: Music[], current: Music | null): Music[] =>
   if (!current) {
     return queue;
   }
-  return prependIfMissing(queue, current);
+  return appendIfMissing(queue, current);
 };
 
 const findCurrentIndex = (queue: Music[], current: Music | null): number => {
@@ -112,7 +112,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     set({
       currentMusic: music,
       isPlaying: true,
-      queue: prependIfMissing(queue, music),
+      queue: appendIfMissing(queue, music),
     });
   },
 
