@@ -11,8 +11,10 @@ const MOCK_MUSICS: Music[] = [
   {
     musicId: 'm-1',
     provider: 'APPLE',
-    trackUri: 'https://example.com/preview-1.m4a',
-    albumCoverUrl: 'https://picsum.photos/seed/vibr-m1/600/600',
+    trackUri:
+      'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/7d/ed/d6/7dedd634-2bdd-b55f-8529-6b906df37f5e/mzaf_9292972481722090940.plus.aac.p.m4a',
+    albumCoverUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/36/89/c9/3689c99a-f88e-d019-b7b2-83a3eb8a379b/4897028491172_Cover.jpg/600x600bb.jpg',
     title: 'Midnight City',
     artistName: 'VIBR Artist',
     durationMs: 210_000,
@@ -20,8 +22,10 @@ const MOCK_MUSICS: Music[] = [
   {
     musicId: 'm-2',
     provider: 'APPLE',
-    trackUri: 'https://example.com/preview-2.m4a',
-    albumCoverUrl: 'https://picsum.photos/seed/vibr-m2/600/600',
+    trackUri:
+      'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4d/79/29/4d79296f-7eae-383d-2885-facc9da46c8c/mzaf_12023052104897000510.plus.aac.p.m4a',
+    albumCoverUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/03/4d/0a/034d0a44-d7d8-9aa8-a58c-5e5b9b3ccd2c/ANTCD-A0000012700.jpg/600x600bb.jpg',
     title: 'City Lights',
     artistName: 'VIBR Artist',
     durationMs: 222_000,
@@ -29,8 +33,9 @@ const MOCK_MUSICS: Music[] = [
   {
     musicId: 'm-3',
     provider: 'APPLE',
-    trackUri: 'https://example.com/preview-3.m4a',
-    albumCoverUrl: 'https://picsum.photos/seed/vibr-m3/600/600',
+    trackUri:
+      'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0c/ad/28/0cad2809-7456-f1a0-bb73-229f5ca53961/mzaf_15626393563602953255.plus.aac.p.m4a',
+    albumCoverUrl: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/73/d6/b5/73d6b59d-aa86-e8c9-1c3a-c011ac57f306/artwork.jpg/600x600bb.jpg',
     title: 'Neon Dreams',
     artistName: 'VIBR Artist',
     durationMs: 198_000,
@@ -38,8 +43,10 @@ const MOCK_MUSICS: Music[] = [
   {
     musicId: 'm-4',
     provider: 'APPLE',
-    trackUri: 'https://example.com/preview-4.m4a',
-    albumCoverUrl: 'https://picsum.photos/seed/vibr-m4/600/600',
+    trackUri:
+      'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c1/d8/4e/c1d84e03-66fb-3a0f-d0a0-46108a235702/mzaf_3033050337908928626.plus.aac.p.m4a',
+    albumCoverUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/1e/90/d2/1e90d2f1-b833-f236-ec7b-107edd0350ac/coffee-break.jpg/600x600bb.jpg',
     title: 'Coffee Break',
     artistName: 'VIBR Artist',
     durationMs: 185_000,
@@ -47,8 +54,10 @@ const MOCK_MUSICS: Music[] = [
   {
     musicId: 'm-5',
     provider: 'APPLE',
-    trackUri: 'https://example.com/preview-5.m4a',
-    albumCoverUrl: 'https://picsum.photos/seed/vibr-m5/600/600',
+    trackUri:
+      'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/14/d7/2b/14d72b82-b397-7b4b-2922-116d2c6d2a8c/mzaf_2737461626288763697.plus.aac.p.m4a',
+    albumCoverUrl:
+      'https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/72/29/d9/7229d9e9-f620-f800-cec5-e2a554ebe9ba/4550752377807_cover.png/600x600bb.jpg',
     title: 'Rainy Day',
     artistName: 'VIBR Artist',
     durationMs: 201_000,

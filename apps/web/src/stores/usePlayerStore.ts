@@ -46,10 +46,10 @@ const normalizeToArray = (music: Music | Music[]): Music[] => (Array.isArray(mus
 const hasMusic = (queue: Music[], musicId: string): boolean => queue.some((item) => item.musicId === musicId);
 
 /**
- * 큐에 곡이 없으면 맨 앞에 삽입.
- * playMusic에서 "재생한 곡이 큐에 없으면 맨 앞 삽입" 규칙을 담당.
+ * 큐에 곡이 없으면 맨 뒤에 삽입.
+ * playMusic에서 "재생한 곡이 큐에 없으면 맨 뒤 삽입" 규칙을 담당.
  */
-const prependIfMissing = (queue: Music[], music: Music): Music[] => (hasMusic(queue, music.musicId) ? queue : [music, ...queue]);
+const appendIfMissing = (queue: Music[], music: Music): Music[] => (hasMusic(queue, music.musicId) ? queue : [...queue, music]);
 
 /** 큐에서 특정 곡 제거 */
 const removeById = (queue: Music[], musicId: string): Music[] => queue.filter((item) => item.musicId !== musicId);
@@ -76,7 +76,7 @@ const ensureCurrentInQueue = (queue: Music[], current: Music | null): Music[] =>
   if (!current) {
     return queue;
   }
-  return prependIfMissing(queue, current);
+  return appendIfMissing(queue, current);
 };
 
 const findCurrentIndex = (queue: Music[], current: Music | null): number => {
@@ -99,7 +99,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   /**
    * 곡 선택/재생 규칙
    * 1) 같은 곡이면: 재생/일시정지 토글
-   * 2) 다른 곡이면: 현재곡 교체 + 재생 상태 true + 큐에 없으면 맨 앞 삽입
+   * 2) 다른 곡이면: 현재곡 교체 + 재생 상태 true + 큐에 없으면 맨 뒤 삽입
    */
   playMusic: (music) => {
     const { currentMusic, queue } = get();
@@ -112,7 +112,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     set({
       currentMusic: music,
       isPlaying: true,
-      queue: prependIfMissing(queue, music),
+      queue: appendIfMissing(queue, music),
     });
   },
 
@@ -123,41 +123,54 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   playPrev: () => {
     const { currentMusic, queue, isPlaying } = get();
-    const normalizedQueue = ensureCurrentInQueue(queue, currentMusic);
-    const currentIndex = findCurrentIndex(normalizedQueue, currentMusic);
 
-    if (currentIndex <= 0) {
+    if (queue.length === 0) {
       return;
     }
 
+    const currentIndex = findCurrentIndex(queue, currentMusic);
+
+    // currentMusic이 큐에 없으면 "이전"은 마지막 곡으로 이동
+    if (currentIndex === -1) {
+      set({
+        currentMusic: queue[queue.length - 1] ?? null,
+        isPlaying,
+      });
+      return;
+    }
+
+    // 첫 곡이면 마지막 곡으로 순환
+    const prevIndex = currentIndex <= 0 ? queue.length - 1 : currentIndex - 1;
+
     set({
-      queue: normalizedQueue,
-      currentMusic: normalizedQueue[currentIndex - 1] ?? null,
+      currentMusic: queue[prevIndex] ?? null,
       isPlaying,
     });
   },
 
   playNext: () => {
     const { currentMusic, queue, isPlaying } = get();
-    const normalizedQueue = ensureCurrentInQueue(queue, currentMusic);
-    const currentIndex = findCurrentIndex(normalizedQueue, currentMusic);
 
-    if (normalizedQueue.length === 0) {
+    if (queue.length === 0) {
       return;
     }
 
-    // currentMusic이 큐에 없으면 0번째로 이동
+    const currentIndex = findCurrentIndex(queue, currentMusic);
+
+    // currentMusic이 큐에 없으면 "다음"은 첫 곡으로 이동
     if (currentIndex === -1) {
-      set({ queue: normalizedQueue, currentMusic: normalizedQueue[0] ?? null, isPlaying });
+      set({
+        currentMusic: queue[0] ?? null,
+        isPlaying,
+      });
       return;
     }
 
     // 마지막 곡이면 처음 곡으로 순환
-    const nextIndex = currentIndex >= normalizedQueue.length - 1 ? 0 : currentIndex + 1;
+    const nextIndex = currentIndex >= queue.length - 1 ? 0 : currentIndex + 1;
 
     set({
-      queue: normalizedQueue,
-      currentMusic: normalizedQueue[nextIndex] ?? null,
+      currentMusic: queue[nextIndex] ?? null,
       isPlaying,
     });
   },
@@ -166,10 +179,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   addToQueue: (music) => {
     const items = normalizeToArray(music);
 
-    // 음악 추가 후 추가된 첫 번째 곡으로 currentMusic 정보 업데이트, isPlaying이 false라면 true로 업데이트
     set((state) => {
       const deduped = items.filter((item) => !hasMusic(state.queue, item.musicId));
-      return { queue: [...state.queue, ...deduped], currentMusic: items[0], isPlaying: state.isPlaying || true };
+      if (deduped.length === 0) {
+        return state;
+      }
+      return { queue: [...state.queue, ...deduped] };
     });
   },
 
