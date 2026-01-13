@@ -15,7 +15,9 @@ export class PostService {
   constructor(
     @InjectRepository(Post)
     private readonly postRepo: Repository<Post>,
+    @InjectRepository(PostMusic)
     private readonly postMusicRepo: Repository<PostMusic>,
+    @InjectRepository(Like)
     private readonly likeRepo: Repository<Like>,
   ) {}
 
