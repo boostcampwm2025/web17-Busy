@@ -99,7 +99,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   /**
    * 곡 선택/재생 규칙
    * 1) 같은 곡이면: 재생/일시정지 토글
-   * 2) 다른 곡이면: 현재곡 교체 + 재생 상태 true + 큐에 없으면 맨 앞 삽입
+   * 2) 다른 곡이면: 현재곡 교체 + 재생 상태 true + 큐에 없으면 맨 뒤 삽입
    */
   playMusic: (music) => {
     const { currentMusic, queue } = get();
@@ -166,10 +166,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   addToQueue: (music) => {
     const items = normalizeToArray(music);
 
-    // 음악 추가 후 추가된 첫 번째 곡으로 currentMusic 정보 업데이트, isPlaying이 false라면 true로 업데이트
     set((state) => {
       const deduped = items.filter((item) => !hasMusic(state.queue, item.musicId));
-      return { queue: [...state.queue, ...deduped], currentMusic: items[0], isPlaying: state.isPlaying || true };
+      if (deduped.length === 0) {
+        return state;
+      }
+      return { queue: [...state.queue, ...deduped] };
     });
   },
 
