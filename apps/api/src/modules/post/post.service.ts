@@ -13,6 +13,7 @@ import { Provider } from 'src/common/constants';
 import { MusicRequest } from '@repo/dto/post/req/index';
 import { MusicResponse } from '@repo/dto/post/res/index';
 import { toGetPostDetailResponseDto } from 'src/common/mappers/toGetPostDetailResponseDto';
+import { PostMusicRepository } from './post-music.repository';
 
 @Injectable()
 export class PostService {
@@ -21,8 +22,7 @@ export class PostService {
     private readonly ds: DataSource,
     @InjectRepository(Post)
     private readonly postRepo: Repository<Post>,
-    @InjectRepository(PostMusic)
-    private readonly postMusicRepo: Repository<PostMusic>,
+    private readonly postMusicRepo: PostMusicRepository,
     @InjectRepository(Like)
     private readonly likeRepo: Repository<Like>,
   ) {}
@@ -76,10 +76,7 @@ export class PostService {
 
     if (!post) return null;
 
-    const musics = await this.postMusicRepo
-      .createQueryBuilder('pm')
-      .innerJoin('pm.music', 'm')
-      .getRawMany<MusicResponse>();
+    const musicsOfPost = await this.postMusicRepo.findMusicsByPostId(postId);
 
     const isLiked = viewerId
       ? await this.likeRepo.exists({
@@ -87,7 +84,7 @@ export class PostService {
         })
       : false;
 
-    return toGetPostDetailResponseDto({ post, musics, isLiked });
+    return toGetPostDetailResponseDto({ post, musics: musicsOfPost, isLiked });
   }
 
   async update(
