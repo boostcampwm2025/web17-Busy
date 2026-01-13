@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -27,19 +27,37 @@ export class PostService {
     content: string,
     thumbnailImgUrl?: string,
   ): Promise<void> {
-    // 트랜잭션 필요 x
-
-    // 1. find user
+    if (musics.length === 0)
+      throw new BadRequestException(
+        '게시글에는 최소 1곡의 음악이 있어야 합니다.',
+      );
+    // 트랜잭션 필요
+    // 1. find user 필요 x
 
     // 2. ensure music
     musics.forEach((m) => (m.provider ??= Provider.ITUNES));
     // const ensuredMusics = this.musicService.ensureMusics(musics);
 
     // 3. thumbnailImgUrl 이 없다면 첫 곡의 앨범 커버 이미지로
+    thumbnailImgUrl ??= musics[0].albumCoverUrl;
 
     // 4. repo.save
-    // await this.postRepo.save(createPostDto);
-    // await this.postMusicRepo.save();
+    const { id: postId } = await this.postRepo.save({
+      author: { id: userId },
+      thumbnailImgUrl,
+      content,
+      likeCount: 0,
+      commentCount: 0,
+    });
+
+    // musics -> ensuredMusics
+    const postMusicsToSave = musics.map((m, i) => ({
+      post: { id: postId },
+      music: { id: m.musicId },
+      orderIndex: i + 1,
+    }));
+
+    await this.postMusicRepo.save(postMusicsToSave);
   }
 
   async getPostDetail(postId: string, viewerId: string | null) {
