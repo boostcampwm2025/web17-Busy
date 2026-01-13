@@ -6,14 +6,14 @@ import { useInView } from 'react-intersection-observer';
 import LoadingSpinner from '../LoadingSpinner';
 
 interface Post {
-  id: number;
+  id: string;
   title: string;
 }
 
 interface PostListProps {
   posts: Post[];
   hasNext: boolean;
-  nextCursor?: number;
+  nextCursor?: string;
 }
 
 export default function PostList({ initialData }: { initialData: PostListProps }) {
@@ -35,7 +35,7 @@ export default function PostList({ initialData }: { initialData: PostListProps }
       setPosts((prevPosts) => [...prevPosts, ...newData.posts]);
       setHasNext(newData.hasNext);
       setNextCursor(newData.nextCursor);
-      setError(null);
+      error && setError(null);
     } catch (e) {
       setError('오류가 발생했습니다.');
     } finally {
