@@ -1,14 +1,14 @@
 import { IsString, IsNotEmpty, IsEnum, IsUrl, IsInt, Min } from 'class-validator';
-import { MusicProvider } from '../music-provider.enum';
+import { Provider } from '../music-provider.enum';
 
 export class CreateMusicReqDto {
   @IsString()
   @IsNotEmpty()
   trackUri: string;
 
-  @IsEnum(MusicProvider)
+  @IsEnum(Provider)
   @IsNotEmpty()
-  provider: MusicProvider;
+  provider: Provider;
 
   @IsUrl()
   @IsNotEmpty()

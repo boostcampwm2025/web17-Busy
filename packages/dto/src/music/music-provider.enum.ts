@@ -1,6 +1,4 @@
-export enum MusicProvider {
-  SPOTIFY = 'SPOTIFY',
-  APPLE = 'APPLE',
-  YOUTUBE = 'YOUTUBE',
-  LOCAL = 'LOCAL',
+export enum Provider {
+  SPOTIFY = 'spotify',
+  APPLE = 'apple',
 }
