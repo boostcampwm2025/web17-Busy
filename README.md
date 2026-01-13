@@ -24,7 +24,7 @@ VIBR는 **“링크 공유”로 끝나던 음악 추천을, 한 화면에서 �
 
 ---
 
-## 🧩 Why Now? (우리가 풀려는 문제)
+## 🧩 Why Now? (우리가 해결하려는 문제)
 
 ### 🌀 알고리즘 피로도
 
@@ -61,8 +61,6 @@ VIBR는 **“링크 공유”로 끝나던 음악 추천을, 한 화면에서 �
 
 ---
 
----
-
 ## 🌟 Team Members
 
 |         구분          |                        J048 김승호                         |                        J055 김예빈                        |                       J100 문예찬                       |                          J237 장재혁                          |
@@ -78,8 +76,6 @@ VIBR는 **“링크 공유”로 끝나던 음악 추천을, 한 화면에서 �
 ## ☁️ NCP 인프라 아키텍처 설계도
 
 <img width="934" height="688" alt="image" src="https://github.com/user-attachments/assets/8225ba82-1afa-402d-996e-51cc7a99013d" />
-
----
 
 ## 🧑‍💻 Local Setup (Workspace)
 
