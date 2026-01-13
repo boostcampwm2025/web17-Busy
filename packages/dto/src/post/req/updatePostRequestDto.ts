@@ -1,1 +1,3 @@
-export class UpdatePostRequestDto {}
+export class UpdatePostRequestDto {
+  content: string;
+}

@@ -30,7 +30,11 @@ export class PostController {
     @Query('limit', ParseIntPipe) limit: number,
     @Query('cursor', new ParseUUIDPipe({ version: '7' })) cursor: string,
   ): FeedResponseDto {
-    return {};
+    return {
+      hasNest: false,
+      nextCursor: '111',
+      posts: [],
+    };
   }
 
   @Post()
@@ -40,7 +44,21 @@ export class PostController {
 
   @Get(':id')
   findById(@Param('id', ParseIntPipe) id: number): GetPostDetailResponseDto {
-    return {};
+    return {
+      postId: '111',
+      author: {
+        userId: '1',
+        nickname: 'chnn',
+      },
+      content: '노래 좋다',
+      thumbnailImgUrl: '',
+      musics: [],
+      likeCount: 0,
+      commentCount: 0,
+      isLiked: false,
+      createAt: new Date(),
+      isEdited: false,
+    };
   }
 
   @Patch(':id')
