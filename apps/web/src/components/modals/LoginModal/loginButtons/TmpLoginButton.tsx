@@ -19,6 +19,14 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
     });
 
     if (!res.ok) throw new Error('로그인에 실패했습니다.');
+
+    // GET /auth/me 구현 후 주석 해제
+    // const meUrl = new URL('/auth/me', process.env.NEXT_PUBLIC_APP_URL!);
+
+    // const meRes = await fetch(meUrl, { credentials: 'include' });
+    // if (!meRes.ok) throw new Error('쿠키 저장/인증 확인 실패');
+
+    // const me = await meRes.json(); -> 전역으로 관리하면 될 듯?
   };
 
   return (
