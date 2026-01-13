@@ -73,7 +73,7 @@ export class PostService {
       relations: { author: true },
     });
 
-    if (!post) return null;
+    if (!post) throw new NotFoundException('게시글을 찾을 수 없습니다.');
 
     const musicsOfPost = await this.postMusicRepo.findMusicsByPostId(postId);
 
