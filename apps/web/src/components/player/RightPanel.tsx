@@ -1,19 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { QueueList, MiniPlayerBar, MobileQueueModal, NowPlaying } from './index';
+import { QueueList, MiniPlayerBar, MobileQueueModal, NowPlaying, useItunesHook } from './index';
 import { usePlayerStore } from '@/stores';
-import { useItunesHook } from './useItunesHook';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
-  if (!currentMusicId) {
-    return -1;
-  }
+  if (!currentMusicId) return -1;
   return queueIds.indexOf(currentMusicId);
 };
 
 export default function RightPanel() {
-  useItunesHook();
+  const { positionMs, durationMs } = useItunesHook();
   const [isMobileQueueOpen, setIsMobileQueueOpen] = useState(false);
 
   const currentMusic = usePlayerStore((state) => state.currentMusic);
@@ -21,7 +18,6 @@ export default function RightPanel() {
   const queue = usePlayerStore((state) => state.queue);
 
   const playMusic = usePlayerStore((state) => state.playMusic);
-
   const togglePlay = usePlayerStore((state) => state.togglePlay);
   const clearQueue = usePlayerStore((state) => state.clearQueue);
   const removeFromQueue = usePlayerStore((state) => state.removeFromQueue);
@@ -37,63 +33,28 @@ export default function RightPanel() {
   const canNext = currentIndex >= 0 && currentIndex < queue.length - 1;
 
   const handleTogglePlay = () => {
-    if (!currentMusic) {
-      return;
-    }
+    if (!currentMusic) return;
     togglePlay();
   };
 
-  const handleClearQueue = () => {
-    clearQueue();
-  };
+  const handleClearQueue = () => clearQueue();
+  const handleRemoveFromQueue = (musicId: string) => removeFromQueue(musicId);
+  const handleMoveUp = (index: number) => moveUp(index);
+  const handleMoveDown = (index: number) => moveDown(index);
+  const handlePrev = () => playPrev();
+  const handleNext = () => playNext();
 
-  const handleRemoveFromQueue = (musicId: string) => {
-    removeFromQueue(musicId);
-  };
-
-  const handleMoveUp = (index: number) => {
-    moveUp(index);
-  };
-
-  const handleMoveDown = (index: number) => {
-    moveDown(index);
-  };
-
-  const handlePrev = () => {
-    playPrev();
-  };
-
-  const handleNext = () => {
-    playNext();
-  };
-
-  const handleToggleQueue = () => {
-    setIsMobileQueueOpen((prev) => !prev);
-  };
-
-  const handleCloseMobileQueue = () => {
-    setIsMobileQueueOpen(false);
-  };
+  const handleToggleQueue = () => setIsMobileQueueOpen((prev) => !prev);
+  const handleCloseMobileQueue = () => setIsMobileQueueOpen(false);
 
   const handlePlayFromQueue = (music: (typeof queue)[number]) => {
     playMusic(music);
   };
 
-  const handleDisabledPost = () => {
-    // TODO(#next): 게시 모달 연동 단계에서 구현
-  };
-
-  const handleDisabledSave = () => {
-    // TODO(#next): 보관함 저장 연동 단계에서 구현
-  };
-
-  const handleDisabledShuffle = () => {
-    // TODO(#next): 재생 엔진 연동 단계에서 구현
-  };
-
-  const handleDisabledRepeat = () => {
-    // TODO(#next): 재생 엔진 연동 단계에서 구현
-  };
+  const handleDisabledPost = () => {};
+  const handleDisabledSave = () => {};
+  const handleDisabledShuffle = () => {};
+  const handleDisabledRepeat = () => {};
 
   return (
     <>
@@ -129,6 +90,8 @@ export default function RightPanel() {
           isPlaying={isPlaying}
           canPrev={canPrev}
           canNext={canNext}
+          positionMs={positionMs}
+          durationMs={durationMs}
           onTogglePlay={handleTogglePlay}
           onPrev={handlePrev}
           onNext={handleNext}
@@ -145,6 +108,7 @@ export default function RightPanel() {
           onRemove={handleRemoveFromQueue}
           onMoveUp={handleMoveUp}
           onMoveDown={handleMoveDown}
+          onSelect={handlePlayFromQueue}
         />
       </section>
     </>

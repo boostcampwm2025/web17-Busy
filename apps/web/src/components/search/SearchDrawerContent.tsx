@@ -4,39 +4,36 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Music } from '@/types';
 import { LoadingSpinner } from '@/components';
+import { SearchInput, SearchStateMessage, TrackItem } from './index';
 
-import SearchInput from './SearchInput';
-import SearchStateMessage from './SearchStateMessage';
-import TrackItem from './TrackItem';
-
-import useMusicActions from '@/hooks/useMusicActions';
-import useDebouncedValue from '@/hooks/useDebouncedValue';
-import { useSpotifyAuthStore } from '@/stores';
-import { searchSpotifyTracks } from '@/api';
-import { spotifyTrackToMusic } from '@/mappers';
+import { useDebouncedValue, useMusicActions } from '@/hooks';
+import { searchItunesSongs } from '@/api';
+import { itunesSongToMusic } from '@/mappers';
 
 type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
 const DEBOUNCE_MS = 300;
 const MIN_QUERY_LENGTH = 2;
-const MARKET: 'KR' = 'KR';
 const DEFAULT_LIMIT = 20;
-const DEFAULT_OFFSET = 0;
+const COUNTRY: 'KR' = 'KR';
 
 function SearchDrawerInner() {
-  const { addMusicToPlayer, openWriteModalWithMusic } = useMusicActions();
-  const ensureValidToken = useSpotifyAuthStore((s) => s.ensureValidToken);
-
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebouncedValue(query, DEBOUNCE_MS);
 
   const [status, setStatus] = useState<SearchStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [results, setResults] = useState<Music[]>([]);
+  const [openPreviewMusicId, setOpenPreviewMusicId] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
 
   const trimmed = useMemo(() => debouncedQuery.trim(), [debouncedQuery]);
+  const { addMusicToPlayer } = useMusicActions();
+
+  const handleTogglePreview = (musicId: string) => {
+    setOpenPreviewMusicId((prev) => (prev === musicId ? null : musicId));
+  };
 
   useEffect(() => {
     abortRef.current?.abort();
@@ -66,18 +63,17 @@ function SearchDrawerInner() {
 
     const run = async () => {
       try {
-        const token = await ensureValidToken();
-
-        const tracks = await searchSpotifyTracks({
-          query: trimmed,
-          token,
-          market: MARKET,
+        const data = await searchItunesSongs({
+          keyword: trimmed,
           limit: DEFAULT_LIMIT,
-          offset: DEFAULT_OFFSET,
+          country: COUNTRY,
           signal: controller.signal,
         });
 
-        const mapped = tracks.map(spotifyTrackToMusic);
+        const mapped = data.results
+          .map(itunesSongToMusic)
+          // previewUrl(trackUri)가 없는 트랙은 미리듣기 불가하므로 제외(정책)
+          .filter((m) => m.trackUri.length > 0);
 
         if (!isActive) {
           return;
@@ -107,7 +103,7 @@ function SearchDrawerInner() {
       isActive = false;
       controller.abort();
     };
-  }, [trimmed, ensureValidToken]);
+  }, [trimmed]);
 
   const handleQueryChange = (nextValue: string) => {
     setQuery(nextValue);
@@ -138,7 +134,7 @@ function SearchDrawerInner() {
     return (
       <div className="space-y-1">
         {results.map((music) => (
-          <TrackItem key={music.musicId} music={music} onPlay={addMusicToPlayer} onOpenWrite={openWriteModalWithMusic} />
+          <TrackItem key={music.musicId} music={music} disabledActions onPlay={addMusicToPlayer} />
         ))}
       </div>
     );
@@ -148,7 +144,7 @@ function SearchDrawerInner() {
     <div className="flex flex-col h-full">
       <div className="p-6 border-b-2 border-primary/10">
         <h2 className="text-3xl font-black text-primary mb-6">검색</h2>
-        <SearchInput value={query} onChange={handleQueryChange} onClear={handleQueryClear} placeholder="음악 검색 (Spotify)" />
+        <SearchInput value={query} onChange={handleQueryChange} onClear={handleQueryClear} placeholder="음악 검색 (iTunes)" />
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">{renderBody()}</div>
