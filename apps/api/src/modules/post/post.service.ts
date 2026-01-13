@@ -8,12 +8,11 @@ import { DataSource, Repository } from 'typeorm';
 
 import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
-import { Like } from '../like/entities/like.entity';
 import { Provider } from 'src/common/constants';
 import { MusicRequest } from '@repo/dto/post/req/index';
-import { MusicResponse } from '@repo/dto/post/res/index';
 import { toGetPostDetailResponseDto } from 'src/common/mappers/toGetPostDetailResponseDto';
 import { PostMusicRepository } from './post-music.repository';
+import { LikeRepostiory } from '../like/like.repository';
 
 @Injectable()
 export class PostService {
@@ -22,9 +21,9 @@ export class PostService {
     private readonly ds: DataSource,
     @InjectRepository(Post)
     private readonly postRepo: Repository<Post>,
+
     private readonly postMusicRepo: PostMusicRepository,
-    @InjectRepository(Like)
-    private readonly likeRepo: Repository<Like>,
+    private readonly likeRepo: LikeRepostiory,
   ) {}
 
   async create(
@@ -79,9 +78,7 @@ export class PostService {
     const musicsOfPost = await this.postMusicRepo.findMusicsByPostId(postId);
 
     const isLiked = viewerId
-      ? await this.likeRepo.exists({
-          where: { postId, userId: viewerId },
-        })
+      ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
       : false;
 
     return toGetPostDetailResponseDto({ post, musics: musicsOfPost, isLiked });
