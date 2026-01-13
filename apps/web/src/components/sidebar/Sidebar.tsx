@@ -82,7 +82,7 @@ export default function Sidebar() {
       {/* 메뉴 버튼 영역 */}
       <nav
         className={`
-          h-full bg-white border-r-2 border-primary flex flex-col justify-between py-6 transition-all duration-200 ease-in-out relative z-40 overflow-y-auto
+          h-full bg-white border-r-2 border-primary flex flex-col justify-between py-6 transition-all duration-200 ease-in-out relative z-40
           ${isExpanded ? 'w-64' : 'w-20'}
         `}
       >

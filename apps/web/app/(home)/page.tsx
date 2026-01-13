@@ -6,7 +6,7 @@ export default async function Home() {
   const initialData = await getFeedPosts();
 
   return (
-    <div className="flex flex-col h-screen items-center gap-4 py-8">
+    <div className="flex flex-col items-center gap-4 py-8">
       <PostList initialData={initialData} />
     </div>
   );

@@ -62,7 +62,7 @@ export default function PostList({ initialData }: { initialData: PostListProps }
       )}
       {hasNext && (
         <div ref={ref}>
-          <LoadingSpinner hStyle="py-4 mb-4" />
+          <LoadingSpinner hStyle="py-4" />
         </div>
       )}
     </>
