@@ -12,7 +12,7 @@ interface UseInfiniteScrollParams<T> {
   fetchFn: (cursor?: string, limit?: number) => Promise<InfiniteResponse<T>>;
 }
 
-export function useInfiniteScroll<T>({ initialData, fetchFn }: UseInfiniteScrollParams<T>) {
+export default function useInfiniteScroll<T>({ initialData, fetchFn }: UseInfiniteScrollParams<T>) {
   const { ref, inView } = useInView({ threshold: 0.8, rootMargin: '200px' });
 
   const [items, setItems] = useState<T[]>(initialData?.items || []);
