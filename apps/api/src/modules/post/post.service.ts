@@ -10,9 +10,9 @@ import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
 import { Provider } from 'src/common/constants';
 import { MusicRequest } from '@repo/dto/post/req/index';
-import { toGetPostDetailResponseDto } from 'src/common/mappers/toGetPostDetailResponseDto';
 import { PostMusicRepository } from './post-music.repository';
 import { LikeRepository } from '../like/like.repository';
+import { MusicResponse } from '@repo/dto/post/res/shared';
 
 @Injectable()
 export class PostService {
@@ -81,7 +81,11 @@ export class PostService {
       ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
       : false;
 
-    return toGetPostDetailResponseDto({ post, musics: musicsOfPost, isLiked });
+    return this.toGetPostDetailResponseDto({
+      post,
+      musics: musicsOfPost,
+      isLiked,
+    });
   }
 
   async update(
@@ -109,5 +113,42 @@ export class PostService {
 
     if (!result.affected)
       throw new NotFoundException('삭제하려는 게시글을 찾을 수 없습니다.');
+  }
+
+  private toGetPostDetailResponseDto({
+    post,
+    musics,
+    isLiked,
+  }: {
+    post: Post;
+    musics: MusicResponse[];
+    isLiked: boolean;
+  }) {
+    const { id: userId, nickname, profileImgUrl } = post.author;
+    const {
+      id: postId,
+      thumbnailImgUrl,
+      content,
+      likeCount,
+      commentCount,
+      createdAt,
+      updatedAt,
+    } = post;
+
+    // 차이가 1초 이상이면 수정된 것으로 판단
+    const isEdited = updatedAt.getTime() - createdAt.getTime() >= 1000;
+
+    return {
+      postId,
+      author: { userId, nickname, profileImgUrl },
+      thumbnailImgUrl,
+      musics,
+      content,
+      likeCount,
+      commentCount,
+      createdAt,
+      isEdited,
+      isLiked,
+    };
   }
 }
