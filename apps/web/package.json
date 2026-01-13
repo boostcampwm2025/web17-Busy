@@ -11,6 +11,7 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@repo/dto": "workspace:*",
     "@repo/ui": "workspace:*",
     "@tailwindcss/postcss": "^4.1.18",
     "lucide-react": "^0.562.0",
