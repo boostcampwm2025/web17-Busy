@@ -1,6 +1,7 @@
-import { Body, Controller, Put, Request } from '@nestjs/common';
+import { Body, Controller, Put, Get, Request } from '@nestjs/common';
 import { NowPlaylistService } from './now-playlist.service';
 import { UpdateNowPlaylistReqDto } from '@repo/dto/now-playlist/req/update-now-playlist.dto';
+import { GetNowPlaylistResDto } from '@repo/dto/now-playlist/res/get-now-playlist.dto';
 
 @Controller('nowPlaylist')
 export class NowPlaylistController {
@@ -17,9 +18,20 @@ export class NowPlaylistController {
 
     await this.nowPlaylistService.updateNowPlaylist(userId, dto);
 
+    // 필요시 dto 수정
     return {
       message: '재생목록이 저장되었습니다.',
       count: dto.musicIds.length,
     };
+  }
+
+  @Get()
+  async getPlaylist(@Request() req): Promise<GetNowPlaylistResDto> {
+    // const userId = req.user.id;
+    const userId = '임시-유저-UUID'; // 테스트용
+
+    const playlist = await this.nowPlaylistService.getNowPlaylist(userId);
+
+    return playlist;
   }
 }

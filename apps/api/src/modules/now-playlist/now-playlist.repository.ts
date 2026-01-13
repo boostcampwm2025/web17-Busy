@@ -31,4 +31,14 @@ export class NowPlaylistRepository extends Repository<NowPlaylistMusic> {
       }
     });
   }
+
+  async findLoadPlaylist(userId: string): Promise<NowPlaylistMusic[]> {
+    return this.find({
+      where: { user: { id: userId } },
+      relations: ['music'],
+      order: {
+        orderIndex: 'ASC',
+      },
+    });
+  }
 }
