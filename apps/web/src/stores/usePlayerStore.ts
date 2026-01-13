@@ -123,41 +123,54 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   playPrev: () => {
     const { currentMusic, queue, isPlaying } = get();
-    const normalizedQueue = ensureCurrentInQueue(queue, currentMusic);
-    const currentIndex = findCurrentIndex(normalizedQueue, currentMusic);
 
-    if (currentIndex <= 0) {
+    if (queue.length === 0) {
       return;
     }
 
+    const currentIndex = findCurrentIndex(queue, currentMusic);
+
+    // currentMusic이 큐에 없으면 "이전"은 마지막 곡으로 이동
+    if (currentIndex === -1) {
+      set({
+        currentMusic: queue[queue.length - 1] ?? null,
+        isPlaying,
+      });
+      return;
+    }
+
+    // 첫 곡이면 마지막 곡으로 순환
+    const prevIndex = currentIndex <= 0 ? queue.length - 1 : currentIndex - 1;
+
     set({
-      queue: normalizedQueue,
-      currentMusic: normalizedQueue[currentIndex - 1] ?? null,
+      currentMusic: queue[prevIndex] ?? null,
       isPlaying,
     });
   },
 
   playNext: () => {
     const { currentMusic, queue, isPlaying } = get();
-    const normalizedQueue = ensureCurrentInQueue(queue, currentMusic);
-    const currentIndex = findCurrentIndex(normalizedQueue, currentMusic);
 
-    if (normalizedQueue.length === 0) {
+    if (queue.length === 0) {
       return;
     }
 
-    // currentMusic이 큐에 없으면 0번째로 이동
+    const currentIndex = findCurrentIndex(queue, currentMusic);
+
+    // currentMusic이 큐에 없으면 "다음"은 첫 곡으로 이동
     if (currentIndex === -1) {
-      set({ queue: normalizedQueue, currentMusic: normalizedQueue[0] ?? null, isPlaying });
+      set({
+        currentMusic: queue[0] ?? null,
+        isPlaying,
+      });
       return;
     }
 
     // 마지막 곡이면 처음 곡으로 순환
-    const nextIndex = currentIndex >= normalizedQueue.length - 1 ? 0 : currentIndex + 1;
+    const nextIndex = currentIndex >= queue.length - 1 ? 0 : currentIndex + 1;
 
     set({
-      queue: normalizedQueue,
-      currentMusic: normalizedQueue[nextIndex] ?? null,
+      currentMusic: queue[nextIndex] ?? null,
       isPlaying,
     });
   },
