@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -82,7 +87,30 @@ export class PostService {
     return toGetPostDetailResponseDto({ post, musics, isLiked });
   }
 
-  async update(postId: string, content: string): Promise<void> {}
+  async update(
+    requestUserId: string,
+    postId: string,
+    content: string,
+  ): Promise<void> {
+    const result = await this.postRepo.update(
+      {
+        id: postId,
+        author: { id: requestUserId },
+      },
+      { content },
+    );
 
-  async delete(postId: string): Promise<void> {}
+    if (!result.affected)
+      throw new NotFoundException('수정하려는 게시글을 찾을 수 없습니다.');
+  }
+
+  async delete(requestUserId: string, postId: string): Promise<void> {
+    const result = await this.postRepo.softDelete({
+      id: postId,
+      author: { id: requestUserId },
+    });
+
+    if (!result.affected)
+      throw new NotFoundException('삭제하려는 게시글을 찾을 수 없습니다.');
+  }
 }

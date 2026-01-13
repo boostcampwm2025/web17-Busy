@@ -84,13 +84,15 @@ export class PostController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   async update(
+    @UserId() requestUserId: string,
     @Param('id', ParseIntPipe) postId: string,
     @Body() updatePostDto: UpdatePostRequestDto,
   ): Promise<{ ok: true }> {
     try {
-      this.postService.update(postId, updatePostDto.content);
+      this.postService.update(requestUserId, postId, updatePostDto.content);
       return { ok: true };
     } catch (error) {
       throw new InternalServerErrorException(
@@ -99,12 +101,14 @@ export class PostController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async delete(
+    @UserId() requestUserId: string,
     @Param('id', ParseIntPipe) postId: string,
   ): Promise<{ ok: true }> {
     try {
-      await this.postService.delete(postId);
+      await this.postService.delete(requestUserId, postId);
       return { ok: true };
     } catch (error) {
       throw new InternalServerErrorException(
