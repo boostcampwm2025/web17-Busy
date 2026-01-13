@@ -2,10 +2,9 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
@@ -18,6 +17,8 @@ import { toGetPostDetailResponseDto } from 'src/common/mappers/toGetPostDetailRe
 @Injectable()
 export class PostService {
   constructor(
+    @InjectDataSource()
+    private readonly ds: DataSource,
     @InjectRepository(Post)
     private readonly postRepo: Repository<Post>,
     @InjectRepository(PostMusic)
@@ -36,9 +37,7 @@ export class PostService {
       throw new BadRequestException(
         '게시글에는 최소 1곡의 음악이 있어야 합니다.',
       );
-    // 트랜잭션 필요
     // 1. find user 필요 x
-
     // 2. ensure music
     musics.forEach((m) => (m.provider ??= Provider.ITUNES));
     // const ensuredMusics = this.musicService.ensureMusics(musics);
@@ -46,23 +45,27 @@ export class PostService {
     // 3. thumbnailImgUrl 이 없다면 첫 곡의 앨범 커버 이미지로
     thumbnailImgUrl ??= musics[0].albumCoverUrl;
 
-    // 4. repo.save
-    const { id: postId } = await this.postRepo.save({
-      author: { id: userId },
-      thumbnailImgUrl,
-      content,
-      likeCount: 0,
-      commentCount: 0,
+    // 4. repo.save - transaction
+    await this.ds.transaction(async (transactionalEntityManager) => {
+      const postRepo = transactionalEntityManager.getRepository(Post);
+      const postMusicRepo = transactionalEntityManager.getRepository(PostMusic);
+      const { id: postId } = await postRepo.save({
+        author: { id: userId },
+        thumbnailImgUrl,
+        content,
+        likeCount: 0,
+        commentCount: 0,
+      });
+
+      // musics -> ensuredMusics
+      const postMusicsToSave = musics.map((m, i) => ({
+        post: { id: postId },
+        music: { id: m.musicId },
+        orderIndex: i,
+      }));
+
+      await postMusicRepo.save(postMusicsToSave);
     });
-
-    // musics -> ensuredMusics
-    const postMusicsToSave = musics.map((m, i) => ({
-      post: { id: postId },
-      music: { id: m.musicId },
-      orderIndex: i + 1,
-    }));
-
-    await this.postMusicRepo.save(postMusicsToSave);
   }
 
   async getPostDetail(postId: string, viewerId: string | null) {
