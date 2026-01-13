@@ -8,7 +8,7 @@ export const getFeedPosts = async (cursor?: string, limit = 5) => {
   const nextCursor = hasNext ? posts[posts.length - 1]!.id : undefined;
 
   return {
-    posts,
+    items: posts,
     hasNext,
     nextCursor,
   };

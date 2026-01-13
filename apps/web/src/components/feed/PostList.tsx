@@ -1,8 +1,7 @@
 'use client';
 
 import { getFeedPosts } from '@/api/feed';
-import { useCallback, useEffect, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import LoadingSpinner from '../LoadingSpinner';
 
 interface Post {
@@ -11,47 +10,19 @@ interface Post {
 }
 
 interface PostListProps {
-  posts: Post[];
+  items: Post[];
   hasNext: boolean;
   nextCursor?: string;
 }
 
-export default function PostList({ initialData }: { initialData: PostListProps }) {
-  const { ref, inView } = useInView({ threshold: 0.8, rootMargin: '200px' });
-
-  const [posts, setPosts] = useState(initialData.posts);
-  const [hasNext, setHasNext] = useState(initialData.hasNext);
-  const [nextCursor, setNextCursor] = useState(initialData.nextCursor);
-  const [isLoading, setIsLoading] = useState(false); // 중복 요청 방지 flag
-  const [error, setError] = useState<string | null>(null);
-
-  const loadMorePosts = useCallback(async () => {
-    setIsLoading(true);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500)); // 로딩 스피너 짧게 노출
-      const newData = await getFeedPosts(nextCursor);
-
-      setPosts((prevPosts) => [...prevPosts, ...newData.posts]);
-      setHasNext(newData.hasNext);
-      setNextCursor(newData.nextCursor);
-      error && setError(null);
-    } catch (e) {
-      setError('오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [nextCursor]);
-
-  useEffect(() => {
-    if (inView && hasNext && !isLoading) loadMorePosts();
-  }, [inView]);
+export default function PostList({ initialData }: { initialData?: PostListProps }) {
+  const { items, hasNext, error, ref } = useInfiniteScroll<Post>({ initialData, fetchFn: getFeedPosts });
 
   return (
     <>
-      {posts.map((post) => (
-        <div key={post.id} className="w-100 min-h-50 bg-gray-2">
-          {post.title}
+      {items.map((item) => (
+        <div key={item.id} className="w-100 min-h-50 bg-gray-2">
+          {item.title}
         </div>
       ))}
       {error && (
