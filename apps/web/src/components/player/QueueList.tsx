@@ -6,32 +6,27 @@ import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle } from 'lu
 interface QueueListProps {
   queue: Music[];
   currentMusicId: string | null;
-  /** 이번 이슈에서는 비활성/빈 핸들러 */
   onClear: () => void;
   onRemove: (musicId: string) => void;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
+
+  /** 추가: 큐 아이템 선택(현재 재생 곡 변경) */
+  onSelect: (music: Music) => void;
 }
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';
 
-export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown }: QueueListProps) {
+export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown, onSelect }: QueueListProps) {
   const isEmpty = queue.length === 0;
 
   const handleClearClick = () => {
-    if (isEmpty) {
-      return;
-    }
+    if (isEmpty) return;
     onClear();
   };
 
-  const handleDisabledArchive = () => {
-    // TODO(#next): 보관함 연동
-  };
-
-  const handleDisabledAdd = () => {
-    // TODO(#next): 검색/추가 연동
-  };
+  const handleDisabledArchive = () => {};
+  const handleDisabledAdd = () => {};
 
   return (
     <div className="flex-1 flex flex-col p-6 overflow-hidden bg-gray-4/30">
@@ -88,6 +83,10 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
           {queue.map((music, index) => {
             const isCurrent = currentMusicId === music.musicId;
 
+            const handleSelectClick = () => {
+              onSelect(music);
+            };
+
             const handleRemoveClick = () => {
               onRemove(music.musicId);
             };
@@ -100,9 +99,6 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
               onMoveDown(index);
             };
 
-            // NOTE: DOM onClick 인라인 최소화는 이상적이지만,
-            // lint가 "onClick handler 이름 규칙"만 강제하는 상태라 handle*로 충분히 통과.
-            // 더 엄격히 하고 싶으면 QueueItemRow 컴포넌트로 분리 권장.
             return (
               <li
                 key={music.musicId}
@@ -112,12 +108,14 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
               >
                 <span className={`w-6 text-center text-sm font-bold ${isCurrent ? 'text-accent-pink' : 'text-gray-2'}`}>{index + 1}</span>
 
-                <img src={music.albumCoverUrl} alt={music.title} className="w-10 h-10 rounded border border-gray-3 object-cover" />
-
-                <div className="min-w-0 flex-1">
-                  <p className={`text-sm font-bold truncate ${isCurrent ? 'text-accent-pink' : 'text-primary'}`}>{music.title}</p>
-                  <p className="text-xs text-gray-1 truncate">{music.artistName}</p>
-                </div>
+                {/* 클릭 영역: 커버 + 텍스트 ->  재생할 곡 지정 가능*/}
+                <button type="button" onClick={handleSelectClick} className="flex items-center gap-3 min-w-0 flex-1 text-left">
+                  <img src={music.albumCoverUrl} alt={music.title} className="w-10 h-10 rounded border border-gray-3 object-cover" />
+                  <div className="min-w-0 flex-1">
+                    <p className={`text-sm font-bold truncate ${isCurrent ? 'text-accent-pink' : 'text-primary'}`}>{music.title}</p>
+                    <p className="text-xs text-gray-1 truncate">{music.artistName}</p>
+                  </div>
+                </button>
 
                 <div className="flex flex-col">
                   <button
