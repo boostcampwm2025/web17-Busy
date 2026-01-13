@@ -16,7 +16,7 @@ export default function FeedSection({ initialData }: { initialData?: FeedSection
   const { items, hasNext, error, ref } = useInfiniteScroll<Post>({ initialData, fetchFn: getFeedPosts });
 
   return (
-    <section className="w-full">
+    <>
       <FeedList posts={items} />
       {error && (
         <div className="text-center">
@@ -29,6 +29,6 @@ export default function FeedSection({ initialData }: { initialData?: FeedSection
           <LoadingSpinner hStyle="py-6" />
         </div>
       )}
-    </section>
+    </>
   );
 }
