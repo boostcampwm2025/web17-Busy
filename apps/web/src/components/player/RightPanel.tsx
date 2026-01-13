@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { QueueList, MiniPlayerBar, MobileQueueModal, NowPlaying, useItunesHook } from './index';
+import { QueueList, MiniPlayerBar, MobileQueueModal, NowPlaying } from './index';
+import { useItunesHook } from '@/hooks';
 import { usePlayerStore } from '@/stores';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
