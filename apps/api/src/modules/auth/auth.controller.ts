@@ -26,20 +26,6 @@ export class AuthController {
     return { ok: true };
   }
 
-  // AuthGuard, @UserId - feat/31-post-api 브랜치에 있음
-  // @UseGuards(AuthGuard)
-  @Get('me')
-  async me() // @UserId() userId: string
-  {
-    // this.userService.findById(userId) 구현 후 주석 해제
-    // const user = (await this.userService.findById(userId)) as User
-    // return {
-    //   userId: user.id,
-    //   nickname: user.nickname,
-    //   profileImgUrl: user.profileImgUrl,
-    // }
-  }
-
   @Post('spotify/exchange')
   async exchange(@Body() { code, verifier }: ExchangeTokenDto) {
     try {
