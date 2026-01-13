@@ -14,14 +14,15 @@
     "@repo/dto": "workspace:*",
     "@repo/ui": "workspace:*",
     "@tailwindcss/postcss": "^4.1.18",
+    "axios": "^1.13.2",
     "lucide-react": "^0.562.0",
     "next": "16.0.10",
     "postcss": "^8.5.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "zustand": "^5.0.9",
     "react-error-boundary": "^6.0.2",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
