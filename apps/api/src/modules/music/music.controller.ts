@@ -1,7 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { MusicService } from './music.service';
-import { CreateMusicReqDto } from '@repo/dto/music/req/createMusicDTO';
-import { CreateMusicResDto } from '@repo/dto/music/res/createMusicDTO';
+import { CreateMusicReqDto } from '@repo/dto/music/req/createMusic.dto';
+import { CreateMusicResDto } from '@repo/dto/music/res/createMusic.dto';
 
 @Controller('music')
 export class MusicController {
@@ -13,7 +13,7 @@ export class MusicController {
   ): Promise<CreateMusicResDto> {
     const music = await this.musicService.addMusic(createMusicDto);
     return {
-      musicId: music.musicId,
+      id: music.id,
       trackUri: music.trackUri,
       provider: music.provider,
       albumCoverUrl: music.albumCoverUrl,
