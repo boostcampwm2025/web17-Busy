@@ -3,6 +3,7 @@
 import type { Post, Music } from '@/types';
 import { Heart, MessageCircle, MoreHorizontal, PlayCircle } from 'lucide-react';
 import { useMemo } from 'react';
+import { formatRelativeTime } from '@/utils';
 
 interface PostCardProps {
   post: Post;
@@ -11,22 +12,6 @@ interface PostCardProps {
   onUserClick: (userId: string) => void;
   onOpenDetail: (post: Post) => void;
 }
-
-const MS = {
-  minute: 60_000,
-  hour: 3_600_000,
-  day: 86_400_000,
-} as const;
-
-const formatRelativeTime = (iso: string): string => {
-  const createdAt = new Date(iso).getTime();
-  const diff = Math.max(0, Date.now() - createdAt);
-
-  if (diff < MS.minute) return '방금 전';
-  if (diff < MS.hour) return `${Math.floor(diff / MS.minute)}분 전`;
-  if (diff < MS.day) return `${Math.floor(diff / MS.hour)}시간 전`;
-  return `${Math.floor(diff / MS.day)}일 전`;
-};
 
 const firstMusic = (post: Post): Music | null => post.musics[0] ?? null;
 
