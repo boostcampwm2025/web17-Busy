@@ -1,9 +1,9 @@
 'use client';
 
 import { getFeedPosts } from '@/api/feed';
-import { LoadingSpinner } from '@/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
+import LoadingSpinner from '../LoadingSpinner';
 
 interface Post {
   id: number;
@@ -23,17 +23,24 @@ export default function PostList({ initialData }: { initialData: PostListProps }
   const [hasNext, setHasNext] = useState(initialData.hasNext);
   const [nextCursor, setNextCursor] = useState(initialData.nextCursor);
   const [isLoading, setIsLoading] = useState(false); // 중복 요청 방지 flag
+  const [error, setError] = useState<string | null>(null);
 
   const loadMorePosts = useCallback(async () => {
     setIsLoading(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 500)); // 로딩 스피너 짧게 노출
-    const newData = await getFeedPosts(nextCursor);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500)); // 로딩 스피너 짧게 노출
+      const newData = await getFeedPosts(nextCursor);
 
-    setPosts((prevPosts) => [...prevPosts, ...newData.posts]);
-    setHasNext(newData.hasNext);
-    setNextCursor(newData.nextCursor);
-    setIsLoading(false);
+      setPosts((prevPosts) => [...prevPosts, ...newData.posts]);
+      setHasNext(newData.hasNext);
+      setNextCursor(newData.nextCursor);
+      setError(null);
+    } catch (e) {
+      setError('오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [nextCursor]);
 
   useEffect(() => {
@@ -47,9 +54,15 @@ export default function PostList({ initialData }: { initialData: PostListProps }
           {post.title}
         </div>
       ))}
+      {error && (
+        <div className="text-center mt-4">
+          <p>{error}</p>
+          <p className="text-sm mt-2">다시 시도해주세요.</p>
+        </div>
+      )}
       {hasNext && (
         <div ref={ref}>
-          <LoadingSpinner hStyle="py-4" />
+          <LoadingSpinner hStyle="py-4 mb-4" />
         </div>
       )}
     </>

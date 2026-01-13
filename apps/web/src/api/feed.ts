@@ -1,5 +1,20 @@
 /** 테스트용 임시 피드 데이터 조회 함수 */
+export const getInitialPosts = async (cursor = 0, limit = 5) => {
+  const posts = MOCK_POSTS.slice(cursor, cursor + limit);
+  const hasNext = cursor + limit < MOCK_POSTS.length;
+  const nextCursor = hasNext ? cursor + posts.length : undefined;
+
+  return {
+    posts,
+    hasNext,
+    nextCursor,
+  };
+};
+
+/** 테스트용 임시 피드 데이터 조회 함수 */
 export const getFeedPosts = async (cursor = 0, limit = 5) => {
+  //throw new Error('error');
+
   const posts = MOCK_POSTS.slice(cursor, cursor + limit);
   const hasNext = cursor + limit < MOCK_POSTS.length;
   const nextCursor = hasNext ? cursor + posts.length : undefined;
