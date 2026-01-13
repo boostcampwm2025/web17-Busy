@@ -12,7 +12,7 @@ import { Provider } from 'src/common/constants';
 import { MusicRequest } from '@repo/dto/post/req/index';
 import { toGetPostDetailResponseDto } from 'src/common/mappers/toGetPostDetailResponseDto';
 import { PostMusicRepository } from './post-music.repository';
-import { LikeRepostiory } from '../like/like.repository';
+import { LikeRepository } from '../like/like.repository';
 
 @Injectable()
 export class PostService {
@@ -23,7 +23,7 @@ export class PostService {
     private readonly postRepo: Repository<Post>,
 
     private readonly postMusicRepo: PostMusicRepository,
-    private readonly likeRepo: LikeRepostiory,
+    private readonly likeRepo: LikeRepository,
   ) {}
 
   async create(

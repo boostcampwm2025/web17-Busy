@@ -4,7 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Like } from './entities/like.entity';
 
 @Injectable()
-export class LikeRepostiory extends Repository<Like> {
+export class LikeRepository extends Repository<Like> {
   constructor(private readonly ds: DataSource) {
     super(Like, ds.createEntityManager());
   }
