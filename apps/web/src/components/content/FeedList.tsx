@@ -41,7 +41,8 @@ export default function FeedList({ posts }: FeedListProps) {
         onPlay={handlePlay}
         onUserClick={handleUserClick}
         onOpenDetail={handleOpenDetail}
-        isPlaying={isPlaying && currentMusicId === post.musics[0]?.musicId}
+        currentMusicId={currentMusicId}
+        isPlayingGlobal={isPlaying}
       />
     ));
   }, [posts, handlePlay, handleUserClick, handleOpenDetail, isPlaying, currentMusicId]);
@@ -56,7 +57,8 @@ export default function FeedList({ posts }: FeedListProps) {
         post={selectedPost}
         onClose={handleCloseDetail}
         onPlay={handlePlay}
-        isPlaying={isPlaying && currentMusicId === selectedPost?.musics[0]?.musicId}
+        isPlaying={isPlaying}
+        currentMusicId={currentMusicId}
       />
     </div>
   );

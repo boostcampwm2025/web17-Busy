@@ -1,25 +1,35 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import type { Post, Music } from '@/types';
-import { Heart, MessageCircle, MoreHorizontal, PlayCircle } from 'lucide-react';
-import { useMemo } from 'react';
+import { Heart, MessageCircle, MoreHorizontal, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import { formatRelativeTime } from '@/utils';
 
 interface PostCardProps {
   post: Post;
-  isPlaying?: boolean;
+
+  /** 전역 플레이어 상태 */
+  currentMusicId: string | null;
+  isPlayingGlobal: boolean;
+
+  /** 액션 */
   onPlay: (music: Music) => void;
   onUserClick: (userId: string) => void;
   onOpenDetail: (post: Post) => void;
 }
 
-const firstMusic = (post: Post): Music | null => post.musics[0] ?? null;
+const getMusicAt = (post: Post, index: number): Music | null => post.musics[index] ?? null;
 
-export default function PostCard({ post, isPlaying = false, onPlay, onUserClick, onOpenDetail }: PostCardProps) {
-  const music = useMemo(() => firstMusic(post), [post]);
+export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onUserClick, onOpenDetail }: PostCardProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   const createdAtText = useMemo(() => formatRelativeTime(post.createdAt), [post.createdAt]);
-
   const isMulti = post.musics.length > 1;
+
+  const activeMusic = useMemo(() => getMusicAt(post, activeIndex), [post, activeIndex]);
+  const coverUrl = activeMusic?.albumCoverUrl ?? post.coverImgUrl;
+
+  const isActivePlaying = Boolean(activeMusic && isPlayingGlobal && currentMusicId === activeMusic.musicId);
 
   const handleOpenDetail = () => {
     onOpenDetail(post);
@@ -32,12 +42,29 @@ export default function PostCard({ post, isPlaying = false, onPlay, onUserClick,
 
   const handlePlayClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    if (!music) return;
-    onPlay(music);
+    if (!activeMusic) return;
+    onPlay(activeMusic);
   };
 
   const handleMoreClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
+  };
+
+  const handlePrevSlide = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (!isMulti) return;
+
+    setActiveIndex((prev) => {
+      const next = prev - 1;
+      return next < 0 ? post.musics.length - 1 : next;
+    });
+  };
+
+  const handleNextSlide = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (!isMulti) return;
+
+    setActiveIndex((prev) => (prev + 1) % post.musics.length);
   };
 
   return (
@@ -64,47 +91,72 @@ export default function PostCard({ post, isPlaying = false, onPlay, onUserClick,
         </button>
       </div>
 
-      {/* Cover */}
+      {/* Cover + Carousel */}
       <div className="relative group w-full aspect-square md:aspect-video rounded-xl overflow-hidden border-2 border-primary mb-4 bg-gray-100">
-        {/* 다곡 스택 효과(레이어 2장) */}
-        {isMulti ? (
-          <>
-            <div className="absolute inset-0 bg-gray-4 border-2 border-primary rounded-xl translate-x-1 translate-y-1" />
-            <div className="absolute inset-0 bg-primary/10 border-2 border-primary rounded-xl translate-x-2 translate-y-2" />
-          </>
-        ) : null}
-
         <img
-          src={post.coverImgUrl}
-          alt={music ? music.title : 'cover'}
-          className="relative z-10 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          src={coverUrl}
+          alt={activeMusic?.title ?? 'cover'}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
-        {/* Play Overlay */}
-        <div className="absolute inset-0 z-20 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-          <button
-            type="button"
-            onClick={handlePlayClick}
-            className="transform scale-90 group-hover:scale-110 transition-transform duration-200"
-            title="재생"
-          >
-            <PlayCircle className={`w-20 h-20 fill-current drop-shadow-lg ${isPlaying ? 'text-accent-cyan' : 'text-white'}`} />
-            <span className="sr-only">Play</span>
-          </button>
+        {/* Hover overlay: only show controls on hover */}
+        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/35 transition-colors">
+          {/* Center Play/Pause */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              type="button"
+              onClick={handlePlayClick}
+              className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#00ebc7] opacity-0 group-hover:opacity-100 transition-opacity"
+              title={isActivePlaying ? '일시정지' : '재생'}
+            >
+              {isActivePlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
+            </button>
+          </div>
+
+          {/* Prev / Next (multi only) */}
+          {isMulti ? (
+            <>
+              <button
+                type="button"
+                onClick={handlePrevSlide}
+                className="absolute left-3 top-1/2 -translate-y-1/2
+                           w-10 h-10 rounded-full bg-white/80 border border-primary text-primary
+                           flex items-center justify-center
+                           opacity-0 group-hover:opacity-100 transition-opacity
+                         hover:bg-white"
+                title="이전"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleNextSlide}
+                className="absolute right-3 top-1/2 -translate-y-1/2
+                           w-10 h-10 rounded-full bg-white/80 border border-primary text-primary
+                           flex items-center justify-center
+                           opacity-0 group-hover:opacity-100 transition-opacity
+                         hover:bg-white"
+                title="다음"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </>
+          ) : null}
         </div>
 
         {/* Multi badge */}
         {isMulti ? (
-          <div className="absolute top-3 right-3 z-30 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full border-2 border-primary text-xs font-black">
+          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full border-2 border-primary text-xs font-black">
             {post.musics.length}곡
           </div>
         ) : null}
 
-        {/* Floating song info */}
-        {music ? (
-          <div className="absolute bottom-4 left-4 z-30 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-primary shadow-[4px_4px_0px_0px_#FDE24F]">
-            <p className="font-black text-primary">{music.title}</p>
-            <p className="text-xs font-bold text-gray-600">{music.artistName}</p>
+        {/* Floating info (active music 기준) */}
+        {activeMusic ? (
+          <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-primary shadow-[4px_4px_0px_0px_#FDE24F]">
+            <p className="font-black text-primary">{activeMusic.title}</p>
+            <p className="text-xs font-bold text-gray-600">{activeMusic.artistName}</p>
           </div>
         ) : null}
       </div>

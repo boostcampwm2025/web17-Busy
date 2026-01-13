@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { X, Heart, MessageCircle, Share2, MoreHorizontal, PlayCircle, Bookmark } from 'lucide-react';
+import { X, Heart, MessageCircle, Share2, MoreHorizontal, Play, Pause, Bookmark, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Post, Music } from '@/types';
 import { useScrollLock } from '@/hooks';
 import { formatRelativeTime } from '@/utils';
@@ -20,37 +20,31 @@ interface PostDetailModalProps {
   post: Post | null;
   isOpen: boolean;
   isPlaying?: boolean;
+  currentMusicId?: string | null;
   onClose: () => void;
   onPlay: (music: Music) => void;
 }
 
-const buildMockComments = (post: Post): CommentItem[] => {
-  // UI 확인용 최소 목업(댓글 API 붙이면 props로 교체)
-  return [
-    {
-      commentId: `${post.postId}-c1`,
-      author: {
-        nickname: '테스터1',
-        profileImageUrl: 'https://picsum.photos/seed/comment-1/100/100',
-      },
-      content: '이 노래 도입부 너무 좋네요.',
-      createdAtText: '5분 전',
-    },
-    {
-      commentId: `${post.postId}-c2`,
-      author: {
-        nickname: '테스터2',
-        profileImageUrl: 'https://picsum.photos/seed/comment-2/100/100',
-      },
-      content: '플리에 바로 저장했습니다!',
-      createdAtText: '2분 전',
-    },
-  ];
-};
+const buildMockComments = (post: Post): CommentItem[] => [
+  {
+    commentId: `${post.postId}-c1`,
+    author: { nickname: '테스터1', profileImageUrl: 'https://picsum.photos/seed/comment-1/100/100' },
+    content: '이 노래 도입부 너무 좋네요.',
+    createdAtText: '5분 전',
+  },
+  {
+    commentId: `${post.postId}-c2`,
+    author: { nickname: '테스터2', profileImageUrl: 'https://picsum.photos/seed/comment-2/100/100' },
+    content: '플리에 바로 저장했습니다!',
+    createdAtText: '2분 전',
+  },
+];
 
-export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlaying = false }: PostDetailModalProps) {
+export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlaying = false, currentMusicId = null }: PostDetailModalProps) {
   useScrollLock(isOpen);
+
   const [commentText, setCommentText] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const safePost = post ?? {
     postId: 'empty',
@@ -63,31 +57,41 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
     musics: [],
   };
 
-  const mainMusic = safePost.musics[0] ?? null;
+  const isMulti = safePost.musics.length > 1;
+
+  const activeMusic = useMemo(() => safePost.musics[activeIndex] ?? null, [safePost.musics, activeIndex]);
+  const coverUrl = activeMusic?.albumCoverUrl ?? safePost.coverImgUrl;
   const createdAtText = useMemo(() => formatRelativeTime(safePost.createdAt), [safePost.createdAt]);
-
   const comments = useMemo(() => buildMockComments(safePost), [safePost.postId]);
-  if (!isOpen || !post) return null;
-  const handleClose = () => {
-    onClose();
-  };
 
-  const handleBackdropClick = () => {
-    onClose();
-  };
+  const isActivePlaying = Boolean(activeMusic && isPlaying && currentMusicId === activeMusic.musicId);
+
+  if (!isOpen || !post) return null;
+
+  const handleClose = () => onClose();
+
+  const handleBackdropClick = () => onClose();
 
   const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
   };
 
   const handlePlayClick = () => {
-    if (!mainMusic) return;
-    onPlay(mainMusic);
+    if (!activeMusic) return;
+    onPlay(activeMusic);
   };
 
-  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCommentText(e.target.value);
+  const handlePrevSlide = () => {
+    if (!isMulti) return;
+    setActiveIndex((prev) => (prev - 1 < 0 ? safePost.musics.length - 1 : prev - 1));
   };
+
+  const handleNextSlide = () => {
+    if (!isMulti) return;
+    setActiveIndex((prev) => (prev + 1) % safePost.musics.length);
+  };
+
+  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => setCommentText(e.target.value);
 
   const handleSubmitComment = () => {
     // TODO(#next): 댓글 API 연동 시 구현
@@ -113,27 +117,69 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
         className="bg-white w-full max-w-5xl h-full max-h-[85vh] rounded-2xl border-2 border-primary shadow-2xl flex flex-col md:flex-row overflow-hidden animate-scale-up"
         onClick={handleModalClick}
       >
-        {/* Left Section: Album Cover (Large) */}
-        <div className="flex-1 bg-gray-4 flex items-center justify-center relative group overflow-hidden">
-          <img src={post.coverImgUrl} alt="cover" className="w-full h-full object-cover" />
+        {/* Left: Carousel Cover */}
+        <div className="flex-1 bg-gray-4 relative group overflow-hidden">
+          <img src={coverUrl} alt={activeMusic?.title ?? 'cover'} className="w-full h-full object-cover" />
 
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-            <button type="button" onClick={handlePlayClick} className="transform scale-100 hover:scale-110 transition-all" title="재생">
-              <PlayCircle className={`w-24 h-24 fill-current drop-shadow-xl ${isPlaying ? 'text-accent-cyan' : 'text-white'}`} />
-            </button>
+          {/* Hover overlay: controls appear only on hover */}
+          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/40 transition-colors">
+            {/* Center Play/Pause */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <button
+                type="button"
+                onClick={handlePlayClick}
+                className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center
+                           shadow-[3px_3px_0px_0px_#00ebc7]
+                           pointer-events-auto hover:scale-105 transition-transform"
+                title={isActivePlaying ? '일시정지' : '재생'}
+              >
+                {isActivePlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-0.5" />}
+              </button>
+            </div>
+
+            {/* Prev/Next for multi */}
+            {isMulti ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handlePrevSlide}
+                  className="absolute left-4 top-1/2 -translate-y-1/2
+                             w-12 h-12 rounded-full bg-white/80 border border-primary text-primary
+                             flex items-center justify-center
+                             opacity-0 group-hover:opacity-100 transition-opacity
+                             hover:bg-white"
+                  title="이전"
+                >
+                  <ChevronLeft className="w-7 h-7" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNextSlide}
+                  className="absolute right-4 top-1/2 -translate-y-1/2
+                             w-12 h-12 rounded-full bg-white/80 border border-primary text-primary
+                             flex items-center justify-center
+                             opacity-0 group-hover:opacity-100 transition-opacity
+                             hover:bg-white"
+                  title="다음"
+                >
+                  <ChevronRight className="w-7 h-7" />
+                </button>
+              </>
+            ) : null}
           </div>
 
-          {mainMusic ? (
+          {/* Floating song info (active music) */}
+          {activeMusic ? (
             <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-xl border-2 border-primary shadow-[6px_6px_0px_0px_#FDE24F]">
-              <p className="font-black text-xl text-primary">{mainMusic.title}</p>
-              <p className="font-bold text-gray-600">{mainMusic.artistName}</p>
+              <p className="font-black text-xl text-primary">{activeMusic.title}</p>
+              <p className="font-bold text-gray-600">{activeMusic.artistName}</p>
             </div>
           ) : null}
         </div>
 
-        {/* Right Section: Interactions */}
+        {/* Right Section: (기존 그대로) */}
         <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary">
-          {/* 1. Header: Author Info */}
           <div className="p-4 border-b-2 border-primary/10 flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
               <img src={post.author.profileImageUrl} alt={post.author.nickname} className="w-9 h-9 rounded-full border border-primary object-cover" />
@@ -143,9 +189,7 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
             <MoreHorizontal className="w-5 h-5 text-gray-400 cursor-pointer hover:text-primary" />
           </div>
 
-          {/* 2. Content & Comments List */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
-            {/* Post Content */}
             <div className="flex space-x-3">
               <img
                 src={post.author.profileImageUrl}
@@ -161,7 +205,6 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
 
             <div className="h-px bg-gray-100" />
 
-            {/* Comments */}
             <div className="space-y-6">
               {comments.length > 0 ? (
                 comments.map((c) => (
@@ -190,7 +233,6 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
             </div>
           </div>
 
-          {/* 3. Actions & Stats */}
           <div className="p-4 border-t-2 border-primary/10 bg-gray-4/30">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
@@ -205,7 +247,6 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{createdAtText}</p>
           </div>
 
-          {/* 4. Input Field */}
           <div className="p-4 border-t-2 border-primary flex items-center space-x-3 bg-white">
             <input
               type="text"
