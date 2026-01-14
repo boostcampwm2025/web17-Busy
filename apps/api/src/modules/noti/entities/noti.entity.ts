@@ -40,5 +40,5 @@ export class Noti {
   isRead: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
-  createAt: Date;
+  createdAt: Date;
 }
