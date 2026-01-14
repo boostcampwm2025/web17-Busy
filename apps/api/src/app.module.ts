@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { PostModule } from './modules/post/post.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { join } from 'path';
@@ -14,6 +15,7 @@ import { SeedModule } from './modules/seed/seed.module';
     SeedModule,
     AuthModule,
     UserModule,
+    PostModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
