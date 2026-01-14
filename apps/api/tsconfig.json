@@ -3,6 +3,21 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolvePackageJsonExports": true,
+
+    "target": "ES2023",
+    "outDir": "./dist",
+
+    // 소스 루트 고정 (배럴/alias 정리용)
+    "rootDir": "./src",
+
+    // alias 사용을 위한 설정
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@common/*": ["src/common/*"],
+      "@modules/*": ["src/modules/*"]
+    },
+
     "esModuleInterop": true,
     "isolatedModules": true,
     "declaration": true,
@@ -10,16 +25,21 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
     "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
+
     "incremental": true,
     "skipLibCheck": true,
+
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+
+  // src만 컴파일 대상으로 잡기
+  "include": ["src/**/*.ts"],
+
+  //test/dist 등은 빼기
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }
