@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exchangeGoogleCodeWithBackend } from '@/features/auth/server/googleAuth';
-import { GOOGLE_AUTH_QUERY_KEYS, GOOGLE_COOKIE_KEYS } from '@/features/auth/config/google';
+import { exchangeGoogleCodeWithBackend } from '@/hooks/auth/server/googleAuth';
+import { GOOGLE_AUTH_QUERY_KEYS, GOOGLE_COOKIE_KEYS } from '@/hooks/auth/config/google';
 
 const JWT_COOKIE_NAME = 'jwt';
 

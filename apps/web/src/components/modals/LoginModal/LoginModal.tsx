@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 import { SpotifyLoginButton } from './loginButtons/SpotifyLoginButton'; // 경로 맞춰서 수정
 import { TmpLoginButton } from './loginButtons/TmpLoginButton';
 import { GoogleLoginButton } from './loginButtons/GoogleLoginButton';
-import { getAuthErrorMessage } from '@/features/auth/client/authErrorMessage';
+import { getAuthErrorMessage } from '@/hooks/auth/client/authErrorMessage';
 
 type LoginModalProps = {
   authError?: string;

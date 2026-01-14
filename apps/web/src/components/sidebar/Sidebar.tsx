@@ -11,8 +11,8 @@ import { useModalStore, MODAL_TYPES } from '@/stores';
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
 
-import { useAuthMe } from '@/features/auth/client/useAuthMe';
-import { performLogout } from '@/features/auth/client/logout';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { performLogout } from '@/hooks/auth/client/logout';
 
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);

@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
-import { createPkcePair } from '@/features/auth/server/pkce';
-import { buildGoogleAuthorizeUrl } from '@/features/auth/server/googleAuth';
-import { GOOGLE_COOKIE_KEYS, GOOGLE_OAUTH_TMP_COOKIE_OPTIONS } from '@/features/auth/config/google';
+import { createPkcePair } from '@/hooks/auth/server/pkce';
+import { buildGoogleAuthorizeUrl } from '@/hooks/auth/server/googleAuth';
+import { GOOGLE_COOKIE_KEYS, GOOGLE_OAUTH_TMP_COOKIE_OPTIONS } from '@/hooks/auth/config/google';
 
 export async function GET() {
   const { verifier, challenge } = createPkcePair();
