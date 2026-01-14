@@ -12,7 +12,7 @@ export class PostMusicRepository extends Repository<PostMusic> {
   async findMusicsByPostId(postId: string): Promise<MusicResponse[]> {
     return this.createQueryBuilder('pm')
       .innerJoin('pm.music', 'm')
-      .where('pm.postId = :postId', { postId })
+      .where('pm.post = :postId', { postId })
       .select([
         'm.id AS musicId',
         'm.title AS title',

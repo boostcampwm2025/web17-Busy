@@ -28,7 +28,7 @@ import { FeedService } from './feed.service';
 export class PostController {
   constructor(
     private readonly postService: PostService,
-    private readonly feedservice: FeedService,
+    private readonly feedService: FeedService,
   ) {}
 
   // feed 모둘이나 서비스 분리
@@ -39,7 +39,7 @@ export class PostController {
     @Query('cursor', new ParseUUIDPipe({ version: '7' })) cursor?: string,
   ): Promise<FeedResponseDto> {
     try {
-      return await this.feedservice.feed(requestUserId, limit, cursor);
+      return await this.feedService.feed(requestUserId, limit, cursor);
     } catch (error) {
       throw new InternalServerErrorException(
         `피드 데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
