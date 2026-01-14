@@ -4,6 +4,7 @@ export interface MusicResponse {
   artistName: string;
   albumCoverUrl: string;
   trackUri: string;
+  durationMs: number;
 }
 
 export interface UserResponse {
