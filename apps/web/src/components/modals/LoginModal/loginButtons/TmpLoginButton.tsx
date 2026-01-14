@@ -12,7 +12,7 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
     const res = await fetch('/api/auth/login/tmp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ id: userId }),
     });
 
     if (!res.ok) throw new Error('로그인에 실패했습니다.');

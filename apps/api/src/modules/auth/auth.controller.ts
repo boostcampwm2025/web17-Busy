@@ -2,7 +2,6 @@ import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ExchangeTokenDto } from './dto/exchangeDto';
 import type { Response } from 'express';
-import { User } from '../user/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
