@@ -8,7 +8,7 @@ export interface Music {
   trackUri: string;
 
   /** DB: music.provider */
-  provider: MusicProvider;
+  provider?: MusicProvider;
 
   /** DB: music.album_cover_url */
   albumCoverUrl: string;

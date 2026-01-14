@@ -3,7 +3,7 @@ import type { Music } from './music';
 export interface AuthorSummary {
   userId: string;
   nickname: string;
-  profileImageUrl: string;
+  profileImgUrl: string;
 }
 
 export interface Post {
@@ -20,4 +20,7 @@ export interface Post {
   createdAt: string;
 
   musics: Music[];
+
+  isEdited: boolean;
+  isLiked: boolean;
 }
