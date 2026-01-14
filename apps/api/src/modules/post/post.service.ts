@@ -9,7 +9,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
 import { Provider } from 'src/common/constants';
-import { MusicRequest } from '@repo/dto/post/req/index';
+import type { MusicRequest } from '@repo/dto/post/req/index';
 import { PostMusicRepository } from './post-music.repository';
 import { LikeRepository } from '../like/like.repository';
 import { MusicResponse } from '@repo/dto/post/res/shared';
