@@ -22,6 +22,8 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
 
     // me - 전역으로 관리하면 될 듯
     const me = await meRes.json();
+
+    setLoading(false);
   };
 
   return (
