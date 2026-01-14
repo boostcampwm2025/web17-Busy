@@ -10,7 +10,7 @@ export interface MusicResponse {
 export interface UserResponse {
   userId: string;
   nickname: string;
-  profileImgUrl?: string;
+  profileImgUrl: string;
 }
 
 export interface PostResponse {
@@ -21,7 +21,7 @@ export interface PostResponse {
   content: string;
   likeCount: number;
   commentCount: number;
-  createdAt: Date;
+  createdAt: string;
   isEdited: boolean;
   isLiked: boolean;
 }
