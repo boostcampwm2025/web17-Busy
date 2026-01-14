@@ -1,4 +1,5 @@
 import { User } from 'src/modules/user/entities/user.entity';
+import { Like } from 'src/modules/like/entities/like.entity';
 import { PostMusic } from './post-music.entity';
 
 import {
@@ -32,6 +33,9 @@ export class Post {
 
   @OneToMany(() => PostMusic, (postMusic) => postMusic.post)
   postMusics: PostMusic[];
+
+  @OneToMany(() => Like, (like) => like.post)
+  likes: Like[];
 
   @Column('varchar', { name: 'cover_img_url', length: 2083, nullable: false })
   thumbnailImgUrl: string;
