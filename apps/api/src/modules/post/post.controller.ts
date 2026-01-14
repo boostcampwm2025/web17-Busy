@@ -38,13 +38,7 @@ export class PostController {
     @Query('limit', ParseIntPipe) limit: number,
     @Query('cursor', new ParseUUIDPipe({ version: '7' })) cursor?: string,
   ): Promise<FeedResponseDto> {
-    try {
-      return await this.feedService.feed(requestUserId, limit, cursor);
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `피드 데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
-      );
-    }
+    return await this.feedService.feed(requestUserId, limit, cursor);
   }
 
   @UseGuards(AuthGuard)
@@ -53,20 +47,14 @@ export class PostController {
     @UserId() requestUserId: string,
     @Body() createPostDto: CreatePostRequestDto,
   ): Promise<{ ok: true }> {
-    try {
-      const { musics, content, thumbnailImgUrl } = createPostDto;
-      await this.postService.create(
-        requestUserId,
-        musics,
-        content,
-        thumbnailImgUrl,
-      );
-      return { ok: true };
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `피드 데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
-      );
-    }
+    const { musics, content, thumbnailImgUrl } = createPostDto;
+    await this.postService.create(
+      requestUserId,
+      musics,
+      content,
+      thumbnailImgUrl,
+    );
+    return { ok: true };
   }
 
   @Get(':id')
@@ -74,45 +62,27 @@ export class PostController {
     @UserId() requestUserId: string,
     @Param('id') postId: string,
   ): Promise<GetPostDetailResponseDto | null> {
-    try {
-      return await this.postService.getPostDetail(postId, requestUserId);
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `피드 데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
-      );
-    }
+    return await this.postService.getPostDetail(postId, requestUserId);
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
   async update(
     @UserId() requestUserId: string,
-    @Param('id', ParseIntPipe) postId: string,
+    @Param('id') postId: string,
     @Body() updatePostDto: UpdatePostRequestDto,
   ): Promise<{ ok: true }> {
-    try {
-      this.postService.update(requestUserId, postId, updatePostDto.content);
-      return { ok: true };
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `피드 데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
-      );
-    }
+    this.postService.update(requestUserId, postId, updatePostDto.content);
+    return { ok: true };
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
   async delete(
     @UserId() requestUserId: string,
-    @Param('id', ParseIntPipe) postId: string,
+    @Param('id') postId: string,
   ): Promise<{ ok: true }> {
-    try {
-      await this.postService.delete(requestUserId, postId);
-      return { ok: true };
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `피드 데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
-      );
-    }
+    await this.postService.delete(requestUserId, postId);
+    return { ok: true };
   }
 }
