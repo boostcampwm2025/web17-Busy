@@ -1,7 +1,15 @@
 # compiled output
 /dist
-/node_modules
 /build
+/node_modules
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Nest / TS build artifacts (혹시 생기는 경우 대비)
+*.d.ts
+*.d.ts.map
+*.js.map
 
 # Logs
 logs
@@ -14,10 +22,16 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Tests
 /coverage
 /.nyc_output
+
+# Jest / ts-jest cache
+.jest
+jest-cache
+**/.ts-jest
 
 # IDEs and editors
 /.idea
@@ -27,6 +41,7 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
+*.sublime-project
 
 # IDE - VSCode
 .vscode/*
@@ -37,14 +52,14 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env.*
+!.env.example
 
 # temp directory
 .temp
 .tmp
+tmp/
+temp/
 
 # Runtime data
 pids
@@ -54,3 +69,14 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Optional: local sqlite/mysql dumps or backups 
+*.db
+*.dump
+
+# Optional: local certificates/keys 
+*.pem
+*.key
+*.crt
+
+
