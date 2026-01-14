@@ -70,7 +70,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
   return (
     <article
       onClick={handleOpenDetail}
-      className="bg-white border-2 border-primary rounded-2xl p-6 mb-8 shadow-[6px_6px_0px_0px_#00214D]
+      className="bg-white border-2 border-primary rounded-2xl p-6 mb-8 shadow-[3px_3px_0px_0px_#00214D]
                  hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_#00EBC7] transition-all duration-300 cursor-pointer"
     >
       {/* Header */}
@@ -106,7 +106,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
             <button
               type="button"
               onClick={handlePlayClick}
-              className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#00ebc7] opacity-0 group-hover:opacity-100 transition-opacity"
+              className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-[2px_2px_0px_0px_#00ebc7] opacity-0 group-hover:opacity-100 transition-opacity"
               title={isActivePlaying ? '일시정지' : '재생'}
             >
               {isActivePlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
