@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState, lazy } from 'react';
-import { LogIn, Menu, PlusCircle } from 'lucide-react';
+import { LogIn, LogOut, Menu, PlusCircle } from 'lucide-react';
 
 import { menuItems } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
@@ -10,6 +10,9 @@ import { useModalStore, MODAL_TYPES } from '@/stores';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
+
+import { useAuthMe } from '@/features/auth/client/useAuthMe';
+import { performLogout } from '@/features/auth/client/logout';
 
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);
@@ -19,6 +22,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const { openModal } = useModalStore();
+  const { isAuthenticated, isLoading } = useAuthMe();
 
   const initialActiveItem = useMemo<SidebarItemTypeValues>(() => {
     if (pathname === '/') {
@@ -71,6 +75,17 @@ export default function Sidebar() {
 
   const handlerOpenLoginModal = () => {
     openModal(MODAL_TYPES.LOGIN);
+  };
+
+  const handleAuthButtonClick = async () => {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
+
+    await performLogout();
   };
 
   const isSearchOpen = activeDrawer === SidebarItemType.SEARCH && activeItem === SidebarItemType.SEARCH;
@@ -131,9 +146,20 @@ export default function Sidebar() {
           </button>
         </div>
 
-        <button type="button" onClick={handlerOpenLoginModal} className="flex items-center p-6" title="로그인">
-          <LogIn className="w-6 h-6" />
-          {isExpanded && <span className="ml-4 font-medium text-sm hover:font-bold whitespace-nowrap overflow-hidden">로그인</span>}
+        {/* 로그인/로그아웃 토글 버튼 */}
+        <button
+          type="button"
+          onClick={() => void handleAuthButtonClick()}
+          disabled={isLoading}
+          className="flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed"
+          title={isAuthenticated ? '로그아웃' : '로그인'}
+        >
+          {isAuthenticated ? <LogOut className="w-6 h-6" /> : <LogIn className="w-6 h-6" />}
+          {isExpanded && (
+            <span className="ml-4 font-medium text-sm hover:font-bold whitespace-nowrap overflow-hidden">
+              {isLoading ? '...' : isAuthenticated ? '로그아웃' : '로그인'}
+            </span>
+          )}
         </button>
       </nav>
 
