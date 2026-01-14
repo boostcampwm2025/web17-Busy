@@ -22,15 +22,15 @@ export default function RootLayout({
         <SpotifyTokenFromHash />
         <ModalContainer />
 
-        <div className="flex h-screen">
+        <div className="flex h-screen overflow-hidden">
           {/* 좌측 사이드바 */}
           <Sidebar />
 
           <div className="flex flex-col flex-1 h-full lg:flex-row">
             {/* 중앙 컨텐츠: column 레이아웃에서 flex-1로 높이 차지 */}
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 flex flex-col min-h-0">
               <Header />
-              {children}
+              <div className="flex-1 overflow-y-auto">{children}</div>
             </main>
 
             {/* 우측/하단 플레이어 영역 */}
