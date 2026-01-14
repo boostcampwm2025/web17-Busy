@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Noti } from './entities/noti.entity';
 import { Repository } from 'typeorm';
@@ -25,20 +29,32 @@ export class NotiService {
   }
 
   async readNoti(userId: string, notiId: string): Promise<void> {
-    await this.notiRepo.update(
-      {
-        id: notiId,
-        receiver: { id: userId },
-      },
-      { isRead: true },
-    );
+    const noti = await this.notiRepo.findOne({
+      where: { id: notiId },
+      relations: { receiver: true },
+      select: { id: true, isRead: true, receiver: { id: true } },
+    });
+
+    if (!noti) throw new NotFoundException('알림을 찾을 수 없습니다.');
+    if (noti.receiver.id !== userId)
+      throw new ForbiddenException('이 알림의 수신자가 아닙니다.');
+
+    if (noti.isRead) return;
+    await this.notiRepo.update({ id: notiId }, { isRead: true });
   }
 
   async deleteNoti(userId: string, notiId: string): Promise<void> {
-    await this.notiRepo.delete({
-      id: notiId,
-      receiver: { id: userId },
+    const noti = await this.notiRepo.findOne({
+      where: { id: notiId },
+      relations: { receiver: true },
+      select: { id: true, receiver: { id: true } },
     });
+
+    if (!noti) throw new NotFoundException('알림을 찾을 수 없습니다.');
+    if (noti.receiver.id !== userId)
+      throw new ForbiddenException('이 알림의 수신자가 아닙니다.');
+
+    await this.notiRepo.delete({ id: notiId });
   }
 
   private async toNotiResponseDto(noti: Noti): Promise<NotiResponseDto> {

@@ -18,38 +18,20 @@ export class NotiController {
   @UseGuards(AuthGuard)
   @Get()
   async getNotis(@UserId() userId: string): Promise<NotiResponseDto[]> {
-    try {
-      return await this.notiService.getNotisByUserId(userId);
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `알림을 읽어오는 데 실패했습니다. 에러메시지: ${error.message}`,
-      );
-    }
+    return await this.notiService.getNotisByUserId(userId);
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
   async readNoti(@UserId() userId: string, @Param('id') notiId: string) {
-    try {
-      await this.notiService.readNoti(userId, notiId);
-      return { ok: true };
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `알림 수정에 실패했습니다. 에러메시지: ${error.message}`,
-      );
-    }
+    await this.notiService.readNoti(userId, notiId);
+    return { ok: true };
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
   async delete(@UserId() userId: string, @Param('id') notiId: string) {
-    try {
-      await this.notiService.deleteNoti(userId, notiId);
-      return { ok: true };
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `알림을 삭제하는 데 실패했습니다. 에러메시지: ${error.message}`,
-      );
-    }
+    await this.notiService.deleteNoti(userId, notiId);
+    return { ok: true };
   }
 }
