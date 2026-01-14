@@ -48,22 +48,26 @@ export class PostService {
     await this.ds.transaction(async (transactionalEntityManager) => {
       const postRepo = transactionalEntityManager.getRepository(Post);
       const postMusicRepo = transactionalEntityManager.getRepository(PostMusic);
-      const { id: postId } = await postRepo.save({
+
+      const post = postRepo.create({
         author: { id: userId },
         thumbnailImgUrl,
         content,
         likeCount: 0,
         commentCount: 0,
       });
+      const savedPost = await postRepo.save(post);
 
       // musics -> ensuredMusics
-      const postMusicsToSave = musics.map((m, i) => ({
-        post: { id: postId },
-        music: { id: m.musicId },
-        orderIndex: i,
-      }));
+      const postMusics = musics.map((m, i) =>
+        postMusicRepo.create({
+          post: { id: savedPost.id },
+          music: { id: m.musicId },
+          orderIndex: i,
+        }),
+      );
 
-      await postMusicRepo.save(postMusicsToSave);
+      await postMusicRepo.save(postMusics);
     });
   }
 
