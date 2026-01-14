@@ -28,7 +28,7 @@ export class Post {
   author: User;
 
   @Column('varchar', { name: 'cover_img_url', length: 2083, nullable: false })
-  coverImgUrl: string;
+  thumbnailImgUrl: string;
 
   @Column('varchar', { length: 2300, nullable: true })
   content: string;
