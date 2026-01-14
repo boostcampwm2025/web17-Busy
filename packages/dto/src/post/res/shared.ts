@@ -15,7 +15,7 @@ export interface UserResponse {
 export interface PostResponse {
   postId: string;
   author: UserResponse;
-  thumbnailImgUrl: string;
+  coverImgUrl: string;
   musics: MusicResponse[];
   content: string;
   likeCount: number;

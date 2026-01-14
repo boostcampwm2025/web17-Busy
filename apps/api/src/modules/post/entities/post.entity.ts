@@ -38,7 +38,7 @@ export class Post {
   likes: Like[];
 
   @Column('varchar', { name: 'cover_img_url', length: 2083, nullable: false })
-  thumbnailImgUrl: string;
+  coverImgUrl: string;
 
   @Column('varchar', { length: 2300, nullable: true })
   content: string;

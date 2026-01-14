@@ -54,12 +54,12 @@ export class PostController {
     @Body() createPostDto: CreatePostRequestDto,
   ): Promise<{ ok: true }> {
     try {
-      const { musics, content, thumbnailImgUrl } = createPostDto;
+      const { musics, content, coverImgUrl } = createPostDto;
       await this.postService.create(
         requestUserId,
         musics,
         content,
-        thumbnailImgUrl,
+        coverImgUrl,
       );
       return { ok: true };
     } catch (error) {
