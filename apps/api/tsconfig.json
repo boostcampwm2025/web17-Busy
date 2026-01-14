@@ -6,17 +6,16 @@
 
     "target": "ES2023",
     "outDir": "./dist",
-
-    // 소스 루트 고정 (배럴/alias 정리용)
     "rootDir": "./src",
 
-    // alias 사용을 위한 설정
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "@common/*": ["src/common/*"],
       "@modules/*": ["src/modules/*"]
     },
+
+    "types": ["node", "jest"],
 
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -36,10 +35,6 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
   },
-
-  // src만 컴파일 대상으로 잡기
   "include": ["src/**/*.ts"],
-
-  //test/dist 등은 빼기
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  "exclude": ["node_modules", "dist", "test"]
 }
