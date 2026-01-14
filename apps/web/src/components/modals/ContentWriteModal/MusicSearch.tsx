@@ -17,7 +17,7 @@ const COUNTRY: 'KR' = 'KR';
 // 목업 데이터 | 음악, {내 플레이리스트}
 const MOCK_MUSICS: Music[] = [
   {
-    musicId: '1',
+    musicId: '11111111-1111-1111-1111-111111111111',
     title: 'we cant be friends',
     artistName: 'Ariana Grande',
     albumCoverUrl:
@@ -28,7 +28,7 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 300,
   },
   {
-    musicId: '2',
+    musicId: '22222222-2222-2222-2222-222222222222',
     title: 'Die For You',
     artistName: 'The Weekend',
     albumCoverUrl:
@@ -39,7 +39,7 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 300,
   },
   {
-    musicId: '3',
+    musicId: '33333333-3333-3333-3333-333333333333',
     title: 'Ditto',
     artistName: 'NewJeans',
     albumCoverUrl:
