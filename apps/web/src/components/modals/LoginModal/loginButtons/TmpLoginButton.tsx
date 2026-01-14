@@ -9,9 +9,7 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
     if (loading) return;
     setLoading(true);
 
-    // 로그인 요청
-    const url = new URL('/auth/login/tmp', process.env.NEXT_PUBLIC_APP_URL!);
-    const res = await fetch(url, {
+    const res = await fetch('/api/auth/login/tmp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId }),
@@ -19,9 +17,7 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
 
     if (!res.ok) throw new Error('로그인에 실패했습니다.');
 
-    const meUrl = new URL('/user/me', process.env.NEXT_PUBLIC_APP_URL!);
-
-    const meRes = await fetch(meUrl, { credentials: 'include' });
+    const meRes = await fetch('/api/user/me', { credentials: 'include' });
     if (!meRes.ok) throw new Error('쿠키 저장/인증 확인 실패');
 
     // me - 전역으로 관리하면 될 듯
