@@ -4,8 +4,8 @@ const MS = {
   day: 86_400_000,
 } as const;
 
-export const formatRelativeTime = (iso: string): string => {
-  const createdAt = new Date(iso).getTime();
+export const formatRelativeTime = (iso: Date): string => {
+  const createdAt = iso.getTime();
   const diff = Math.max(0, Date.now() - createdAt);
 
   if (diff < MS.minute) return '방금 전';
