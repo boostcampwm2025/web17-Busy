@@ -4,6 +4,7 @@ import React from 'react';
 import { useModalStore } from '@/stores/useModalStore';
 import { X } from 'lucide-react';
 import { SpotifyLoginButton } from './loginButtons/SpotifyLoginButton'; // 경로 맞춰서 수정
+import { TmpLoginButton } from './loginButtons/TmpLoginButton';
 
 export const LoginModal = () => {
   const { closeModal } = useModalStore();
@@ -26,6 +27,8 @@ export const LoginModal = () => {
 
         {/* 바디 */}
         <div className="px-10 py-20 flex flex-col gap-4">
+          <TmpLoginButton userId="11111111-1111-1111-1111-111111111111" nickname="테스트 사용자 1" />
+          <TmpLoginButton userId="22222222-2222-2222-2222-222222222222" nickname="테스트 사용자 2" />
           <SpotifyLoginButton />
         </div>
       </div>

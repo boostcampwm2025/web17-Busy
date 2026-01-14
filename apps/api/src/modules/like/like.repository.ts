@@ -47,4 +47,11 @@ export class LikeRepository {
     const count = await this.repository.count({ where: { userId, postId } });
     return count > 0;
   }
+
+
+  async isPostLikedByUser(postId: string, userId: string): Promise<boolean> {
+    return await this.repository.exists({
+      where: { postId, userId },
+    });
+  
 }

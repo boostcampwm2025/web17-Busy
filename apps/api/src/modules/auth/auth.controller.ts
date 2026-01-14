@@ -1,10 +1,30 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ExchangeTokenDto } from './dto/exchangeDto';
+import type { Response } from 'express';
+import { User } from '../user/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('login/tmp')
+  async tmpLogin(
+    @Body() body: { id: string },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const jwt = await this.authService.issueJwt({ id: body.id });
+
+    res.cookie('jwt', jwt, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 1000 * 60 * 60, // 1시간
+    });
+
+    return { ok: true };
+  }
 
   @Post('spotify/exchange')
   async exchange(@Body() { code, verifier }: ExchangeTokenDto) {

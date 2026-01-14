@@ -7,9 +7,11 @@ import { UserModule } from './modules/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { join } from 'path';
+import { SeedModule } from './modules/seed/seed.module';
 
 @Module({
   imports: [
+    SeedModule,
     AuthModule,
     UserModule,
     ConfigModule.forRoot({
@@ -20,14 +22,13 @@ import { join } from 'path';
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
         type: 'mysql',
-        host: config.get<string>('HOST'),
-        port: config.get<number>('PORT', 3306),
-        username: config.get<string>('USERNAME'),
-        password: config.get<string>('PASSWORD'),
-        database: config.get<string>('DATABASE'),
+        host: config.get<string>('DB_HOST'),
+        port: config.get<number>('DB_PORT', 3306),
+        username: config.get<string>('DB_USERNAME'),
+        password: config.get<string>('DB_PASSWORD'),
+        database: config.get<string>('DB_DATABASE'),
         entities: [join(__dirname, '**/*.entity.{ts,js}')],
-        // synchronize: false,
-        synchronize: true,
+        synchronize: process.env.NODE_ENV !== 'production',
       }),
       inject: [ConfigService],
     }),
