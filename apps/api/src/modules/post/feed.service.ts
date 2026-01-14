@@ -86,7 +86,8 @@ export class FeedService {
         author: {
           userId: post.author.id,
           nickname: post.author.nickname,
-          profileImgUrl: post.author.profileImgUrl ?? '',
+          profileImgUrl:
+            post.author.profileImgUrl || 'https://placehold.co/400',
         },
         musics: post.postMusics.map(
           ({ music }): MusicResponse => ({
