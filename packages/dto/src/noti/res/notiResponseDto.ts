@@ -6,7 +6,8 @@ export class NotiResponseDto {
     profileImgUrl: string;
   };
   type: string; // enum... 백엔드를 참조할 순 없어서... 임시...
-  relatedId: string;
+  relatedId?: string | null;
   isRead: boolean;
+  createdAt: Date;
   imgUrl: string;
 }

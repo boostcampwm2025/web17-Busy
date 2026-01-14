@@ -67,6 +67,7 @@ export class NotiService {
       type: noti.type,
       relatedId: noti.relatedId,
       isRead: noti.isRead,
+      createdAt: noti.createdAt,
       imgUrl,
     };
   }
