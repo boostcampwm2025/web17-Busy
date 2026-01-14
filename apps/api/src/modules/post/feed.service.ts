@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { FeedResponseDto } from '@repo/dto/post/res/feedResponseDto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { PostResponse, MusicResponse } from '@repo/dto/post/res/shared';
+import { FeedResponseDto } from '@repo/dto/post/res/feedResponseDto';
 
 @Injectable()
 export class FeedService {
@@ -17,12 +17,35 @@ export class FeedService {
     limit: number,
     cursor?: string,
   ): Promise<FeedResponseDto> {
+    // 데이터 조회 (hasNext 체크 위해서 limit + 1개 가져오기)
+    const qb = this.createFeedQueryBuilder(requestUserId, cursor);
+    const posts = await qb.take(limit + 1).getMany();
+
+    // 응답 데이터 생성
+    const hasNext = posts.length > limit;
+    const targetPosts = hasNext ? posts.slice(0, -1) : posts;
+    const nextCursor =
+      targetPosts.length > 0
+        ? targetPosts[targetPosts.length - 1].id
+        : undefined;
+
+    return {
+      hasNext,
+      nextCursor,
+      posts: this.mapToFeedResponseDto(targetPosts),
+    };
+  }
+
+  private createFeedQueryBuilder(
+    requestUserId: string | null,
+    cursor?: string,
+  ): SelectQueryBuilder<Post> {
     const query = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.postMusics', 'postMusic')
       .leftJoinAndSelect('postMusic.music', 'music')
-      .where('1=1'); // 조건 체이닝 유지
+      .orderBy('post.id', 'DESC');
 
     // 로그인 상태인 경우 조건 추가
     if (requestUserId) {
@@ -42,24 +65,7 @@ export class FeedService {
       query.andWhere('post.id < :cursor', { cursor });
     }
 
-    // 데이터 조회
-    const posts = await query
-      .orderBy('post.id', 'DESC')
-      .take(limit + 1)
-      .getMany();
-
-    const hasNext = posts.length > limit;
-    const targetPosts = hasNext ? posts.slice(0, -1) : posts;
-    const nextCursor =
-      targetPosts.length > 0
-        ? targetPosts[targetPosts.length - 1].id
-        : undefined;
-
-    return {
-      hasNext,
-      nextCursor,
-      posts: this.mapToFeedResponseDto(targetPosts),
-    };
+    return query;
   }
 
   private mapToFeedResponseDto(posts: Post[]): PostResponse[] {
