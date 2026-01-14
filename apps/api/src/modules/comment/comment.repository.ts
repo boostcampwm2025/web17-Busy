@@ -26,4 +26,9 @@ export class CommentRepository {
       relations: ['author', 'post'],
     });
   }
+
+  // 댓글 업데이트
+  async updateComment(commentId: string, content: string): Promise<void> {
+    await this.repository.update(commentId, { content });
+  }
 }
