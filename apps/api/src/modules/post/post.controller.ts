@@ -13,10 +13,8 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PostService } from './post.service';
-import {
-  CreatePostRequestDto,
-  UpdatePostRequestDto,
-} from '@repo/dto/post/req/index';
+import { CreatePostRequestDto } from '@repo/dto/post/req/createPostRequestDto';
+import { UpdatePostRequestDto } from '@repo/dto/post/req/updatePostRequestDto';
 import {
   FeedResponseDto,
   GetPostDetailResponseDto,
@@ -32,7 +30,6 @@ export class PostController {
     private readonly feedservice: FeedService,
   ) {}
 
-  // feed 모둘이나 서비스 분리
   @Get('feed')
   async feed(
     @UserId() requestUserId: string | null,
@@ -40,7 +37,8 @@ export class PostController {
     @Query('cursor', new ParseUUIDPipe({ version: '7' })) cursor?: string,
   ): Promise<FeedResponseDto> {
     try {
-      return await this.feedservice.feed(requestUserId, limit, cursor);
+      return { posts: [], hasNext: false, nextCursor: undefined };
+      //return await this.feedservice.getFeedPosts(requestUserId, limit, cursor);
     } catch (error) {
       throw new InternalServerErrorException(
         `피드 데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
