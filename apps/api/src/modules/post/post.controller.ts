@@ -10,25 +10,31 @@ import {
   ParseIntPipe,
   ParseUUIDPipe,
   UseGuards,
-  InternalServerErrorException,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import {
-  CreatePostRequestDto,
   UpdatePostRequestDto,
   FeedResponseDto,
   GetPostDetailResponseDto,
+  CreatePostMultipartDto,
+  MusicRequest,
 } from '@repo/dto';
 
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 import { FeedService } from './feed.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadService } from '../upload/upload.service';
 
 @Controller('post')
 export class PostController {
   constructor(
     private readonly postService: PostService,
     private readonly feedService: FeedService,
+    private readonly uploadService: UploadService,
   ) {}
 
   // feed 모둘이나 서비스 분리
@@ -43,11 +49,25 @@ export class PostController {
 
   @UseGuards(AuthGuard)
   @Post()
-  async create(
+  @UseInterceptors(FileInterceptor('coverImgUrl'))
+  async createPostIncludeImg(
     @UserId() requestUserId: string,
-    @Body() createPostDto: CreatePostRequestDto,
+    @UploadedFile() coverImgUrl: Express.Multer.File,
+    @Body() body: CreatePostMultipartDto,
   ): Promise<{ ok: true }> {
-    const { musics, content, thumbnailImgUrl } = createPostDto;
+    const { content } = body;
+
+    let musics: MusicRequest[];
+    try {
+      musics = JSON.parse(body.musics ?? '[]');
+    } catch {
+      throw new BadRequestException('musics 형식이 올바르지 않습니다.');
+    }
+
+    const thumbnailImgUrl = coverImgUrl
+      ? this.uploadService.toPublicUrl(coverImgUrl.filename)
+      : undefined;
+
     await this.postService.create(
       requestUserId,
       musics,
