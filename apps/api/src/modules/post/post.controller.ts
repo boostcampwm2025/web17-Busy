@@ -11,6 +11,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
   InternalServerErrorException,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostRequestDto } from '@repo/dto/post/req/createPostRequestDto';
@@ -33,7 +34,7 @@ export class PostController {
   @Get('feed')
   async feed(
     @UserId() requestUserId: string | null,
-    @Query('limit', ParseIntPipe) limit: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('cursor', new ParseUUIDPipe({ version: '7' })) cursor?: string,
   ): Promise<FeedResponseDto> {
     try {
