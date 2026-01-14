@@ -3,7 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Noti } from '../noti/entities/noti.entity';
-import { NotiType } from 'src/common/constants';
+import { Music } from '../music/entities/music.entity';
+import {
+  SEED_MUSICS,
+  SEED_NOTIS,
+  SEED_POST_MUSICS,
+  SEED_POSTS,
+  SEED_USERS,
+} from './seed';
+import { Post } from '../post/entities/post.entity';
+import { PostMusic } from '../post/entities/post-music.entity';
 
 @Injectable()
 export class DevSeedService implements OnApplicationBootstrap {
@@ -13,73 +22,24 @@ export class DevSeedService implements OnApplicationBootstrap {
 
     @InjectRepository(Noti)
     private readonly notiRepo: Repository<Noti>,
+
+    @InjectRepository(Music)
+    private readonly musicRepo: Repository<Music>,
+
+    @InjectRepository(Post)
+    private readonly postRepo: Repository<Post>,
+
+    @InjectRepository(PostMusic)
+    private readonly postMusicRepo: Repository<PostMusic>,
   ) {}
 
   async onApplicationBootstrap() {
     if (process.env.NODE_ENV === 'production') return;
 
-    await this.seedUsers();
-    await this.seedNotis();
-  }
-
-  private async seedUsers() {
-    const seedUsers = [
-      {
-        id: '11111111-1111-1111-1111-111111111111',
-        nickname: '테스트 사용자 1',
-        email: 'example111@naver.com',
-        profileImageUrl: '사용자 1의 프로필',
-        bio: '하이요~~',
-      },
-      {
-        id: '22222222-2222-2222-2222-222222222222',
-        nickname: '테스트 사용자 2',
-        email: 'example222@naver.com',
-        profileImageUrl: '사용자 2의 프로필',
-        bio: '하이요~~',
-      },
-    ];
-
-    await Promise.all(seedUsers.map((u) => this.userRepo.save(u)));
-  }
-
-  private async seedNotis() {
-    const RECEIVER_ID = '11111111-1111-1111-1111-111111111111';
-    const ACTOR_ID = '22222222-2222-2222-2222-222222222222';
-
-    const seedNotis: Array<Partial<Noti>> = [
-      {
-        id: '11111111-1111-1111-1111-111111111111',
-        receiver: { id: RECEIVER_ID } as User,
-        actor: { id: ACTOR_ID } as User,
-        type: NotiType.COMMENT,
-        relatedId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', // 예: postId
-        isRead: false,
-      },
-      {
-        id: '22222222-2222-2222-2222-222222222222',
-        receiver: { id: RECEIVER_ID } as User,
-        actor: { id: ACTOR_ID } as User,
-        type: NotiType.LIKE,
-        relatedId: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', // 예: postId
-        isRead: false,
-      },
-      {
-        id: '33333333-3333-3333-3333-333333333333',
-        receiver: { id: RECEIVER_ID } as User,
-        actor: { id: ACTOR_ID } as User,
-        type: NotiType.FOLLOW,
-        isRead: true,
-      },
-      {
-        id: '4444444-4444--4444-4444-444444444444',
-        receiver: { id: ACTOR_ID } as User,
-        actor: { id: RECEIVER_ID } as User,
-        type: NotiType.FOLLOW,
-        isRead: false,
-      },
-    ];
-
-    await Promise.all(seedNotis.map((n) => this.notiRepo.save(n)));
+    await this.userRepo.save(SEED_USERS);
+    await this.notiRepo.save(SEED_NOTIS);
+    await this.musicRepo.save(SEED_MUSICS);
+    await this.postRepo.save(SEED_POSTS);
+    await this.postMusicRepo.save(SEED_POST_MUSICS);
   }
 }
