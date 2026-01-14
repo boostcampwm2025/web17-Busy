@@ -7,9 +7,11 @@ import { UserModule } from './modules/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { join } from 'path';
+import { SeedModule } from './modules/seed/seed.module';
 
 @Module({
   imports: [
+    SeedModule,
     AuthModule,
     UserModule,
     ConfigModule.forRoot({
@@ -26,8 +28,7 @@ import { join } from 'path';
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
         entities: [join(__dirname, '**/*.entity.{ts,js}')],
-        // synchronize: false,
-        synchronize: true,
+        synchronize: process.env.NODE_ENV !== 'production',
       }),
       inject: [ConfigService],
     }),

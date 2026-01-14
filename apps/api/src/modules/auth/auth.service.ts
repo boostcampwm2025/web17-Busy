@@ -93,17 +93,8 @@ export class AuthService {
     return user;
   }
 
-  async issueJwt(user: {
-    id: string;
-    nickname: string;
-    profileImgUrl?: string;
-  }) {
-    const payload = {
-      sub: user.id,
-      nickname: user.nickname,
-      profileImgUrl: user.profileImgUrl,
-    };
-
+  async issueJwt(user: { id: string }) {
+    const payload = { sub: user.id };
     return await this.jwtService.signAsync(payload, {});
   }
 }
