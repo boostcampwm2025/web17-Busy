@@ -14,6 +14,7 @@
   --color-white: #fffffe;
   --color-black: #191414;
   --color-spotify-green: #1db954;
+  --color-error: #ca2a30;
 }
 
 * {
@@ -49,5 +50,12 @@ button {
 }
 
 ::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #00214d;
+  border-radius: 4px;
 }

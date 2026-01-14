@@ -133,4 +133,54 @@ export const MOCK_POSTS: Post[] = [
     createdAt: isoAgo(days(7)), // 7일 전
     musics: [MOCK_MUSICS[4]!],
   },
+  {
+    postId: 'p-6',
+    author: USER_2,
+    coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
+    content: '비 오는 날 감성 플리에서 한 곡 픽!',
+    likeCount: 210,
+    commentCount: 45,
+    createdAt: isoAgo(days(7)), // 7일 전
+    musics: [MOCK_MUSICS[4]!],
+  },
+  {
+    postId: 'p-7',
+    author: USER_2,
+    coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
+    content: '비 오는 날 감성 플리에서 한 곡 픽!',
+    likeCount: 210,
+    commentCount: 45,
+    createdAt: isoAgo(days(7)), // 7일 전
+    musics: [MOCK_MUSICS[4]!],
+  },
+  {
+    postId: 'p-8',
+    author: USER_2,
+    coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
+    content: '비 오는 날 감성 플리에서 한 곡 픽!',
+    likeCount: 210,
+    commentCount: 45,
+    createdAt: isoAgo(days(7)), // 7일 전
+    musics: [MOCK_MUSICS[4]!],
+  },
+  {
+    postId: 'p-9',
+    author: USER_2,
+    coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
+    content: '비 오는 날 감성 플리에서 한 곡 픽!',
+    likeCount: 210,
+    commentCount: 45,
+    createdAt: isoAgo(days(7)), // 7일 전
+    musics: [MOCK_MUSICS[4]!],
+  },
+  {
+    postId: 'p-10',
+    author: USER_2,
+    coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
+    content: '비 오는 날 감성 플리에서 한 곡 픽!',
+    likeCount: 210,
+    commentCount: 45,
+    createdAt: isoAgo(days(7)), // 7일 전
+    musics: [MOCK_MUSICS[4]!],
+  },
 ];
