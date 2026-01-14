@@ -1,8 +1,11 @@
 'use client';
 
+import { useModalStore } from '@/stores';
 import React, { useState } from 'react';
 
 export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname: string }) => {
+  const { closeModal } = useModalStore();
+
   const [loading, setLoading] = useState(false);
 
   const handleTmpLogin = async () => {
@@ -24,6 +27,7 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
     const me = await meRes.json();
 
     setLoading(false);
+    closeModal();
   };
 
   return (
