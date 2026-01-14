@@ -15,7 +15,7 @@ const fetchFeeds = async (cursor?: string) => {
 
 export default function FeedSection({ initialData }: { initialData?: ClientFeedResponseDto }) {
   const { items, hasNext, error, ref } = useInfiniteScroll<Post>({
-    initialData: { items: initialData?.posts || [], hasNext: initialData?.hasNext || false, nextCursor: initialData?.nextCursor },
+    initialData: { items: initialData?.posts ?? [], hasNext: initialData?.hasNext ?? false, nextCursor: initialData?.nextCursor },
     fetchFn: fetchFeeds,
   });
 

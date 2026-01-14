@@ -15,9 +15,9 @@ interface UseInfiniteScrollParams<T> {
 export default function useInfiniteScroll<T>({ initialData, fetchFn }: UseInfiniteScrollParams<T>) {
   const { ref, inView } = useInView({ threshold: 0.8, rootMargin: '200px' });
 
-  const [items, setItems] = useState<T[]>(initialData?.items || []);
-  const [hasNext, setHasNext] = useState<boolean>(initialData?.hasNext || true);
-  const [nextCursor, setNextCursor] = useState<string | undefined>(initialData?.nextCursor || undefined);
+  const [items, setItems] = useState<T[]>(initialData?.items ?? []);
+  const [hasNext, setHasNext] = useState<boolean>(initialData?.hasNext ?? false);
+  const [nextCursor, setNextCursor] = useState<string | undefined>(initialData?.nextCursor);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
