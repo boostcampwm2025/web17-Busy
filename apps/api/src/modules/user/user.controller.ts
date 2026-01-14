@@ -4,9 +4,8 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { UserId } from 'src/common/decorators/userId.decorator';
+import { UserService } from './index';
+import { UserId, AuthGuard } from '@/common';
 
 @Controller('user')
 export class UserController {
