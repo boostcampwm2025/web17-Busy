@@ -107,7 +107,7 @@ export class DevSeedService implements OnApplicationBootstrap {
       {
         id: post1Id,
         author: { id: user1Id },
-        thumbnailImgUrl:
+        coverImgUrl:
           'https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/9a/fa/45/9afa45ec-7823-7e58-5580-27c01cdd709d/akmu_cover.jpg/600x600bb.jpg',
         content: 'AKMU 노래 모음',
         likeCount: 1,
@@ -116,27 +116,47 @@ export class DevSeedService implements OnApplicationBootstrap {
       {
         id: post2Id,
         author: { id: user2Id },
-        thumbnailImgUrl:
+        coverImgUrl:
           'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/12/31/63/12316366-55bb-065c-8ad9-47e107fa79b2/AKMU_NEXT_EPISODE.jpg/600x600bb.jpg',
         content: 'AKMU 노래 추천',
         likeCount: 1,
         commentCount: 0,
       },
     ];
-    await this.postRepo.save(seedPosts);
+    await Promise.all(seedPosts.map((p) => this.postRepo.save(p)));
+
+    const pm1Id = '55555555-5555-5555-5555-555555555555';
+    const pm2Id = '66666666-6666-6666-6666-666666666666';
+    const pm3Id = '77777777-7777-7777-7777-777777777777';
 
     const postMusicData = [
-      { post: { id: post1Id }, music: { id: music1Id }, orderIndex: 0 },
-      { post: { id: post1Id }, music: { id: music2Id }, orderIndex: 1 },
-      { post: { id: post2Id }, music: { id: music3Id }, orderIndex: 0 },
+      {
+        id: pm1Id,
+        post: { id: post1Id },
+        music: { id: music1Id },
+        orderIndex: 0,
+      },
+      {
+        id: pm2Id,
+        post: { id: post1Id },
+        music: { id: music2Id },
+        orderIndex: 1,
+      },
+
+      
+      {
+        id: pm3Id,
+        post: { id: post2Id },
+        music: { id: music3Id },
+        orderIndex: 0,
+      },
     ];
-    const seedPostMusics = this.postMusicRepo.create(postMusicData);
-    await this.postMusicRepo.save(seedPostMusics);
+    await Promise.all(postMusicData.map((pm) => this.postMusicRepo.save(pm)));
 
     const seedLikes = [
       { userId: user2Id, postId: post1Id },
       { userId: user1Id, postId: post2Id },
     ];
-    await this.likeRepo.save(seedLikes);
+    await Promise.all(seedLikes.map((l) => this.likeRepo.save(l)));
   }
 }
