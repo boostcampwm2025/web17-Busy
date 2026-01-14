@@ -30,8 +30,6 @@ export class DevSeedService implements OnApplicationBootstrap {
       },
     ];
 
-    for (const u of seedUsers) {
-      this.userRepo.insert(u);
-    }
+    await Promise.all(seedUsers.map((u) => this.userRepo.save(u)));
   }
 }
