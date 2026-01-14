@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { PostMusic } from './entities/post-music.entity';
-import { MusicResponse } from '@repo/dto/post/res/shared';
+import { PostMusic } from './index';
+import { MusicResponse } from '@repo/dto';
 
 @Injectable()
 export class PostMusicRepository extends Repository<PostMusic> {

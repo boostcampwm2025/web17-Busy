@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { PostController } from './post.controller';
-import { PostService } from './post.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FeedService } from './feed.service';
-import { PostMusic } from './entities/post-music.entity';
-import { PostMusicRepository } from './post-music.repository';
-import { LikeModule } from '../like/like.module';
-import { Post } from './entities/post.entity';
+import {
+  Post,
+  PostService,
+  PostController,
+  PostMusic,
+  PostMusicRepository,
+  FeedService,
+} from './index';
+import { LikeModule } from '@/modules';
 
 @Module({
   imports: [LikeModule, TypeOrmModule.forFeature([Post, PostMusic])],

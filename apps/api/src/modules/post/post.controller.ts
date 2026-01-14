@@ -12,18 +12,14 @@ import {
   UseGuards,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PostService } from './post.service';
+import { PostService, FeedService } from './index';
 import {
   CreatePostRequestDto,
   UpdatePostRequestDto,
-} from '@repo/dto/post/req/index';
-import {
   FeedResponseDto,
   GetPostDetailResponseDto,
-} from '@repo/dto/post/res/index';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { UserId } from 'src/common/decorators/userId.decorator';
-import { FeedService } from './feed.service';
+} from '@repo/dto';
+import { AuthGuard, UserId } from '@/common';
 
 @Controller('post')
 export class PostController {

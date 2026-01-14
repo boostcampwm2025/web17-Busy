@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { URLSearchParams } from 'url';
-import { SpotifyCurrentUserResponse, SpotifyTokenResponse } from './types';
-import { UserService } from '../user/user.service';
+import { SpotifyCurrentUserResponse, SpotifyTokenResponse } from './index';
+import { UserService } from '@/modules';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 

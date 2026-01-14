@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { PlaylistService } from './playlist.service';
+import { PlaylistService } from './index';
 
 @Controller('playlist')
 export class PlaylistController {

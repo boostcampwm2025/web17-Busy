@@ -6,13 +6,10 @@ import {
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-import { Post } from './entities/post.entity';
-import { PostMusic } from './entities/post-music.entity';
-import { Provider } from 'src/common/constants';
-import { MusicRequest } from '@repo/dto/post/req/index';
-import { PostMusicRepository } from './post-music.repository';
-import { LikeRepository } from '../like/like.repository';
-import { MusicResponse } from '@repo/dto/post/res/shared';
+import { Provider } from '@/common';
+import { MusicRequest, MusicResponse } from '@repo/dto';
+import { Post, PostMusic, PostMusicRepository } from './index';
+import { LikeRepository } from '@/modules';
 
 @Injectable()
 export class PostService {

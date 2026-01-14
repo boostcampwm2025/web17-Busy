@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { NowPlaylistMusic } from './entities/now-playlist-music.entity';
-import { NowPlaylistController } from './now-playlist.controller';
-import { NowPlaylistService } from './now-playlist.service';
+import {
+  NowPlaylistController,
+  NowPlaylistService,
+  NowPlaylistMusic,
+} from './index';
 import { NowPlaylistRepository } from './now-playlist.repository';
 
 @Module({
