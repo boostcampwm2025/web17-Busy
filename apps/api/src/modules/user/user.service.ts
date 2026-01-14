@@ -20,12 +20,12 @@ export class UserService {
   }): Promise<{
     id: string;
     nickname: string;
-    profileImageUrl?: string | null;
+    profileImgUrl?: string | null;
   }> {
     return {
       id: '111',
       nickname: 'test user',
-      profileImageUrl: null,
+      profileImgUrl: null,
     };
   }
 

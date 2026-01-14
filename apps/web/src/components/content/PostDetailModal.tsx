@@ -10,7 +10,7 @@ type CommentItem = {
   commentId: string;
   author: {
     nickname: string;
-    profileImageUrl: string;
+    profileImgUrl: string;
   };
   content: string;
   createdAtText: string;
@@ -28,13 +28,13 @@ interface PostDetailModalProps {
 const buildMockComments = (post: Post): CommentItem[] => [
   {
     commentId: `${post.postId}-c1`,
-    author: { nickname: '테스터1', profileImageUrl: 'https://picsum.photos/seed/comment-1/100/100' },
+    author: { nickname: '테스터1', profileImgUrl: 'https://picsum.photos/seed/comment-1/100/100' },
     content: '이 노래 도입부 너무 좋네요.',
     createdAtText: '5분 전',
   },
   {
     commentId: `${post.postId}-c2`,
-    author: { nickname: '테스터2', profileImageUrl: 'https://picsum.photos/seed/comment-2/100/100' },
+    author: { nickname: '테스터2', profileImgUrl: 'https://picsum.photos/seed/comment-2/100/100' },
     content: '플리에 바로 저장했습니다!',
     createdAtText: '2분 전',
   },
@@ -48,13 +48,15 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
 
   const safePost = post ?? {
     postId: 'empty',
-    author: { userId: '', nickname: '', profileImageUrl: '' },
+    author: { userId: '', nickname: '', profileImgUrl: '' },
     coverImgUrl: '',
     content: '',
     likeCount: 0,
     commentCount: 0,
     createdAt: new Date(0).toISOString(),
     musics: [],
+    isLiked: false,
+    isEdited: false,
   };
 
   const isMulti = safePost.musics.length > 1;
@@ -182,7 +184,7 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
         <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary">
           <div className="p-4 border-b-2 border-primary/10 flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
-              <img src={post.author.profileImageUrl} alt={post.author.nickname} className="w-9 h-9 rounded-full border border-primary object-cover" />
+              <img src={post.author.profileImgUrl} alt={post.author.nickname} className="w-9 h-9 rounded-full border border-primary object-cover" />
               <span className="font-bold text-primary truncate">{post.author.nickname}</span>
               <span className="text-xs text-accent-pink font-black shrink-0">• 팔로우</span>
             </div>
@@ -192,7 +194,7 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
             <div className="flex space-x-3">
               <img
-                src={post.author.profileImageUrl}
+                src={post.author.profileImgUrl}
                 alt={post.author.nickname}
                 className="w-9 h-9 rounded-full border border-primary/20 object-cover shrink-0"
               />
@@ -210,7 +212,7 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
                 comments.map((c) => (
                   <div key={c.commentId} className="flex space-x-3 group">
                     <img
-                      src={c.author.profileImageUrl}
+                      src={c.author.profileImgUrl}
                       alt={c.author.nickname}
                       className="w-9 h-9 rounded-full border border-primary/10 object-cover shrink-0"
                     />
