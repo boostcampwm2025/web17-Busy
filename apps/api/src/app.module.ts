@@ -8,11 +8,27 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { join } from 'path';
 import { SeedModule } from './modules/seed/seed.module';
+import { NotiModule } from './modules/noti/noti.module';
+import { PostModule } from './modules/post/post.module';
+import { CommentModule } from './modules/comment/comment.module';
+import { FollowModule } from './modules/follow/follow.module';
+import { LikeModule } from './modules/like/like.module';
+import { MusicModule } from './modules/music/music.module';
+import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
+import { PlaylistModule } from './modules/playlist/playlist.module';
 
 @Module({
   imports: [
-    SeedModule,
     AuthModule,
+    CommentModule,
+    FollowModule,
+    LikeModule,
+    MusicModule,
+    NotiModule,
+    NowPlaylistModule,
+    PlaylistModule,
+    PostModule,
+    SeedModule,
     UserModule,
     ConfigModule.forRoot({
       isGlobal: true,

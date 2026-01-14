@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FeedResponseDto } from '@repo/dto/post/res/feedResponseDto';
+import { FeedResponseDto } from '@repo/dto';
 
 @Injectable()
 export class FeedService {

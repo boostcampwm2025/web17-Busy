@@ -1,7 +1,6 @@
 import { Body, Controller, Put, Get, Request } from '@nestjs/common';
 import { NowPlaylistService } from './now-playlist.service';
-import { UpdateNowPlaylistReqDto } from '@repo/dto/now-playlist/req/update-now-playlist.dto';
-import { GetNowPlaylistResDto } from '@repo/dto/now-playlist/res/get-now-playlist.dto';
+import { UpdateNowPlaylistReqDto, GetNowPlaylistResDto } from '@repo/dto';
 
 @Controller('nowPlaylist')
 export class NowPlaylistController {

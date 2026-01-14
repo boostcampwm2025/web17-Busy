@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMusicResDto } from '@repo/dto/music/res/createMusic.dto';
-import { CreateMusicReqDto } from '@repo/dto/music/req/createMusic.dto';
+import { CreateMusicResDto, CreateMusicReqDto } from '@repo/dto';
 import { MusicRepository } from './music.repository';
 import { Music } from './entities/music.entity';
 

@@ -16,11 +16,10 @@ import { PostService } from './post.service';
 import {
   CreatePostRequestDto,
   UpdatePostRequestDto,
-} from '@repo/dto/post/req/index';
-import {
   FeedResponseDto,
   GetPostDetailResponseDto,
-} from '@repo/dto/post/res/index';
+} from '@repo/dto';
+
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 import { FeedService } from './feed.service';
