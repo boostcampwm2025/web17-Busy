@@ -1,2 +1,2 @@
-export { CreatePostRequestDto, MusicRequest } from './createPostRequestDto';
-export { UpdatePostRequestDto } from './updatePostRequestDto';
+export * from './createPostRequestDto';
+export * from './updatePostRequestDto';
