@@ -25,7 +25,7 @@ export class NowPlaylistService {
 
   private mapToMusicInfo(entity: NowPlaylistMusic) {
     return {
-      id: entity.music.id,
+      musicId: entity.music.id,
       trackUri: entity.music.trackUri,
       provider: entity.music.provider,
       title: entity.music.title,

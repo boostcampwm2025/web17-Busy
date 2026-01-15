@@ -12,7 +12,7 @@ import { Provider } from 'src/common/constants';
 import type { MusicRequest } from '@repo/dto';
 import { MusicResponse } from '@repo/dto';
 import { PostMusicRepository } from './post-music.repository';
-import { LikeRepository } from '../like/like.repository';
+// import { LikeRepository } from '../like/like.repository';
 
 @Injectable()
 export class PostService {
@@ -23,14 +23,14 @@ export class PostService {
     private readonly postRepo: Repository<Post>,
 
     private readonly postMusicRepo: PostMusicRepository,
-    private readonly likeRepo: LikeRepository,
+    // private readonly likeRepo: LikeRepository,
   ) {}
 
   async create(
     userId: string,
     musics: MusicRequest[],
     content: string,
-    thumbnailImgUrl?: string,
+    coverImgUrl?: string,
   ): Promise<void> {
     if (musics.length === 0)
       throw new BadRequestException(
@@ -41,8 +41,8 @@ export class PostService {
     musics.forEach((m) => (m.provider ??= Provider.ITUNES));
     // const ensuredMusics = this.musicService.ensureMusics(musics);
 
-    // 3. thumbnailImgUrl 이 없다면 첫 곡의 앨범 커버 이미지로
-    thumbnailImgUrl ??= musics[0].albumCoverUrl;
+    // 3. coverImgUrl 이 없다면 첫 곡의 앨범 커버 이미지로
+    coverImgUrl ??= musics[0].albumCoverUrl;
 
     // 4. repo.save - transaction
     await this.ds.transaction(async (transactionalEntityManager) => {
@@ -51,7 +51,7 @@ export class PostService {
 
       const post = postRepo.create({
         author: { id: userId },
-        thumbnailImgUrl,
+        coverImgUrl,
         content,
         likeCount: 0,
         commentCount: 0,
@@ -81,9 +81,11 @@ export class PostService {
 
     const musicsOfPost = await this.postMusicRepo.findMusicsByPostId(postId);
 
-    const isLiked = viewerId
-      ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
-      : false;
+    // 임시
+    const isLiked = false;
+    // const isLiked = viewerId
+    //   ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
+    //   : false;
 
     return this.toGetPostDetailResponseDto({
       post,
@@ -131,7 +133,7 @@ export class PostService {
     const { id: userId, nickname, profileImgUrl } = post.author;
     const {
       id: postId,
-      thumbnailImgUrl,
+      coverImgUrl,
       content,
       likeCount,
       commentCount,
@@ -145,7 +147,7 @@ export class PostService {
     return {
       postId,
       author: { userId, nickname, profileImgUrl },
-      thumbnailImgUrl,
+      coverImgUrl,
       musics,
       content,
       likeCount,

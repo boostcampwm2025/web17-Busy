@@ -1,10 +1,10 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Noti } from '../noti/entities/noti.entity';
 import { Music } from '../music/entities/music.entity';
 import {
+  SEED_LIKES,
   SEED_MUSICS,
   SEED_NOTIS,
   SEED_POST_MUSICS,
@@ -13,6 +13,8 @@ import {
 } from './seed';
 import { Post } from '../post/entities/post.entity';
 import { PostMusic } from '../post/entities/post-music.entity';
+import { User } from '../user/entities/user.entity';
+import { Like } from '../like/entities/like.entity';
 
 @Injectable()
 export class DevSeedService implements OnApplicationBootstrap {
@@ -31,6 +33,9 @@ export class DevSeedService implements OnApplicationBootstrap {
 
     @InjectRepository(PostMusic)
     private readonly postMusicRepo: Repository<PostMusic>,
+
+    @InjectRepository(Like)
+    private readonly likeRepo: Repository<Like>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -41,5 +46,8 @@ export class DevSeedService implements OnApplicationBootstrap {
     await this.musicRepo.save(SEED_MUSICS);
     await this.postRepo.save(SEED_POSTS);
     await this.postMusicRepo.save(SEED_POST_MUSICS);
+    await this.likeRepo.save(SEED_LIKES);
+
+    console.log('seeding completed');
   }
 }

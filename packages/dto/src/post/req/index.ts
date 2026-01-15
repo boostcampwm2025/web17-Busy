@@ -1,4 +1,3 @@
-export { CreatePostRequestDto } from './createPostRequestDto';
-export type { MusicRequest } from './createPostRequestDto';
-export { UpdatePostRequestDto } from './updatePostRequestDto';
-export { CreatePostMultipartDto } from './createPostMultipartDto';
+export * from './createPostRequestDto';
+export * from './updatePostRequestDto';
+export * from './createPostMultipartDto';

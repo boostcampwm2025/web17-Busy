@@ -1,20 +1,19 @@
-import { Body, Controller, Put, Get, Request } from '@nestjs/common';
+import { Body, Controller, Put, Get, Request, UseGuards } from '@nestjs/common';
 import { NowPlaylistService } from './now-playlist.service';
 import { UpdateNowPlaylistReqDto, GetNowPlaylistResDto } from '@repo/dto';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { UserId } from 'src/common/decorators/userId.decorator';
 
 @Controller('nowPlaylist')
 export class NowPlaylistController {
   constructor(private readonly nowPlaylistService: NowPlaylistService) {}
 
   @Put()
-  // @UseGuards(JwtAuthGuard) // 로그인 가드, 구현 후 주석해제
+  @UseGuards(AuthGuard)
   async updatePlaylist(
-    @Request() req, // JWT에서 유저 정보 추출
+    @UserId() userId: string,
     @Body() dto: UpdateNowPlaylistReqDto,
   ) {
-    // const userId = req.user.id; // 실제로는 JWT에서 꺼내씀
-    const userId = '임시-유저-UUID'; // 테스트용 하드코딩
-
     await this.nowPlaylistService.updateNowPlaylist(userId, dto);
 
     // 필요시 dto 수정
@@ -25,10 +24,7 @@ export class NowPlaylistController {
   }
 
   @Get()
-  async getPlaylist(@Request() req): Promise<GetNowPlaylistResDto> {
-    // const userId = req.user.id;
-    const userId = '임시-유저-UUID'; // 테스트용
-
+  async getPlaylist(@UserId() userId: string): Promise<GetNowPlaylistResDto> {
     const playlist = await this.nowPlaylistService.getNowPlaylist(userId);
 
     return playlist;
