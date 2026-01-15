@@ -1,0 +1,10 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="vibr_gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FED373"/> <stop offset="25%" stop-color="#F15245"/> <stop offset="50%" stop-color="#D92E7F"/> <stop offset="100%" stop-color="#9B36B7"/> </linearGradient>
+  </defs>
+  
+  <rect x="2" y="2" width="60" height="60" rx="16" ry="16" fill="url(#vibr_gradient)"/>
+  
+  <path fill="#ffffff" d="M45.8,18.1a2.9,2.9,0,0,0-2.9,1.8l-16,5.8A3,3,0,0,0,25,28.5V44.1a8,8,0,1,0,4,7V31.6l14-5.1v13.6a8,8,0,1,0,4,7V21A3,3,0,0,0,45.8,18.1ZM28,51a4,4,0,1,1,4-4A4,4,0,0,1,28,51Zm16,0a4,4,0,1,1,4-4A4,4,0,0,1,44,51Z"/>
+</svg>
