@@ -16,10 +16,12 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 
 import { CommentService } from './comment.service';
-import { CreateCommentDto } from '@repo/dto/comment/req/create-comment.dto';
-import { GetCommentsReqDto } from '@repo/dto/comment/req/get-comments.dto';
-import { UpdateCommentDto } from '@repo/dto/comment/req/update-comment.dto';
-import { GetCommentsResDto } from '@repo/dto/comment/res/get-comments.dto';
+import {
+  CreateCommentDto,
+  UpdateCommentDto,
+  GetCommentsReqDto,
+  GetCommentsResDto,
+} from '@repo/dto';
 
 @Controller('comment')
 export class CommentController {

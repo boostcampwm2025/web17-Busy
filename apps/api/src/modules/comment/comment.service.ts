@@ -9,8 +9,7 @@ import { CommentRepository } from './comment.repository';
 import { PostRepository } from '../post/post.repository';
 import { Comment } from './entities/comment.entity';
 
-import { CreateCommentDto } from '@repo/dto/comment/req/create-comment.dto';
-import { GetCommentsResDto } from '@repo/dto/comment/res/get-comments.dto';
+import { CreateCommentDto, GetCommentsResDto } from '@repo/dto';
 
 @Injectable()
 export class CommentService {
