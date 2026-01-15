@@ -4,18 +4,19 @@ export interface MusicResponse {
   artistName: string;
   albumCoverUrl: string;
   trackUri: string;
+  durationMs: number;
 }
 
 export interface UserResponse {
   userId: string;
   nickname: string;
-  profileImgUrl?: string;
+  profileImgUrl: string;
 }
 
 export interface PostResponse {
   postId: string;
   author: UserResponse;
-  thumbnailImgUrl: string;
+  coverImgUrl: string;
   musics: MusicResponse[];
   content: string;
   likeCount: number;
@@ -24,3 +25,5 @@ export interface PostResponse {
   isEdited: boolean;
   isLiked: boolean;
 }
+
+export type ClientPostResponse = Omit<PostResponse, 'createdAt'> & { createdAt: string };

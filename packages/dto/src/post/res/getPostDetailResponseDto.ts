@@ -3,7 +3,7 @@ import { MusicResponse, UserResponse, PostResponse } from './shared';
 export class GetPostDetailResponseDto implements PostResponse {
   postId: string;
   author: UserResponse;
-  thumbnailImgUrl: string;
+  coverImgUrl: string;
   musics: MusicResponse[];
   content: string;
   likeCount: number;
