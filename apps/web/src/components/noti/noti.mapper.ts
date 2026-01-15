@@ -23,7 +23,10 @@ export function toNotiView(n: NotiResponseDto): NotiView {
     createdAtIso: n.createdAt,
     createdAtText: formatRelativeTime(n.createdAt),
 
+    actorUserId: n.actor.userId,
     actorNickname: n.actor.nickname,
+    actorProfileImgUrl: n.actor.profileImgUrl,
+
     messageBody: toNotiMessageBody(n),
 
     thumbnailUrl: n.thumbnailUrl,

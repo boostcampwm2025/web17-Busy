@@ -5,7 +5,10 @@ export type NotiView = {
   createdAtIso: string;
   createdAtText: string;
 
+  actorUserId: string;
   actorNickname: string;
+  actorProfileImgUrl: string | null;
+
   messageBody: string;
 
   thumbnailUrl: string;
