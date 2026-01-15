@@ -171,7 +171,6 @@ export default function Sidebar() {
 
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
         <NotiDrawerContent />
-        {/* <div className="flex h-full justify-center items-center text-lg">알림 드로어</div> */}
       </Drawer>
 
       <Drawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>

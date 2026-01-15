@@ -43,14 +43,22 @@ export default function NotiDrawerContent() {
   }, []);
 
   const handleClickNoti = async (id: string) => {
-    // ✅ optimistic: 클릭하면 즉시 읽음 처리(UX 좋음)
-    setRaw((prev) => prev.map((n) => (n.notiId === id ? { ...n, isRead: true } : n)));
+    let prevIsRead = false;
+
+    setRaw((prev) =>
+      prev.map((n) => {
+        if (n.notiId === id) {
+          prevIsRead = n.isRead;
+          return { ...n, isRead: true };
+        }
+        return n;
+      }),
+    );
 
     try {
       await markNotiRead(id);
     } catch {
-      // 실패하면 롤백(선택)
-      setRaw((prev) => prev.map((n) => (n.notiId === id ? { ...n, isRead: false } : n)));
+      setRaw((prev) => prev.map((n) => (n.notiId === id ? { ...n, isRead: prevIsRead } : n)));
     }
   };
 
