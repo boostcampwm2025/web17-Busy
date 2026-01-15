@@ -16,21 +16,28 @@ type SpotifyPlayerState = {
 
   setActive: (active: boolean) => void;
   setPaused: (paused: boolean) => void;
+
+  reset: () => void;
 };
 
-export const useSpotifyPlayerStore = create<SpotifyPlayerState>((set) => ({
+const initialState = {
   sdkReady: false,
-  setSdkReady: (sdkReady) => set({ sdkReady }),
-
   player: null,
   deviceId: null,
-
   active: false,
   paused: true,
+} as const;
+
+export const useSpotifyPlayerStore = create<SpotifyPlayerState>((set) => ({
+  ...initialState,
+
+  setSdkReady: (sdkReady) => set({ sdkReady }),
 
   setPlayer: (player) => set({ player }),
   setDeviceId: (deviceId) => set({ deviceId }),
 
   setActive: (active) => set({ active }),
   setPaused: (paused) => set({ paused }),
+
+  reset: () => set({ ...initialState }),
 }));
