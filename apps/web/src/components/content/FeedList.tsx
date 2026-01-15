@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { Post, Music } from '@/types';
 import { usePlayerStore } from '@/stores';
 import { PostCard, PostDetailModal } from './index';
+import { Post, Music } from '@/types';
 
 interface FeedListProps {
   posts: Post[];
@@ -48,7 +48,7 @@ export default function FeedList({ posts }: FeedListProps) {
   }, [posts, handlePlay, handleUserClick, handleOpenDetail, isPlaying, currentMusicId]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+    <div className="flex-1 p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         <div className="space-y-4">{renderPosts}</div>
       </div>

@@ -1,6 +1,8 @@
 export const Provider = {
   SPOTIFY: 'spotify',
   GOOGLE: 'google',
+  ITUNES: 'itunes',
+  APPLE: 'apple',
 } as const;
 
 export type Provider = (typeof Provider)[keyof typeof Provider];

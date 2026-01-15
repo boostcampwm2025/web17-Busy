@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Noti } from './entities/noti.entity';
 import { Repository } from 'typeorm';
-import { NotiResponseDto } from '@repo/dto/noti/res/notiResponseDto';
+import { NotiResponseDto } from '@repo/dto';
 import { Post } from '../post/entities/post.entity';
 import { NotiType } from 'src/common/constants';
 
@@ -25,36 +29,48 @@ export class NotiService {
   }
 
   async readNoti(userId: string, notiId: string): Promise<void> {
-    await this.notiRepo.update(
-      {
-        id: notiId,
-        receiver: { id: userId },
-      },
-      { isRead: true },
-    );
+    const noti = await this.notiRepo.findOne({
+      where: { id: notiId },
+      relations: { receiver: true },
+      select: { id: true, isRead: true, receiver: { id: true } },
+    });
+
+    if (!noti) throw new NotFoundException('알림을 찾을 수 없습니다.');
+    if (noti.receiver.id !== userId)
+      throw new ForbiddenException('이 알림의 수신자가 아닙니다.');
+
+    if (noti.isRead) return;
+    await this.notiRepo.update({ id: notiId }, { isRead: true });
   }
 
   async deleteNoti(userId: string, notiId: string): Promise<void> {
-    await this.notiRepo.delete({
-      id: notiId,
-      receiver: { id: userId },
+    const noti = await this.notiRepo.findOne({
+      where: { id: notiId },
+      relations: { receiver: true },
+      select: { id: true, receiver: { id: true } },
     });
+
+    if (!noti) throw new NotFoundException('알림을 찾을 수 없습니다.');
+    if (noti.receiver.id !== userId)
+      throw new ForbiddenException('이 알림의 수신자가 아닙니다.');
+
+    await this.notiRepo.delete({ id: notiId });
   }
 
   private async toNotiResponseDto(noti: Noti): Promise<NotiResponseDto> {
     // imgUrl
     // follow - actor의 profileImgUrl
-    // like, comment - post의 thumbnailImgUrl
+    // like, comment - post의 coverImgUrl
     let imgUrl: string;
     if (noti.type === NotiType.FOLLOW) {
       imgUrl = noti.actor.profileImgUrl;
     } else {
       const post = await this.postRepo.findOne({
         where: { id: noti.relatedId },
-        select: { thumbnailImgUrl: true },
+        select: { coverImgUrl: true },
       });
 
-      imgUrl = post?.thumbnailImgUrl ?? '';
+      imgUrl = post?.coverImgUrl ?? '';
     }
 
     return {
@@ -67,6 +83,7 @@ export class NotiService {
       type: noti.type,
       relatedId: noti.relatedId,
       isRead: noti.isRead,
+      createdAt: noti.createdAt,
       imgUrl,
     };
   }

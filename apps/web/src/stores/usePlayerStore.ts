@@ -32,6 +32,7 @@ interface PlayerActions {
   moveDown: (index: number) => void;
 
   clearQueue: () => void;
+  initializeQueue: (queue: Music[]) => void;
 }
 
 type PlayerStore = PlayerState & PlayerActions;
@@ -101,6 +102,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
    * 1) 같은 곡이면: 재생/일시정지 토글
    * 2) 다른 곡이면: 현재곡 교체 + 재생 상태 true + 큐에 없으면 맨 뒤 삽입
    */
+
+  initializeQueue: (queue: Music[]) => {
+    // 서버에서 가져온 데이터로 큐 교체
+    set({ queue });
+  },
+
   playMusic: (music) => {
     const { currentMusic, queue } = get();
 

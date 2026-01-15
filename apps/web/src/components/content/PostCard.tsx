@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { Post, Music } from '@/types';
 import { Heart, MessageCircle, MoreHorizontal, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import { formatRelativeTime } from '@/utils';
+import { Music, Post } from '@/types';
 
 interface PostCardProps {
   post: Post;
@@ -70,14 +70,14 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
   return (
     <article
       onClick={handleOpenDetail}
-      className="bg-white border-2 border-primary rounded-2xl p-6 mb-8 shadow-[6px_6px_0px_0px_#00214D]
+      className="bg-white border-2 border-primary rounded-2xl p-6 mb-8 shadow-[3px_3px_0px_0px_#00214D]
                  hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_#00EBC7] transition-all duration-300 cursor-pointer"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3 cursor-pointer group min-w-0" onClick={handleUserClick}>
           <div className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden bg-gray-100 shrink-0 group-hover:ring-2 ring-accent-cyan transition-all">
-            <img src={post.author.profileImageUrl} alt={post.author.nickname} className="w-full h-full object-cover" />
+            <img src={post.author.profileImgUrl} alt={post.author.nickname} className="w-full h-full object-cover" />
           </div>
 
           <div className="min-w-0">
@@ -106,7 +106,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
             <button
               type="button"
               onClick={handlePlayClick}
-              className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#00ebc7] opacity-0 group-hover:opacity-100 transition-opacity"
+              className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-[2px_2px_0px_0px_#00ebc7] opacity-0 group-hover:opacity-100 transition-opacity"
               title={isActivePlaying ? '일시정지' : '재생'}
             >
               {isActivePlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}

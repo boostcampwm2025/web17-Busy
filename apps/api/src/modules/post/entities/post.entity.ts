@@ -1,4 +1,7 @@
 import { User } from 'src/modules/user/entities/user.entity';
+import { Like } from 'src/modules/like/entities/like.entity';
+import { PostMusic } from './post-music.entity';
+
 import {
   BeforeInsert,
   Column,
@@ -7,6 +10,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -27,8 +31,14 @@ export class Post {
   @JoinColumn({ name: 'author_id' })
   author: User;
 
+  @OneToMany(() => PostMusic, (postMusic) => postMusic.post)
+  postMusics: PostMusic[];
+
+  @OneToMany(() => Like, (like) => like.post)
+  likes: Like[];
+
   @Column('varchar', { name: 'cover_img_url', length: 2083, nullable: false })
-  thumbnailImgUrl: string;
+  coverImgUrl: string;
 
   @Column('varchar', { length: 2300, nullable: true })
   content: string;

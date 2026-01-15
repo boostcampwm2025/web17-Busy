@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { QueueList, MiniPlayerBar, MobileQueueModal, NowPlaying } from './index';
 import { useItunesHook } from '@/hooks';
 import { usePlayerStore } from '@/stores';
+import { useQueueSync } from '@/hooks/useQueueSync';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
   if (!currentMusicId) return -1;
@@ -11,6 +12,7 @@ const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): nu
 };
 
 export default function RightPanel() {
+  useQueueSync();
   const { positionMs, durationMs } = useItunesHook();
   const [isMobileQueueOpen, setIsMobileQueueOpen] = useState(false);
 

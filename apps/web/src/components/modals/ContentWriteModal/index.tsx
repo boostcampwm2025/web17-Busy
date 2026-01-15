@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useModalStore } from '@/stores/useModalStore';
 import { X, FolderOpen } from 'lucide-react';
 import { Music, Playlist } from '@/types';
@@ -13,23 +13,71 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic: Music }) => 
   // --- 지역상태 관리 ---
   const [selectedMusics, setSelectedMusics] = useState<Music[]>(initialMusic ? [initialMusic] : []);
   const [content, setContent] = useState('');
-  const [customCover, setCustomCover] = useState<string | null>(null);
+
+  const [customCoverPreview, setCustomCoverPreview] = useState<string | null>(null);
+  const [customCoverFile, setCustomCoverFile] = useState<File | null>(null);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // 현재 커버 이미지 계산 (커스텀 > 첫 번째 곡 커버 > 기본 이미지)
-  const activeCover = customCover || selectedMusics[0]?.albumCoverUrl || 'https://via.placeholder.com/400?text=No+Music';
+  const activeCover = customCoverPreview || selectedMusics[0]?.albumCoverUrl || 'https://via.placeholder.com/400?text=No+Music';
 
   // --- 핸들러 함수 ---
   // 파일 업로드
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setCustomCover(reader.result as string);
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+
+    setCustomCoverFile(file);
+
+    const url = URL.createObjectURL(file);
+    setCustomCoverPreview(url);
+
+    // 같은 파일 다시 선택 가능하게
+    e.target.value = '';
   };
+
+  // 모달 unmount 시 미리보기 URL 해제 (메모리 누수 방지)
+  useEffect(() => {
+    return () => {
+      if (customCoverPreview) URL.revokeObjectURL(customCoverPreview);
+    };
+  }, [customCoverPreview]);
+
+  // 컨텐츠 등록 api 요청
+  const handleSubmit = async () => {
+    const fd = new FormData();
+    fd.append('content', content);
+
+    fd.append(
+      'musics',
+      JSON.stringify(
+        selectedMusics.map((m) => ({
+          musicId: m.musicId,
+          title: m.title,
+          artistName: m.artistName,
+          albumCoverUrl: m.albumCoverUrl,
+          trackUri: m.trackUri,
+          provider: m.provider,
+          durationMs: m.durationMs,
+        })),
+      ),
+    );
+
+    if (customCoverFile) fd.append('coverImgUrl', customCoverFile);
+
+    const res = await fetch('/api/post', {
+      method: 'POST',
+      body: fd,
+      credentials: 'include',
+    });
+
+    if (!res.ok) throw new Error(`등록 실패 - ${res.body}`);
+
+    closeModal();
+  };
+
   // 음악 추가
   const handleAddMusic = (music: Music) => {
     // 중복 체크
@@ -125,8 +173,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic: Music }) => 
             <button
               className="px-8 py-2.5 rounded-full font-bold bg-primary text-white border-2 border-primary hover:bg-white hover:text-primary hover:shadow-[4px_4px_0px_0px_var(--color-accent-cyan)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
               disabled={selectedMusics.length === 0}
-              onClick={closeModal}
-              //TODO: post api 추가 후 연결
+              onClick={handleSubmit}
             >
               등록
             </button>
