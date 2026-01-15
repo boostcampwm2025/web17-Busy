@@ -12,6 +12,7 @@ export class User {
   setId() {
     this.id ??= uuidV7();
   }
+
   @Column('varchar', { length: 12, nullable: false })
   nickname: string;
 

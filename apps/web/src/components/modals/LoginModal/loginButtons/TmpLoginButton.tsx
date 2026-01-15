@@ -1,8 +1,11 @@
 'use client';
 
+import { useModalStore } from '@/stores';
 import React, { useState } from 'react';
 
 export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname: string }) => {
+  const { closeModal } = useModalStore();
+
   const [loading, setLoading] = useState(false);
 
   const handleTmpLogin = async () => {
@@ -12,7 +15,7 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
     const res = await fetch('/api/auth/login/tmp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ id: userId }),
     });
 
     if (!res.ok) throw new Error('로그인에 실패했습니다.');
@@ -22,6 +25,9 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
 
     // me - 전역으로 관리하면 될 듯
     const me = await meRes.json();
+
+    setLoading(false);
+    closeModal();
   };
 
   return (

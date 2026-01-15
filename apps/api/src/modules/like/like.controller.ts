@@ -13,8 +13,7 @@ import {
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 import { LikeService } from './like.service';
-import { CreateLikeDto } from '@repo/dto/like/req/create-like.dto';
-import { LikedUserDto } from '@repo/dto/like/res/get-liked-users.dto';
+import { CreateLikeDto, LikedUserDto } from '@repo/dto';
 
 @Controller('like')
 export class LikeController {

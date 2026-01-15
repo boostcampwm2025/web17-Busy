@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Post } from './entities/post.entity';
-import { PostResponse, MusicResponse } from '@repo/dto/post/res/shared';
-import { FeedResponseDto } from '@repo/dto/post/res/feedResponseDto';
+import { PostResponse, MusicResponse, FeedResponseDto } from '@repo/dto';
 
 @Injectable()
 export class FeedService {

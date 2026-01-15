@@ -4,7 +4,7 @@ import { useInfiniteScroll } from '@/hooks';
 import { getFeedPosts } from '@/api';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
-import { ClientFeedResponseDto } from '@repo/dto/post/res/feedResponseDto';
+import { ClientFeedResponseDto } from '@repo/dto';
 import { Post } from '@/types';
 
 /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */

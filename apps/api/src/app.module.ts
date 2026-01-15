@@ -1,21 +1,42 @@
+import { join } from 'path';
+
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ServeStaticModule } from '@nestjs/serve-static';
+
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { PostModule } from './modules/post/post.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { join } from 'path';
 import { SeedModule } from './modules/seed/seed.module';
+import { NotiModule } from './modules/noti/noti.module';
+import { PostModule } from './modules/post/post.module';
+import { CommentModule } from './modules/comment/comment.module';
+import { FollowModule } from './modules/follow/follow.module';
+import { LikeModule } from './modules/like/like.module';
+import { MusicModule } from './modules/music/music.module';
+import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
+import { PlaylistModule } from './modules/playlist/playlist.module';
 
 @Module({
   imports: [
-    SeedModule,
     AuthModule,
-    UserModule,
+    CommentModule,
+    FollowModule,
+    LikeModule,
+    MusicModule,
+    NotiModule,
+    NowPlaylistModule,
+    PlaylistModule,
     PostModule,
+    SeedModule,
+    UserModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

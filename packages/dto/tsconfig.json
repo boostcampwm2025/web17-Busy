@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "noEmit": true
   },
-  "include": ["src"],
+  "include": ["src", "index.ts"],
   "exclude": ["node_modules", "dist"]
 }

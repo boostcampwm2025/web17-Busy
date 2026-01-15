@@ -6,9 +6,12 @@ import { Music } from '../music/entities/music.entity';
 import { Post } from '../post/entities/post.entity';
 import { PostMusic } from '../post/entities/post-music.entity';
 import { Like } from '../like/entities/like.entity';
+import { Noti } from '../noti/entities/noti.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Music, Post, PostMusic, Like])],
+  imports: [
+    TypeOrmModule.forFeature([User, Music, Post, PostMusic, Like, Noti]),
+  ],
   providers: [DevSeedService],
 })
 export class SeedModule {}

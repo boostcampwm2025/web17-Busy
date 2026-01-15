@@ -9,10 +9,10 @@ import { DataSource, Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
 import { Provider } from 'src/common/constants';
-import { MusicRequest } from '@repo/dto/post/req/createPostRequestDto';
+import type { MusicRequest } from '@repo/dto';
+import { MusicResponse } from '@repo/dto';
 import { PostMusicRepository } from './post-music.repository';
-import { LikeRepository } from '../like/like.repository';
-import { MusicResponse } from '@repo/dto/post/res/shared';
+// import { LikeRepository } from '../like/like.repository';
 
 @Injectable()
 export class PostService {
@@ -23,7 +23,7 @@ export class PostService {
     private readonly postRepo: Repository<Post>,
 
     private readonly postMusicRepo: PostMusicRepository,
-    private readonly likeRepo: LikeRepository,
+    // private readonly likeRepo: LikeRepository,
   ) {}
 
   async create(
@@ -48,22 +48,26 @@ export class PostService {
     await this.ds.transaction(async (transactionalEntityManager) => {
       const postRepo = transactionalEntityManager.getRepository(Post);
       const postMusicRepo = transactionalEntityManager.getRepository(PostMusic);
-      const { id: postId } = await postRepo.save({
+
+      const post = postRepo.create({
         author: { id: userId },
         coverImgUrl,
         content,
         likeCount: 0,
         commentCount: 0,
       });
+      const savedPost = await postRepo.save(post);
 
       // musics -> ensuredMusics
-      const postMusicsToSave = musics.map((m, i) => ({
-        post: { id: postId },
-        music: { id: m.musicId },
-        orderIndex: i,
-      }));
+      const postMusics = musics.map((m, i) =>
+        postMusicRepo.create({
+          post: { id: savedPost.id },
+          music: { id: m.musicId },
+          orderIndex: i,
+        }),
+      );
 
-      await postMusicRepo.save(postMusicsToSave);
+      await postMusicRepo.save(postMusics);
     });
   }
 
@@ -77,9 +81,11 @@ export class PostService {
 
     const musicsOfPost = await this.postMusicRepo.findMusicsByPostId(postId);
 
-    const isLiked = viewerId
-      ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
-      : false;
+    // 임시
+    const isLiked = false;
+    // const isLiked = viewerId
+    //   ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
+    //   : false;
 
     return this.toGetPostDetailResponseDto({
       post,

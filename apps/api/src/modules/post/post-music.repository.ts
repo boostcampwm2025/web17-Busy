@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { PostMusic } from './entities/post-music.entity';
-import { MusicResponse } from '@repo/dto/post/res/shared';
+import { MusicResponse } from '@repo/dto';
 
 @Injectable()
 export class PostMusicRepository extends Repository<PostMusic> {
@@ -12,7 +12,7 @@ export class PostMusicRepository extends Repository<PostMusic> {
   async findMusicsByPostId(postId: string): Promise<MusicResponse[]> {
     return this.createQueryBuilder('pm')
       .innerJoin('pm.music', 'm')
-      .where('pm.postId = :postId', { postId })
+      .where('pm.post = :postId', { postId })
       .select([
         'm.id AS musicId',
         'm.title AS title',

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateNowPlaylistReqDto } from '@repo/dto/now-playlist/req/update-now-playlist.dto';
-import { GetNowPlaylistResDto } from '@repo/dto/now-playlist/res/get-now-playlist.dto';
+import { UpdateNowPlaylistReqDto, GetNowPlaylistResDto } from '@repo/dto';
 import { NowPlaylistRepository } from './now-playlist.repository';
 import { NowPlaylistMusic } from './entities/now-playlist-music.entity';
 
@@ -26,7 +25,7 @@ export class NowPlaylistService {
 
   private mapToMusicInfo(entity: NowPlaylistMusic) {
     return {
-      id: entity.music.id,
+      musicId: entity.music.id,
       trackUri: entity.music.trackUri,
       provider: entity.music.provider,
       title: entity.music.title,
