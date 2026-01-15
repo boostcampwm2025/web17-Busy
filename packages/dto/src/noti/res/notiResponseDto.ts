@@ -5,9 +5,11 @@ export class NotiResponseDto {
     nickname: string;
     profileImgUrl: string;
   };
-  type: string; // enum... 백엔드를 참조할 순 없어서... 임시...
-  relatedId?: string | null;
+  type: 'follow' | 'like' | 'comment';
+  relatedId: string;
+  relatedType: 'post' | 'user';
   isRead: boolean;
-  createdAt: Date;
-  imgUrl: string;
+  createdAt: string;
+  thumbnailUrl: string;
+  thumbnailShape: 'circle' | 'square';
 }

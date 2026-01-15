@@ -58,19 +58,25 @@ export class NotiService {
   }
 
   private async toNotiResponseDto(noti: Noti): Promise<NotiResponseDto> {
-    // imgUrl
-    // follow - actor의 profileImgUrl
-    // like, comment - post의 coverImgUrl
-    let imgUrl: string;
-    if (noti.type === NotiType.FOLLOW) {
-      imgUrl = noti.actor.profileImgUrl;
-    } else {
+    // imgUrl - related의 img 없으면 null
+    // like, comment - related: post
+    let relatedType: 'post' | 'user';
+    let thumbnailUrl: string;
+    let thumbnailShape: 'circle' | 'square';
+
+    if (noti.type === NotiType.LIKE || noti.type === NotiType.COMMENT) {
       const post = await this.postRepo.findOne({
         where: { id: noti.relatedId },
         select: { coverImgUrl: true },
       });
 
-      imgUrl = post?.coverImgUrl ?? '';
+      relatedType = 'post';
+      thumbnailUrl = post?.coverImgUrl ?? '';
+      thumbnailShape = 'square';
+    } else {
+      relatedType = 'user';
+      thumbnailUrl = noti.actor.profileImgUrl;
+      thumbnailShape = 'circle';
     }
 
     return {
@@ -80,11 +86,13 @@ export class NotiService {
         nickname: noti.actor.nickname,
         profileImgUrl: noti.actor.profileImgUrl,
       },
-      type: noti.type,
-      relatedId: noti.relatedId,
+      type: noti.type as NotiType,
+      relatedId: noti.relatedId ?? noti.actor.id,
+      relatedType,
       isRead: noti.isRead,
-      createdAt: noti.createdAt,
-      imgUrl,
+      createdAt: noti.createdAt.toISOString(),
+      thumbnailUrl,
+      thumbnailShape,
     };
   }
 }
