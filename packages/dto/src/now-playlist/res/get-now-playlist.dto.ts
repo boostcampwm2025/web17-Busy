@@ -1,5 +1,5 @@
 class MusicInfo {
-  id: string;
+  musicId: string;
   trackUri: string;
   provider: string;
   title: string;
