@@ -3,6 +3,7 @@
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { ContentWriteModal } from '@/components/modals/ContentWriteModal';
 import { LoginModal } from './LoginModal/LoginModal';
+import { PostDetailModal } from '../content';
 
 export default function ModalContainer() {
   const { modalType, isOpen, modalProps } = useModalStore();
@@ -11,9 +12,17 @@ export default function ModalContainer() {
 
   return (
     <>
-      {/* 1. 글쓰기 모달 */}
       {modalType === MODAL_TYPES.WRITE && <ContentWriteModal initialMusic={modalProps.initialMusic} />}
       {modalType === MODAL_TYPES.LOGIN && <LoginModal />}
+      {/* {modalType === MODAL_TYPES.CONTENT && <PostDetailModal
+        isOpen={}
+        onClose={}
+        onPlay={}
+        post={}
+        currentMusicId={}
+        isPlaying{}
+        key={}
+      />} */}
     </>
   );
 }

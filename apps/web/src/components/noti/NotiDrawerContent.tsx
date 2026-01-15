@@ -5,10 +5,16 @@ import type { NotiResponseDto } from '@repo/dto';
 import { fetchNotis, markNotiRead } from '@/api/noti/fetchNotis';
 import NotiItem from './NotiItem';
 import { toNotiView } from './noti.mapper';
+import { NotiView } from './noti.types';
+import { MODAL_TYPES, useModalStore } from '@/stores';
+import { useRouter } from 'next/navigation';
 
 type FetchStatus = 'loading' | 'success' | 'empty' | 'error';
 
 export default function NotiDrawerContent() {
+  const openModal = useModalStore((s) => s.openModal);
+  const router = useRouter();
+
   const [status, setStatus] = useState<FetchStatus>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [raw, setRaw] = useState<NotiResponseDto[]>([]);
@@ -43,24 +49,21 @@ export default function NotiDrawerContent() {
     };
   }, []);
 
-  const handleClickNoti = async (id: string) => {
-    let prevIsRead = false;
+  const handleClickNoti = (noti: NotiView) => {
+    if (!noti.isRead) {
+      setRaw((prev) => prev.map((n) => (n.notiId === noti.id ? { ...n, isRead: true } : n)));
 
-    setRaw((prev) =>
-      prev.map((n) => {
-        if (n.notiId === id) {
-          prevIsRead = n.isRead;
-          return { ...n, isRead: true };
-        }
-        return n;
-      }),
-    );
-
-    try {
-      await markNotiRead(id);
-    } catch {
-      setRaw((prev) => prev.map((n) => (n.notiId === id ? { ...n, isRead: prevIsRead } : n)));
+      void markNotiRead(noti.id).catch((err) => {
+        console.error(err);
+      });
     }
+
+    if (noti.relatedType === 'user') {
+      router.push(`/profile/${noti.relatedId}`);
+      return;
+    }
+
+    openModal(MODAL_TYPES.CONTENT, { postId: noti.relatedId });
   };
 
   const renderBody = () => {
