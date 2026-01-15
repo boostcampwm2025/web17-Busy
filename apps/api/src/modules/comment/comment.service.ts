@@ -88,11 +88,10 @@ export class CommentService {
   // 댓글 삭제 (트랜잭션: Soft Delete + 게시글 댓글 수 감소)
   async deleteComment(userId: string, commentId: string): Promise<void> {
     return this.dataSource.transaction(async (manager) => {
-      // 댓글 조회
-      const comment = await manager.findOne(Comment, {
-        where: { id: commentId },
-        relations: ['author', 'post'],
-      });
+      const comment = await this.commentRepository.findCommentById(
+        commentId,
+        manager,
+      );
 
       if (!comment) {
         throw new NotFoundException('댓글을 찾을 수 없습니다.');
@@ -103,10 +102,9 @@ export class CommentService {
       }
 
       // 2. Soft Delete 수행
-      await manager.softDelete(Comment, commentId);
-
+      await this.commentRepository.softDeleteComment(commentId, manager);
       // 3. 게시글 댓글 카운트 감소
-      await manager.decrement(Post, { id: comment.post.id }, 'commentCount', 1);
+      await this.postRepository.decrementCommentCount(comment.post.id, manager);
     });
   }
 }
