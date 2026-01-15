@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createPkcePair } from '@/features/auth/server/pkce';
-import { buildSpotifyAuthorizeUrl } from '@/features/auth/server/spotifyAuth';
-import { SPOTIFY_COOKIE_KEYS, SPOTIFY_OAUTH_TMP_COOKIE_OPTIONS } from '@/features/auth/config/spotify';
+import { createPkcePair } from '@/hooks/auth/server/pkce';
+import { buildSpotifyAuthorizeUrl } from '@/hooks/auth/server/spotifyAuth';
+import { SPOTIFY_COOKIE_KEYS, SPOTIFY_OAUTH_TMP_COOKIE_OPTIONS } from '@/hooks/auth/config/spotify';
 import crypto from 'crypto';
 
 export async function GET() {
