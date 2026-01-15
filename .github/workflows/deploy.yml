@@ -1,4 +1,4 @@
-`name: Build and Push to NCP Registry
+name: Build and Push to NCP Registry
 
 on:
   push:
