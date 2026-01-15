@@ -15,7 +15,6 @@ import { Post } from '../post/entities/post.entity';
 import { PostMusic } from '../post/entities/post-music.entity';
 import { User } from '../user/entities/user.entity';
 import { Like } from '../like/entities/like.entity';
-import { Provider } from 'src/common/constants';
 
 @Injectable()
 export class DevSeedService implements OnApplicationBootstrap {
