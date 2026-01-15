@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { Post, Music } from '@/types';
 import { usePlayerStore } from '@/stores';
 import { PostCard, PostDetailModal } from './index';
+import { Post, Music } from '@/types';
 
 interface FeedListProps {
   posts: Post[];

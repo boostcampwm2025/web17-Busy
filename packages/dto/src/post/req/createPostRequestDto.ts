@@ -11,5 +11,5 @@ export interface MusicRequest {
 export class CreatePostRequestDto {
   musics: MusicRequest[];
   content: string;
-  thumbnailImgUrl?: string;
+  coverImgUrl?: string;
 }
