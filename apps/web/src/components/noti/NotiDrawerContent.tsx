@@ -5,7 +5,8 @@ import type { NotiResponseDto } from '@repo/dto';
 import { fetchNotis, markNotiRead } from '@/api/noti/fetchNotis';
 import NotiItem from './NotiItem';
 import { toNotiView } from './noti.mapper';
-import { FetchStatus } from './noti.types';
+
+type FetchStatus = 'loading' | 'success' | 'empty' | 'error';
 
 export default function NotiDrawerContent() {
   const [status, setStatus] = useState<FetchStatus>('loading');
@@ -65,7 +66,7 @@ export default function NotiDrawerContent() {
   const renderBody = () => {
     if (status === 'loading') return <div className="p-6 text-sm text-gray-400">불러오는 중...</div>;
     if (status === 'error') return <div className="p-6 text-sm text-red-500">{errorMessage ?? '오류'}</div>;
-    if (status === 'empty') return <div className="p-6 text-sm text-gray-400">알림이 없어.</div>;
+    if (status === 'empty') return <div className="p-6 text-sm text-gray-400">알림이 없습니다.</div>;
 
     return (
       <div className="space-y-4 p-2">
