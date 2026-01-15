@@ -12,15 +12,17 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  DefaultValuePipe,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import {
-  UpdatePostRequestDto,
   FeedResponseDto,
   GetPostDetailResponseDto,
   CreatePostMultipartDto,
   MusicRequest,
+  UpdatePostRequestDto,
 } from '@repo/dto';
 
 import { AuthGuard } from 'src/common/guards/auth.guard';
@@ -37,14 +39,20 @@ export class PostController {
     private readonly uploadService: UploadService,
   ) {}
 
-  // feed 모둘이나 서비스 분리
   @Get('feed')
   async feed(
     @UserId() requestUserId: string | null,
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('cursor', new ParseUUIDPipe({ version: '7' })) cursor?: string,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('cursor', new ParseUUIDPipe({ version: '7', optional: true }))
+    cursor?: string,
   ): Promise<FeedResponseDto> {
-    return await this.feedService.feed(requestUserId, limit, cursor);
+    try {
+      return await this.feedService.getFeedPosts(requestUserId, limit, cursor);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `피드 데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
+      );
+    }
   }
 
   @UseGuards(AuthGuard)

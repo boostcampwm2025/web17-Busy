@@ -1,12 +1,15 @@
+import { join } from 'path';
+
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ServeStaticModule } from '@nestjs/serve-static';
+
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { join } from 'path';
 import { SeedModule } from './modules/seed/seed.module';
 import { NotiModule } from './modules/noti/noti.module';
 import { PostModule } from './modules/post/post.module';
@@ -16,7 +19,6 @@ import { LikeModule } from './modules/like/like.module';
 import { MusicModule } from './modules/music/music.module';
 import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
 import { PlaylistModule } from './modules/playlist/playlist.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [

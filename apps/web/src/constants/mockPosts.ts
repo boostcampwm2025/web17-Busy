@@ -67,19 +67,19 @@ const MOCK_MUSICS: Music[] = [
 const USER_1 = {
   userId: 'u-1',
   nickname: '김예빈',
-  profileImageUrl: 'https://picsum.photos/seed/user-1/100/100',
+  profileImgUrl: 'https://picsum.photos/seed/user-1/100/100',
 };
 
 const USER_2 = {
   userId: 'u-2',
   nickname: '김승호',
-  profileImageUrl: 'https://picsum.photos/seed/user-2/100/100',
+  profileImgUrl: 'https://picsum.photos/seed/user-2/100/100',
 };
 
 const USER_3 = {
   userId: 'u-3',
   nickname: '문예찬',
-  profileImageUrl: 'https://picsum.photos/seed/user-3/100/100',
+  profileImgUrl: 'https://picsum.photos/seed/user-3/100/100',
 };
 
 export const MOCK_POSTS: Post[] = [
@@ -92,6 +92,8 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 12,
     createdAt: isoAgo(minutes(12)), // 12분 전
     musics: [MOCK_MUSICS[0]!],
+    isLiked: false,
+    isEdited: false,
   },
   {
     postId: 'p-2',
@@ -102,6 +104,8 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 5,
     createdAt: isoAgo(hours(3) + minutes(20)), // 3시간 20분 전
     musics: [MOCK_MUSICS[1]!, MOCK_MUSICS[2]!], // 다곡
+    isLiked: false,
+    isEdited: false,
   },
   {
     postId: 'p-3',
@@ -112,6 +116,8 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 34,
     createdAt: isoAgo(days(1) + hours(2)), // 1일 2시간 전
     musics: [MOCK_MUSICS[2]!],
+    isLiked: false,
+    isEdited: false,
   },
   {
     postId: 'p-4',
@@ -122,6 +128,8 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 8,
     createdAt: isoAgo(days(3) + hours(5)), // 3일 5시간 전
     musics: [MOCK_MUSICS[3]!, MOCK_MUSICS[4]!, MOCK_MUSICS[1]!], // 다곡
+    isLiked: false,
+    isEdited: false,
   },
   {
     postId: 'p-5',
@@ -132,6 +140,8 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 45,
     createdAt: isoAgo(days(7)), // 7일 전
     musics: [MOCK_MUSICS[4]!],
+    isLiked: false,
+    isEdited: false,
   },
   {
     postId: 'p-6',
@@ -142,6 +152,8 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 45,
     createdAt: isoAgo(days(7)), // 7일 전
     musics: [MOCK_MUSICS[4]!],
+    isLiked: false,
+    isEdited: false,
   },
   {
     postId: 'p-7',
@@ -152,6 +164,8 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 45,
     createdAt: isoAgo(days(7)), // 7일 전
     musics: [MOCK_MUSICS[4]!],
+    isLiked: false,
+    isEdited: false,
   },
   {
     postId: 'p-8',
@@ -162,6 +176,8 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 45,
     createdAt: isoAgo(days(7)), // 7일 전
     musics: [MOCK_MUSICS[4]!],
+    isLiked: false,
+    isEdited: false,
   },
   {
     postId: 'p-9',
@@ -172,6 +188,8 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 45,
     createdAt: isoAgo(days(7)), // 7일 전
     musics: [MOCK_MUSICS[4]!],
+    isLiked: false,
+    isEdited: false,
   },
   {
     postId: 'p-10',
@@ -182,5 +200,7 @@ export const MOCK_POSTS: Post[] = [
     commentCount: 45,
     createdAt: isoAgo(days(7)), // 7일 전
     musics: [MOCK_MUSICS[4]!],
+    isLiked: false,
+    isEdited: false,
   },
 ];
