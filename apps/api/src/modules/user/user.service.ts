@@ -88,7 +88,7 @@ export class UserService {
     return {
       id: user.id,
       nickname: user.nickname,
-      profileImageUrl: user.profileImgUrl ?? null,
+      profileImgUrl: user.profileImgUrl ?? null,
     };
   }
 
