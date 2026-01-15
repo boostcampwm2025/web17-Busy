@@ -2,6 +2,7 @@
   "name": "temp",
   "private": true,
   "scripts": {
+    "dto": "pnpm -C packages/dto build",
     "build": "turbo run build",
     "dev": "turbo run dev --filter=api --filter=web",
     "lint": "turbo run lint",
