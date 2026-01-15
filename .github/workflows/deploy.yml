@@ -33,7 +33,6 @@ jobs:
           cache-to: type=registry,ref=${{ secrets.NCP_REGISTRY_URL }}/frontend:buildcache,mode=max
           build-args: |
             NEXT_PUBLIC_SPOTIFY_API_BASE_URL=${{ secrets.NEXT_PUBLIC_SPOTIFY_API_BASE_URL }}
-            NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
 
       # ---- Backend Build ----
       - name: Build & Push Backend

@@ -25,11 +25,9 @@ COPY turbo.json turbo.json
 
 # 환경변수 복사
 ARG NEXT_PUBLIC_SPOTIFY_API_BASE_URL
-ARG NEXT_PUBLIC_APP_URL
 
 # ENV로 변환하여 빌드 명령어에 전달
 ENV NEXT_PUBLIC_SPOTIFY_API_BASE_URL=$NEXT_PUBLIC_SPOTIFY_API_BASE_URL
-ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 # Next.js 빌드 (환경변수가 빌드 타임에 필요하다면 ARG로 주입)
 RUN pnpm turbo run build --filter=web...
