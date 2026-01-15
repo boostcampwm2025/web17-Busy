@@ -7,8 +7,7 @@ import {
 import { DataSource } from 'typeorm';
 import { LikeRepository } from './like.repository';
 import { PostRepository } from '../post/post.repository';
-import { CreateLikeDto } from '@repo/dto/like/req/create-like.dto';
-import { LikedUserDto } from '@repo/dto/like/res/get-liked-users.dto';
+import { CreateLikeDto, LikedUserDto } from '@repo/dto';
 
 @Injectable()
 export class LikeService {

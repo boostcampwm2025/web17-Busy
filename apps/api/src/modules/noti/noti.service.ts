@@ -60,17 +60,17 @@ export class NotiService {
   private async toNotiResponseDto(noti: Noti): Promise<NotiResponseDto> {
     // imgUrl
     // follow - actor의 profileImgUrl
-    // like, comment - post의 thumbnailImgUrl
+    // like, comment - post의 coverImgUrl
     let imgUrl: string;
     if (noti.type === NotiType.FOLLOW) {
       imgUrl = noti.actor.profileImgUrl;
     } else {
       const post = await this.postRepo.findOne({
         where: { id: noti.relatedId },
-        select: { thumbnailImgUrl: true },
+        select: { coverImgUrl: true },
       });
 
-      imgUrl = post?.thumbnailImgUrl ?? '';
+      imgUrl = post?.coverImgUrl ?? '';
     }
 
     return {

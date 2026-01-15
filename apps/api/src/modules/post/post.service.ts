@@ -12,7 +12,7 @@ import { Provider } from 'src/common/constants';
 import type { MusicRequest } from '@repo/dto';
 import { MusicResponse } from '@repo/dto';
 import { PostMusicRepository } from './post-music.repository';
-import { LikeRepository } from '../like/like.repository';
+// import { LikeRepository } from '../like/like.repository';
 
 @Injectable()
 export class PostService {
@@ -23,7 +23,7 @@ export class PostService {
     private readonly postRepo: Repository<Post>,
 
     private readonly postMusicRepo: PostMusicRepository,
-    private readonly likeRepo: LikeRepository,
+    // private readonly likeRepo: LikeRepository,
   ) {}
 
   async create(
@@ -81,9 +81,11 @@ export class PostService {
 
     const musicsOfPost = await this.postMusicRepo.findMusicsByPostId(postId);
 
-    const isLiked = viewerId
-      ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
-      : false;
+    // 임시
+    const isLiked = false;
+    // const isLiked = viewerId
+    //   ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
+    //   : false;
 
     return this.toGetPostDetailResponseDto({
       post,
