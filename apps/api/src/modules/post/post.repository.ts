@@ -29,4 +29,30 @@ export class PostRepository {
 
     await repo.decrement({ id: postId }, 'likeCount', 1);
   }
+  // 게시글 존재 여부 확인
+  async findPostById(
+    postId: string,
+    manager?: EntityManager,
+  ): Promise<Post | null> {
+    const repo = manager ? manager.getRepository(Post) : this.repository;
+    return repo.findOne({ where: { id: postId } });
+  }
+
+  // 댓글 수 증가
+  async incrementCommentCount(
+    postId: string,
+    manager?: EntityManager,
+  ): Promise<void> {
+    const repo = manager ? manager.getRepository(Post) : this.repository;
+    await repo.increment({ id: postId }, 'commentCount', 1);
+  }
+
+  // 댓글 수 감소
+  async decrementCommentCount(
+    postId: string,
+    manager?: EntityManager,
+  ): Promise<void> {
+    const repo = manager ? manager.getRepository(Post) : this.repository;
+    await repo.decrement({ id: postId }, 'commentCount', 1);
+  }
 }

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CommentRepository } from './comment.repository';
-import { Post } from '../post/entities/post.entity'; // TODO: PostRepository 구현 후 수정
+import { PostRepository } from '../post/post.repository';
 import { Comment } from './entities/comment.entity';
 
 import { CreateCommentDto } from '@repo/dto/comment/req/create-comment.dto';
@@ -16,6 +16,7 @@ import { GetCommentsResDto } from '@repo/dto/comment/res/get-comments.dto';
 export class CommentService {
   constructor(
     private readonly commentRepository: CommentRepository,
+    private readonly postRepository: PostRepository,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -27,20 +28,21 @@ export class CommentService {
     const { postId, content } = createCommentDto;
 
     return this.dataSource.transaction(async (manager) => {
-      const post = await manager.findOne(Post, { where: { id: postId } });
+      // 게시글 존재 확인
+      const post = await this.postRepository.findPostById(postId, manager);
       if (!post) {
         throw new NotFoundException('게시글을 찾을 수 없습니다.');
       }
 
-      const comment = manager.create(Comment, {
+      // 2. 댓글 생성
+      const comment = await this.commentRepository.createComment(
+        userId,
+        postId,
         content,
-        author: { id: userId },
-        post: { id: postId },
-      });
-      await manager.save(comment);
+        manager,
+      );
 
-      // 게시글의 댓글 카운트 증가 TODO: Post Repo 구현 후 수정
-      await manager.increment(Post, { id: postId }, 'commentCount', 1);
+      await this.postRepository.incrementCommentCount(postId, manager);
 
       return comment;
     });
@@ -50,7 +52,6 @@ export class CommentService {
   async getComments(postId: string): Promise<GetCommentsResDto> {
     const comments = await this.commentRepository.findCommentsByPostId(postId);
 
-    // DTO 매핑
     return {
       comments: comments.map((comment) => ({
         id: comment.id,
