@@ -52,11 +52,11 @@ function redirectAuthFail(request: NextRequest, reason: string) {
 
 function deleteTmpCookies(res: NextResponse) {
   res.cookies.set(GOOGLE_COOKIE_KEYS.PKCE_VERIFIER, '', {
-    path: '/api/auth/google',
+    path: '/auth/google',
     maxAge: 0,
   });
   res.cookies.set(GOOGLE_COOKIE_KEYS.OAUTH_STATE, '', {
-    path: '/api/auth/google',
+    path: '/auth/google',
     maxAge: 0,
   });
 }
