@@ -20,7 +20,7 @@ export default function useMusicActions() {
   const addMusicToPlayer = (track: Music) => playMusic(track);
 
   /** 음악으로 컨텐츠 작성 모달 오픈 함수 */
-  const openWriteModalWithMusic = (track: Music) => openModal(MODAL_TYPES.WRITE, { initialMusic: track });
+  const openWriteModalWithMusic = (track: Music) => openModal({ type: MODAL_TYPES.WRITE, initialMusic: track });
 
   /** TODO: 보관함에 음악 저장 함수 */
   const addMusicToArchive = (track: Music, playlistId: string) => {};

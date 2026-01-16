@@ -70,18 +70,18 @@ export default function Sidebar() {
   };
 
   const handleOpenWriteModal = () => {
-    openModal(MODAL_TYPES.WRITE);
+    openModal({ type: MODAL_TYPES.WRITE });
   };
 
   const handlerOpenLoginModal = () => {
-    openModal(MODAL_TYPES.LOGIN);
+    openModal({ type: MODAL_TYPES.LOGIN });
   };
 
   const handleAuthButtonClick = async () => {
     if (isLoading) return;
 
     if (!isAuthenticated) {
-      openModal(MODAL_TYPES.LOGIN);
+      openModal({ type: MODAL_TYPES.LOGIN });
       return;
     }
 
