@@ -1,19 +1,26 @@
 'use client';
 
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { ContentWriteModal } from '@/components/modals/ContentWriteModal';
 import { LoginModal } from './LoginModal/LoginModal';
+import PostCardDetailModal from '@/components/modals/PostCardDetailModal';
+import ContentWriteModalAdapter from '@/components/modals/ContentWriteModal/ContentWriteModalAdapter';
 
 export default function ModalContainer() {
-  const { modalType, isOpen, modalProps } = useModalStore();
+  const { isOpen, modalProps, closeModal } = useModalStore();
 
-  if (!isOpen) return null;
+  if (!isOpen || !modalProps) return null;
 
-  return (
-    <>
-      {/* 1. 글쓰기 모달 */}
-      {modalType === MODAL_TYPES.WRITE && <ContentWriteModal initialMusic={modalProps.initialMusic} />}
-      {modalType === MODAL_TYPES.LOGIN && <LoginModal />}
-    </>
-  );
+  if (modalProps.type === MODAL_TYPES.WRITE) {
+    return <ContentWriteModalAdapter initialMusic={modalProps.initialMusic} />;
+  }
+
+  if (modalProps.type === MODAL_TYPES.LOGIN) {
+    return <LoginModal />;
+  }
+
+  if (modalProps.type === MODAL_TYPES.POST_DETAIL) {
+    return <PostCardDetailModal isOpen post={modalProps.post ?? null} postId={modalProps.postId} onClose={closeModal} />;
+  }
+
+  return null;
 }

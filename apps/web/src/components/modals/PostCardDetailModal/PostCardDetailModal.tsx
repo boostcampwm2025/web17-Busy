@@ -1,10 +1,21 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { X, Heart, MessageCircle, Share2, MoreHorizontal, Play, Pause, Bookmark, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Post, Music } from '@/types';
+import { X, Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from 'lucide-react';
+
+import type { Music, Post } from '@/types';
+import { usePlayerStore } from '@/stores';
 import { useScrollLock } from '@/hooks';
 import { formatRelativeTime } from '@/utils';
+
+import { PostMedia } from '@/components/post';
+
+type Props = {
+  isOpen: boolean;
+  post: Post | null;
+  postId?: string;
+  onClose: () => void;
+};
 
 type CommentItem = {
   commentId: string;
@@ -16,14 +27,18 @@ type CommentItem = {
   createdAtText: string;
 };
 
-interface PostDetailModalProps {
-  post: Post | null;
-  isOpen: boolean;
-  isPlaying?: boolean;
-  currentMusicId?: string | null;
-  onClose: () => void;
-  onPlay: (music: Music) => void;
-}
+const EMPTY_POST: Post = {
+  postId: 'empty',
+  author: { userId: '', nickname: '', profileImgUrl: '' },
+  coverImgUrl: '',
+  content: '',
+  likeCount: 0,
+  commentCount: 0,
+  createdAt: new Date(0).toISOString(),
+  musics: [],
+  isLiked: false,
+  isEdited: false,
+};
 
 const buildMockComments = (post: Post): CommentItem[] => [
   {
@@ -40,37 +55,22 @@ const buildMockComments = (post: Post): CommentItem[] => [
   },
 ];
 
-export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlaying = false, currentMusicId = null }: PostDetailModalProps) {
+export default function PostCardDetailModal({ isOpen, post, onClose }: Props) {
   useScrollLock(isOpen);
 
+  const playMusic = usePlayerStore((s) => s.playMusic);
+  const currentMusicId = usePlayerStore((s) => s.currentMusic?.musicId ?? null);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
+
   const [commentText, setCommentText] = useState('');
-  const [activeIndex, setActiveIndex] = useState(0);
 
-  const safePost = post ?? {
-    postId: 'empty',
-    author: { userId: '', nickname: '', profileImgUrl: '' },
-    coverImgUrl: '',
-    content: '',
-    likeCount: 0,
-    commentCount: 0,
-    createdAt: new Date(0).toISOString(),
-    musics: [],
-    isLiked: false,
-    isEdited: false,
-  };
+  // Hook order 안정화: 항상 safePost 계산 후 memo 실행
+  const safePost = post ?? EMPTY_POST;
 
-  const isMulti = safePost.musics.length > 1;
-
-  const activeMusic = useMemo(() => safePost.musics[activeIndex] ?? null, [safePost.musics, activeIndex]);
-  const coverUrl = activeMusic?.albumCoverUrl ?? safePost.coverImgUrl;
   const createdAtText = useMemo(() => formatRelativeTime(safePost.createdAt), [safePost.createdAt]);
   const comments = useMemo(() => buildMockComments(safePost), [safePost.postId]);
 
-  const isActivePlaying = Boolean(activeMusic && isPlaying && currentMusicId === activeMusic.musicId);
-
-  if (!isOpen || !post) return null;
-
-  const handleClose = () => onClose();
+  if (!isOpen) return null;
 
   const handleBackdropClick = () => onClose();
 
@@ -78,25 +78,16 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
     e.stopPropagation();
   };
 
-  const handlePlayClick = () => {
-    if (!activeMusic) return;
-    onPlay(activeMusic);
+  const handlePlay = (music: Music) => {
+    playMusic(music);
   };
 
-  const handlePrevSlide = () => {
-    if (!isMulti) return;
-    setActiveIndex((prev) => (prev - 1 < 0 ? safePost.musics.length - 1 : prev - 1));
+  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCommentText(e.target.value);
   };
-
-  const handleNextSlide = () => {
-    if (!isMulti) return;
-    setActiveIndex((prev) => (prev + 1) % safePost.musics.length);
-  };
-
-  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => setCommentText(e.target.value);
 
   const handleSubmitComment = () => {
-    // TODO(#next): 댓글 API 연동 시 구현
+    // TODO(#next): 댓글 API 연동
   };
 
   return (
@@ -106,12 +97,7 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
       role="dialog"
       aria-modal="true"
     >
-      <button
-        type="button"
-        onClick={handleClose}
-        className="absolute top-4 right-6 text-white hover:scale-110 transition-transform z-70"
-        title="닫기"
-      >
+      <button type="button" onClick={onClose} className="absolute top-4 right-6 text-white hover:scale-110 transition-transform z-70" title="닫기">
         <X className="w-8 h-8" />
       </button>
 
@@ -119,88 +105,36 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
         className="bg-white w-full max-w-5xl h-full max-h-[85vh] rounded-2xl border-2 border-primary shadow-2xl flex flex-col md:flex-row overflow-hidden animate-scale-up"
         onClick={handleModalClick}
       >
-        {/* Left: Carousel Cover */}
-        <div className="flex-1 bg-gray-4 relative group overflow-hidden">
-          <img src={coverUrl} alt={activeMusic?.title ?? 'cover'} className="w-full h-full object-cover" />
+        {/* Left: 공통 PostMedia */}
+        <PostMedia post={safePost} variant="modal" currentMusicId={currentMusicId} isPlayingGlobal={isPlaying} onPlay={handlePlay} />
 
-          {/* Hover overlay: controls appear only on hover */}
-          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/40 transition-colors">
-            {/* Center Play/Pause */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              <button
-                type="button"
-                onClick={handlePlayClick}
-                className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center
-                           shadow-[3px_3px_0px_0px_#00ebc7]
-                           pointer-events-auto hover:scale-105 transition-transform"
-                title={isActivePlaying ? '일시정지' : '재생'}
-              >
-                {isActivePlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-0.5" />}
-              </button>
-            </div>
-
-            {/* Prev/Next for multi */}
-            {isMulti ? (
-              <>
-                <button
-                  type="button"
-                  onClick={handlePrevSlide}
-                  className="absolute left-4 top-1/2 -translate-y-1/2
-                             w-12 h-12 rounded-full bg-white/80 border border-primary text-primary
-                             flex items-center justify-center
-                             opacity-0 group-hover:opacity-100 transition-opacity
-                             hover:bg-white"
-                  title="이전"
-                >
-                  <ChevronLeft className="w-7 h-7" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleNextSlide}
-                  className="absolute right-4 top-1/2 -translate-y-1/2
-                             w-12 h-12 rounded-full bg-white/80 border border-primary text-primary
-                             flex items-center justify-center
-                             opacity-0 group-hover:opacity-100 transition-opacity
-                             hover:bg-white"
-                  title="다음"
-                >
-                  <ChevronRight className="w-7 h-7" />
-                </button>
-              </>
-            ) : null}
-          </div>
-
-          {/* Floating song info (active music) */}
-          {activeMusic ? (
-            <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-xl border-2 border-primary shadow-[6px_6px_0px_0px_#FDE24F]">
-              <p className="font-black text-xl text-primary">{activeMusic.title}</p>
-              <p className="font-bold text-gray-600">{activeMusic.artistName}</p>
-            </div>
-          ) : null}
-        </div>
-
-        {/* Right Section: (기존 그대로) */}
+        {/* Right */}
         <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary">
+          {/* Header */}
           <div className="p-4 border-b-2 border-primary/10 flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
-              <img src={post.author.profileImgUrl} alt={post.author.nickname} className="w-9 h-9 rounded-full border border-primary object-cover" />
-              <span className="font-bold text-primary truncate">{post.author.nickname}</span>
+              <img
+                src={safePost.author.profileImgUrl}
+                alt={safePost.author.nickname}
+                className="w-9 h-9 rounded-full border border-primary object-cover"
+              />
+              <span className="font-bold text-primary truncate">{safePost.author.nickname}</span>
               <span className="text-xs text-accent-pink font-black shrink-0">• 팔로우</span>
             </div>
             <MoreHorizontal className="w-5 h-5 text-gray-400 cursor-pointer hover:text-primary" />
           </div>
 
+          {/* Content + Comments */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
             <div className="flex space-x-3">
               <img
-                src={post.author.profileImgUrl}
-                alt={post.author.nickname}
+                src={safePost.author.profileImgUrl}
+                alt={safePost.author.nickname}
                 className="w-9 h-9 rounded-full border border-primary/20 object-cover shrink-0"
               />
               <div className="text-sm min-w-0">
-                <p className="font-bold text-primary mb-1">{post.author.nickname}</p>
-                <p className="text-primary/80 leading-relaxed font-medium whitespace-pre-wrap">{post.content}</p>
+                <p className="font-bold text-primary mb-1">{safePost.author.nickname}</p>
+                <p className="text-primary/80 leading-relaxed font-medium whitespace-pre-wrap">{safePost.content}</p>
                 <span className="text-[10px] text-gray-400 font-bold block mt-2">{createdAtText}</span>
               </div>
             </div>
@@ -235,6 +169,7 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
             </div>
           </div>
 
+          {/* Actions */}
           <div className="p-4 border-t-2 border-primary/10 bg-gray-4/30">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
@@ -245,10 +180,11 @@ export default function PostDetailModal({ post, isOpen, onClose, onPlay, isPlayi
               <Bookmark className="w-7 h-7 text-primary hover:text-accent-cyan cursor-pointer transition-colors" />
             </div>
 
-            <p className="font-black text-sm text-primary mb-1">좋아요 {post.likeCount}개</p>
+            <p className="font-black text-sm text-primary mb-1">좋아요 {safePost.likeCount}개</p>
             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{createdAtText}</p>
           </div>
 
+          {/* Comment input */}
           <div className="p-4 border-t-2 border-primary flex items-center space-x-3 bg-white">
             <input
               type="text"
