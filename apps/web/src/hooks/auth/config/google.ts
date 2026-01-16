@@ -9,7 +9,7 @@ export const GOOGLE_COOKIE_KEYS = {
 
 export const GOOGLE_OAUTH_TMP_COOKIE_OPTIONS = {
   httpOnly: true,
-  path: '/api/auth/google',
+  path: '/auth/google',
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
   maxAge: 60 * 10, // 10분

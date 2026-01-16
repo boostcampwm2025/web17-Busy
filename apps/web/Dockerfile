@@ -23,6 +23,12 @@ RUN pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
 COPY turbo.json turbo.json
 
+# 환경변수 복사
+ARG NEXT_PUBLIC_SPOTIFY_API_BASE_URL
+
+# ENV로 변환하여 빌드 명령어에 전달
+ENV NEXT_PUBLIC_SPOTIFY_API_BASE_URL=$NEXT_PUBLIC_SPOTIFY_API_BASE_URL
+
 # Next.js 빌드 (환경변수가 빌드 타임에 필요하다면 ARG로 주입)
 RUN pnpm turbo run build --filter=web...
 
@@ -31,7 +37,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
 
 # 보안을 위해 시스템 유저 생성
@@ -48,7 +54,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 USER nextjs
 
-EXPOSE 3000
+EXPOSE 3001
 
 # server.js 실행
 CMD ["node", "apps/web/server.js"]

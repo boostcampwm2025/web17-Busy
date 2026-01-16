@@ -3,7 +3,7 @@ import { internalClient } from './client';
 
 /** [GET] 서버 컴포넌트 전용 피드 초기 데이터 조회 함수 */
 export const getInitialFeedPosts = async (limit = 10) => {
-  const res = await fetch(`${process.env.API_BASE_URL}/post/feed?limit=${limit}`, { cache: 'no-store' });
+  const res = await fetch(`${process.env.INTERNAL_API_URL}post/feed?limit=${limit}`, { cache: 'no-store' });
   return res.json() as Promise<ClientFeedResponseDto>;
 };
 

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Suspense } from 'react';
 import { Header, Sidebar, RightPanel, ModalContainer } from '@/components';
 import SpotifyTokenFromHash from '@/hooks/auth/client/SpotifyTokenFromHash';
 import AuthLoginQueryHandler from '@/hooks/auth/client/AuthLoginQueryHandler';
@@ -21,7 +22,9 @@ export default function RootLayout({
     <html lang="kr">
       <body>
         <SpotifyTokenFromHash />
-        <AuthLoginQueryHandler />
+        <Suspense fallback={null}>
+          <AuthLoginQueryHandler />
+        </Suspense>
         <ModalContainer />
 
         <div className="flex h-screen overflow-hidden">
