@@ -13,18 +13,21 @@ import type { MusicRequest } from '@repo/dto';
 import { MusicResponse } from '@repo/dto';
 import { PostMusicRepository } from './post-music.repository';
 import { MusicService } from '../music/music.service';
-// import { LikeRepository } from '../like/like.repository';
+import { Like } from '../like/entities/like.entity';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectDataSource()
     private readonly ds: DataSource,
+
     @InjectRepository(Post)
     private readonly postRepo: Repository<Post>,
 
+    @InjectRepository(Like)
+    private readonly likeRepo: Repository<Like>,
+
     private readonly postMusicRepo: PostMusicRepository,
-    // private readonly likeRepo: LikeRepository,
 
     private readonly musicService: MusicService,
   ) {}
@@ -87,11 +90,14 @@ export class PostService {
 
     const musicsOfPost = await this.postMusicRepo.findMusicsByPostId(postId);
 
-    // 임시
-    const isLiked = false;
-    // const isLiked = viewerId
-    //   ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
-    //   : false;
+    const isLiked = viewerId
+      ? await this.likeRepo.exists({
+          where: {
+            userId: viewerId,
+            postId,
+          },
+        })
+      : false;
 
     return this.toGetPostDetailResponseDto({
       post,

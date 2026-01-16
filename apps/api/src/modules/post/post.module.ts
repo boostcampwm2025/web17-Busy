@@ -1,26 +1,28 @@
+import { extname } from 'path';
+
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+
+import { Like } from 'typeorm';
+import { Post } from './entities/post.entity';
+import { PostMusic } from './entities/post-music.entity';
 import { PostController } from './post.controller';
 import { PostService } from './post.service';
-import { PostRepository } from './post.repository';
 import { FeedService } from './feed.service';
-import { PostMusic } from './entities/post-music.entity';
+import { PostRepository } from './post.repository';
 import { PostMusicRepository } from './post-music.repository';
-// import { LikeModule } from '../like/like.module';
-import { Post } from './entities/post.entity';
-import { UploadModule } from '../upload/upload.module';
-import { MulterModule } from '@nestjs/platform-express';
-import { UploadService } from '../upload/upload.service';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+
 import { MusicModule } from '../music/music.module';
+import { UploadModule } from '../upload/upload.module';
+import { UploadService } from '../upload/upload.service';
 
 @Module({
   imports: [
-    // LikeModule,
     MusicModule,
     UploadModule,
-    TypeOrmModule.forFeature([Post, PostMusic]),
+    TypeOrmModule.forFeature([Post, PostMusic, Like]),
 
     MulterModule.registerAsync({
       imports: [UploadModule],
