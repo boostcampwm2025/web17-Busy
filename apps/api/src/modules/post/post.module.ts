@@ -13,12 +13,15 @@ import { MulterModule } from '@nestjs/platform-express';
 import { UploadService } from '../upload/upload.service';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { MusicModule } from '../music/music.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Post, PostMusic]),
     // LikeModule,
+    MusicModule,
     UploadModule,
+    TypeOrmModule.forFeature([Post, PostMusic]),
+
     MulterModule.registerAsync({
       imports: [UploadModule],
       inject: [UploadService],
