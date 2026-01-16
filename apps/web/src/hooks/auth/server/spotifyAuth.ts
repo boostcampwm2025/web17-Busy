@@ -15,7 +15,7 @@ export function buildSpotifyAuthorizeUrl(params: { clientId: string; redirectUri
 
 export async function exchangeSpotifyCodeWithBackend(args: { code: string; verifier: string }) {
   const backendUrl = process.env.INTERNAL_API_URL!;
-  const url = new URL('/auth/spotify/exchange', backendUrl);
+  const url = new URL('auth/spotify/exchange', backendUrl);
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
