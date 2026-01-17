@@ -1,1 +1,1 @@
-export { default } from './PostCardDetailModal';
+export { PostCardDetailModal } from './PostCardDetailModal';

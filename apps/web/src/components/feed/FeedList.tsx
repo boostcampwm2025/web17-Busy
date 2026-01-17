@@ -26,7 +26,7 @@ export default function FeedList({ posts }: FeedListProps) {
   };
 
   const handleOpenDetail = (post: Post) => {
-    openModal({ type: MODAL_TYPES.POST_DETAIL, post });
+    openModal(MODAL_TYPES.POST_DETAIL, post);
   };
 
   return (

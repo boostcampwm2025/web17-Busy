@@ -55,7 +55,7 @@ const buildMockComments = (post: Post): CommentItem[] => [
   },
 ];
 
-export default function PostCardDetailModal({ isOpen, post, onClose }: Props) {
+export const PostCardDetailModal = ({ isOpen, post, onClose }: Props) => {
   useScrollLock(isOpen);
 
   const playMusic = usePlayerStore((s) => s.playMusic);
@@ -206,4 +206,4 @@ export default function PostCardDetailModal({ isOpen, post, onClose }: Props) {
       </div>
     </div>
   );
-}
+};
