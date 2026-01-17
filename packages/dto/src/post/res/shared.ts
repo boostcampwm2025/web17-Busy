@@ -1,11 +1,4 @@
-export interface MusicResponse {
-  musicId: string;
-  title: string;
-  artistName: string;
-  albumCoverUrl: string;
-  trackUri: string;
-  durationMs: number;
-}
+import { MusicResDto } from '../../music/music.dto';
 
 export interface UserResponse {
   userId: string;
@@ -17,7 +10,7 @@ export interface PostResponse {
   postId: string;
   author: UserResponse;
   coverImgUrl: string;
-  musics: MusicResponse[];
+  musics: MusicResDto[];
   content: string;
   likeCount: number;
   commentCount: number;

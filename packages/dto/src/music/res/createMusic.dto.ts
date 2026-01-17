@@ -1,6 +1,7 @@
 import { Provider } from '../music-provider.enum';
+import { MusicReqDto } from '../music.dto';
 
-export class CreateMusicResDto {
+export class CreateMusicResDto implements MusicReqDto {
   id: string;
   trackUri: string;
   provider: Provider;
