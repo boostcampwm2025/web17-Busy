@@ -1,4 +1,4 @@
-import { Provider } from 'src/common/constants';
+import { Provider } from '@repo/dto';
 import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
 
 import { v7 as uuidV7 } from 'uuid';

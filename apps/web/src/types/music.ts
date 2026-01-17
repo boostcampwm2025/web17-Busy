@@ -1,4 +1,4 @@
-export type MusicProvider = 'SPOTIFY' | 'APPLE' | 'YOUTUBE' | 'LOCAL';
+import { Provider } from '@repo/dto';
 
 export interface Music {
   /** DB: music.music_id */
@@ -8,7 +8,7 @@ export interface Music {
   trackUri: string;
 
   /** DB: music.provider */
-  provider?: MusicProvider;
+  provider?: Provider;
 
   /** DB: music.album_cover_url */
   albumCoverUrl: string;
