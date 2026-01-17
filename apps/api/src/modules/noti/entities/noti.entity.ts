@@ -1,4 +1,4 @@
-import type { NotiType } from 'src/common/constants';
+import { NotiType } from '@repo/dto';
 import { User } from 'src/modules/user/entities/user.entity';
 import {
   BeforeInsert,

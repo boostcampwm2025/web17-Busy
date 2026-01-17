@@ -1,4 +1,4 @@
-import { NotiType, Provider } from 'src/common/constants';
+import { NotiType, Provider } from '@repo/dto';
 import { DeepPartial } from 'typeorm';
 import { Music } from '../music/entities/music.entity';
 import { Post } from '../post/entities/post.entity';
