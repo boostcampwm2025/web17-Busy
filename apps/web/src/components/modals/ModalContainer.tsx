@@ -4,7 +4,7 @@ import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { ContentWriteModal, PostCardDetailModal, LoginModal } from './index';
 
 export default function ModalContainer() {
-  const { isOpen, modalType, modalProps, closeModal } = useModalStore();
+  const { isOpen, modalType, modalProps } = useModalStore();
 
   if (!isOpen) return null;
 
@@ -17,9 +17,7 @@ export default function ModalContainer() {
       {modalType === MODAL_TYPES.LOGIN && <LoginModal />}
 
       {/* 3. 포스트 상세 모달 */}
-      {modalType === MODAL_TYPES.POST_DETAIL && (
-        <PostCardDetailModal isOpen post={modalProps.post ?? null} postId={modalProps.postId} onClose={closeModal} />
-      )}
+      {modalType === MODAL_TYPES.POST_DETAIL && <PostCardDetailModal />}
     </>
   );
 

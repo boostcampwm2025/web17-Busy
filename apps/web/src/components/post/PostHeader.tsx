@@ -1,9 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 import type { Post } from '@/types';
-import { formatRelativeTime } from '@/utils';
+import { useRelativeTime } from '@/hooks';
 
 type Props = {
   post: Post;
@@ -12,7 +11,7 @@ type Props = {
 };
 
 export default function PostHeader({ post, onUserClick, onMoreClick }: Props) {
-  const createdAtText = useMemo(() => formatRelativeTime(post.createdAt), [post.createdAt]);
+  const createdAtText = useRelativeTime(post.createdAt);
 
   const handleUser = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();

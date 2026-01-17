@@ -1,62 +1,20 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { X, Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { Heart, MoreHorizontal } from 'lucide-react';
 
 import type { Music, Post } from '@/types';
-import { usePlayerStore } from '@/stores';
+import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
 import { useScrollLock } from '@/hooks';
 import { formatRelativeTime } from '@/utils';
+import { buildMockComments, EMPTY_POST } from '@/constants';
+import { PostMedia, LoadingSpinner } from '@/components';
 
-import { PostMedia } from '@/components/post';
+export const PostCardDetailModal = () => {
+  const { isOpen, modalType, modalProps, closeModal } = useModalStore();
 
-type Props = {
-  isOpen: boolean;
-  post: Post | null;
-  postId?: string;
-  onClose: () => void;
-};
-
-type CommentItem = {
-  commentId: string;
-  author: {
-    nickname: string;
-    profileImgUrl: string;
-  };
-  content: string;
-  createdAtText: string;
-};
-
-const EMPTY_POST: Post = {
-  postId: 'empty',
-  author: { userId: '', nickname: '', profileImgUrl: '' },
-  coverImgUrl: '',
-  content: '',
-  likeCount: 0,
-  commentCount: 0,
-  createdAt: new Date(0).toISOString(),
-  musics: [],
-  isLiked: false,
-  isEdited: false,
-};
-
-const buildMockComments = (post: Post): CommentItem[] => [
-  {
-    commentId: `${post.postId}-c1`,
-    author: { nickname: '테스터1', profileImgUrl: 'https://picsum.photos/seed/comment-1/100/100' },
-    content: '이 노래 도입부 너무 좋네요.',
-    createdAtText: '5분 전',
-  },
-  {
-    commentId: `${post.postId}-c2`,
-    author: { nickname: '테스터2', profileImgUrl: 'https://picsum.photos/seed/comment-2/100/100' },
-    content: '플리에 바로 저장했습니다!',
-    createdAtText: '2분 전',
-  },
-];
-
-export const PostCardDetailModal = ({ isOpen, post, onClose }: Props) => {
-  useScrollLock(isOpen);
+  const enabled = isOpen && modalType === MODAL_TYPES.POST_DETAIL;
+  useScrollLock(enabled);
 
   const playMusic = usePlayerStore((s) => s.playMusic);
   const currentMusicId = usePlayerStore((s) => s.currentMusic?.musicId ?? null);
@@ -64,15 +22,28 @@ export const PostCardDetailModal = ({ isOpen, post, onClose }: Props) => {
 
   const [commentText, setCommentText] = useState('');
 
-  // Hook order 안정화: 항상 safePost 계산 후 memo 실행
-  const safePost = post ?? EMPTY_POST;
+  // postId를 단일 진실로 사용
+  const postId = enabled ? (modalProps?.postId as string | undefined) : undefined;
+  const passedPost = enabled ? ((modalProps?.post as Post | undefined) ?? undefined) : undefined;
 
+  // post가 있더라도 postId와 일치할 때만 신뢰
+  const matchedPost = postId && passedPost?.postId === postId ? passedPost : undefined;
+
+  // 잘못된 상태면 모달 닫기(안전)
+  useEffect(() => {
+    if (!enabled) return;
+    if (!postId) closeModal();
+  }, [enabled, postId, closeModal]);
+
+  // Hook order 안정화
+  const safePost = matchedPost ?? EMPTY_POST;
   const createdAtText = useMemo(() => formatRelativeTime(safePost.createdAt), [safePost.createdAt]);
   const comments = useMemo(() => buildMockComments(safePost), [safePost.postId]);
 
-  if (!isOpen) return null;
+  if (!enabled) return null;
+  if (!postId) return null;
 
-  const handleBackdropClick = () => onClose();
+  const handleBackdropClick = () => closeModal();
 
   const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -86,6 +57,13 @@ export const PostCardDetailModal = ({ isOpen, post, onClose }: Props) => {
     setCommentText(e.target.value);
   };
 
+  const handleToggleLike = () => {
+    // TODO(#next): 좋아요 API 연동
+    // - POST /post/{postId}/like
+    // - DELETE /post/{postId}/like
+    // - Optimistic UI 여부 결정(카운트/하트 토글)
+  };
+
   const handleSubmitComment = () => {
     // TODO(#next): 댓글 API 연동
   };
@@ -97,16 +75,16 @@ export const PostCardDetailModal = ({ isOpen, post, onClose }: Props) => {
       role="dialog"
       aria-modal="true"
     >
-      <button type="button" onClick={onClose} className="absolute top-4 right-6 text-white hover:scale-110 transition-transform z-70" title="닫기">
-        <X className="w-8 h-8" />
-      </button>
-
       <div
         className="bg-white w-full max-w-5xl h-full max-h-[85vh] rounded-2xl border-2 border-primary shadow-2xl flex flex-col md:flex-row overflow-hidden animate-scale-up"
         onClick={handleModalClick}
       >
-        {/* Left: 공통 PostMedia */}
-        <PostMedia post={safePost} variant="modal" currentMusicId={currentMusicId} isPlayingGlobal={isPlaying} onPlay={handlePlay} />
+        {/* Left: post가 없으면 로딩 패널(추후 postId fetch로 교체) */}
+        {matchedPost ? (
+          <PostMedia post={safePost} variant="modal" currentMusicId={currentMusicId} isPlayingGlobal={isPlaying} onPlay={handlePlay} />
+        ) : (
+          <LoadingSpinner />
+        )}
 
         {/* Right */}
         <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary">
@@ -124,7 +102,6 @@ export const PostCardDetailModal = ({ isOpen, post, onClose }: Props) => {
             <MoreHorizontal className="w-5 h-5 text-gray-400 cursor-pointer hover:text-primary" />
           </div>
 
-          {/* Content + Comments */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
             <div className="flex space-x-3">
               <img
@@ -157,7 +134,6 @@ export const PostCardDetailModal = ({ isOpen, post, onClose }: Props) => {
                         <span className="text-[10px] text-gray-400 font-bold">{c.createdAtText}</span>
                       </div>
                     </div>
-                    <Heart className="w-3.5 h-3.5 text-gray-300 group-hover:text-accent-pink cursor-pointer" />
                   </div>
                 ))
               ) : (
@@ -169,22 +145,25 @@ export const PostCardDetailModal = ({ isOpen, post, onClose }: Props) => {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="p-4 border-t-2 border-primary/10 bg-gray-4/30">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
-                <Heart className="w-7 h-7 text-primary hover:text-accent-pink hover:fill-accent-pink cursor-pointer transition-colors" />
-                <MessageCircle className="w-7 h-7 text-primary hover:text-accent-cyan cursor-pointer transition-colors" />
-                <Share2 className="w-7 h-7 text-primary hover:text-accent-yellow cursor-pointer transition-colors" />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleLike();
+                  }}
+                  title="좋아요"
+                >
+                  <Heart className="w-7 h-7 text-primary hover:text-accent-pink hover:fill-accent-pink cursor-pointer transition-colors" />
+                </button>
+                <p className="font-black text-sm text-primary mb-1">좋아요 {safePost.likeCount}개</p>
               </div>
-              <Bookmark className="w-7 h-7 text-primary hover:text-accent-cyan cursor-pointer transition-colors" />
             </div>
-
-            <p className="font-black text-sm text-primary mb-1">좋아요 {safePost.likeCount}개</p>
             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{createdAtText}</p>
           </div>
 
-          {/* Comment input */}
           <div className="p-4 border-t-2 border-primary flex items-center space-x-3 bg-white">
             <input
               type="text"
