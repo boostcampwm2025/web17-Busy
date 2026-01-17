@@ -1,4 +1,4 @@
-import type { Provider } from 'src/common/constants';
+import { AuthProvider } from 'src/modules/auth/types';
 import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
 
 import { v7 as uuidV7 } from 'uuid';
@@ -26,7 +26,7 @@ export class User {
   bio: string;
 
   @Column('varchar', { length: 255, nullable: true })
-  provider: Provider;
+  provider: AuthProvider;
 
   @Column('varchar', { name: 'provider_user_id', length: 255, nullable: true })
   providerUserId: string;
