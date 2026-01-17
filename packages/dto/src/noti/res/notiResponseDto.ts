@@ -1,3 +1,5 @@
+import { NotiType } from '../noti-type.enum';
+
 export class NotiResponseDto {
   notiId: string;
   actor: {
@@ -5,9 +7,9 @@ export class NotiResponseDto {
     nickname: string;
     profileImgUrl: string;
   };
-  type: string; // enum... 백엔드를 참조할 순 없어서... 임시...
+  type: NotiType;
   relatedId?: string | null;
   isRead: boolean;
-  createdAt: Date;
+  createdAt: string;
   imgUrl: string;
 }

@@ -1,7 +1,7 @@
 interface comment {
   id: string;
   content: string;
-  createdAt: Date;
+  createdAt: string;
   author: {
     id: string;
     nickname: string;
