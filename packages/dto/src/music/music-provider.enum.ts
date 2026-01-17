@@ -1,4 +1,4 @@
-export enum Provider {
+export enum MusicProvider {
   SPOTIFY = 'spotify',
   APPLE = 'apple',
   ITUNES = 'itunes',

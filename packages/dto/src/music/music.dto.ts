@@ -1,8 +1,8 @@
-import { Provider } from './music-provider.enum';
+import { MusicProvider } from './music-provider.enum';
 
 interface MusicBaseDto {
   trackUri: string;
-  provider: Provider;
+  provider: MusicProvider;
   albumCoverUrl: string;
   title: string;
   artistName: string;

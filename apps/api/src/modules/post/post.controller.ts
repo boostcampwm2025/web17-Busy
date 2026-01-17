@@ -21,7 +21,7 @@ import {
   FeedResponseDto,
   GetPostDetailResponseDto,
   CreatePostMultipartDto,
-  MusicRequest,
+  MusicReqDto,
   UpdatePostRequestDto,
 } from '@repo/dto';
 
@@ -65,7 +65,7 @@ export class PostController {
   ): Promise<{ ok: true }> {
     const { content } = body;
 
-    let musics: MusicRequest[];
+    let musics: MusicReqDto[];
     try {
       musics = JSON.parse(body.musics ?? '[]');
     } catch {

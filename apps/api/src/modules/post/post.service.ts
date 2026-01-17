@@ -8,9 +8,7 @@ import { DataSource, Repository } from 'typeorm';
 
 import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
-import { Provider } from 'src/common/constants';
-import type { MusicRequest } from '@repo/dto';
-import { MusicResponse } from '@repo/dto';
+import { MusicReqDto, MusicResDto, MusicProvider } from '@repo/dto';
 import { PostMusicRepository } from './post-music.repository';
 import { MusicService } from '../music/music.service';
 import { Like } from '../like/entities/like.entity';
@@ -34,7 +32,7 @@ export class PostService {
 
   async create(
     userId: string,
-    musics: MusicRequest[],
+    musics: MusicReqDto[],
     content: string,
     thumbnailImgUrl?: string,
   ): Promise<void> {
@@ -43,11 +41,11 @@ export class PostService {
         '게시글에는 최소 1곡의 음악이 있어야 합니다.',
       );
 
-    musics.forEach((m) => (m.provider ??= Provider.ITUNES));
+    musics.forEach((m) => (m.provider ??= MusicProvider.ITUNES));
     // const ensuredMusics = this.musicService.ensureMusics(musics);
     const musicIds = await Promise.all(
       musics.map(async (m) => {
-        if (m.musicId) return m.musicId;
+        if (m.id) return m.id;
         const { id } = await this.musicService.addMusic(m);
         return id;
       }),
@@ -139,7 +137,7 @@ export class PostService {
     isLiked,
   }: {
     post: Post;
-    musics: MusicResponse[];
+    musics: MusicResDto[];
     isLiked: boolean;
   }) {
     const { id: userId, nickname, profileImgUrl } = post.author;

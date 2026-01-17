@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Post } from './entities/post.entity';
-import { PostResponse, MusicResponse, FeedResponseDto } from '@repo/dto';
+import { PostResponse, MusicResDto, FeedResponseDto } from '@repo/dto';
 
 @Injectable()
 export class FeedService {
@@ -89,12 +89,13 @@ export class FeedService {
             post.author.profileImgUrl || 'https://placehold.co/400',
         },
         musics: post.postMusics.map(
-          ({ music }): MusicResponse => ({
-            musicId: music.id,
+          ({ music }): MusicResDto => ({
+            id: music.id,
             title: music.title,
             artistName: music.artistName,
             albumCoverUrl: music.albumCoverUrl,
             trackUri: music.trackUri,
+            provider: music.provider,
             durationMs: music.durationMs,
           }),
         ),
