@@ -17,13 +17,13 @@ function toNotiMessageBody(n: NotiResponseDto) {
 
 export function toNotiView(n: NotiResponseDto): NotiView {
   return {
-    id: n.notiId,
+    id: n.id,
     isRead: n.isRead,
 
     createdAtIso: n.createdAt,
     createdAtText: formatRelativeTime(n.createdAt),
 
-    actorUserId: n.actor.userId,
+    actorUserId: n.actor.id,
     actorNickname: n.actor.nickname,
     actorProfileImgUrl: n.actor.profileImgUrl,
 

@@ -51,7 +51,7 @@ export default function NotiDrawerContent() {
 
   const handleClickNoti = (noti: NotiView) => {
     if (!noti.isRead) {
-      setRaw((prev) => prev.map((n) => (n.notiId === noti.id ? { ...n, isRead: true } : n)));
+      setRaw((prev) => prev.map((n) => (n.id === noti.id ? { ...n, isRead: true } : n)));
 
       void markNotiRead(noti.id).catch((err) => {
         console.error(err);
@@ -63,7 +63,7 @@ export default function NotiDrawerContent() {
       return;
     }
 
-    openModal(MODAL_TYPES.CONTENT, { postId: noti.relatedId });
+    openModal(MODAL_TYPES.POST_DETAIL, { postId: noti.relatedId });
   };
 
   const renderBody = () => {
