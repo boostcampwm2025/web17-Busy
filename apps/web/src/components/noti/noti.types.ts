@@ -9,11 +9,11 @@ export type NotiView = {
 
   actorUserId: string;
   actorNickname: string;
-  actorProfileImgUrl: string | null;
+  actorProfileImgUrl: string;
 
   messageBody: string;
 
-  thumbnailUrl: string | null;
+  thumbnailUrl: string;
   thumbnailShape: NotiThumbnailShapeType;
 
   relatedId: string;
