@@ -19,7 +19,7 @@ import {
 import { PostService } from './post.service';
 import {
   FeedResponseDto,
-  GetPostDetailResponseDto,
+  PostResponseDto,
   CreatePostMultipartDto,
   MusicRequestDto,
   UpdatePostRequestDto,
@@ -89,7 +89,7 @@ export class PostController {
   async getPostDetail(
     @UserId() requestUserId: string,
     @Param('id') postId: string,
-  ): Promise<GetPostDetailResponseDto | null> {
+  ): Promise<PostResponseDto | null> {
     return await this.postService.getPostDetail(postId, requestUserId);
   }
 

@@ -12,7 +12,7 @@ import {
   MusicRequestDto,
   MusicResponseDto,
   MusicProvider,
-  GetPostDetailResponseDto,
+  PostResponseDto,
 } from '@repo/dto';
 import { PostMusicRepository } from './post-music.repository';
 import { MusicService } from '../music/music.service';
@@ -144,7 +144,7 @@ export class PostService {
     post: Post;
     musics: MusicResponseDto[];
     isLiked: boolean;
-  }): GetPostDetailResponseDto {
+  }): PostResponseDto {
     const author = {
       id: post.author.id,
       nickname: post.author.nickname,
