@@ -6,7 +6,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Noti } from './entities/noti.entity';
 import { Repository } from 'typeorm';
-import { NotiResponseDto, NotiType } from '@repo/dto';
+import {
+  NotiRelatedType,
+  NotiResponseDto,
+  NotiThumbnailShapeType,
+  NotiType,
+} from '@repo/dto';
 import { Post } from '../post/entities/post.entity';
 
 @Injectable()
@@ -59,9 +64,9 @@ export class NotiService {
   private async toNotiResponseDto(noti: Noti): Promise<NotiResponseDto> {
     // imgUrl - related의 img 없으면 null
     // like, comment - related: post
-    let relatedType: 'post' | 'user';
+    let relatedType: NotiRelatedType;
     let thumbnailUrl: string;
-    let thumbnailShape: 'circle' | 'square';
+    let thumbnailShape: NotiThumbnailShapeType;
 
     if (noti.type === NotiType.LIKE || noti.type === NotiType.COMMENT) {
       const post = await this.postRepo.findOne({
@@ -69,17 +74,17 @@ export class NotiService {
         select: { coverImgUrl: true },
       });
 
-      relatedType = 'post';
+      relatedType = NotiRelatedType.POST;
       thumbnailUrl = post?.coverImgUrl ?? '';
-      thumbnailShape = 'square';
+      thumbnailShape = NotiThumbnailShapeType.SQUARE;
     } else {
-      relatedType = 'user';
+      relatedType = NotiRelatedType.USER;
       thumbnailUrl = noti.actor.profileImgUrl;
-      thumbnailShape = 'circle';
+      thumbnailShape = NotiThumbnailShapeType.CIRCLE;
     }
 
     return {
-      notiId: noti.id,
+      id: noti.id,
       actor: {
         id: noti.actor.id,
         nickname: noti.actor.nickname,
