@@ -6,9 +6,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Noti } from './entities/noti.entity';
 import { Repository } from 'typeorm';
-import { NotiResponseDto } from '@repo/dto';
+import { NotiResponseDto, NotiType } from '@repo/dto';
 import { Post } from '../post/entities/post.entity';
-import { NotiType } from 'src/common/constants';
 
 @Injectable()
 export class NotiService {
@@ -82,7 +81,7 @@ export class NotiService {
     return {
       notiId: noti.id,
       actor: {
-        userId: noti.actor.id,
+        id: noti.actor.id,
         nickname: noti.actor.nickname,
         profileImgUrl: noti.actor.profileImgUrl,
       },

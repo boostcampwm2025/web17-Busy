@@ -55,7 +55,7 @@ export class CommentService {
       comments: comments.map((comment) => ({
         id: comment.id,
         content: comment.content,
-        createdAt: comment.createdAt,
+        createdAt: comment.createdAt.toISOString(),
         author: {
           id: comment.author?.id,
           nickname: comment.author?.nickname,

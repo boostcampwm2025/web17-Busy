@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 
-const GOOGLE_AUTH_START_PATH = '/api/auth/google';
+const GOOGLE_AUTH_START_PATH = '/auth/google';
 
 export const GoogleLoginButton = () => {
   const [loading, setLoading] = useState(false);

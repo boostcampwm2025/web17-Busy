@@ -1,3 +1,2 @@
 export * from './feedResponseDto';
-export * from './getPostDetailResponseDto';
-export * from './shared';
+export * from './post.dto';

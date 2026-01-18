@@ -5,7 +5,6 @@ import { CommentService } from './comment.service';
 import { CommentRepository } from './comment.repository';
 import { Comment } from './entities/comment.entity';
 import { PostModule } from '../post/post.module';
-import { Post } from '../post/entities/post.entity';
 
 @Module({
   imports: [PostModule, TypeOrmModule.forFeature([Comment])],

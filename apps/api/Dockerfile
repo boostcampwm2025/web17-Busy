@@ -36,4 +36,4 @@ WORKDIR /app/apps/api
 EXPOSE 3000
 
 # pm2로 실행
-CMD ["pm2-runtime", "dist/main.js"]`
+CMD ["pm2-runtime", "dist/main.js"]

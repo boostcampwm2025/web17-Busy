@@ -8,61 +8,73 @@ import { DataSource, Repository } from 'typeorm';
 
 import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
-import { Provider } from 'src/common/constants';
-import type { MusicRequest } from '@repo/dto';
-import { MusicResponse } from '@repo/dto';
+import {
+  MusicRequestDto,
+  MusicResponseDto,
+  MusicProvider,
+  PostResponseDto,
+} from '@repo/dto';
 import { PostMusicRepository } from './post-music.repository';
-// import { LikeRepository } from '../like/like.repository';
+import { MusicService } from '../music/music.service';
+import { Like } from '../like/entities/like.entity';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectDataSource()
     private readonly ds: DataSource,
+
     @InjectRepository(Post)
     private readonly postRepo: Repository<Post>,
 
+    @InjectRepository(Like)
+    private readonly likeRepo: Repository<Like>,
+
     private readonly postMusicRepo: PostMusicRepository,
-    // private readonly likeRepo: LikeRepository,
+
+    private readonly musicService: MusicService,
   ) {}
 
   async create(
     userId: string,
-    musics: MusicRequest[],
+    musics: MusicRequestDto[],
     content: string,
-    coverImgUrl?: string,
+    thumbnailImgUrl?: string,
   ): Promise<void> {
     if (musics.length === 0)
       throw new BadRequestException(
         '게시글에는 최소 1곡의 음악이 있어야 합니다.',
       );
-    // 1. find user 필요 x
-    // 2. ensure music
-    musics.forEach((m) => (m.provider ??= Provider.ITUNES));
+
+    musics.forEach((m) => (m.provider ??= MusicProvider.ITUNES));
     // const ensuredMusics = this.musicService.ensureMusics(musics);
+    const musicIds = await Promise.all(
+      musics.map(async (m) => {
+        if (m.id) return m.id;
+        const { id } = await this.musicService.addMusic(m);
+        return id;
+      }),
+    );
 
-    // 3. coverImgUrl 이 없다면 첫 곡의 앨범 커버 이미지로
-    coverImgUrl ??= musics[0].albumCoverUrl;
+    thumbnailImgUrl ??= musics[0].albumCoverUrl;
 
-    // 4. repo.save - transaction
     await this.ds.transaction(async (transactionalEntityManager) => {
       const postRepo = transactionalEntityManager.getRepository(Post);
       const postMusicRepo = transactionalEntityManager.getRepository(PostMusic);
 
       const post = postRepo.create({
         author: { id: userId },
-        coverImgUrl,
+        coverImgUrl: thumbnailImgUrl,
         content,
         likeCount: 0,
         commentCount: 0,
       });
       const savedPost = await postRepo.save(post);
 
-      // musics -> ensuredMusics
-      const postMusics = musics.map((m, i) =>
+      const postMusics = musicIds.map((musicId, i) =>
         postMusicRepo.create({
           post: { id: savedPost.id },
-          music: { id: m.musicId },
+          music: { id: musicId },
           orderIndex: i,
         }),
       );
@@ -81,11 +93,14 @@ export class PostService {
 
     const musicsOfPost = await this.postMusicRepo.findMusicsByPostId(postId);
 
-    // 임시
-    const isLiked = false;
-    // const isLiked = viewerId
-    //   ? await this.likeRepo.isPostLikedByUser(postId, viewerId)
-    //   : false;
+    const isLiked = viewerId
+      ? await this.likeRepo.exists({
+          where: {
+            userId: viewerId,
+            postId,
+          },
+        })
+      : false;
 
     return this.toGetPostDetailResponseDto({
       post,
@@ -127,12 +142,16 @@ export class PostService {
     isLiked,
   }: {
     post: Post;
-    musics: MusicResponse[];
+    musics: MusicResponseDto[];
     isLiked: boolean;
-  }) {
-    const { id: userId, nickname, profileImgUrl } = post.author;
+  }): PostResponseDto {
+    const author = {
+      id: post.author.id,
+      nickname: post.author.nickname,
+      profileImgUrl: post.author.profileImgUrl,
+    };
     const {
-      id: postId,
+      id,
       coverImgUrl,
       content,
       likeCount,
@@ -145,14 +164,14 @@ export class PostService {
     const isEdited = updatedAt.getTime() - createdAt.getTime() >= 1000;
 
     return {
-      postId,
-      author: { userId, nickname, profileImgUrl },
+      id,
+      author,
       coverImgUrl,
       musics,
       content,
       likeCount,
       commentCount,
-      createdAt,
+      createdAt: createdAt.toISOString(),
       isEdited,
       isLiked,
     };

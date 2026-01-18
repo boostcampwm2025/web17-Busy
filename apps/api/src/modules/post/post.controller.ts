@@ -19,9 +19,9 @@ import {
 import { PostService } from './post.service';
 import {
   FeedResponseDto,
-  GetPostDetailResponseDto,
+  PostResponseDto,
   CreatePostMultipartDto,
-  MusicRequest,
+  MusicRequestDto,
   UpdatePostRequestDto,
 } from '@repo/dto';
 
@@ -65,7 +65,7 @@ export class PostController {
   ): Promise<{ ok: true }> {
     const { content } = body;
 
-    let musics: MusicRequest[];
+    let musics: MusicRequestDto[];
     try {
       musics = JSON.parse(body.musics ?? '[]');
     } catch {
@@ -89,7 +89,7 @@ export class PostController {
   async getPostDetail(
     @UserId() requestUserId: string,
     @Param('id') postId: string,
-  ): Promise<GetPostDetailResponseDto | null> {
+  ): Promise<PostResponseDto | null> {
     return await this.postService.getPostDetail(postId, requestUserId);
   }
 

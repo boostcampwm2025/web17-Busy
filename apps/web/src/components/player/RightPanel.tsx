@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { QueueList, MiniPlayerBar, MobileQueueModal, NowPlaying } from './index';
-import { useItunesHook } from '@/hooks';
-import { usePlayerStore } from '@/stores';
-import { useQueueSync } from '@/hooks/useQueueSync';
+import { QueueList, MiniPlayerBar, NowPlaying } from './index';
+import { useItunesHook, useQueueSync } from '@/hooks';
+import { usePlayerStore, useModalStore, MODAL_TYPES } from '@/stores';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
   if (!currentMusicId) return -1;
@@ -14,7 +13,8 @@ const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): nu
 export default function RightPanel() {
   useQueueSync();
   const { positionMs, durationMs } = useItunesHook();
-  const [isMobileQueueOpen, setIsMobileQueueOpen] = useState(false);
+  const { openModal, closeModal, isOpen, modalType } = useModalStore();
+  const isQueueOpen = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
 
   const currentMusic = usePlayerStore((state) => state.currentMusic);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
@@ -29,8 +29,8 @@ export default function RightPanel() {
   const playPrev = usePlayerStore((state) => state.playPrev);
   const playNext = usePlayerStore((state) => state.playNext);
 
-  const queueIds = queue.map((m) => m.musicId);
-  const currentIndex = findCurrentIndex(currentMusic?.musicId ?? null, queueIds);
+  const queueIds = queue.map((m) => m.id);
+  const currentIndex = findCurrentIndex(currentMusic?.id ?? null, queueIds);
 
   const canPrev = currentIndex > 0;
   const canNext = currentIndex >= 0 && currentIndex < queue.length - 1;
@@ -47,8 +47,13 @@ export default function RightPanel() {
   const handlePrev = () => playPrev();
   const handleNext = () => playNext();
 
-  const handleToggleQueue = () => setIsMobileQueueOpen((prev) => !prev);
-  const handleCloseMobileQueue = () => setIsMobileQueueOpen(false);
+  const handleToggleQueue = () => {
+    if (isQueueOpen) {
+      closeModal();
+      return;
+    }
+    openModal(MODAL_TYPES.MOBILE_QUEUE);
+  };
 
   const handlePlayFromQueue = (music: (typeof queue)[number]) => {
     playMusic(music);
@@ -66,25 +71,13 @@ export default function RightPanel() {
         isPlaying={isPlaying}
         canPrev={canPrev}
         canNext={canNext}
-        isQueueOpen={isMobileQueueOpen}
+        isQueueOpen={isQueueOpen}
         onTogglePlay={handleTogglePlay}
         onPrev={handlePrev}
         onNext={handleNext}
         onToggleQueue={handleToggleQueue}
         onPost={handleDisabledPost}
         onSave={handleDisabledSave}
-      />
-
-      <MobileQueueModal
-        isOpen={isMobileQueueOpen}
-        queue={queue}
-        currentMusicId={currentMusic?.musicId ?? null}
-        onClose={handleCloseMobileQueue}
-        onClear={handleClearQueue}
-        onPlay={handlePlayFromQueue}
-        onRemove={handleRemoveFromQueue}
-        onMoveUp={handleMoveUp}
-        onMoveDown={handleMoveDown}
       />
 
       <section className="hidden lg:flex flex-col h-full w-full bg-white">
@@ -106,7 +99,7 @@ export default function RightPanel() {
 
         <QueueList
           queue={queue}
-          currentMusicId={currentMusic?.musicId ?? null}
+          currentMusicId={currentMusic?.id ?? null}
           onClear={handleClearQueue}
           onRemove={handleRemoveFromQueue}
           onMoveUp={handleMoveUp}

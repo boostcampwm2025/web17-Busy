@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exchangeSpotifyCodeWithBackend } from '@/features/auth/server/spotifyAuth';
-import { SPOTIFY_COOKIE_KEYS } from '@/features/auth/config/spotify';
+import { exchangeSpotifyCodeWithBackend } from '@/hooks/auth/server/spotifyAuth';
+import { SPOTIFY_COOKIE_KEYS } from '@/hooks/auth/config/spotify';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;

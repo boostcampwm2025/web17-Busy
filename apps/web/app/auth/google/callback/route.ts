@@ -26,7 +26,8 @@ export async function GET(request: NextRequest) {
   const result = await exchangeGoogleCodeWithBackend({ code, verifier });
   if (!result.ok) return redirectAuthFail(request, 'token_exchange_failed');
 
-  const res = NextResponse.redirect(new URL('/', request.url));
+  const origin = process.env.API_BASE_URL;
+  const res = NextResponse.redirect(new URL('/', origin));
   deleteTmpCookies(res);
 
   res.cookies.set(JWT_COOKIE_NAME, result.appJwt, {
@@ -52,11 +53,11 @@ function redirectAuthFail(request: NextRequest, reason: string) {
 
 function deleteTmpCookies(res: NextResponse) {
   res.cookies.set(GOOGLE_COOKIE_KEYS.PKCE_VERIFIER, '', {
-    path: '/api/auth/google',
+    path: '/auth/google',
     maxAge: 0,
   });
   res.cookies.set(GOOGLE_COOKIE_KEYS.OAUTH_STATE, '', {
-    path: '/api/auth/google',
+    path: '/auth/google',
     maxAge: 0,
   });
 }

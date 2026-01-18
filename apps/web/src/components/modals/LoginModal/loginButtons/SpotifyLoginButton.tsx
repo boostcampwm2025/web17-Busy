@@ -10,7 +10,7 @@ export const SpotifyLoginButton = () => {
     if (loading) return;
     setLoading(true);
 
-    const url = new URL('/api/auth/spotify', window.location.origin);
+    const url = new URL('/auth/spotify', window.location.origin);
 
     window.location.assign(url.toString());
   };
