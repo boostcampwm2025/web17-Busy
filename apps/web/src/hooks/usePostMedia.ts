@@ -17,7 +17,7 @@ export function usePostMedia({ post, currentMusicId, isPlayingGlobal }: Args) {
   const activeMusic = useMemo<Music | null>(() => post.musics[activeIndex] ?? null, [post.musics, activeIndex]);
   const coverUrl = activeMusic?.albumCoverUrl ?? post.coverImgUrl;
 
-  const isActivePlaying = Boolean(activeMusic && isPlayingGlobal && currentMusicId === activeMusic.musicId);
+  const isActivePlaying = Boolean(activeMusic && isPlayingGlobal && currentMusicId === activeMusic.id);
 
   const prev = useCallback(() => {
     if (!isMulti) return;

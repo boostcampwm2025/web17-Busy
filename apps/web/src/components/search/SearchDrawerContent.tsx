@@ -134,7 +134,7 @@ function SearchDrawerInner() {
     return (
       <div className="space-y-1">
         {results.map((music) => (
-          <TrackItem key={music.musicId} music={music} disabledActions onPlay={addMusicToPlayer} />
+          <TrackItem key={music.id} music={music} disabledActions onPlay={addMusicToPlayer} />
         ))}
       </div>
     );

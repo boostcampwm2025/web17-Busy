@@ -10,6 +10,6 @@ export const getNowPlaylist = async (): Promise<Music[]> => {
 
 // [PUT] 재생 목록 업데이트 (순서 변경, 추가, 삭제 등)
 export const updateNowPlaylist = async (playlist: Music[]): Promise<void> => {
-  const musicIds = playlist.map((m) => m.musicId);
+  const musicIds = playlist.map((m) => m.id);
   await internalClient.put('/nowPlaylist', { musicIds });
 };

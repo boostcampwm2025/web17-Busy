@@ -1,6 +1,6 @@
 import type { Music } from '@/types';
 import type { SpotifyTrack } from '@/api';
-import { Provider } from '@repo/dto';
+import { MusicProvider } from '@repo/dto';
 
 const joinArtistNames = (artists: { name: string }[]): string =>
   artists
@@ -15,9 +15,9 @@ const pickAlbumCoverUrl = (track: SpotifyTrack): string => {
 
 export const spotifyTrackToMusic = (track: SpotifyTrack): Music => ({
   // NOTE: DB UUID는 서버 저장 시 생성. 검색 결과 단계에서는 Spotify track id를 임시 key로 사용.
-  musicId: track.id,
+  id: track.id,
   trackUri: track.uri,
-  provider: Provider.SPOTIFY,
+  provider: MusicProvider.SPOTIFY,
   albumCoverUrl: pickAlbumCoverUrl(track),
   title: track.name,
   artistName: joinArtistNames(track.artists),

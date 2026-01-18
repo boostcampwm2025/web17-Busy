@@ -11,7 +11,7 @@ interface FeedListProps {
 
 export default function FeedList({ posts }: FeedListProps) {
   const playMusic = usePlayerStore((s) => s.playMusic);
-  const currentMusicId = usePlayerStore((s) => s.currentMusic?.musicId ?? null);
+  const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
   const openModal = useModalStore((s) => s.openModal);

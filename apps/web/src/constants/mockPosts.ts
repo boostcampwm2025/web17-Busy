@@ -1,4 +1,5 @@
 import type { Post, Music } from '@/types';
+import { MusicProvider } from '@repo/dto';
 
 const now = Date.now();
 const minutes = (n: number) => n * 60 * 1000;
@@ -9,8 +10,8 @@ const isoAgo = (msAgo: number) => new Date(now - msAgo).toISOString();
 
 const MOCK_MUSICS: Music[] = [
   {
-    musicId: 'm-1',
-    provider: 'APPLE',
+    id: 'm-1',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/7d/ed/d6/7dedd634-2bdd-b55f-8529-6b906df37f5e/mzaf_9292972481722090940.plus.aac.p.m4a',
     albumCoverUrl:
@@ -20,8 +21,8 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 210_000,
   },
   {
-    musicId: 'm-2',
-    provider: 'APPLE',
+    id: 'm-2',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4d/79/29/4d79296f-7eae-383d-2885-facc9da46c8c/mzaf_12023052104897000510.plus.aac.p.m4a',
     albumCoverUrl:
@@ -31,8 +32,8 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 222_000,
   },
   {
-    musicId: 'm-3',
-    provider: 'APPLE',
+    id: 'm-3',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0c/ad/28/0cad2809-7456-f1a0-bb73-229f5ca53961/mzaf_15626393563602953255.plus.aac.p.m4a',
     albumCoverUrl: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/73/d6/b5/73d6b59d-aa86-e8c9-1c3a-c011ac57f306/artwork.jpg/600x600bb.jpg',
@@ -41,8 +42,8 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 198_000,
   },
   {
-    musicId: 'm-4',
-    provider: 'APPLE',
+    id: 'm-4',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c1/d8/4e/c1d84e03-66fb-3a0f-d0a0-46108a235702/mzaf_3033050337908928626.plus.aac.p.m4a',
     albumCoverUrl:
@@ -52,8 +53,8 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 185_000,
   },
   {
-    musicId: 'm-5',
-    provider: 'APPLE',
+    id: 'm-5',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/14/d7/2b/14d72b82-b397-7b4b-2922-116d2c6d2a8c/mzaf_2737461626288763697.plus.aac.p.m4a',
     albumCoverUrl:

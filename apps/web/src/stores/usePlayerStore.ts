@@ -38,22 +38,22 @@ interface PlayerActions {
 type PlayerStore = PlayerState & PlayerActions;
 
 /** 현재 곡과 대상 곡이 같은지 판별 (musicId 기준) */
-const isSameMusic = (a: Music | null, b: Music): boolean => a?.musicId === b.musicId;
+const isSameMusic = (a: Music | null, b: Music): boolean => a?.id === b.id;
 
 /** addToQueue가 단일/배열 둘 다 받기 때문에 내부에서는 배열로 정규화 */
 const normalizeToArray = (music: Music | Music[]): Music[] => (Array.isArray(music) ? music : [music]);
 
 /** 큐에 특정 musicId가 이미 존재하는지 */
-const hasMusic = (queue: Music[], musicId: string): boolean => queue.some((item) => item.musicId === musicId);
+const hasMusic = (queue: Music[], musicId: string): boolean => queue.some((item) => item.id === musicId);
 
 /**
  * 큐에 곡이 없으면 맨 뒤에 삽입.
  * playMusic에서 "재생한 곡이 큐에 없으면 맨 뒤 삽입" 규칙을 담당.
  */
-const appendIfMissing = (queue: Music[], music: Music): Music[] => (hasMusic(queue, music.musicId) ? queue : [...queue, music]);
+const appendIfMissing = (queue: Music[], music: Music): Music[] => (hasMusic(queue, music.id) ? queue : [...queue, music]);
 
 /** 큐에서 특정 곡 제거 */
-const removeById = (queue: Music[], musicId: string): Music[] => queue.filter((item) => item.musicId !== musicId);
+const removeById = (queue: Music[], musicId: string): Music[] => queue.filter((item) => item.id !== musicId);
 
 /**
  * 큐의 두 인덱스를 swap.
@@ -84,7 +84,7 @@ const findCurrentIndex = (queue: Music[], current: Music | null): number => {
   if (!current) {
     return -1;
   }
-  return queue.findIndex((item) => item.musicId === current.musicId);
+  return queue.findIndex((item) => item.id === current.id);
 };
 
 /**
@@ -187,7 +187,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const items = normalizeToArray(music);
 
     set((state) => {
-      const deduped = items.filter((item) => !hasMusic(state.queue, item.musicId));
+      const deduped = items.filter((item) => !hasMusic(state.queue, item.id));
       if (deduped.length === 0) {
         return state;
       }
@@ -203,7 +203,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   removeFromQueue: (musicId) => {
     set((state) => {
       const nextQueue = removeById(state.queue, musicId);
-      const nextCurrent = state.currentMusic?.musicId === musicId ? (nextQueue[0] ?? null) : state.currentMusic;
+      const nextCurrent = state.currentMusic?.id === musicId ? (nextQueue[0] ?? null) : state.currentMusic;
 
       return {
         queue: nextQueue,

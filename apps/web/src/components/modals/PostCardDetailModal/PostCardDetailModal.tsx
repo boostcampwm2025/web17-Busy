@@ -17,7 +17,7 @@ export const PostCardDetailModal = () => {
   useScrollLock(enabled);
 
   const playMusic = usePlayerStore((s) => s.playMusic);
-  const currentMusicId = usePlayerStore((s) => s.currentMusic?.musicId ?? null);
+  const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
   const [commentText, setCommentText] = useState('');
