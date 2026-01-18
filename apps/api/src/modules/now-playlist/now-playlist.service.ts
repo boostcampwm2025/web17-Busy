@@ -19,13 +19,13 @@ export class NowPlaylistService {
     const musicList = entities.map((entity) => this.mapToMusicInfo(entity));
 
     return {
-      music: musicList,
+      musics: musicList,
     };
   }
 
   private mapToMusicInfo(entity: NowPlaylistMusic) {
     return {
-      musicId: entity.music.id,
+      id: entity.music.id,
       trackUri: entity.music.trackUri,
       provider: entity.music.provider,
       title: entity.music.title,
