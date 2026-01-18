@@ -1,15 +1,15 @@
-import { MusicResDto } from '../../music/music.dto';
+import { MusicResponseDto } from '../../music/music.dto';
 import { UserResponse, PostResponse } from './shared';
 
 export class GetPostDetailResponseDto implements PostResponse {
   postId: string;
   author: UserResponse;
   coverImgUrl: string;
-  musics: MusicResDto[];
+  musics: MusicResponseDto[];
   content: string;
   likeCount: number;
   commentCount: number;
-  createdAt: Date;
+  createdAt: string;
   isEdited: boolean;
   isLiked: boolean;
 }

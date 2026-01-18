@@ -9,10 +9,10 @@ interface MusicBaseDto {
   durationMs: number;
 }
 
-export interface MusicReqDto extends MusicBaseDto {
+export interface MusicRequestDto extends MusicBaseDto {
   id?: string;
 }
 
-export interface MusicResDto extends MusicBaseDto {
+export interface MusicResponseDto extends MusicBaseDto {
   id: string;
 }

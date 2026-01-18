@@ -1,4 +1,4 @@
-import { MusicResDto } from '../../music/music.dto';
+import { MusicResponseDto } from '../../music/music.dto';
 
 export interface UserResponse {
   userId: string;
@@ -10,13 +10,11 @@ export interface PostResponse {
   postId: string;
   author: UserResponse;
   coverImgUrl: string;
-  musics: MusicResDto[];
+  musics: MusicResponseDto[];
   content: string;
   likeCount: number;
   commentCount: number;
-  createdAt: Date;
+  createdAt: string;
   isEdited: boolean;
   isLiked: boolean;
 }
-
-export type ClientPostResponse = Omit<PostResponse, 'createdAt'> & { createdAt: string };

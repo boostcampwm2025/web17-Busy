@@ -1,14 +1,14 @@
-import { Provider } from '@repo/dto';
+import { MusicProvider } from '@repo/dto';
 
 export interface Music {
   /** DB: music.music_id */
-  musicId: string;
+  id: string;
 
   /** DB: music.track_uri */
   trackUri: string;
 
   /** DB: music.provider */
-  provider?: Provider;
+  provider?: MusicProvider;
 
   /** DB: music.album_cover_url */
   albumCoverUrl: string;

@@ -8,7 +8,12 @@ import { DataSource, Repository } from 'typeorm';
 
 import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
-import { MusicReqDto, MusicResDto, MusicProvider } from '@repo/dto';
+import {
+  MusicRequestDto,
+  MusicResponseDto,
+  MusicProvider,
+  GetPostDetailResponseDto,
+} from '@repo/dto';
 import { PostMusicRepository } from './post-music.repository';
 import { MusicService } from '../music/music.service';
 import { Like } from '../like/entities/like.entity';
@@ -32,7 +37,7 @@ export class PostService {
 
   async create(
     userId: string,
-    musics: MusicReqDto[],
+    musics: MusicRequestDto[],
     content: string,
     thumbnailImgUrl?: string,
   ): Promise<void> {
@@ -137,9 +142,9 @@ export class PostService {
     isLiked,
   }: {
     post: Post;
-    musics: MusicResDto[];
+    musics: MusicResponseDto[];
     isLiked: boolean;
-  }) {
+  }): GetPostDetailResponseDto {
     const { id: userId, nickname, profileImgUrl } = post.author;
     const {
       id: postId,
@@ -162,7 +167,7 @@ export class PostService {
       content,
       likeCount,
       commentCount,
-      createdAt,
+      createdAt: createdAt.toISOString(),
       isEdited,
       isLiked,
     };

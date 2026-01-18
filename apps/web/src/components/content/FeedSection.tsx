@@ -4,7 +4,7 @@ import { useInfiniteScroll } from '@/hooks';
 import { getFeedPosts } from '@/api';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
-import { ClientFeedResponseDto } from '@repo/dto';
+import { FeedResponseDto } from '@repo/dto';
 import { Post } from '@/types';
 
 /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
@@ -13,7 +13,7 @@ const fetchFeeds = async (cursor?: string) => {
   return { items: posts, hasNext, nextCursor };
 };
 
-export default function FeedSection({ initialData }: { initialData?: ClientFeedResponseDto }) {
+export default function FeedSection({ initialData }: { initialData?: FeedResponseDto }) {
   const { items, hasNext, error, ref } = useInfiniteScroll<Post>({
     initialData: { items: initialData?.posts ?? [], hasNext: initialData?.hasNext ?? false, nextCursor: initialData?.nextCursor },
     fetchFn: fetchFeeds,
