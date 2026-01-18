@@ -75,7 +75,7 @@ export class NotiService {
     return {
       notiId: noti.id,
       actor: {
-        userId: noti.actor.id,
+        id: noti.actor.id,
         nickname: noti.actor.nickname,
         profileImgUrl: noti.actor.profileImgUrl,
       },
