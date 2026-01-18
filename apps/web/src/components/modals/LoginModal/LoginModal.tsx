@@ -3,9 +3,7 @@
 import React from 'react';
 import { useModalStore } from '@/stores/useModalStore';
 import { X } from 'lucide-react';
-import { SpotifyLoginButton } from './loginButtons/SpotifyLoginButton'; // 경로 맞춰서 수정
-import { TmpLoginButton } from './loginButtons/TmpLoginButton';
-import { GoogleLoginButton } from './loginButtons/GoogleLoginButton';
+import { SpotifyLoginButton, GoogleLoginButton, TmpLoginButton } from './index';
 import { getAuthErrorMessage } from '@/hooks/auth/client/authErrorMessage';
 
 type LoginModalProps = {
