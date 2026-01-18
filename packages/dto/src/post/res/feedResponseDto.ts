@@ -1,7 +1,7 @@
-import { PostResponse } from './shared';
+import { PostResponseDto } from './post.dto';
 
 export class FeedResponseDto {
-  posts: PostResponse[];
+  posts: PostResponseDto[];
   hasNext: boolean;
   nextCursor?: string;
 }

@@ -145,9 +145,13 @@ export class PostService {
     musics: MusicResponseDto[];
     isLiked: boolean;
   }): GetPostDetailResponseDto {
-    const { id: userId, nickname, profileImgUrl } = post.author;
+    const author = {
+      id: post.author.id,
+      nickname: post.author.nickname,
+      profileImgUrl: post.author.profileImgUrl,
+    };
     const {
-      id: postId,
+      id,
       coverImgUrl,
       content,
       likeCount,
@@ -160,8 +164,8 @@ export class PostService {
     const isEdited = updatedAt.getTime() - createdAt.getTime() >= 1000;
 
     return {
-      postId,
-      author: { userId, nickname, profileImgUrl },
+      id,
+      author,
       coverImgUrl,
       musics,
       content,

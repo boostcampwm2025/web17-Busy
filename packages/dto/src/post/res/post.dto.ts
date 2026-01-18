@@ -1,8 +1,7 @@
-import { MusicResponseDto } from '../../music/music.dto';
+import { MusicResponseDto } from '../../music';
 import { UserDto } from '../../user';
-import { PostResponseDto } from './post.dto';
 
-export class GetPostDetailResponseDto implements PostResponseDto {
+export interface PostResponseDto {
   id: string;
   author: UserDto;
   coverImgUrl: string;

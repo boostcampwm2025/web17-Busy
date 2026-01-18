@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Post } from './entities/post.entity';
-import { PostResponse, MusicResponseDto, FeedResponseDto } from '@repo/dto';
+import { PostResponseDto, MusicResponseDto, FeedResponseDto } from '@repo/dto';
 
 @Injectable()
 export class FeedService {
@@ -67,14 +67,14 @@ export class FeedService {
     return query;
   }
 
-  private mapToFeedResponseDto(posts: Post[]): PostResponse[] {
-    return posts.map((post: Post): PostResponse => {
+  private mapToFeedResponseDto(posts: Post[]): PostResponseDto[] {
+    return posts.map((post: Post): PostResponseDto => {
       const isLiked = !!(post.likes && post.likes.length > 0); // isLiked 판별 -> 조인 결과 있으면 true, 없으면 false
       const isEdited =
         post.updatedAt.getTime() - post.createdAt.getTime() >= 1000;
 
       return {
-        postId: post.id,
+        id: post.id,
         content: post.content,
         coverImgUrl: post.coverImgUrl,
         likeCount: post.likeCount,
@@ -83,7 +83,7 @@ export class FeedService {
         isEdited,
         isLiked,
         author: {
-          userId: post.author.id,
+          id: post.author.id,
           nickname: post.author.nickname,
           profileImgUrl:
             post.author.profileImgUrl || 'https://placehold.co/400',

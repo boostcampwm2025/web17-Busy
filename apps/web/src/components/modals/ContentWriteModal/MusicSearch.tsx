@@ -6,7 +6,7 @@ import type { Music, Playlist } from '@/types';
 import { searchItunesSongs } from '@/api';
 import { itunesSongToMusic } from '@/mappers';
 import { useDebouncedValue } from '@/hooks';
-import { Provider } from '@repo/dto';
+import { MusicProvider } from '@repo/dto';
 
 type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
@@ -18,36 +18,36 @@ const COUNTRY: 'KR' = 'KR';
 // 목업 데이터 | 음악, {내 플레이리스트}
 const MOCK_MUSICS: Music[] = [
   {
-    musicId: '11111111-1111-1111-1111-111111111111',
+    id: '11111111-1111-1111-1111-111111111111',
     title: 'we cant be friends',
     artistName: 'Ariana Grande',
     albumCoverUrl:
       'https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/2e/88/88/2e8888ad-a0cf-eece-70a7-1ff81377a3ab/24UMGIM00198.rgb.jpg/600x600bb.jpg',
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/22/fc/88/22fc885b-27c8-4693-7400-9e774eae9d7a/mzaf_5140833304960295464.plus.aac.p.m4a',
-    provider: Provider.ITUNES,
+    provider: MusicProvider.ITUNES,
     durationMs: 30000,
   },
   {
-    musicId: '22222222-2222-2222-2222-222222222222',
+    id: '22222222-2222-2222-2222-222222222222',
     title: 'Die For You',
     artistName: 'The Weekend',
     albumCoverUrl:
       'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b5/92/bb/b592bb72-52e3-e756-9b26-9f56d08f47ab/16UMGIM67864.rgb.jpg/600x600bb.jpg',
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/de/52/1d/de521dd3-f0f5-b694-4f30-3d465cc5bd0b/mzaf_9744418488383113655.plus.aac.p.m4a',
-    provider: Provider.ITUNES,
+    provider: MusicProvider.ITUNES,
     durationMs: 30000,
   },
   {
-    musicId: '33333333-3333-3333-3333-333333333333',
+    id: '33333333-3333-3333-3333-333333333333',
     title: 'Ditto',
     artistName: 'NewJeans',
     albumCoverUrl:
       'https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/f6/29/42/f629426e-92fe-535c-cbe4-76e70850819b/196922287107_Cover.jpg/600x600bb.jpg',
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/67/af/3d/67af3de7-8967-bc14-073d-a8712338ac32/mzaf_190692881480987912.plus.aac.p.m4a',
-    provider: Provider.ITUNES,
+    provider: MusicProvider.ITUNES,
     durationMs: 30000,
   },
 ];
@@ -260,7 +260,7 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
 
         {results.map((music) => (
           <button
-            key={music.musicId}
+            key={music.id}
             type="button"
             onClick={() => handleAddMusicClick(music)}
             className="w-full flex items-center px-4 py-2 hover:bg-gray-4 transition-colors text-left group"
