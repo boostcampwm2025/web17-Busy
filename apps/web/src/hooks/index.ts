@@ -5,3 +5,4 @@ export { default as useInfiniteScroll } from './useInfiniteScroll';
 export * from './useItunesHook';
 export * from './usePostMedia';
 export * from './useRelativeTime';
+export * from './useQueueSync';

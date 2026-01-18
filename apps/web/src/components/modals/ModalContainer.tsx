@@ -1,7 +1,7 @@
 'use client';
 
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { ContentWriteModal, PostCardDetailModal, LoginModal } from './index';
+import { ContentWriteModal, PostCardDetailModal, LoginModal, MobilePlayerModal } from './index';
 
 export default function ModalContainer() {
   const { isOpen, modalType, modalProps } = useModalStore();
@@ -18,6 +18,9 @@ export default function ModalContainer() {
 
       {/* 3. 포스트 상세 모달 */}
       {modalType === MODAL_TYPES.POST_DETAIL && <PostCardDetailModal />}
+
+      {/* 4. 모바일 재생목록 모달 */}
+      {modalType === MODAL_TYPES.MOBILE_QUEUE && <MobilePlayerModal />}
     </>
   );
 
