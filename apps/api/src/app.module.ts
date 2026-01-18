@@ -51,7 +51,7 @@ import { PlaylistModule } from './modules/playlist/playlist.module';
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
         entities: [join(__dirname, '**/*.entity.{ts,js}')],
-        synchronize: process.env.NODE_ENV !== 'production',
+        synchronize: false, //process.env.NODE_ENV !== 'production',
       }),
       inject: [ConfigService],
     }),

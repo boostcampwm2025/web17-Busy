@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { QueueList, MiniPlayerBar, NowPlaying } from './index';
-import { useItunesHook, useQueueSync } from '@/hooks';
+import { useItunesHook, useQueueSync, useGuestQueueSession } from '@/hooks';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { usePlayerStore, useModalStore, MODAL_TYPES } from '@/stores';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
@@ -11,7 +11,16 @@ const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): nu
 };
 
 export default function RightPanel() {
-  useQueueSync();
+  // 사용자가 로그인이 된 상태인지를 확인해 준다.
+  const { isAuthenticated, isLoading } = useAuthMe();
+  const enableServerSync = isAuthenticated && !isLoading;
+  const enableGuestSession = !isAuthenticated && !isLoading;
+
+  // 현재 재생목록을 보여줄 때 로그인 여부로 인해 결과가 달라져야 한다.
+  useQueueSync({ enabled: enableServerSync });
+  // 비로그인 시에는 세션 스토리지로 현재 재생목록 상태를 새로고침 시에도 유지한다.
+  useGuestQueueSession(enableGuestSession);
+
   const { positionMs, durationMs } = useItunesHook();
   const { openModal, closeModal, isOpen, modalType } = useModalStore();
   const isQueueOpen = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
