@@ -1,13 +1,14 @@
 'use client';
 
-import type { Music, Post } from '@/types';
+import type { Music } from '@/types';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { usePostMedia } from '@/hooks';
+import { PostResponseDto } from '@repo/dto';
 
 type Variant = 'card' | 'modal';
 
 type Props = {
-  post: Post;
+  post: PostResponseDto;
   variant: Variant;
 
   currentMusicId: string | null;

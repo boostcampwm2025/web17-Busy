@@ -1,11 +1,11 @@
 'use client';
 
 import { MoreHorizontal } from 'lucide-react';
-import type { Post } from '@/types';
 import { useRelativeTime } from '@/hooks';
+import { PostResponseDto } from '@repo/dto';
 
 type Props = {
-  post: Post;
+  post: PostResponseDto;
   onUserClick: (userId: string) => void;
   onMoreClick?: () => void;
 };
@@ -15,7 +15,7 @@ export default function PostHeader({ post, onUserClick, onMoreClick }: Props) {
 
   const handleUser = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    onUserClick(post.author.userId);
+    onUserClick(post.author.id);
   };
 
   const handleMore = (e: React.MouseEvent<HTMLButtonElement>) => {

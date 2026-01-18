@@ -1,5 +1,5 @@
-import type { Post, Music } from '@/types';
-import { MusicProvider } from '@repo/dto';
+import type { Music } from '@/types';
+import { MusicProvider, PostResponseDto } from '@repo/dto';
 
 const now = Date.now();
 const minutes = (n: number) => n * 60 * 1000;
@@ -66,26 +66,26 @@ const MOCK_MUSICS: Music[] = [
 ];
 
 const USER_1 = {
-  userId: 'u-1',
+  id: 'u-1',
   nickname: '김예빈',
   profileImgUrl: 'https://picsum.photos/seed/user-1/100/100',
 };
 
 const USER_2 = {
-  userId: 'u-2',
+  id: 'u-2',
   nickname: '김승호',
   profileImgUrl: 'https://picsum.photos/seed/user-2/100/100',
 };
 
 const USER_3 = {
-  userId: 'u-3',
+  id: 'u-3',
   nickname: '문예찬',
   profileImgUrl: 'https://picsum.photos/seed/user-3/100/100',
 };
 
-export const MOCK_POSTS: Post[] = [
+export const MOCK_POSTS: PostResponseDto[] = [
   {
-    postId: 'p-1',
+    id: 'p-1',
     author: USER_1,
     coverImgUrl: MOCK_MUSICS[0]!.albumCoverUrl,
     content: '요즘 밤에 듣기 딱 좋은 곡. 분위기 미쳤음.',
@@ -97,7 +97,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-2',
+    id: 'p-2',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[1]!.albumCoverUrl,
     content: '드라이브할 때 꼭 듣는 곡들 모아봤어.',
@@ -109,7 +109,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-3',
+    id: 'p-3',
     author: USER_3,
     coverImgUrl: MOCK_MUSICS[2]!.albumCoverUrl,
     content: '작업할 때 듣기 좋은 노동요 추천.',
@@ -121,7 +121,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-4',
+    id: 'p-4',
     author: USER_1,
     coverImgUrl: MOCK_MUSICS[3]!.albumCoverUrl,
     content: '카페에서 듣기 좋은 재즈 감성.',
@@ -133,7 +133,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-5',
+    id: 'p-5',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -145,7 +145,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-6',
+    id: 'p-6',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -157,7 +157,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-7',
+    id: 'p-7',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -169,7 +169,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-8',
+    id: 'p-8',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -181,7 +181,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-9',
+    id: 'p-9',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -193,7 +193,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-10',
+    id: 'p-10',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',

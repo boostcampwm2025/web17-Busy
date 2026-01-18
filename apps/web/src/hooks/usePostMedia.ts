@@ -1,10 +1,11 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import type { Music, Post } from '@/types';
+import type { Music } from '@/types';
+import { PostResponseDto } from '@repo/dto';
 
 type Args = {
-  post: Post;
+  post: PostResponseDto;
   currentMusicId: string | null;
   isPlayingGlobal: boolean;
 };

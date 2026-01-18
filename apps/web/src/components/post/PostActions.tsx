@@ -1,10 +1,10 @@
 'use client';
 
+import { PostResponseDto } from '@repo/dto';
 import { Heart, MessageCircle } from 'lucide-react';
-import type { Post } from '@/types';
 
 type Props = {
-  post: Post;
+  post: PostResponseDto;
   onClickLike?: () => void;
   onClickComment?: () => void;
 };

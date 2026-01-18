@@ -3,12 +3,13 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Heart, MoreHorizontal } from 'lucide-react';
 
-import type { Music, Post } from '@/types';
+import type { Music } from '@/types';
 import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
 import { useScrollLock } from '@/hooks';
 import { formatRelativeTime } from '@/utils';
 import { buildMockComments, EMPTY_POST } from '@/constants';
 import { PostMedia, LoadingSpinner } from '@/components';
+import { PostResponseDto } from '@repo/dto';
 
 export const PostCardDetailModal = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
@@ -24,10 +25,10 @@ export const PostCardDetailModal = () => {
 
   // postId를 단일 진실로 사용
   const postId = enabled ? (modalProps?.postId as string | undefined) : undefined;
-  const passedPost = enabled ? ((modalProps?.post as Post | undefined) ?? undefined) : undefined;
+  const passedPost = enabled ? ((modalProps?.post as PostResponseDto | undefined) ?? undefined) : undefined;
 
   // post가 있더라도 postId와 일치할 때만 신뢰
-  const matchedPost = postId && passedPost?.postId === postId ? passedPost : undefined;
+  const matchedPost = postId && passedPost?.id === postId ? passedPost : undefined;
 
   // 잘못된 상태면 모달 닫기(안전)
   useEffect(() => {

@@ -1,26 +1,21 @@
-import type { Music } from './music';
+// import { UserDto } from '@repo/dto';
+// import type { Music } from './music';
 
-export interface AuthorSummary {
-  userId: string;
-  nickname: string;
-  profileImgUrl: string;
-}
+// export interface Post {
+//   id: string;
+//   author: UserDto;
 
-export interface Post {
-  postId: string;
-  author: AuthorSummary;
+//   coverImgUrl: string;
+//   content: string;
 
-  coverImgUrl: string;
-  content: string;
+//   likeCount: number;
+//   commentCount: number;
 
-  likeCount: number;
-  commentCount: number;
+//   /** ISO string (ex: new Date().toISOString()) */
+//   createdAt: string;
 
-  /** ISO string (ex: new Date().toISOString()) */
-  createdAt: string;
+//   musics: Music[];
 
-  musics: Music[];
-
-  isEdited: boolean;
-  isLiked: boolean;
-}
+//   isEdited: boolean;
+//   isLiked: boolean;
+// }
