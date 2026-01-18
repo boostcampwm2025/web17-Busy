@@ -7,15 +7,6 @@ export default function useMusicActions() {
   const playMusic = usePlayerStore((s) => s.playMusic);
   const openModal = useModalStore((s) => s.openModal);
 
-  /**
-   * 음악 정보 DB 저장 함수 -> 필요한가?
-   * DB 저장해야 하는 시점
-   * 1. 컨텐츠 등록 시 (백엔드에서 처리)
-   * 2. 보관함 저장 시 (백엔드에서 처리)
-   * 3. 음악 재생 시?
-   */
-  const saveMusicMetadata = (track: Music) => {};
-
   /** 현재 플레이리스트에 음악 저장 함수 (검색 결과의 음악 재생 버튼, 피드 게시물 클릭 시 사용) */
   const addMusicToPlayer = (track: Music) => playMusic(track);
 
