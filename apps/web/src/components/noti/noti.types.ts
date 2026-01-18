@@ -1,3 +1,5 @@
+import { NotiRelatedType, NotiThumbnailShapeType } from '@repo/dto';
+
 export type NotiView = {
   id: string;
   isRead: boolean;
@@ -11,9 +13,9 @@ export type NotiView = {
 
   messageBody: string;
 
-  thumbnailUrl: string;
-  thumbnailShape: 'circle' | 'square';
+  thumbnailUrl: string | null;
+  thumbnailShape: NotiThumbnailShapeType;
 
   relatedId: string;
-  relatedType: 'post' | 'user';
+  relatedType: NotiRelatedType;
 };

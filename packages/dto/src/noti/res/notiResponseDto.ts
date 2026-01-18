@@ -15,10 +15,10 @@ export class NotiResponseDto {
   id: string;
   actor: UserDto;
   type: NotiType;
-  relatedId: string | null;
+  relatedId: string;
   relatedType: NotiRelatedType;
   isRead: boolean;
   createdAt: string;
-  thumbnailUrl: string;
+  thumbnailUrl: string | null;
   thumbnailShape: NotiThumbnailShapeType;
 }
