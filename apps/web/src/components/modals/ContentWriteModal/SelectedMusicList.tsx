@@ -1,9 +1,9 @@
 import React from 'react';
 import { ChevronUp, ChevronDown, Trash2, Music as MusicIcon } from 'lucide-react';
-import { Music } from '@/types';
+import { MusicResponseDto } from '@repo/dto';
 
 interface SelectedMusicListProps {
-  musics: Music[];
+  musics: MusicResponseDto[];
   onRemove: (id: string) => void;
   onMove: (index: number, direction: 'up' | 'down') => void;
 }

@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useModalStore } from '@/stores';
 import { X, FolderOpen } from 'lucide-react';
-import { Music, Playlist } from '@/types';
+import { Playlist } from '@/types';
 
 import { CoverImgUploader } from './CoverImgUploader';
 import { MusicSearch } from './MusicSearch';
 import { SelectedMusicList } from './SelectedMusicList';
+import { MusicResponseDto } from '@repo/dto';
 
-export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
+export const ContentWriteModal = ({ initialMusic }: { initialMusic?: MusicResponseDto }) => {
   const { closeModal } = useModalStore();
 
   // --- 지역상태 관리 ---
-  const [selectedMusics, setSelectedMusics] = useState<Music[]>(initialMusic ? [initialMusic] : []);
+  const [selectedMusics, setSelectedMusics] = useState<MusicResponseDto[]>(initialMusic ? [initialMusic] : []);
   const [content, setContent] = useState('');
 
   const [customCoverPreview, setCustomCoverPreview] = useState<string | null>(null);
@@ -79,7 +80,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
   };
 
   // 음악 추가
-  const handleAddMusic = (music: Music) => {
+  const handleAddMusic = (music: MusicResponseDto) => {
     // 중복 체크
     if (!selectedMusics.find((m) => m.id === music.id)) {
       setSelectedMusics([...selectedMusics, music]);

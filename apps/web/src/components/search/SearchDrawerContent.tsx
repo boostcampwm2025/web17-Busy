@@ -2,13 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import type { Music } from '@/types';
 import { LoadingSpinner } from '@/components';
 import { SearchInput, SearchStateMessage, TrackItem } from './index';
 
 import { useDebouncedValue, useMusicActions } from '@/hooks';
 import { searchItunesSongs } from '@/api';
 import { itunesSongToMusic } from '@/mappers';
+import { MusicResponseDto } from '@repo/dto';
 
 type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
@@ -23,7 +23,7 @@ function SearchDrawerInner() {
 
   const [status, setStatus] = useState<SearchStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [results, setResults] = useState<Music[]>([]);
+  const [results, setResults] = useState<MusicResponseDto[]>([]);
   const [openPreviewMusicId, setOpenPreviewMusicId] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);

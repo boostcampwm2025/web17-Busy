@@ -1,8 +1,7 @@
 'use client';
 
-import type { Music } from '@/types';
 import { PostHeader, PostMedia, PostActions, PostContentPreview } from './index';
-import { PostResponseDto } from '@repo/dto';
+import { MusicResponseDto, PostResponseDto } from '@repo/dto';
 
 interface PostCardProps {
   post: PostResponseDto;
@@ -10,7 +9,7 @@ interface PostCardProps {
   currentMusicId: string | null;
   isPlayingGlobal: boolean;
 
-  onPlay: (music: Music) => void;
+  onPlay: (music: MusicResponseDto) => void;
   onUserClick: (userId: string) => void;
   onOpenDetail: (post: PostResponseDto) => void;
 }

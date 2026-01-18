@@ -1,5 +1,4 @@
-import type { Music } from '@/types';
-import { MusicProvider, PostResponseDto } from '@repo/dto';
+import { MusicProvider, MusicResponseDto, PostResponseDto } from '@repo/dto';
 
 const now = Date.now();
 const minutes = (n: number) => n * 60 * 1000;
@@ -8,7 +7,7 @@ const days = (n: number) => n * 24 * 60 * 60 * 1000;
 
 const isoAgo = (msAgo: number) => new Date(now - msAgo).toISOString();
 
-const MOCK_MUSICS: Music[] = [
+const MOCK_MUSICS: MusicResponseDto[] = [
   {
     id: 'm-1',
     provider: MusicProvider.ITUNES,

@@ -1,18 +1,18 @@
 'use client';
 
 import { X, Trash2, ChevronUp, ChevronDown, XCircle, ListPlus } from 'lucide-react';
-import type { Music } from '@/types';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores';
+import { MusicResponseDto } from '@repo/dto';
 
 type MobileQueueRowProps = {
-  music: Music;
+  music: MusicResponseDto;
   index: number;
   isCurrent: boolean;
   isFirst: boolean;
   isLast: boolean;
 
-  onPlay: (music: Music) => void;
+  onPlay: (music: MusicResponseDto) => void;
   onRemove: (musicId: string) => void;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;

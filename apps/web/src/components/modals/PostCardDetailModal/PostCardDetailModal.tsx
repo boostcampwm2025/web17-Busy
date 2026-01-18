@@ -3,13 +3,12 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Heart, MoreHorizontal } from 'lucide-react';
 
-import type { Music } from '@/types';
 import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
 import { useScrollLock } from '@/hooks';
 import { formatRelativeTime } from '@/utils';
 import { buildMockComments, EMPTY_POST } from '@/constants';
 import { PostMedia, LoadingSpinner } from '@/components';
-import { PostResponseDto } from '@repo/dto';
+import { MusicResponseDto, PostResponseDto } from '@repo/dto';
 
 export const PostCardDetailModal = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
@@ -39,7 +38,7 @@ export const PostCardDetailModal = () => {
   // Hook order 안정화
   const safePost = matchedPost ?? EMPTY_POST;
   const createdAtText = useMemo(() => formatRelativeTime(safePost.createdAt), [safePost.createdAt]);
-  const comments = useMemo(() => buildMockComments(safePost), [safePost.postId]);
+  const comments = useMemo(() => buildMockComments(safePost), [safePost.id]);
 
   if (!enabled) return null;
   if (!postId) return null;
@@ -50,7 +49,7 @@ export const PostCardDetailModal = () => {
     e.stopPropagation();
   };
 
-  const handlePlay = (music: Music) => {
+  const handlePlay = (music: MusicResponseDto) => {
     playMusic(music);
   };
 
