@@ -9,14 +9,14 @@ export const SEED_USERS = [
     id: '11111111-1111-1111-1111-111111111111',
     nickname: '테스트 사용자 1',
     email: 'example111@naver.com',
-    profileImageUrl: '사용자 1의 프로필',
+    profileImgeUrl: '사용자 1의 프로필',
     bio: '하이요~~',
   },
   {
     id: '22222222-2222-2222-2222-222222222222',
     nickname: '테스트 사용자 2',
     email: 'example222@naver.com',
-    profileImageUrl: '사용자 2의 프로필',
+    profileImgeUrl: '사용자 2의 프로필',
     bio: '하이요~~',
   },
 ];

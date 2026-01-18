@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useModalStore } from '@/stores/useModalStore';
+import { useModalStore } from '@/stores';
 import { X, FolderOpen } from 'lucide-react';
 import { Music, Playlist } from '@/types';
 
@@ -7,7 +7,7 @@ import { CoverImgUploader } from './CoverImgUploader';
 import { MusicSearch } from './MusicSearch';
 import { SelectedMusicList } from './SelectedMusicList';
 
-export const ContentWriteModal = ({ initialMusic }: { initialMusic: Music }) => {
+export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
   const { closeModal } = useModalStore();
 
   // --- 지역상태 관리 ---

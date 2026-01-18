@@ -31,6 +31,8 @@ jobs:
           tags: ${{ secrets.NCP_REGISTRY_URL }}/frontend:latest
           cache-from: type=registry,ref=${{ secrets.NCP_REGISTRY_URL }}/frontend:buildcache
           cache-to: type=registry,ref=${{ secrets.NCP_REGISTRY_URL }}/frontend:buildcache,mode=max
+          build-args: |
+            NEXT_PUBLIC_SPOTIFY_API_BASE_URL=${{ secrets.NEXT_PUBLIC_SPOTIFY_API_BASE_URL }}
 
       # ---- Backend Build ----
       - name: Build & Push Backend
