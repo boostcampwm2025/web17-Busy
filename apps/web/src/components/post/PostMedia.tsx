@@ -25,7 +25,8 @@ const stylesByVariant: Record<Variant, { container: string; playBtn: string; inf
     playBtn: 'w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-[2px_2px_0px_0px_#00ebc7]',
     infoBox: 'absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-primary shadow-[4px_4px_0px_0px_#FDE24F]',
     navBtn:
-      'absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white',
+      'absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white ' +
+      'opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto',
   },
   modal: {
     container: 'flex-1 bg-gray-4 relative group overflow-hidden',
@@ -33,7 +34,8 @@ const stylesByVariant: Record<Variant, { container: string; playBtn: string; inf
       'w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#00ebc7] hover:scale-105 transition-transform',
     infoBox: 'absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-xl border-2 border-primary shadow-[6px_6px_0px_0px_#FDE24F]',
     navBtn:
-      'absolute top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white',
+      'absolute top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white ' +
+      'opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto',
   },
 };
 
