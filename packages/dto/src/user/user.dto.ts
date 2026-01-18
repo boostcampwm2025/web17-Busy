@@ -1,5 +1,5 @@
 export interface UserDto {
   id: string;
   nickname: string;
-  profileImgUrl: string;
+  profileImgUrl: string | null;
 }
