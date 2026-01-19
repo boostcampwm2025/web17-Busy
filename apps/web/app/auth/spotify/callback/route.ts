@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exchangeSpotifyCodeWithBackend } from '@/hooks/auth/server/spotifyAuth';
 import { SPOTIFY_COOKIE_KEYS } from '@/hooks/auth/config/spotify';
 import { APP_ACCESS_TOKEN_HASH_KEY } from '@/constants/auth';
+import { spotifyExchange } from '@/api';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   if (!stateQuery) return redirectAuthFail(request, 'missing_state_query');
   if (stateCookie !== stateQuery) return redirectAuthFail(request, 'state_mismatch');
 
-  const result = await exchangeSpotifyCodeWithBackend({ code, verifier });
+  const result = await spotifyExchange({ code, verifier });
   if (!result.ok) return redirectAuthFail(request, 'token_exchange_failed');
 
   // access token - url fragment로 브라우저에 전달

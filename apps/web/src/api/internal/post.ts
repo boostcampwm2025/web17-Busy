@@ -18,3 +18,11 @@ export const getFeedPosts = async (cursor?: string, limit = 10) => {
   const { data } = await internalClient.get<FeedResponseDto>('/post/feed', { params: { limit, cursor } });
   return data;
 };
+
+export const createPost = async (formData: FormData) => {
+  await internalClient.post('/post', formData, {
+    headers: {
+      'Content-Type': undefined,
+    },
+  });
+};

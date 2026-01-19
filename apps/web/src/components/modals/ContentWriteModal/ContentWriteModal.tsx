@@ -8,6 +8,7 @@ import { MusicSearch } from './MusicSearch';
 import { SelectedMusicList } from './SelectedMusicList';
 import { MusicResponseDto as Music } from '@repo/dto';
 import { DEFAULT_IMGAES } from '@/constants/defaultImages';
+import { createPost } from '@/api';
 
 export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
   const { closeModal } = useModalStore();
@@ -56,7 +57,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
       'musics',
       JSON.stringify(
         selectedMusics.map((m) => ({
-          musicId: m.id,
+          id: m.id,
           title: m.title,
           artistName: m.artistName,
           albumCoverUrl: m.albumCoverUrl,
@@ -69,13 +70,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
 
     if (customCoverFile) fd.append('coverImgUrl', customCoverFile);
 
-    const res = await fetch('/api/post', {
-      method: 'POST',
-      body: fd,
-      credentials: 'include',
-    });
-
-    if (!res.ok) throw new Error(`등록 실패 - ${res.body}`);
+    await createPost(fd);
 
     closeModal();
   };

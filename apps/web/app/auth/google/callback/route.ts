@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exchangeGoogleCodeWithBackend } from '@/hooks/auth/server/googleAuth';
 import { GOOGLE_AUTH_QUERY_KEYS, GOOGLE_COOKIE_KEYS } from '@/hooks/auth/config/google';
 import { APP_ACCESS_TOKEN_HASH_KEY } from '@/constants/auth';
+import { googleExchange } from '@/api';
 
 const JWT_COOKIE_NAME = 'jwt';
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   if (!stateQuery) return redirectAuthFail(request, 'missing_state_query');
   if (stateCookie !== stateQuery) return redirectAuthFail(request, 'state_mismatch');
 
-  const result = await exchangeGoogleCodeWithBackend({ code, verifier });
+  const result = await googleExchange({ code, verifier });
   if (!result.ok) return redirectAuthFail(request, 'token_exchange_failed');
 
   const url = new URL('/', request.url);
