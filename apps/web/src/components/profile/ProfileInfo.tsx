@@ -1,6 +1,6 @@
 'use client';
 
-import { DEFAULT_IMGAES } from '@/constants/defaultImages';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import Image from 'next/image';
 
@@ -29,7 +29,7 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
         {/* 프로필 이미지 아바타 */}
         <div className="shrink-0">
           <div className="relative w-28 h-28 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-primary p-1 bg-white shadow-[3px_3px_0px_0px_#00214D]">
-            <Image src={profileImgUrl ?? DEFAULT_IMGAES.PROFILE} alt={nickname} fill className="object-cover" />
+            <Image src={profileImgUrl || DEFAULT_IMAGES.PROFILE} alt={nickname} fill className="object-cover" />
           </div>
         </div>
 
