@@ -88,6 +88,18 @@ const findCurrentIndex = (queue: MusicResponseDto[], current: MusicResponseDto |
   return queue.findIndex((item) => item.id === current.id);
 };
 
+// 서버에 중복이 남아있거나, 과거 데이터가 중복이면 FE에서도 한 번 정리해주는 작업 필요
+const dedupeQueue = (queue: Music[]): Music[] => {
+  const seen = new Set<string>();
+  const out: Music[] = [];
+  for (const m of queue) {
+    if (seen.has(m.musicId)) continue;
+    seen.add(m.musicId);
+    out.push(m);
+  }
+  return out;
+};
+
 /**
  * usePlayerStore
  * - 컴포넌트에서 usePlayerStore((s) => s.currentMusic) 형태로 구독 가능
@@ -106,7 +118,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   initializeQueue: (queue: MusicResponseDto[]) => {
     // 서버에서 가져온 데이터로 큐 교체
-    set({ queue });
+    set({ queue: dedupeQueue(queue) });
   },
 
   playMusic: (music) => {

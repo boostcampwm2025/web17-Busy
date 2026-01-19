@@ -6,3 +6,4 @@ export * from './useItunesHook';
 export * from './usePostMedia';
 export * from './useRelativeTime';
 export * from './useQueueSync';
+export * from './useGuestQueueSession';

@@ -24,6 +24,7 @@ export class NowPlaylistController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   async getPlaylist(@UserId() userId: string): Promise<GetNowPlaylistResDto> {
     const playlist = await this.nowPlaylistService.getNowPlaylist(userId);
 
