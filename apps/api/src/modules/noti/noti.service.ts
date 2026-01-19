@@ -23,6 +23,28 @@ export class NotiService {
     private readonly postRepo: Repository<Post>,
   ) {}
 
+  async create({
+    receiverId,
+    actorId,
+    type,
+    relatedId,
+  }: {
+    receiverId: string;
+    actorId: string;
+    type: NotiType;
+    relatedId: string;
+  }) {
+    const noti = this.notiRepo.create({
+      receiver: { id: receiverId },
+      actor: { id: actorId },
+      type,
+      relatedId,
+      isRead: false,
+    });
+
+    return this.notiRepo.save(noti);
+  }
+
   async getNotisByUserId(userId: string): Promise<NotiResponseDto[]> {
     const notis = await this.notiRepo.find({
       where: { receiver: { id: userId } },
