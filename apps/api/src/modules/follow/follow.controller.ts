@@ -6,11 +6,20 @@ import {
   HttpStatus,
   Body,
   Delete,
+  Get,
+  Param,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FollowService } from './follow.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
-import { CreateFollowDto, DeleteFollowDto } from '@repo/dto';
+import {
+  CreateFollowDto,
+  DeleteFollowDto,
+  GetUserFollowingsDto,
+} from '@repo/dto';
 
 @Controller('follow')
 export class FollowController {
@@ -34,5 +43,14 @@ export class FollowController {
     @Body() deleteFollowDto: DeleteFollowDto,
   ) {
     return await this.followService.removeFollow(userId, deleteFollowDto);
+  }
+
+  @Get(':userId')
+  async getUserFollowings(
+    @Param('userId') userId: string,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('cursor') cursor?: string,
+  ): Promise<GetUserFollowingsDto> {
+    return await this.followService.getFollowings(userId, limit, cursor);
   }
 }

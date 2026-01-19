@@ -23,4 +23,33 @@ export class FollowService {
     await this.followRepository.removeFollow(userId, orderUserId);
     return { message: '팔로우 해제 성공' };
   }
+
+  async getFollowings(userId: string, limit: number, cursor?: string) {
+    let cursorDate: Date | null = null;
+    if (cursor) {
+      cursorDate = new Date(cursor);
+    }
+
+    const follows = await this.followRepository.getFollowings(
+      userId,
+      limit + 1,
+      cursorDate,
+    );
+
+    const hasNext = follows.length > limit;
+    const targetFollows = hasNext ? follows.slice(0, limit) : follows;
+
+    // 다음 커서 생성
+    let nextCursor: string | undefined = undefined;
+    if (targetFollows.length > 0) {
+      nextCursor =
+        targetFollows[targetFollows.length - 1].createdAt.toISOString();
+    }
+
+    return {
+      users: targetFollows.map((follow) => follow.followedUser),
+      hasNext,
+      nextCursor,
+    };
+  }
 }
