@@ -2,6 +2,7 @@ import { MOCK_PROFILE, MOCK_PROFILE_POSTS } from '@/constants';
 
 /** [GET] 서버 컴포넌트에서 로그인 정보 요청 */
 export const getLoggedInUserId = async (): Promise<{ userId: string | null }> => {
+  // TODO: access token 어떻게 가져올건지 고민
   const res = await fetch(`${process.env.INTERNAL_API_URL}/user/me`, { cache: 'no-store' });
 
   // 로그인 인증 안 된 경우 예외 처리
