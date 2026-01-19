@@ -16,11 +16,7 @@ export class NowPlaylistService {
 
   async getNowPlaylist(userId: string): Promise<GetNowPlaylistResDto> {
     const entities = await this.nowPlaylistRepository.findLoadPlaylist(userId);
-    const musicList = entities.map((entity) => this.mapToMusicInfo(entity));
-
-    return {
-      musics: musicList,
-    };
+    return { musics: entities.map((e) => this.mapToMusicInfo(e)) };
   }
 
   private mapToMusicInfo(entity: NowPlaylistMusic) {
