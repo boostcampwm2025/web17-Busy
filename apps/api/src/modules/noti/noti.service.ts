@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -14,6 +15,26 @@ import {
 } from '@repo/dto';
 import { Post } from '../post/entities/post.entity';
 
+type CreateCommentNoti = {
+  type: NotiType.COMMENT;
+  actorId: string;
+  relatedId: string;
+};
+
+type CreateLikeNoti = {
+  type: NotiType.LIKE;
+  actorId: string;
+  relatedId: string;
+};
+
+type CreateFollowNoti = {
+  type: NotiType.FOLLOW;
+  receiverId: string;
+  actorId: string;
+};
+
+type CreateNotiType = CreateCommentNoti | CreateLikeNoti | CreateFollowNoti;
+
 @Injectable()
 export class NotiService {
   constructor(
@@ -23,7 +44,38 @@ export class NotiService {
     private readonly postRepo: Repository<Post>,
   ) {}
 
-  async create({
+  async create(createNoti: CreateNotiType) {
+    if (createNoti.type === NotiType.FOLLOW) {
+      return await this.createFollowNoti(createNoti);
+    } else {
+      const post = await this.postRepo.findOneBy({ id: createNoti.relatedId });
+      if (!post) throw new BadRequestException('게시글이 존재하지 않습니다.');
+
+      return await this.createLikeOrCommentNoti({
+        ...createNoti,
+        receiverId: post.author.id,
+      });
+    }
+  }
+
+  private async createFollowNoti({
+    receiverId,
+    actorId,
+  }: {
+    receiverId: string;
+    actorId: string;
+  }) {
+    const noti = this.notiRepo.create({
+      receiver: { id: receiverId },
+      actor: { id: actorId },
+      type: NotiType.FOLLOW,
+      isRead: false,
+    });
+
+    return await this.notiRepo.save(noti);
+  }
+
+  private async createLikeOrCommentNoti({
     receiverId,
     actorId,
     type,
@@ -39,10 +91,9 @@ export class NotiService {
       actor: { id: actorId },
       type,
       relatedId,
-      isRead: false,
     });
 
-    return this.notiRepo.save(noti);
+    return await this.notiRepo.save(noti);
   }
 
   async getNotisByUserId(userId: string): Promise<NotiResponseDto[]> {
