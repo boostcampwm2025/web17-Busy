@@ -7,6 +7,7 @@ import {
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
+import { UserDto } from '@repo/dto';
 
 @Controller('user')
 export class UserController {
@@ -14,14 +15,11 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Get('me')
-  async me(@UserId() userId: string) {
+  async me(@UserId() userId: string): Promise<UserDto> {
     const user = await this.userService.findById(userId);
     if (!user) throw new UnauthorizedException('사용자를 찾지 못했습니다.');
 
-    return {
-      userId: user.id,
-      nickname: user.nickname,
-      profileImgUrl: user.profileImgUrl,
-    };
+    const { id, nickname, profileImgUrl } = user;
+    return { id, nickname, profileImgUrl };
   }
 }
