@@ -71,7 +71,7 @@ export default function ProfileInfo({ profile, isMyProfile = false }: ProfileInf
           </div>
 
           {/* 프로필 소개란 */}
-          <p className="text-primary font-medium whitespace-pre-wrap leading-relaxed text-justify max-w-md mx-auto md:mx-0">{bio}</p>
+          <p className="text-primary font-medium whitespace-pre-wrap leading-relaxed text-justify max-w-md lg:max-w-lg mx-auto md:mx-0">{bio}</p>
         </div>
       </div>
     </section>
