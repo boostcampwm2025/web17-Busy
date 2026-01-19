@@ -23,7 +23,7 @@ export default function ProfilePosts({ posts }: ProfilePostsProps) {
   };
 
   return (
-    <section className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-8 border-t border-primary/10">
+    <section className="w-full grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 py-8 border-t border-primary/10">
       {posts.map((post) => {
         return (
           <article key={post.id} className="group relative cursor-pointer" onClick={() => handleOpenDetail(post.id)}>
@@ -47,11 +47,11 @@ export default function ProfilePosts({ posts }: ProfilePostsProps) {
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white space-y-2">
-                <div className="flex items-center space-x-2 font-bold text-lg">
+                <div className="flex items-center space-x-2 font-bold 2xl:text-lg">
                   <Heart className="w-6 h-6 fill-current" />
                   <span>{post.likeCount}</span>
                 </div>
-                <div className="flex items-center space-x-2 font-bold text-lg">
+                <div className="flex items-center space-x-2 font-bold 2xl:text-lg">
                   <MessageCircle className="w-6 h-6 fill-current" />
                   <span>{post.commentCount}</span>
                 </div>
