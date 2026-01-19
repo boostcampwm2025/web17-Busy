@@ -3,11 +3,13 @@ import {
   ConflictException,
   NotFoundException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { LikeRepository } from './like.repository';
 import { PostRepository } from '../post/post.repository';
-import { CreateLikeDto, LikedUserDto } from '@repo/dto';
+import { CreateLikeDto, LikedUserDto, NotiType } from '@repo/dto';
+import { NotiService } from '../noti/noti.service';
 
 @Injectable()
 export class LikeService {
@@ -15,13 +17,14 @@ export class LikeService {
     private readonly dataSource: DataSource,
     private readonly likeRepository: LikeRepository,
     private readonly postRepository: PostRepository,
+    private readonly notiService: NotiService,
   ) {}
 
   // 좋아요 생성
   async addLike(userId: string, createLikeDto: CreateLikeDto) {
     const { postId } = createLikeDto;
 
-    return this.dataSource.transaction(async (manager) => {
+    const txResult = this.dataSource.transaction(async (manager) => {
       // 좋아요 존재 여부 확인
       const isLiked = await this.likeRepository.checkIsLiked(userId, postId);
       if (isLiked) {
@@ -40,6 +43,15 @@ export class LikeService {
 
       return { message: '좋아요 성공', postId };
     });
+
+    // 알림 생성은 await 안 함
+    this.notiService.create({
+      type: NotiType.LIKE,
+      actorId: userId,
+      relatedId: postId,
+    });
+
+    return txResult;
   }
 
   // 좋아요 취소

@@ -7,14 +7,15 @@ interface MenuButtonProps {
   onClick: () => void;
   isActive: boolean;
   shouldShowSpan: boolean;
+  children: React.ReactNode;
 }
 
-export default function MenuButton({ Icon, label, onClick, isActive, shouldShowSpan }: MenuButtonProps) {
+export default function MenuButton({ Icon, label, onClick, isActive, shouldShowSpan, children }: MenuButtonProps) {
   return (
     <button
       title={label}
       onClick={onClick}
-      className={`w-full flex items-center p-3 rounded-xl transition-all duration-200
+      className={`relative w-full flex items-center p-3 rounded-xl transition-all duration-200
                   border-2 ${
                     isActive
                       ? 'bg-white border-primary shadow-[2px_2px_0px_0px_#00214D]'
@@ -22,6 +23,7 @@ export default function MenuButton({ Icon, label, onClick, isActive, shouldShowS
                   }`}
     >
       <Icon />
+      {children}
       {shouldShowSpan && <span className="ml-4 font-bold whitespace-nowrap overflow-hidden">{label}</span>}
     </button>
   );

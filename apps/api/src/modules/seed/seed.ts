@@ -9,14 +9,14 @@ export const SEED_USERS = [
     id: '11111111-1111-1111-1111-111111111111',
     nickname: '테스트 사용자 1',
     email: 'example111@naver.com',
-    profileImgeUrl: '사용자 1의 프로필',
+    profileImageUrl: '사용자 1의 프로필',
     bio: '하이요~~',
   },
   {
     id: '22222222-2222-2222-2222-222222222222',
     nickname: '테스트 사용자 2',
     email: 'example222@naver.com',
-    profileImgeUrl: '사용자 2의 프로필',
+    profileImageUrl: '사용자 2의 프로필',
     bio: '하이요~~',
   },
 ];
@@ -38,7 +38,7 @@ export const SEED_NOTIS = [
     receiver: { id: RECEIVER_ID },
     actor: { id: ACTOR_ID },
     type: NotiType.LIKE,
-    relatedId: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    relatedId: '33333333-3333-3333-3333-333333333333',
     isRead: false,
   },
   {

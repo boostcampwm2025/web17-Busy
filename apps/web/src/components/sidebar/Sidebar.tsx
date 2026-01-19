@@ -14,6 +14,7 @@ import { NotiDrawerContent } from '../noti';
 
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { performLogout } from '@/hooks/auth/client/logout';
+import { useNotiStore } from '@/stores/useNotiStore';
 
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);
@@ -24,6 +25,8 @@ export default function Sidebar() {
 
   const { openModal } = useModalStore();
   const { isAuthenticated, isLoading } = useAuthMe();
+
+  const unreadNotiCount = useNotiStore((s) => s.unreadCount);
 
   const initialActiveItem = useMemo<SidebarItemTypeValues>(() => {
     if (pathname === '/') {
@@ -124,7 +127,13 @@ export default function Sidebar() {
               onClick={() => handleItemClick(item.type)}
               isActive={item.type === activeItem}
               shouldShowSpan={isExpanded}
-            />
+            >
+              {item.type === SidebarItemType.NOTIFICATION && unreadNotiCount > 0 && (
+                <span className="absolute top-1 left-6 min-w-5 h-5 px-1 rounded-full bg-accent-pink text-white text-[10px] flex items-center justify-center">
+                  {unreadNotiCount > 99 ? '99+' : unreadNotiCount}
+                </span>
+              )}
+            </MenuButton>
           ))}
 
           <div className="h-0.5 bg-gray-4 mx-2 my-4" />
