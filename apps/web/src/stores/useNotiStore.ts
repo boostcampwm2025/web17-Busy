@@ -1,4 +1,4 @@
-import { fetchNotis } from '@/api/noti/fetchNotis';
+import { fetchNotis, markNotiRead } from '@/api/noti/fetchNotis';
 import { NotiResponseDto } from '@repo/dto';
 import { create } from 'zustand';
 
@@ -13,6 +13,7 @@ interface NotiStore {
 
   setFetchStatus: (status: NotiFetchState) => void;
   updateNotis: () => Promise<void>;
+  readNoti: (notiId: string) => Promise<void>;
 }
 
 export const useNotiStore = create<NotiStore>((set) => ({
@@ -22,7 +23,7 @@ export const useNotiStore = create<NotiStore>((set) => ({
   status: 'idle',
   errorMessage: null,
 
-  setFetchStatus: (status: NotiFetchState) => set({ status }),
+  setFetchStatus: (status: NotiFetchState) => set((state) => (state.status === status ? state : { status })),
 
   updateNotis: async () => {
     set({ status: 'loading', errorMessage: null });
@@ -40,6 +41,22 @@ export const useNotiStore = create<NotiStore>((set) => ({
         status: 'error',
         errorMessage: err?.message ?? '알림을 불러오지 못했습니다.',
       });
+    }
+  },
+
+  readNoti: async (notiId: string) => {
+    set((state) => {
+      const updated = state.notis.map((n) => (n.id === notiId ? { ...n, isRead: true } : n));
+      return {
+        notis: updated,
+        unreadCount: updated.filter((n) => !n.isRead).length,
+      };
+    });
+
+    try {
+      await markNotiRead(notiId);
+    } catch (e) {
+      console.error((e as Error).message);
     }
   },
 }));

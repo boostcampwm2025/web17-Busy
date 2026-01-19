@@ -1,70 +1,27 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import type { NotiResponseDto } from '@repo/dto';
-import { fetchNotis, markNotiRead } from '@/api/noti/fetchNotis';
+import { useMemo } from 'react';
 import NotiItem from './NotiItem';
 import { toNotiView } from './noti.mapper';
 import { NotiView } from './noti.types';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { useRouter } from 'next/navigation';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-
-type FetchStatus = 'loading' | 'success' | 'empty' | 'error' | 'no-login';
+import { useNotiStore } from '@/stores/useNotiStore';
 
 export default function NotiDrawerContent() {
-  const { isAuthenticated, isLoading } = useAuthMe();
-
   const openModal = useModalStore((s) => s.openModal);
   const router = useRouter();
 
-  const [status, setStatus] = useState<FetchStatus>('loading');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [raw, setRaw] = useState<NotiResponseDto[]>([]);
+  const rawNotis = useNotiStore((s) => s.notis);
+  const notiFetchStatus = useNotiStore((s) => s.status);
+  const readNoti = useNotiStore((s) => s.readNoti);
+  const errorMessage = useNotiStore((s) => s.errorMessage);
 
-  const items = useMemo(() => raw.map(toNotiView), [raw]);
-
-  useEffect(() => {
-    let isActive = true;
-
-    const run = async () => {
-      try {
-        setStatus('loading');
-        setErrorMessage(null);
-
-        if (!isAuthenticated && !isLoading) {
-          setStatus('no-login');
-          return;
-        }
-
-        const data = (await fetchNotis()) as NotiResponseDto[];
-
-        if (!isActive) return;
-
-        setRaw(data);
-        setStatus(data.length > 0 ? 'success' : 'empty');
-      } catch (e) {
-        if (!isActive) return;
-        const err = e as { message?: string };
-        setStatus('error');
-        setErrorMessage(err?.message ?? '알림 조회 중 오류가 발생했습니다.');
-      }
-    };
-
-    run();
-
-    return () => {
-      isActive = false;
-    };
-  }, [isAuthenticated, isLoading]);
+  const notis = useMemo(() => rawNotis.map(toNotiView), [rawNotis]);
 
   const handleClickNoti = (noti: NotiView) => {
     if (!noti.isRead) {
-      setRaw((prev) => prev.map((n) => (n.id === noti.id ? { ...n, isRead: true } : n)));
-
-      void markNotiRead(noti.id).catch((err) => {
-        console.error(err);
-      });
+      readNoti(noti.id);
     }
 
     if (noti.relatedType === 'user') {
@@ -76,13 +33,13 @@ export default function NotiDrawerContent() {
   };
 
   const renderBody = () => {
-    if (status === 'loading') return <div className="p-6 text-m text-gray-400">불러오는 중...</div>;
-    if (status === 'error') return <div className="p-6 text-m text-red-500">{errorMessage ?? '오류'}</div>;
-    if (status === 'empty') return <div className="p-6 text-m text-gray-400">알림이 없습니다.</div>;
-    if (status === 'no-login') return <div className="p-6 text-m text-gray-400">로그인 후 확인해 주세요.</div>;
+    if (notiFetchStatus === 'no-login') return <div className="p-6 text-m text-gray-400">로그인 후 확인해 주세요.</div>;
+    if (notiFetchStatus === 'loading') return <div className="p-6 text-m text-gray-400">불러오는 중...</div>;
+    if (notiFetchStatus === 'error') return <div className="p-6 text-m text-red-500">{errorMessage ?? '오류'}</div>;
+    if (notis.length === 0) return <div className="p-6 text-m text-gray-400">알림이 없습니다.</div>;
     return (
       <div className="space-y-4 p-2">
-        {items.map((noti) => (
+        {notis.map((noti) => (
           <NotiItem key={noti.id} noti={noti} onClick={handleClickNoti} />
         ))}
       </div>
