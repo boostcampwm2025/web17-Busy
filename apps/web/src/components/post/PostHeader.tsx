@@ -3,6 +3,7 @@
 import { MoreHorizontal } from 'lucide-react';
 import { useRelativeTime } from '@/hooks';
 import { PostResponseDto } from '@repo/dto';
+import { DEFAULT_IMGAES } from '@/constants/defaultImages';
 
 type Props = {
   post: PostResponseDto;
@@ -27,7 +28,7 @@ export default function PostHeader({ post, onUserClick, onMoreClick }: Props) {
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-3 cursor-pointer group min-w-0" onClick={handleUser}>
         <div className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden bg-gray-100 shrink-0 group-hover:ring-2 ring-accent-cyan transition-all">
-          <img src={post.author.profileImgUrl} alt={post.author.nickname} className="w-full h-full object-cover" />
+          <img src={post.author.profileImgUrl ?? DEFAULT_IMGAES.PROFILE} alt={post.author.nickname} className="w-full h-full object-cover" />
         </div>
 
         <div className="min-w-0">

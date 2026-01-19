@@ -9,6 +9,7 @@ import { formatRelativeTime } from '@/utils';
 import { buildMockComments, EMPTY_POST } from '@/constants';
 import { PostMedia, LoadingSpinner } from '@/components';
 import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import { DEFAULT_IMGAES } from '@/constants/defaultImages';
 
 export const PostCardDetailModal = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
@@ -92,7 +93,7 @@ export const PostCardDetailModal = () => {
           <div className="p-4 border-b-2 border-primary/10 flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
               <img
-                src={safePost.author.profileImgUrl}
+                src={safePost.author.profileImgUrl ?? DEFAULT_IMGAES.PROFILE}
                 alt={safePost.author.nickname}
                 className="w-9 h-9 rounded-full border border-primary object-cover"
               />
@@ -105,7 +106,7 @@ export const PostCardDetailModal = () => {
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
             <div className="flex space-x-3">
               <img
-                src={safePost.author.profileImgUrl}
+                src={safePost.author.profileImgUrl ?? DEFAULT_IMGAES.PROFILE}
                 alt={safePost.author.nickname}
                 className="w-9 h-9 rounded-full border border-primary/20 object-cover shrink-0"
               />
