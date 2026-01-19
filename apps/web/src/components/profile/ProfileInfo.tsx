@@ -1,6 +1,7 @@
 'use client';
 
 import { DEFAULT_IMGAES } from '@/constants/defaultImages';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 // TODO: dto로 대체
 interface ProfileInfoProps {
@@ -13,11 +14,14 @@ interface ProfileInfoProps {
     followingCount: number;
     isFollowing: boolean;
   };
-  isMyProfile: boolean;
 }
 
-export default function ProfileInfo({ profile, isMyProfile = false }: ProfileInfoProps) {
+export default function ProfileInfo({ profile }: ProfileInfoProps) {
   const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
+
+  const { userId: loggedInUserId } = useAuthMe();
+  const isMyProfile = profile.userId === loggedInUserId;
+
   return (
     <section className="max-w-4xl">
       <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10 mb-8">

@@ -9,7 +9,7 @@ export default async function Profile({ params }: { params: { id: string } }) {
 
   return (
     <div className="mx-auto p-6 md:p-10 gap-y-4">
-      <ProfileInfo profile={profileInfo} isMyProfile={true} />
+      <ProfileInfo profile={profileInfo} />
       <ProfilePosts posts={profilePosts} />
     </div>
   );
