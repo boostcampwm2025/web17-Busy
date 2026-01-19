@@ -8,10 +8,13 @@ import { toNotiView } from './noti.mapper';
 import { NotiView } from './noti.types';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { useRouter } from 'next/navigation';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
-type FetchStatus = 'loading' | 'success' | 'empty' | 'error';
+type FetchStatus = 'loading' | 'success' | 'empty' | 'error' | 'no-login';
 
 export default function NotiDrawerContent() {
+  const { isAuthenticated, isLoading } = useAuthMe();
+
   const openModal = useModalStore((s) => s.openModal);
   const router = useRouter();
 
@@ -29,6 +32,11 @@ export default function NotiDrawerContent() {
         setStatus('loading');
         setErrorMessage(null);
 
+        if (!isAuthenticated && !isLoading) {
+          setStatus('no-login');
+          return;
+        }
+
         const data = (await fetchNotis()) as NotiResponseDto[];
 
         if (!isActive) return;
@@ -43,11 +51,12 @@ export default function NotiDrawerContent() {
       }
     };
 
-    void run();
+    run();
+
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [isAuthenticated, isLoading]);
 
   const handleClickNoti = (noti: NotiView) => {
     if (!noti.isRead) {
@@ -67,10 +76,10 @@ export default function NotiDrawerContent() {
   };
 
   const renderBody = () => {
-    if (status === 'loading') return <div className="p-6 text-sm text-gray-400">불러오는 중...</div>;
-    if (status === 'error') return <div className="p-6 text-sm text-red-500">{errorMessage ?? '오류'}</div>;
-    if (status === 'empty') return <div className="p-6 text-sm text-gray-400">알림이 없습니다.</div>;
-
+    if (status === 'loading') return <div className="p-6 text-m text-gray-400">불러오는 중...</div>;
+    if (status === 'error') return <div className="p-6 text-m text-red-500">{errorMessage ?? '오류'}</div>;
+    if (status === 'empty') return <div className="p-6 text-m text-gray-400">알림이 없습니다.</div>;
+    if (status === 'no-login') return <div className="p-6 text-m text-gray-400">로그인 후 확인해 주세요.</div>;
     return (
       <div className="space-y-4 p-2">
         {items.map((noti) => (
