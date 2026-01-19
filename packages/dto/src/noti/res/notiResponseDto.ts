@@ -1,12 +1,24 @@
 import { UserDto } from '../../user';
 import { NotiType } from '../noti-type.enum';
 
+export enum NotiRelatedType {
+  POST = 'post',
+  USER = 'user',
+}
+
+export enum NotiThumbnailShapeType {
+  CIRCLE = 'circle',
+  SQUARE = 'square',
+}
+
 export class NotiResponseDto {
-  notiId: string;
+  id: string;
   actor: UserDto;
   type: NotiType;
-  relatedId?: string | null;
+  relatedId: string;
+  relatedType: NotiRelatedType;
   isRead: boolean;
   createdAt: string;
-  imgUrl: string;
+  thumbnailUrl: string | null;
+  thumbnailShape: NotiThumbnailShapeType;
 }

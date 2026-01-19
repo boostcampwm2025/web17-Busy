@@ -10,6 +10,7 @@ import { useModalStore, MODAL_TYPES } from '@/stores';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
+import { NotiDrawerContent } from '../noti';
 
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { performLogout } from '@/hooks/auth/client/logout';
@@ -165,7 +166,7 @@ export default function Sidebar() {
       </Drawer>
 
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
-        <div className="flex h-full justify-center items-center text-lg">알림 드로어</div>
+        <NotiDrawerContent />
       </Drawer>
 
       <Drawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
