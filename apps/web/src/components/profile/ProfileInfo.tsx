@@ -2,6 +2,7 @@
 
 import { DEFAULT_IMGAES } from '@/constants/defaultImages';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import Image from 'next/image';
 
 // TODO: dto로 대체
 interface ProfileInfoProps {
@@ -27,8 +28,8 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
       <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10 mb-8">
         {/* 프로필 이미지 아바타 */}
         <div className="shrink-0">
-          <div className="w-28 h-28 md:w-40 md:h-40 rounded-full border-4 border-primary p-1 bg-white shadow-[3px_3px_0px_0px_#00214D]">
-            <img src={profileImgUrl ?? DEFAULT_IMGAES.PROFILE} alt={nickname} className="w-full h-full object-cover rounded-full" />
+          <div className="relative w-28 h-28 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-primary p-1 bg-white shadow-[3px_3px_0px_0px_#00214D]">
+            <Image src={profileImgUrl ?? DEFAULT_IMGAES.PROFILE} alt={nickname} fill className="object-cover" />
           </div>
         </div>
 
