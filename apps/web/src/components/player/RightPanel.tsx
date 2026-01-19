@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { QueueList, MiniPlayerBar, MobileQueueModal, NowPlaying } from './index';
-import { useItunesHook } from '@/hooks';
-import { usePlayerStore } from '@/stores';
-import { useQueueSync } from '@/hooks/useQueueSync';
+import { QueueList, MiniPlayerBar, NowPlaying } from './index';
+import { useItunesHook, useQueueSync, useGuestQueueSession } from '@/hooks';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { usePlayerStore, useModalStore, MODAL_TYPES } from '@/stores';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
   if (!currentMusicId) return -1;
@@ -12,9 +11,19 @@ const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): nu
 };
 
 export default function RightPanel() {
-  useQueueSync();
+  // 사용자가 로그인이 된 상태인지를 확인해 준다.
+  const { isAuthenticated, isLoading } = useAuthMe();
+  const enableServerSync = isAuthenticated && !isLoading;
+  const enableGuestSession = !isAuthenticated && !isLoading;
+
+  // 현재 재생목록을 보여줄 때 로그인 여부로 인해 결과가 달라져야 한다.
+  useQueueSync({ enabled: enableServerSync });
+  // 비로그인 시에는 세션 스토리지로 현재 재생목록 상태를 새로고침 시에도 유지한다.
+  useGuestQueueSession(enableGuestSession);
+
   const { positionMs, durationMs } = useItunesHook();
-  const [isMobileQueueOpen, setIsMobileQueueOpen] = useState(false);
+  const { openModal, closeModal, isOpen, modalType } = useModalStore();
+  const isQueueOpen = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
 
   const currentMusic = usePlayerStore((state) => state.currentMusic);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
@@ -47,8 +56,13 @@ export default function RightPanel() {
   const handlePrev = () => playPrev();
   const handleNext = () => playNext();
 
-  const handleToggleQueue = () => setIsMobileQueueOpen((prev) => !prev);
-  const handleCloseMobileQueue = () => setIsMobileQueueOpen(false);
+  const handleToggleQueue = () => {
+    if (isQueueOpen) {
+      closeModal();
+      return;
+    }
+    openModal(MODAL_TYPES.MOBILE_QUEUE);
+  };
 
   const handlePlayFromQueue = (music: (typeof queue)[number]) => {
     playMusic(music);
@@ -66,25 +80,13 @@ export default function RightPanel() {
         isPlaying={isPlaying}
         canPrev={canPrev}
         canNext={canNext}
-        isQueueOpen={isMobileQueueOpen}
+        isQueueOpen={isQueueOpen}
         onTogglePlay={handleTogglePlay}
         onPrev={handlePrev}
         onNext={handleNext}
         onToggleQueue={handleToggleQueue}
         onPost={handleDisabledPost}
         onSave={handleDisabledSave}
-      />
-
-      <MobileQueueModal
-        isOpen={isMobileQueueOpen}
-        queue={queue}
-        currentMusicId={currentMusic?.musicId ?? null}
-        onClose={handleCloseMobileQueue}
-        onClear={handleClearQueue}
-        onPlay={handlePlayFromQueue}
-        onRemove={handleRemoveFromQueue}
-        onMoveUp={handleMoveUp}
-        onMoveDown={handleMoveDown}
       />
 
       <section className="hidden lg:flex flex-col h-full w-full bg-white">

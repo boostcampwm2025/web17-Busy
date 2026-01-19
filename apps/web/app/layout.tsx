@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Suspense } from 'react';
-import { Header, Sidebar, RightPanel, ModalContainer } from '@/components';
+import { Header, Sidebar, RightPanel, ModalContainer, LoadingSpinner } from '@/components';
 import SpotifyTokenFromHash from '@/hooks/auth/client/SpotifyTokenFromHash';
 import AuthLoginQueryHandler from '@/hooks/auth/client/AuthLoginQueryHandler';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="kr">
       <body>
         <SpotifyTokenFromHash />
-        <Suspense fallback={null}>
+        <Suspense fallback={<LoadingSpinner />}>
           <AuthLoginQueryHandler />
         </Suspense>
         <ModalContainer />

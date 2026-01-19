@@ -73,11 +73,7 @@ export default function Sidebar() {
     openModal(MODAL_TYPES.WRITE);
   };
 
-  const handlerOpenLoginModal = () => {
-    openModal(MODAL_TYPES.LOGIN);
-  };
-
-  const handleAuthButtonClick = async () => {
+  const handlerOpenLoginModal = async () => {
     if (isLoading) return;
 
     if (!isAuthenticated) {
@@ -149,7 +145,7 @@ export default function Sidebar() {
         {/* 로그인/로그아웃 토글 버튼 */}
         <button
           type="button"
-          onClick={() => void handleAuthButtonClick()}
+          onClick={handlerOpenLoginModal}
           disabled={isLoading}
           className="flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed"
           title={isAuthenticated ? '로그아웃' : '로그인'}

@@ -101,7 +101,7 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
 
             return (
               <li
-                key={music.musicId}
+                key={`${music.musicId}-${index}`}
                 className={`flex items-center gap-3 p-3 rounded-xl border-2 ${
                   isCurrent ? 'border-primary bg-white' : 'border-transparent hover:border-gray-3 hover:bg-white'
                 }`}

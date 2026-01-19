@@ -2,41 +2,50 @@ import { useEffect, useState } from 'react';
 import { usePlayerStore } from '@/stores';
 import { getNowPlaylist, updateNowPlaylist } from '@/api/internal/now-playlist';
 
-export const useQueueSync = () => {
+type Options = { enabled: boolean };
+
+export const useQueueSync = ({ enabled }: Options) => {
   const queue = usePlayerStore((s) => s.queue);
   const initializeQueue = usePlayerStore((s) => s.initializeQueue);
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [syncEnabled, setSyncEnabled] = useState(true);
 
-  // 컴포넌트 마운트 시 최초 1회 실행
+  // enabled가 false면 서버와 완전 분리
   useEffect(() => {
+    if (!enabled) {
+      setIsLoaded(false);
+      setSyncEnabled(true);
+      return;
+    }
+
     const fetchInitialQueue = async () => {
       try {
         const serverQueue = await getNowPlaylist();
-
         initializeQueue(serverQueue);
-        setIsLoaded(true);
-      } catch (error) {
-        console.error('불러오기 실패:', error);
+      } catch {
+        // 실패 시 sync 중단(백엔드 미구현/에러 폭주 방지)
+        setSyncEnabled(false);
+      } finally {
         setIsLoaded(true);
       }
     };
 
-    fetchInitialQueue();
-  }, [initializeQueue]);
+    void fetchInitialQueue();
+  }, [enabled, initializeQueue]);
 
-  // Queue 변경 감지 및 저장 (디바운스 적용)
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!enabled || !isLoaded || !syncEnabled) return;
 
     const timer = setTimeout(async () => {
       try {
         await updateNowPlaylist(queue);
-      } catch (error) {
-        console.error('동기화 실패:', error);
+      } catch {
+        // 실패 시 sync 중단(반복 에러 방지)
+        setSyncEnabled(false);
       }
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [queue, isLoaded]);
+  }, [enabled, queue, isLoaded, syncEnabled]);
 };
