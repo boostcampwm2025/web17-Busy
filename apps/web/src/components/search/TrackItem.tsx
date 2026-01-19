@@ -1,17 +1,17 @@
 'use client';
 
-import { MusicResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Play, PlusCircle } from 'lucide-react';
 
 interface TrackItemProps {
-  music: MusicResponseDto;
+  music: Music;
 
   /** 보관함/작성 등 후속 이슈에서 연결 */
   disabledActions?: boolean;
 
-  onPlay?: (music: MusicResponseDto) => void;
-  onAddToArchive?: (music: MusicResponseDto) => void;
-  onOpenWrite?: (music: MusicResponseDto) => void;
+  onPlay?: (music: Music) => void;
+  onAddToArchive?: (music: Music) => void;
+  onOpenWrite?: (music: Music) => void;
 }
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';

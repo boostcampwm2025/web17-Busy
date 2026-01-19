@@ -6,7 +6,7 @@ import type { Playlist } from '@/types';
 import { searchItunesSongs } from '@/api';
 import { itunesSongToMusic } from '@/mappers';
 import { useDebouncedValue } from '@/hooks';
-import { MusicProvider, MusicResponseDto } from '@repo/dto';
+import { MusicProvider, MusicResponseDto as Music } from '@repo/dto';
 
 type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
@@ -16,7 +16,7 @@ const DEFAULT_LIMIT = 20;
 const COUNTRY: 'KR' = 'KR';
 
 // 목업 데이터 | 음악, {내 플레이리스트}
-const MOCK_MUSICS: MusicResponseDto[] = [
+const MOCK_MUSICS: Music[] = [
   {
     id: '11111111-1111-1111-1111-111111111111',
     title: 'we cant be friends',
@@ -70,7 +70,7 @@ interface MusicSearchProps {
   setSearchQuery: (query: string) => void;
   isSearchOpen: boolean;
   setIsSearchOpen: (isOpen: boolean) => void;
-  onAddMusic: (music: MusicResponseDto) => void;
+  onAddMusic: (music: Music) => void;
   onAddPlaylist: (playlist: Playlist) => void;
 }
 
@@ -80,7 +80,7 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
 
   const [status, setStatus] = useState<SearchStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [results, setResults] = useState<MusicResponseDto[]>([]);
+  const [results, setResults] = useState<Music[]>([]);
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -174,7 +174,7 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
     onAddPlaylist(playlist);
   };
 
-  const handleAddMusicClick = (music: MusicResponseDto) => {
+  const handleAddMusicClick = (music: Music) => {
     onAddMusic(music);
   };
 

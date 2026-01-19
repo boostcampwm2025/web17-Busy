@@ -1,10 +1,10 @@
 'use client';
 
-import { MusicResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle } from 'lucide-react';
 
 interface QueueListProps {
-  queue: MusicResponseDto[];
+  queue: Music[];
   currentMusicId: string | null;
   onClear: () => void;
   onRemove: (musicId: string) => void;
@@ -12,7 +12,7 @@ interface QueueListProps {
   onMoveDown: (index: number) => void;
 
   /** 추가: 큐 아이템 선택(현재 재생 곡 변경) */
-  onSelect: (music: MusicResponseDto) => void;
+  onSelect: (music: Music) => void;
 }
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';

@@ -1,7 +1,7 @@
-import { MusicResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music } from '@repo/dto';
 
 export interface Playlist {
   playlistId: string;
   title: string;
-  musics: MusicResponseDto[];
+  musics: Music[];
 }

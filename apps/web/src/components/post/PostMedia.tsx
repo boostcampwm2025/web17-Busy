@@ -2,18 +2,18 @@
 
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { usePostMedia } from '@/hooks';
-import { MusicResponseDto, PostResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 type Variant = 'card' | 'modal';
 
 type Props = {
-  post: PostResponseDto;
+  post: Post;
   variant: Variant;
 
   currentMusicId: string | null;
   isPlayingGlobal: boolean;
 
-  onPlay: (music: MusicResponseDto) => void;
+  onPlay: (music: Music) => void;
 
   /** 카드에서만: 컨테이너 클릭 시 상세 열기 */
   onClickContainer?: () => void;

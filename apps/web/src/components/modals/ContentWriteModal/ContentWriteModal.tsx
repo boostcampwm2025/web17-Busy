@@ -6,14 +6,14 @@ import { Playlist } from '@/types';
 import { CoverImgUploader } from './CoverImgUploader';
 import { MusicSearch } from './MusicSearch';
 import { SelectedMusicList } from './SelectedMusicList';
-import { MusicResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music } from '@repo/dto';
 import { DEFAULT_IMGAES } from '@/constants/defaultImages';
 
-export const ContentWriteModal = ({ initialMusic }: { initialMusic?: MusicResponseDto }) => {
+export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
   const { closeModal } = useModalStore();
 
   // --- 지역상태 관리 ---
-  const [selectedMusics, setSelectedMusics] = useState<MusicResponseDto[]>(initialMusic ? [initialMusic] : []);
+  const [selectedMusics, setSelectedMusics] = useState<Music[]>(initialMusic ? [initialMusic] : []);
   const [content, setContent] = useState('');
 
   const [customCoverPreview, setCustomCoverPreview] = useState<string | null>(null);
@@ -81,7 +81,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: MusicRespon
   };
 
   // 음악 추가
-  const handleAddMusic = (music: MusicResponseDto) => {
+  const handleAddMusic = (music: Music) => {
     // 중복 체크
     if (!selectedMusics.find((m) => m.id === music.id)) {
       setSelectedMusics([...selectedMusics, music]);
