@@ -40,7 +40,7 @@ export default function AuthLoginQueryHandler() {
 
     // 이미 로그인 모달이 열려있으면 중복 오픈 방지
     if (!(isOpen && modalType === MODAL_TYPES.LOGIN)) {
-      openModal(MODAL_TYPES.LOGIN, authError);
+      openModal(MODAL_TYPES.LOGIN, { authError });
     }
 
     // 쿼리 제거 (반복 오픈 방지)

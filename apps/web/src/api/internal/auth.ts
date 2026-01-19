@@ -12,9 +12,7 @@ export async function authMe() {
 
 export async function googleExchange(args: { code: string; verifier: string }) {
   const backendUrl = process.env.INTERNAL_API_URL!;
-  const url = new URL('auth/google/exchange', backendUrl);
-
-  const res = await fetch(url, {
+  const res = await fetch(`${backendUrl}/auth/google/exchange`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(args),
@@ -33,8 +31,7 @@ export async function spotifyToken() {
 
 export async function spotifyExchange(args: { code: string; verifier: string }) {
   const backendUrl = process.env.INTERNAL_API_URL!;
-  const url = new URL('auth/spotify/exchange', backendUrl);
-  const res = await fetch(url, {
+  const res = await fetch(`${backendUrl}/auth/spotify/exchange`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(args),
