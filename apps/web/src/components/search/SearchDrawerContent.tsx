@@ -8,7 +8,7 @@ import { SearchInput, SearchStateMessage, TrackItem } from './index';
 import { useDebouncedValue, useMusicActions } from '@/hooks';
 import { searchItunesSongs } from '@/api';
 import { itunesSongToMusic } from '@/mappers';
-import { MusicResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music } from '@repo/dto';
 
 type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
@@ -23,7 +23,7 @@ function SearchDrawerInner() {
 
   const [status, setStatus] = useState<SearchStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [results, setResults] = useState<MusicResponseDto[]>([]);
+  const [results, setResults] = useState<Music[]>([]);
   const [openPreviewMusicId, setOpenPreviewMusicId] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);

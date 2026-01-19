@@ -1,11 +1,11 @@
 'use client';
 
-import { MusicResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music } from '@repo/dto';
 import { Pause, Play, Shuffle, SkipBack, SkipForward, Repeat, PlusCircle, FolderPlus } from 'lucide-react';
 import { useMemo } from 'react';
 
 interface NowPlayingProps {
-  currentMusic: MusicResponseDto | null;
+  currentMusic: Music | null;
   isPlaying: boolean;
 
   canPrev: boolean;

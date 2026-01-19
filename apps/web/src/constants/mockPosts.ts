@@ -1,4 +1,4 @@
-import { MusicProvider, MusicResponseDto, PostResponseDto } from '@repo/dto';
+import { MusicProvider, MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 const now = Date.now();
 const minutes = (n: number) => n * 60 * 1000;
@@ -7,7 +7,7 @@ const days = (n: number) => n * 24 * 60 * 60 * 1000;
 
 const isoAgo = (msAgo: number) => new Date(now - msAgo).toISOString();
 
-const MOCK_MUSICS: MusicResponseDto[] = [
+const MOCK_MUSICS: Music[] = [
   {
     id: 'm-1',
     provider: MusicProvider.ITUNES,
@@ -82,7 +82,7 @@ const USER_3 = {
   profileImgUrl: 'https://picsum.photos/seed/user-3/100/100',
 };
 
-export const MOCK_POSTS: PostResponseDto[] = [
+export const MOCK_POSTS: Post[] = [
   {
     id: 'p-1',
     author: USER_1,

@@ -3,16 +3,16 @@
 import { X, Trash2, ChevronUp, ChevronDown, XCircle, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores';
-import { MusicResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music } from '@repo/dto';
 
 type MobileQueueRowProps = {
-  music: MusicResponseDto;
+  music: Music;
   index: number;
   isCurrent: boolean;
   isFirst: boolean;
   isLast: boolean;
 
-  onPlay: (music: MusicResponseDto) => void;
+  onPlay: (music: Music) => void;
   onRemove: (musicId: string) => void;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;

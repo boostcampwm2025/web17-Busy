@@ -1,11 +1,11 @@
-import { MusicResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music } from '@repo/dto';
 
 export interface NowPlayingState {
-  currentMusic: MusicResponseDto | null;
+  currentMusic: Music | null;
   isPlaying: boolean;
 }
 
 export interface QueueItem {
-  music: MusicResponseDto;
+  music: Music;
   orderIndex: number;
 }

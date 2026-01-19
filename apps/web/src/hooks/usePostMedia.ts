@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import { MusicResponseDto, PostResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 type Args = {
-  post: PostResponseDto;
+  post: Post;
   currentMusicId: string | null;
   isPlayingGlobal: boolean;
 };
@@ -14,7 +14,7 @@ export function usePostMedia({ post, currentMusicId, isPlayingGlobal }: Args) {
 
   const isMulti = post.musics.length > 1;
 
-  const activeMusic = useMemo<MusicResponseDto | null>(() => post.musics[activeIndex] ?? null, [post.musics, activeIndex]);
+  const activeMusic = useMemo<Music | null>(() => post.musics[activeIndex] ?? null, [post.musics, activeIndex]);
   const coverUrl = activeMusic?.albumCoverUrl ?? post.coverImgUrl;
 
   const isActivePlaying = Boolean(activeMusic && isPlayingGlobal && currentMusicId === activeMusic.id);

@@ -8,7 +8,7 @@ import { useScrollLock } from '@/hooks';
 import { formatRelativeTime } from '@/utils';
 import { buildMockComments, EMPTY_POST } from '@/constants';
 import { PostMedia, LoadingSpinner } from '@/components';
-import { MusicResponseDto, PostResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 export const PostCardDetailModal = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
@@ -24,7 +24,7 @@ export const PostCardDetailModal = () => {
 
   // postId를 단일 진실로 사용
   const postId = enabled ? (modalProps?.postId as string | undefined) : undefined;
-  const passedPost = enabled ? ((modalProps?.post as PostResponseDto | undefined) ?? undefined) : undefined;
+  const passedPost = enabled ? ((modalProps?.post as Post | undefined) ?? undefined) : undefined;
 
   // post가 있더라도 postId와 일치할 때만 신뢰
   const matchedPost = postId && passedPost?.id === postId ? passedPost : undefined;
@@ -49,7 +49,7 @@ export const PostCardDetailModal = () => {
     e.stopPropagation();
   };
 
-  const handlePlay = (music: MusicResponseDto) => {
+  const handlePlay = (music: Music) => {
     playMusic(music);
   };
 

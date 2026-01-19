@@ -3,10 +3,10 @@
 import { usePlayerStore } from '@/stores';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { PostCard } from '@/components';
-import { MusicResponseDto, PostResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 interface FeedListProps {
-  posts: PostResponseDto[];
+  posts: Post[];
 }
 
 export default function FeedList({ posts }: FeedListProps) {
@@ -16,7 +16,7 @@ export default function FeedList({ posts }: FeedListProps) {
 
   const openModal = useModalStore((s) => s.openModal);
 
-  const handlePlay = (music: MusicResponseDto) => {
+  const handlePlay = (music: Music) => {
     playMusic(music);
   };
 
@@ -25,7 +25,7 @@ export default function FeedList({ posts }: FeedListProps) {
     void userId;
   };
 
-  const handleOpenDetail = (post: PostResponseDto) => {
+  const handleOpenDetail = (post: Post) => {
     openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, post });
   };
 

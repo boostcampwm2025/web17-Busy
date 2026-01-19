@@ -1,4 +1,4 @@
-import { MusicResponseDto } from '@repo/dto';
+import { MusicResponseDto as Music } from '@repo/dto';
 import { create } from 'zustand';
 
 /**
@@ -8,9 +8,9 @@ import { create } from 'zustand';
  * - queue: 재생 큐(순서 유지)
  */
 interface PlayerState {
-  currentMusic: MusicResponseDto | null;
+  currentMusic: Music | null;
   isPlaying: boolean;
-  queue: MusicResponseDto[];
+  queue: Music[];
 }
 
 /**
@@ -19,48 +19,47 @@ interface PlayerState {
  * - add/remove/reorder/clear: 큐 편집
  */
 interface PlayerActions {
-  playMusic: (music: MusicResponseDto) => void;
+  playMusic: (music: Music) => void;
   togglePlay: () => void;
 
   playPrev: () => void;
   playNext: () => void;
 
-  addToQueue: (music: MusicResponseDto | MusicResponseDto[]) => void;
+  addToQueue: (music: Music | Music[]) => void;
   removeFromQueue: (musicId: string) => void;
 
   moveUp: (index: number) => void;
   moveDown: (index: number) => void;
 
   clearQueue: () => void;
-  initializeQueue: (queue: MusicResponseDto[]) => void;
+  initializeQueue: (queue: Music[]) => void;
 }
 
 type PlayerStore = PlayerState & PlayerActions;
 
 /** 현재 곡과 대상 곡이 같은지 판별 (musicId 기준) */
-const isSameMusic = (a: MusicResponseDto | null, b: MusicResponseDto): boolean => a?.id === b.id;
+const isSameMusic = (a: Music | null, b: Music): boolean => a?.id === b.id;
 
 /** addToQueue가 단일/배열 둘 다 받기 때문에 내부에서는 배열로 정규화 */
-const normalizeToArray = (music: MusicResponseDto | MusicResponseDto[]): MusicResponseDto[] => (Array.isArray(music) ? music : [music]);
+const normalizeToArray = (music: Music | Music[]): Music[] => (Array.isArray(music) ? music : [music]);
 
 /** 큐에 특정 musicId가 이미 존재하는지 */
-const hasMusic = (queue: MusicResponseDto[], musicId: string): boolean => queue.some((item) => item.id === musicId);
+const hasMusic = (queue: Music[], musicId: string): boolean => queue.some((item) => item.id === musicId);
 
 /**
  * 큐에 곡이 없으면 맨 뒤에 삽입.
  * playMusic에서 "재생한 곡이 큐에 없으면 맨 뒤 삽입" 규칙을 담당.
  */
-const appendIfMissing = (queue: MusicResponseDto[], music: MusicResponseDto): MusicResponseDto[] =>
-  hasMusic(queue, music.id) ? queue : [...queue, music];
+const appendIfMissing = (queue: Music[], music: Music): Music[] => (hasMusic(queue, music.id) ? queue : [...queue, music]);
 
 /** 큐에서 특정 곡 제거 */
-const removeById = (queue: MusicResponseDto[], musicId: string): MusicResponseDto[] => queue.filter((item) => item.id !== musicId);
+const removeById = (queue: Music[], musicId: string): Music[] => queue.filter((item) => item.id !== musicId);
 
 /**
  * 큐의 두 인덱스를 swap.
  * noUncheckedIndexedAccess 옵션 때문에 undefined 가능성을 가드함.
  */
-const swap = (queue: MusicResponseDto[], from: number, to: number): MusicResponseDto[] => {
+const swap = (queue: Music[], from: number, to: number): Music[] => {
   const next = [...queue];
   const fromItem = next[from];
   const toItem = next[to];
@@ -74,14 +73,14 @@ const swap = (queue: MusicResponseDto[], from: number, to: number): MusicRespons
   return next;
 };
 
-const ensureCurrentInQueue = (queue: MusicResponseDto[], current: MusicResponseDto | null): MusicResponseDto[] => {
+const ensureCurrentInQueue = (queue: Music[], current: Music | null): Music[] => {
   if (!current) {
     return queue;
   }
   return appendIfMissing(queue, current);
 };
 
-const findCurrentIndex = (queue: MusicResponseDto[], current: MusicResponseDto | null): number => {
+const findCurrentIndex = (queue: Music[], current: Music | null): number => {
   if (!current) {
     return -1;
   }
@@ -89,9 +88,9 @@ const findCurrentIndex = (queue: MusicResponseDto[], current: MusicResponseDto |
 };
 
 // 서버에 중복이 남아있거나, 과거 데이터가 중복이면 FE에서도 한 번 정리해주는 작업 필요
-const dedupeQueue = (queue: MusicResponseDto[]): MusicResponseDto[] => {
+const dedupeQueue = (queue: Music[]): Music[] => {
   const seen = new Set<string>();
-  const out: MusicResponseDto[] = [];
+  const out: Music[] = [];
   for (const m of queue) {
     if (seen.has(m.id)) continue;
     seen.add(m.id);
@@ -116,7 +115,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
    * 2) 다른 곡이면: 현재곡 교체 + 재생 상태 true + 큐에 없으면 맨 뒤 삽입
    */
 
-  initializeQueue: (queue: MusicResponseDto[]) => {
+  initializeQueue: (queue: Music[]) => {
     // 서버에서 가져온 데이터로 큐 교체
     set({ queue: dedupeQueue(queue) });
   },
