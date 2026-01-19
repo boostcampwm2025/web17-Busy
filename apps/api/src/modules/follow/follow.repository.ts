@@ -20,15 +20,13 @@ export class FollowRepository {
     });
   }
 
-  async checkIsFollowed(
+  async removeFollow(
     followingUserId: string,
     followedUserId: string,
-  ): Promise<boolean> {
-    return await this.repository.exist({
-      where: {
-        followingUserId,
-        followedUserId,
-      },
+  ): Promise<void> {
+    await this.repository.delete({
+      followingUserId,
+      followedUserId,
     });
   }
 }

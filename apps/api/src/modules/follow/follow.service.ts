@@ -20,10 +20,7 @@ export class FollowService {
   async removeFollow(userId: string, deleteFollowDto: DeleteFollowDto) {
     const { orderUserId } = deleteFollowDto;
 
-    const isFollowd = await this.followRepository.checkIsFollowed(
-      userId,
-      orderUserId,
-    );
+    await this.followRepository.removeFollow(userId, orderUserId);
     return { message: '팔로우 해제 성공' };
   }
 }
