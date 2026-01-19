@@ -3,6 +3,8 @@
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import Image from 'next/image';
+import ProfileActionButton from './ProfileActionButton';
+import FollowStats from './FollowStats';
 
 // TODO: dto로 대체
 interface ProfileInfoProps {
@@ -39,41 +41,11 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
             <h2 className="text-2xl font-black text-primary md:mr-6">{nickname}</h2>
 
             {/* 리캡 생성/팔로우 버튼 */}
-            {isMyProfile ? (
-              <button
-                title="프로필 리캡 생성"
-                className="flex items-center px-6 py-2 bg-accent-yellow border-2 border-primary text-primary font-black rounded-full hover:bg-accent hover:shadow-[2px_2px_0px_0px_#00214D] transition-all"
-              >
-                Recap
-              </button>
-            ) : isFollowing ? (
-              <button
-                title="팔로우 취소"
-                className="px-6 py-2 bg-primary text-white border-2 border-primary font-bold rounded-full hover:bg-secondary hover:border-secondary hover:shadow-[2px_2px_0px_0px_#00EBC7] transition-all"
-              >
-                팔로우 취소
-              </button>
-            ) : (
-              <button
-                title="팔로우"
-                className="px-6 py-2 bg-primary text-white border-2 border-primary font-bold rounded-full hover:bg-secondary hover:border-secondary hover:shadow-[2px_2px_0px_0px_#00EBC7] transition-all"
-              >
-                팔로우
-              </button>
-            )}
+            <ProfileActionButton isMyProfile={isMyProfile} isFollowing={isFollowing} />
           </div>
 
           {/* 팔로우/팔로잉 사용자 정보 */}
-          <div className="flex items-center justify-center md:justify-start space-x-6 mb-4 text-primary">
-            <button title="팔로워 목록" className="flex flex-col-reverse items-center md:flex-row ">
-              <span className="text-sm font-medium text-gray-500">팔로워</span>
-              <span className="font-bold text-xl md:ml-2">{followerCount}</span>
-            </button>
-            <button title="팔로잉 목록" className="flex flex-col-reverse items-center md:flex-row ">
-              <span className="text-sm font-medium text-gray-500">팔로잉</span>
-              <span className="font-bold text-xl md:ml-2">{followingCount}</span>
-            </button>
-          </div>
+          <FollowStats followerCount={followerCount} followingCount={followingCount} />
 
           {/* 프로필 소개란 */}
           <p className="text-primary font-medium whitespace-pre-wrap leading-relaxed text-justify max-w-md lg:max-w-lg mx-auto md:mx-0">{bio}</p>
