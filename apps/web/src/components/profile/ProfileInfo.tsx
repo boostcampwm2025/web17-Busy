@@ -20,7 +20,7 @@ export default function ProfileInfo({ profile, isMyProfile = false }: ProfileInf
   const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
   return (
     <section className="max-w-4xl">
-      <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10 mb-12">
+      <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10 mb-8">
         {/* 프로필 이미지 아바타 */}
         <div className="shrink-0">
           <div className="w-28 h-28 md:w-40 md:h-40 rounded-full border-4 border-primary p-1 bg-white shadow-[3px_3px_0px_0px_#00214D]">
