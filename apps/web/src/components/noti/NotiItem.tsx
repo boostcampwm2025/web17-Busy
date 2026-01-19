@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { NotiView } from './noti.types';
+import { DEFAULT_IMAGES } from '@/constants';
+import { coalesceImageSrc } from '@/utils';
 
 export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (noti: NotiView) => void }) {
   const router = useRouter();
@@ -27,10 +29,12 @@ export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (
       {!noti.isRead && <div className="absolute top-4 right-4 z-20 w-3 h-3 bg-secondary rounded-full ring-2 ring-white" />}
 
       {/* 썸네일 */}
-      <div className="relative flex-shrink-0">
+      <div className="relative shrink-0">
         <div className="w-12 h-12">
           <img
-            src={noti.thumbnailUrl ?? '/images/default-avatar.png'}
+            // src={noti.thumbnailUrl ?? DEFAULT_IMAGES.ALBUM}
+            //src={noti.thumbnailUrl?.trim() || DEFAULT_IMAGES.ALBUM}
+            src={coalesceImageSrc(noti.thumbnailUrl, DEFAULT_IMAGES.ALBUM)}
             alt="noti"
             className={`w-full h-full object-cover border border-gray-200 ${thumbShape}`}
           />
@@ -39,7 +43,7 @@ export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (
 
       {/* 본문 */}
       <div className="flex-1 min-w-0 pt-0.5">
-        <p className="text-sm text-primary leading-snug break-words">
+        <p className="text-sm text-primary leading-snug wrap-break-word">
           {/* ✅ 닉네임 hover tooltip */}
           <span className="relative inline-block">
             <span className="font-bold mr-1 hover:underline" onClick={handleActorClick} role="link">
@@ -63,7 +67,8 @@ export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (
               >
                 <button type="button" className="w-full flex items-center gap-3 text-left" onClick={handleActorClick}>
                   <img
-                    src={noti.actorProfileImgUrl ?? '/images/default-avatar.png'}
+                    //src={noti.actorProfileImgUrl ?? DEFAULT_IMAGES.PROFILE}
+                    src={coalesceImageSrc(noti.actorProfileImgUrl, DEFAULT_IMAGES.PROFILE)}
                     alt={noti.actorNickname}
                     className="w-10 h-10 rounded-full border border-gray-200 object-cover"
                   />

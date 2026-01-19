@@ -4,9 +4,9 @@ import { useMemo, useState, useEffect } from 'react';
 import { Heart, MoreHorizontal } from 'lucide-react';
 
 import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
-import { useScrollLock } from '@/hooks';
-import { formatRelativeTime } from '@/utils';
-import { buildMockComments, EMPTY_POST } from '@/constants';
+import { useScrollLock, usePostDetail } from '@/hooks';
+import { formatRelativeTime, coalesceImageSrc } from '@/utils';
+import { buildMockComments, EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { PostMedia, LoadingSpinner } from '@/components';
 import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
@@ -26,17 +26,22 @@ export const PostCardDetailModal = () => {
   const postId = enabled ? (modalProps?.postId as string | undefined) : undefined;
   const passedPost = enabled ? ((modalProps?.post as Post | undefined) ?? undefined) : undefined;
 
-  // post가 있더라도 postId와 일치할 때만 신뢰
-  const matchedPost = postId && passedPost?.id === postId ? passedPost : undefined;
-
-  // 잘못된 상태면 모달 닫기(안전)
+  // postId 없으면 모달을 안전하게 닫기
   useEffect(() => {
     if (!enabled) return;
     if (!postId) closeModal();
   }, [enabled, postId, closeModal]);
 
-  // Hook order 안정화
-  const safePost = matchedPost ?? EMPTY_POST;
+  // post 로딩(있으면 즉시, 없으면 fetch)
+  const { post, isLoading, error } = usePostDetail({
+    enabled,
+    postId,
+    passedPost,
+  });
+
+  // hook order 안정화용 safePost
+  const safePost = post ?? EMPTY_POST;
+
   const createdAtText = useMemo(() => formatRelativeTime(safePost.createdAt), [safePost.createdAt]);
   const comments = useMemo(() => buildMockComments(safePost), [safePost.id]);
 
@@ -59,14 +64,18 @@ export const PostCardDetailModal = () => {
 
   const handleToggleLike = () => {
     // TODO(#next): 좋아요 API 연동
-    // - POST /post/{postId}/like
-    // - DELETE /post/{postId}/like
-    // - Optimistic UI 여부 결정(카운트/하트 토글)
+    // - POST /like
+    // - DELETE /like/:postId
+    // - Optimistic UI 여부 결정
   };
 
   const handleSubmitComment = () => {
     // TODO(#next): 댓글 API 연동
   };
+
+  //const profileImg = safePost.author.profileImgUrl ?? DEFAULT_IMAGES.PROFILE;
+  //const profileImg = safePost.author.profileImgUrl?.trim() || DEFAULT_IMAGES.PROFILE;
+  const profileImg = coalesceImageSrc(safePost.author.profileImgUrl, DEFAULT_IMAGES.PROFILE);
 
   return (
     <div
@@ -79,8 +88,14 @@ export const PostCardDetailModal = () => {
         className="bg-white w-full max-w-5xl h-full max-h-[85vh] rounded-2xl border-2 border-primary shadow-2xl flex flex-col md:flex-row overflow-hidden animate-scale-up"
         onClick={handleModalClick}
       >
-        {/* Left: post가 없으면 로딩 패널(추후 postId fetch로 교체) */}
-        {matchedPost ? (
+        {/* Left */}
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : error ? (
+          <div className="flex-1 flex items-center justify-center bg-gray-4">
+            <div className="text-sm font-bold text-gray-500">{error}</div>
+          </div>
+        ) : post ? (
           <PostMedia post={safePost} variant="modal" currentMusicId={currentMusicId} isPlayingGlobal={isPlaying} onPlay={handlePlay} />
         ) : (
           <LoadingSpinner />
@@ -91,11 +106,7 @@ export const PostCardDetailModal = () => {
           {/* Header */}
           <div className="p-4 border-b-2 border-primary/10 flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
-              <img
-                src={safePost.author.profileImgUrl}
-                alt={safePost.author.nickname}
-                className="w-9 h-9 rounded-full border border-primary object-cover"
-              />
+              <img src={profileImg} alt={safePost.author.nickname} className="w-9 h-9 rounded-full border border-primary object-cover" />
               <span className="font-bold text-primary truncate">{safePost.author.nickname}</span>
               <span className="text-xs text-accent-pink font-black shrink-0">• 팔로우</span>
             </div>
@@ -104,11 +115,7 @@ export const PostCardDetailModal = () => {
 
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
             <div className="flex space-x-3">
-              <img
-                src={safePost.author.profileImgUrl}
-                alt={safePost.author.nickname}
-                className="w-9 h-9 rounded-full border border-primary/20 object-cover shrink-0"
-              />
+              <img src={profileImg} alt={safePost.author.nickname} className="w-9 h-9 rounded-full border border-primary/20 object-cover shrink-0" />
               <div className="text-sm min-w-0">
                 <p className="font-bold text-primary mb-1">{safePost.author.nickname}</p>
                 <p className="text-primary/80 leading-relaxed font-medium whitespace-pre-wrap">{safePost.content}</p>
@@ -123,7 +130,8 @@ export const PostCardDetailModal = () => {
                 comments.map((c) => (
                   <div key={c.commentId} className="flex space-x-3 group">
                     <img
-                      src={c.author.profileImgUrl}
+                      //src={c.author.profileImgUrl ?? DEFAULT_IMAGES.PROFILE}
+                      src={coalesceImageSrc(c.author.profileImgUrl, DEFAULT_IMAGES.PROFILE)}
                       alt={c.author.nickname}
                       className="w-9 h-9 rounded-full border border-primary/10 object-cover shrink-0"
                     />
