@@ -2,7 +2,7 @@ import { fetchNotis } from '@/api/noti/fetchNotis';
 import { NotiResponseDto } from '@repo/dto';
 import { create } from 'zustand';
 
-type NotiFetchState = 'idle' | 'loading' | 'success' | 'error';
+type NotiFetchState = 'idle' | 'loading' | 'success' | 'error' | 'no-login';
 
 interface NotiStore {
   notis: NotiResponseDto[];
@@ -11,6 +11,7 @@ interface NotiStore {
   status: NotiFetchState;
   errorMessage: string | null;
 
+  setFetchStatus: (status: NotiFetchState) => void;
   updateNotis: () => Promise<void>;
 }
 
@@ -20,6 +21,8 @@ export const useNotiStore = create<NotiStore>((set) => ({
 
   status: 'idle',
   errorMessage: null,
+
+  setFetchStatus: (status: NotiFetchState) => set({ status }),
 
   updateNotis: async () => {
     set({ status: 'loading', errorMessage: null });
