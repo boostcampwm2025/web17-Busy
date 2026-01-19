@@ -89,12 +89,12 @@ const findCurrentIndex = (queue: MusicResponseDto[], current: MusicResponseDto |
 };
 
 // 서버에 중복이 남아있거나, 과거 데이터가 중복이면 FE에서도 한 번 정리해주는 작업 필요
-const dedupeQueue = (queue: Music[]): Music[] => {
+const dedupeQueue = (queue: MusicResponseDto[]): MusicResponseDto[] => {
   const seen = new Set<string>();
-  const out: Music[] = [];
+  const out: MusicResponseDto[] = [];
   for (const m of queue) {
-    if (seen.has(m.musicId)) continue;
-    seen.add(m.musicId);
+    if (seen.has(m.id)) continue;
+    seen.add(m.id);
     out.push(m);
   }
   return out;
