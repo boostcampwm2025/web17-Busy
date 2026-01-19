@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exchangeSpotifyCodeWithBackend } from '@/hooks/auth/server/spotifyAuth';
 import { SPOTIFY_COOKIE_KEYS } from '@/hooks/auth/config/spotify';
+import { APP_ACCESS_TOKEN_HASH_KEY } from '@/constants/auth';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
 
   // access token - url fragment로 브라우저에 전달
   const url = new URL('/', request.url);
-  url.hash = `spotifyAccessToken=${encodeURIComponent(result.spotifyAccessToken)}&spotifyTokenExpiresIn=${encodeURIComponent(result.spotifyTokenExpiresIn)}`;
+  url.hash = `${APP_ACCESS_TOKEN_HASH_KEY}=${encodeURIComponent(result.appJwt)}&spotifyAccessToken=${encodeURIComponent(result.spotifyAccessToken)}&spotifyTokenExpiresIn=${encodeURIComponent(result.spotifyTokenExpiresIn)}`;
 
   const res = NextResponse.redirect(url);
   deleteTmpCookies(res);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exchangeGoogleCodeWithBackend } from '@/hooks/auth/server/googleAuth';
 import { GOOGLE_AUTH_QUERY_KEYS, GOOGLE_COOKIE_KEYS } from '@/hooks/auth/config/google';
+import { APP_ACCESS_TOKEN_HASH_KEY } from '@/constants/auth';
 
 const JWT_COOKIE_NAME = 'jwt';
 
@@ -26,7 +27,10 @@ export async function GET(request: NextRequest) {
   const result = await exchangeGoogleCodeWithBackend({ code, verifier });
   if (!result.ok) return redirectAuthFail(request, 'token_exchange_failed');
 
-  const res = NextResponse.redirect(new URL('/', request.url));
+  const url = new URL('/', request.url);
+  url.hash = `${APP_ACCESS_TOKEN_HASH_KEY}=${encodeURIComponent(result.appJwt)}`;
+
+  const res = NextResponse.redirect(url);
   deleteTmpCookies(res);
 
   res.cookies.set(JWT_COOKIE_NAME, result.appJwt, {
