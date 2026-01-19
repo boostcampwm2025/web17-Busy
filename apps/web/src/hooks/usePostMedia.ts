@@ -12,21 +12,30 @@ type Args = {
 export function usePostMedia({ post, currentMusicId, isPlayingGlobal }: Args) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const isMulti = post.musics.length > 1;
+  const totalLength = post.musics.length + 1;
+  const isMulti = totalLength > 1;
 
-  const activeMusic = useMemo<Music | null>(() => post.musics[activeIndex] ?? null, [post.musics, activeIndex]);
-  const coverUrl = activeMusic?.albumCoverUrl ?? post.coverImgUrl;
+  const activeMusic = useMemo<Music | null>(() => {
+    if (activeIndex === 0) return null;
+    return post.musics[activeIndex - 1] ?? null;
+  }, [post.musics, activeIndex]);
+
+  // 0번째는 무조건 커버이미지
+  const coverUrl = useMemo(() => {
+    if (activeIndex === 0) return post.coverImgUrl;
+    return activeMusic?.albumCoverUrl ?? post.coverImgUrl;
+  }, [activeIndex, activeMusic, post.coverImgUrl]);
 
   const isActivePlaying = Boolean(activeMusic && isPlayingGlobal && currentMusicId === activeMusic.id);
 
   const prev = useCallback(() => {
     if (!isMulti) return;
-    setActiveIndex((prevIdx) => (prevIdx - 1 < 0 ? post.musics.length - 1 : prevIdx - 1));
+    setActiveIndex((prevIdx) => (prevIdx - 1 < 0 ? totalLength - 1 : prevIdx - 1));
   }, [isMulti, post.musics.length]);
 
   const next = useCallback(() => {
     if (!isMulti) return;
-    setActiveIndex((prevIdx) => (prevIdx + 1) % post.musics.length);
+    setActiveIndex((prevIdx) => (prevIdx + 1) % totalLength);
   }, [isMulti, post.musics.length]);
 
   return {
@@ -38,5 +47,6 @@ export function usePostMedia({ post, currentMusicId, isPlayingGlobal }: Args) {
     isActivePlaying,
     prev,
     next,
+    totalLength,
   };
 }
