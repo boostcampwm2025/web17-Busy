@@ -9,7 +9,8 @@ import { CommentRepository } from './comment.repository';
 import { PostRepository } from '../post/post.repository';
 import { Comment } from './entities/comment.entity';
 
-import { CreateCommentDto, GetCommentsResDto } from '@repo/dto';
+import { CreateCommentDto, GetCommentsResDto, NotiType } from '@repo/dto';
+import { NotiService } from '../noti/noti.service';
 
 @Injectable()
 export class CommentService {
@@ -17,6 +18,7 @@ export class CommentService {
     private readonly commentRepository: CommentRepository,
     private readonly postRepository: PostRepository,
     private readonly dataSource: DataSource,
+    private readonly notiService: NotiService,
   ) {}
 
   // 댓글 생성
@@ -26,7 +28,7 @@ export class CommentService {
   ): Promise<Comment> {
     const { postId, content } = createCommentDto;
 
-    return this.dataSource.transaction(async (manager) => {
+    const txResult = this.dataSource.transaction(async (manager) => {
       // 게시글 존재 확인
       const post = await this.postRepository.findPostById(postId, manager);
       if (!post) {
@@ -45,6 +47,15 @@ export class CommentService {
 
       return comment;
     });
+
+    // 알림 생성은 await 안 함
+    this.notiService.create({
+      type: NotiType.COMMENT,
+      actorId: userId,
+      relatedId: postId,
+    });
+
+    return txResult;
   }
 
   // 댓글 목록 조회 (DTO 매핑 수행)
