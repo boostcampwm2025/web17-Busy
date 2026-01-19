@@ -1,9 +1,10 @@
 'use client';
 
+import React from 'react';
 import NotiActorHoverCard from './NotiActorHoverCard';
 import { NotiView } from './noti.types';
 
-export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (noti: NotiView) => void }) {
+function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (noti: NotiView) => void }) {
   const containerBase = 'relative flex justify-between items-center gap-4 p-3 rounded-xl cursor-pointer transition-colors';
 
   // 읽음/안읽음 차이를 확실히
@@ -41,3 +42,15 @@ export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (
     </div>
   );
 }
+
+export default React.memo(
+  NotiItem,
+  (prev: { noti: NotiView; onClick: (noti: NotiView) => void }, next: { noti: NotiView; onClick: (noti: NotiView) => void }) => {
+    return (
+      prev.noti.id === next.noti.id &&
+      prev.noti.isRead === next.noti.isRead &&
+      prev.noti.actorNickname === next.noti.actorNickname &&
+      prev.noti.actorProfileImgUrl === next.noti.actorProfileImgUrl
+    );
+  },
+);
