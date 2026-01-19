@@ -30,7 +30,7 @@ export function toNotiView(n: NotiResponseDto): NotiView {
 
     messageBody: toNotiMessageBody(n),
 
-    thumbnailUrl: n.thumbnailUrl ?? (n.relatedType === NotiRelatedType.USER ? DEFAULT_IMAGES.PROFILE : DEFAULT_IMAGES.POST),
+    thumbnailUrl: n.thumbnailUrl?.trim() ?? (n.relatedType === NotiRelatedType.USER ? DEFAULT_IMAGES.PROFILE : DEFAULT_IMAGES.POST),
     thumbnailShape: n.thumbnailShape,
 
     relatedId: n.relatedId,
