@@ -33,13 +33,6 @@ export async function GET(request: NextRequest) {
   const res = NextResponse.redirect(url);
   deleteTmpCookies(res);
 
-  res.cookies.set(JWT_COOKIE_NAME, result.appJwt, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-  });
-
   return res;
 }
 
