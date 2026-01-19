@@ -1,6 +1,7 @@
 'use client';
 
 import { authMe, tmpLogin } from '@/api';
+import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
 import { useModalStore } from '@/stores';
 import React, { useState } from 'react';
 
@@ -13,10 +14,11 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
     if (loading) return;
     setLoading(true);
 
-    await tmpLogin(userId);
+    const appJwt = await tmpLogin(userId);
+    sessionStorage.setItem(APP_ACCESS_TOKEN_STORAGE_KEY, appJwt);
 
     // me - 전역으로 관리하면 될 듯
-    const me = await authMe();
+    // const me = await authMe();
 
     setLoading(false);
     closeModal();

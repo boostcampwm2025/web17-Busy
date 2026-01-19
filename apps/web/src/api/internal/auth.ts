@@ -48,5 +48,6 @@ export async function spotifyExchange(args: { code: string; verifier: string }) 
 }
 
 export async function tmpLogin(userId: string) {
-  await internalClient.post('/auth/login/tmp', { id: userId });
+  const { data } = await internalClient.post<{ appJwt: string }>('/auth/login/tmp', { id: userId });
+  return data.appJwt;
 }

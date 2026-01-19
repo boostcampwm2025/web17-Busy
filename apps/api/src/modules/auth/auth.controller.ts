@@ -41,17 +41,9 @@ export class AuthController {
       throw new BadRequestException('id is required');
     }
 
-    const jwt = await this.authService.issueJwt({ id: body.id });
+    const appJwt = await this.authService.issueJwt({ id: body.id });
 
-    res.cookie(JWT_COOKIE_NAME, jwt, {
-      httpOnly: true,
-      secure: isProduction(),
-      sameSite: 'lax',
-      path: '/',
-      maxAge: ONE_HOUR_MS,
-    });
-
-    return { ok: true };
+    return { appJwt };
   }
 
   @Post('logout')
