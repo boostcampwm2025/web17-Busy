@@ -1,4 +1,4 @@
-import type { Post, Music } from '@/types';
+import { MusicProvider, MusicResponseDto, PostResponseDto } from '@repo/dto';
 
 const now = Date.now();
 const minutes = (n: number) => n * 60 * 1000;
@@ -7,10 +7,10 @@ const days = (n: number) => n * 24 * 60 * 60 * 1000;
 
 const isoAgo = (msAgo: number) => new Date(now - msAgo).toISOString();
 
-const MOCK_MUSICS: Music[] = [
+const MOCK_MUSICS: MusicResponseDto[] = [
   {
-    musicId: 'm-1',
-    provider: 'APPLE',
+    id: 'm-1',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/7d/ed/d6/7dedd634-2bdd-b55f-8529-6b906df37f5e/mzaf_9292972481722090940.plus.aac.p.m4a',
     albumCoverUrl:
@@ -20,8 +20,8 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 210_000,
   },
   {
-    musicId: 'm-2',
-    provider: 'APPLE',
+    id: 'm-2',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4d/79/29/4d79296f-7eae-383d-2885-facc9da46c8c/mzaf_12023052104897000510.plus.aac.p.m4a',
     albumCoverUrl:
@@ -31,8 +31,8 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 222_000,
   },
   {
-    musicId: 'm-3',
-    provider: 'APPLE',
+    id: 'm-3',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0c/ad/28/0cad2809-7456-f1a0-bb73-229f5ca53961/mzaf_15626393563602953255.plus.aac.p.m4a',
     albumCoverUrl: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/73/d6/b5/73d6b59d-aa86-e8c9-1c3a-c011ac57f306/artwork.jpg/600x600bb.jpg',
@@ -41,8 +41,8 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 198_000,
   },
   {
-    musicId: 'm-4',
-    provider: 'APPLE',
+    id: 'm-4',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c1/d8/4e/c1d84e03-66fb-3a0f-d0a0-46108a235702/mzaf_3033050337908928626.plus.aac.p.m4a',
     albumCoverUrl:
@@ -52,8 +52,8 @@ const MOCK_MUSICS: Music[] = [
     durationMs: 185_000,
   },
   {
-    musicId: 'm-5',
-    provider: 'APPLE',
+    id: 'm-5',
+    provider: MusicProvider.ITUNES,
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/14/d7/2b/14d72b82-b397-7b4b-2922-116d2c6d2a8c/mzaf_2737461626288763697.plus.aac.p.m4a',
     albumCoverUrl:
@@ -65,26 +65,26 @@ const MOCK_MUSICS: Music[] = [
 ];
 
 const USER_1 = {
-  userId: 'u-1',
+  id: 'u-1',
   nickname: '김예빈',
   profileImgUrl: 'https://picsum.photos/seed/user-1/100/100',
 };
 
 const USER_2 = {
-  userId: 'u-2',
+  id: 'u-2',
   nickname: '김승호',
   profileImgUrl: 'https://picsum.photos/seed/user-2/100/100',
 };
 
 const USER_3 = {
-  userId: 'u-3',
+  id: 'u-3',
   nickname: '문예찬',
   profileImgUrl: 'https://picsum.photos/seed/user-3/100/100',
 };
 
-export const MOCK_POSTS: Post[] = [
+export const MOCK_POSTS: PostResponseDto[] = [
   {
-    postId: 'p-1',
+    id: 'p-1',
     author: USER_1,
     coverImgUrl: MOCK_MUSICS[0]!.albumCoverUrl,
     content: '요즘 밤에 듣기 딱 좋은 곡. 분위기 미쳤음.',
@@ -96,7 +96,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-2',
+    id: 'p-2',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[1]!.albumCoverUrl,
     content: '드라이브할 때 꼭 듣는 곡들 모아봤어.',
@@ -108,7 +108,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-3',
+    id: 'p-3',
     author: USER_3,
     coverImgUrl: MOCK_MUSICS[2]!.albumCoverUrl,
     content: '작업할 때 듣기 좋은 노동요 추천.',
@@ -120,7 +120,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-4',
+    id: 'p-4',
     author: USER_1,
     coverImgUrl: MOCK_MUSICS[3]!.albumCoverUrl,
     content: '카페에서 듣기 좋은 재즈 감성.',
@@ -132,7 +132,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-5',
+    id: 'p-5',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -144,7 +144,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-6',
+    id: 'p-6',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -156,7 +156,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-7',
+    id: 'p-7',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -168,7 +168,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-8',
+    id: 'p-8',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -180,7 +180,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-9',
+    id: 'p-9',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',
@@ -192,7 +192,7 @@ export const MOCK_POSTS: Post[] = [
     isEdited: false,
   },
   {
-    postId: 'p-10',
+    id: 'p-10',
     author: USER_2,
     coverImgUrl: MOCK_MUSICS[4]!.albumCoverUrl,
     content: '비 오는 날 감성 플리에서 한 곡 픽!',

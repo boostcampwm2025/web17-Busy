@@ -38,8 +38,8 @@ export default function RightPanel() {
   const playPrev = usePlayerStore((state) => state.playPrev);
   const playNext = usePlayerStore((state) => state.playNext);
 
-  const queueIds = queue.map((m) => m.musicId);
-  const currentIndex = findCurrentIndex(currentMusic?.musicId ?? null, queueIds);
+  const queueIds = queue.map((m) => m.id);
+  const currentIndex = findCurrentIndex(currentMusic?.id ?? null, queueIds);
 
   const canPrev = currentIndex > 0;
   const canNext = currentIndex >= 0 && currentIndex < queue.length - 1;
@@ -108,7 +108,7 @@ export default function RightPanel() {
 
         <QueueList
           queue={queue}
-          currentMusicId={currentMusic?.musicId ?? null}
+          currentMusicId={currentMusic?.id ?? null}
           onClear={handleClearQueue}
           onRemove={handleRemoveFromQueue}
           onMoveUp={handleMoveUp}

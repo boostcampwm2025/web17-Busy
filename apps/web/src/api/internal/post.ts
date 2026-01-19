@@ -1,4 +1,4 @@
-import { ClientFeedResponseDto } from '@repo/dto';
+import { FeedResponseDto } from '@repo/dto';
 import { internalClient } from './client';
 
 /** [GET] 서버 컴포넌트 전용 피드 초기 데이터 조회 함수 */
@@ -10,11 +10,11 @@ export const getInitialFeedPosts = async (limit = 10) => {
     throw new Error(`getInitialFeedPosts failed: ${res.status} ${text.slice(0, 200)}`);
   }
 
-  return (await res.json()) as ClientFeedResponseDto;
+  return (await res.json()) as FeedResponseDto;
 };
 
 /** [GET] 커서 페이지네이션 기반 피드 데이터 조회 함수 */
 export const getFeedPosts = async (cursor?: string, limit = 10) => {
-  const { data } = await internalClient.get<ClientFeedResponseDto>('/post/feed', { params: { limit, cursor } });
+  const { data } = await internalClient.get<FeedResponseDto>('/post/feed', { params: { limit, cursor } });
   return data;
 };

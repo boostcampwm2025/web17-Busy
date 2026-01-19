@@ -1,10 +1,10 @@
 'use client';
 
-import type { Music } from '@/types';
+import { MusicResponseDto } from '@repo/dto';
 import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle } from 'lucide-react';
 
 interface QueueListProps {
-  queue: Music[];
+  queue: MusicResponseDto[];
   currentMusicId: string | null;
   onClear: () => void;
   onRemove: (musicId: string) => void;
@@ -12,7 +12,7 @@ interface QueueListProps {
   onMoveDown: (index: number) => void;
 
   /** 추가: 큐 아이템 선택(현재 재생 곡 변경) */
-  onSelect: (music: Music) => void;
+  onSelect: (music: MusicResponseDto) => void;
 }
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';
@@ -81,14 +81,14 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
       ) : (
         <ul className="flex-1 overflow-y-auto space-y-3 pr-1">
           {queue.map((music, index) => {
-            const isCurrent = currentMusicId === music.musicId;
+            const isCurrent = currentMusicId === music.id;
 
             const handleSelectClick = () => {
               onSelect(music);
             };
 
             const handleRemoveClick = () => {
-              onRemove(music.musicId);
+              onRemove(music.id);
             };
 
             const handleMoveUpClick = () => {
@@ -101,7 +101,7 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
 
             return (
               <li
-                key={`${music.musicId}-${index}`}
+                key={`${music.id}-${index}`}
                 className={`flex items-center gap-3 p-3 rounded-xl border-2 ${
                   isCurrent ? 'border-primary bg-white' : 'border-transparent hover:border-gray-3 hover:bg-white'
                 }`}

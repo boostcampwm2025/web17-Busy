@@ -1,17 +1,17 @@
 'use client';
 
-import type { Music, Post } from '@/types';
 import { PostHeader, PostMedia, PostActions, PostContentPreview } from './index';
+import { MusicResponseDto, PostResponseDto } from '@repo/dto';
 
 interface PostCardProps {
-  post: Post;
+  post: PostResponseDto;
 
   currentMusicId: string | null;
   isPlayingGlobal: boolean;
 
-  onPlay: (music: Music) => void;
+  onPlay: (music: MusicResponseDto) => void;
   onUserClick: (userId: string) => void;
-  onOpenDetail: (post: Post) => void;
+  onOpenDetail: (post: PostResponseDto) => void;
 }
 
 export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onUserClick, onOpenDetail }: PostCardProps) {

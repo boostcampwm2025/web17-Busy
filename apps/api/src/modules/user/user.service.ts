@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { Provider } from '../../common/constants';
+import { AuthProvider } from '../auth/types';
 
 type ProviderProfile = {
-  provider: Provider;
+  provider: AuthProvider;
   providerUserId: string;
   nickname: string;
   email?: string;
@@ -77,7 +77,7 @@ export class UserService {
     profileImgUrl?: string | null;
   }> {
     const user = await this.findOrCreateByProviderUserId({
-      provider: Provider.SPOTIFY,
+      provider: AuthProvider.SPOTIFY,
       providerUserId: profile.spotifyUserId,
       nickname: profile.nickname,
       email: profile.email,

@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useModalStore } from '@/stores';
 import { X, FolderOpen } from 'lucide-react';
-import { Music, Playlist } from '@/types';
+import { Playlist } from '@/types';
 
 import { CoverImgUploader } from './CoverImgUploader';
 import { MusicSearch } from './MusicSearch';
 import { SelectedMusicList } from './SelectedMusicList';
+import { MusicResponseDto } from '@repo/dto';
 
-export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
+export const ContentWriteModal = ({ initialMusic }: { initialMusic?: MusicResponseDto }) => {
   const { closeModal } = useModalStore();
 
   // --- 지역상태 관리 ---
-  const [selectedMusics, setSelectedMusics] = useState<Music[]>(initialMusic ? [initialMusic] : []);
+  const [selectedMusics, setSelectedMusics] = useState<MusicResponseDto[]>(initialMusic ? [initialMusic] : []);
   const [content, setContent] = useState('');
 
   const [customCoverPreview, setCustomCoverPreview] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
       'musics',
       JSON.stringify(
         selectedMusics.map((m) => ({
-          musicId: m.musicId,
+          musicId: m.id,
           title: m.title,
           artistName: m.artistName,
           albumCoverUrl: m.albumCoverUrl,
@@ -79,9 +80,9 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
   };
 
   // 음악 추가
-  const handleAddMusic = (music: Music) => {
+  const handleAddMusic = (music: MusicResponseDto) => {
     // 중복 체크
-    if (!selectedMusics.find((m) => m.musicId === music.musicId)) {
+    if (!selectedMusics.find((m) => m.id === music.id)) {
       setSelectedMusics([...selectedMusics, music]);
     }
     // 추가 후 검색창 초기화 및 닫기
@@ -91,7 +92,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
 
   // 플레이리스트 통으로 추가
   const handleAddPlaylist = (playlist: Playlist) => {
-    const newMusics = playlist.musics.filter((pMusic) => !selectedMusics.some((selected) => selected.musicId === pMusic.musicId));
+    const newMusics = playlist.musics.filter((pMusic) => !selectedMusics.some((selected) => selected.id === pMusic.id));
 
     if (newMusics.length > 0) {
       setSelectedMusics([...selectedMusics, ...newMusics]);
@@ -102,7 +103,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
 
   // 음악 삭제 핸들러
   const handleRemoveMusic = (id: string) => {
-    setSelectedMusics(selectedMusics.filter((m) => m.musicId !== id));
+    setSelectedMusics(selectedMusics.filter((m) => m.id !== id));
   };
 
   // 음악 순서 변경
@@ -135,7 +136,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
             <CoverImgUploader currentCover={activeCover} onFileChange={handleFileChange} />
 
             {/* 2. 선택된 음악 리스트 */}
-            <SelectedMusicList Musics={selectedMusics} onRemove={handleRemoveMusic} onMove={handleMoveMusic} />
+            <SelectedMusicList musics={selectedMusics} onRemove={handleRemoveMusic} onMove={handleMoveMusic} />
           </div>
 
           {/* 3. 검색 영역 */}

@@ -3,12 +3,12 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Heart, MoreHorizontal } from 'lucide-react';
 
-import type { Music, Post } from '@/types';
 import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
 import { useScrollLock } from '@/hooks';
 import { formatRelativeTime } from '@/utils';
 import { buildMockComments, EMPTY_POST } from '@/constants';
 import { PostMedia, LoadingSpinner } from '@/components';
+import { MusicResponseDto, PostResponseDto } from '@repo/dto';
 
 export const PostCardDetailModal = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
@@ -17,17 +17,17 @@ export const PostCardDetailModal = () => {
   useScrollLock(enabled);
 
   const playMusic = usePlayerStore((s) => s.playMusic);
-  const currentMusicId = usePlayerStore((s) => s.currentMusic?.musicId ?? null);
+  const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
   const [commentText, setCommentText] = useState('');
 
   // postId를 단일 진실로 사용
   const postId = enabled ? (modalProps?.postId as string | undefined) : undefined;
-  const passedPost = enabled ? ((modalProps?.post as Post | undefined) ?? undefined) : undefined;
+  const passedPost = enabled ? ((modalProps?.post as PostResponseDto | undefined) ?? undefined) : undefined;
 
   // post가 있더라도 postId와 일치할 때만 신뢰
-  const matchedPost = postId && passedPost?.postId === postId ? passedPost : undefined;
+  const matchedPost = postId && passedPost?.id === postId ? passedPost : undefined;
 
   // 잘못된 상태면 모달 닫기(안전)
   useEffect(() => {
@@ -38,7 +38,7 @@ export const PostCardDetailModal = () => {
   // Hook order 안정화
   const safePost = matchedPost ?? EMPTY_POST;
   const createdAtText = useMemo(() => formatRelativeTime(safePost.createdAt), [safePost.createdAt]);
-  const comments = useMemo(() => buildMockComments(safePost), [safePost.postId]);
+  const comments = useMemo(() => buildMockComments(safePost), [safePost.id]);
 
   if (!enabled) return null;
   if (!postId) return null;
@@ -49,7 +49,7 @@ export const PostCardDetailModal = () => {
     e.stopPropagation();
   };
 
-  const handlePlay = (music: Music) => {
+  const handlePlay = (music: MusicResponseDto) => {
     playMusic(music);
   };
 

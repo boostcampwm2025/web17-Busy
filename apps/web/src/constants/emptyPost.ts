@@ -1,8 +1,8 @@
-import type { Post } from '@/types';
+import { PostResponseDto } from '@repo/dto';
 
-export const EMPTY_POST: Post = {
-  postId: 'empty',
-  author: { userId: '', nickname: '', profileImgUrl: '' },
+export const EMPTY_POST: PostResponseDto = {
+  id: 'empty',
+  author: { id: '', nickname: '', profileImgUrl: '' },
   coverImgUrl: '',
   content: '',
   likeCount: 0,

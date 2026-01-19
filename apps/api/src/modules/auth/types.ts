@@ -1,3 +1,8 @@
+export enum AuthProvider {
+  SPOTIFY = 'spotify',
+  GOOGLE = 'google',
+}
+
 export type SpotifyTokenResponse = {
   access_token: string;
   token_type: string;

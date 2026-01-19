@@ -3,20 +3,20 @@
 import { usePlayerStore } from '@/stores';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { PostCard } from '@/components';
-import type { Post, Music } from '@/types';
+import { MusicResponseDto, PostResponseDto } from '@repo/dto';
 
 interface FeedListProps {
-  posts: Post[];
+  posts: PostResponseDto[];
 }
 
 export default function FeedList({ posts }: FeedListProps) {
   const playMusic = usePlayerStore((s) => s.playMusic);
-  const currentMusicId = usePlayerStore((s) => s.currentMusic?.musicId ?? null);
+  const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
   const openModal = useModalStore((s) => s.openModal);
 
-  const handlePlay = (music: Music) => {
+  const handlePlay = (music: MusicResponseDto) => {
     playMusic(music);
   };
 
@@ -25,8 +25,8 @@ export default function FeedList({ posts }: FeedListProps) {
     void userId;
   };
 
-  const handleOpenDetail = (post: Post) => {
-    openModal(MODAL_TYPES.POST_DETAIL, { postId: post.postId, post });
+  const handleOpenDetail = (post: PostResponseDto) => {
+    openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, post });
   };
 
   return (
@@ -35,7 +35,7 @@ export default function FeedList({ posts }: FeedListProps) {
         <div className="space-y-4">
           {posts.map((post) => (
             <PostCard
-              key={post.postId}
+              key={post.id}
               post={post}
               onPlay={handlePlay}
               onUserClick={handleUserClick}

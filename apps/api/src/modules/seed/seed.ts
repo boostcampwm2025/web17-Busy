@@ -1,4 +1,4 @@
-import { NotiType, Provider } from 'src/common/constants';
+import { NotiType, MusicProvider } from '@repo/dto';
 import { DeepPartial } from 'typeorm';
 import { Music } from '../music/entities/music.entity';
 import { Post } from '../post/entities/post.entity';
@@ -66,7 +66,7 @@ export const SEED_MUSICS: DeepPartial<Music>[] = [
       'https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/2e/88/88/2e8888ad-a0cf-eece-70a7-1ff81377a3ab/24UMGIM00198.rgb.jpg/600x600bb.jpg',
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/22/fc/88/22fc885b-27c8-4693-7400-9e774eae9d7a/mzaf_5140833304960295464.plus.aac.p.m4a',
-    provider: Provider.APPLE,
+    provider: MusicProvider.APPLE,
     durationMs: 30000,
   },
   {
@@ -77,7 +77,7 @@ export const SEED_MUSICS: DeepPartial<Music>[] = [
       'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b5/92/bb/b592bb72-52e3-e756-9b26-9f56d08f47ab/16UMGIM67864.rgb.jpg/600x600bb.jpg',
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/de/52/1d/de521dd3-f0f5-b694-4f30-3d465cc5bd0b/mzaf_9744418488383113655.plus.aac.p.m4a',
-    provider: Provider.APPLE,
+    provider: MusicProvider.APPLE,
     durationMs: 30000,
   },
   {
@@ -88,7 +88,7 @@ export const SEED_MUSICS: DeepPartial<Music>[] = [
       'https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/f6/29/42/f629426e-92fe-535c-cbe4-76e70850819b/196922287107_Cover.jpg/600x600bb.jpg',
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/67/af/3d/67af3de7-8967-bc14-073d-a8712338ac32/mzaf_190692881480987912.plus.aac.p.m4a',
-    provider: Provider.APPLE,
+    provider: MusicProvider.APPLE,
     durationMs: 30000,
   },
   {
@@ -97,7 +97,7 @@ export const SEED_MUSICS: DeepPartial<Music>[] = [
       'https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/9a/fa/45/9afa45ec-7823-7e58-5580-27c01cdd709d/akmu_cover.jpg/600x600bb.jpg',
     artistName: '악뮤',
     durationMs: 283800,
-    provider: Provider.ITUNES,
+    provider: MusicProvider.ITUNES,
     title: '오랜 날 오랜 밤',
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/57/b1/84/57b184a7-a483-be7a-7aa8-0f1290d0258b/mzaf_394777065639841416.plus.aac.p.m4a',
@@ -108,7 +108,7 @@ export const SEED_MUSICS: DeepPartial<Music>[] = [
       'https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/7f/ca/13/7fca1315-9134-7937-b159-367bbed08dfa/AKMU_LoveLee_Cover_4000x4000.jpg/600x600bb.jpg',
     artistName: '악뮤',
     durationMs: 204577,
-    provider: Provider.ITUNES,
+    provider: MusicProvider.ITUNES,
     title: '후라이의 꿈',
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/05/5f/72/055f725b-623b-073e-cadb-04c88eea2f3e/mzaf_4121315245673499980.plus.aac.p.m4a',
@@ -119,7 +119,7 @@ export const SEED_MUSICS: DeepPartial<Music>[] = [
       'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/12/31/63/12316366-55bb-065c-8ad9-47e107fa79b2/AKMU_NEXT_EPISODE.jpg/600x600bb.jpg',
     artistName: '악뮤',
     durationMs: 212808,
-    provider: Provider.ITUNES,
+    provider: MusicProvider.ITUNES,
     title: '낙하 (with 아이유)',
     trackUri:
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/86/4d/a5/864da591-eeb0-27db-bbfa-a190ee20a05c/mzaf_17780542814473670833.plus.aac.p.m4a',

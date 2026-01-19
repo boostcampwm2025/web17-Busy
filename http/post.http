@@ -15,7 +15,7 @@ Content-Type: application/json
   "thumbnailImgUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/2e/88/88/2e8888ad-a0cf-eece-70a7-1ff81377a3ab/24UMGIM00198.rgb.jpg/600x600bb.jpg",
   "musics": [
     {
-      "musicId": "11111111-1111-1111-1111-111111111111",
+      "id": "11111111-1111-1111-1111-111111111111",
       "title": "we cant be friends",
       "artistName": "Ariana Grande",
       "albumCoverUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/2e/88/88/2e8888ad-a0cf-eece-70a7-1ff81377a3ab/24UMGIM00198.rgb.jpg/600x600bb.jpg",

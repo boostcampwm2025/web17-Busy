@@ -4,3 +4,4 @@ export * from './post';
 export * from './noti';
 export * from './like';
 export * from './comment';
+export * from './user';

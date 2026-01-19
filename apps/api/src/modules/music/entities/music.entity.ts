@@ -1,4 +1,4 @@
-import { Provider } from 'src/common/constants';
+import { MusicProvider } from '@repo/dto';
 import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
 
 import { v7 as uuidV7 } from 'uuid';
@@ -17,7 +17,7 @@ export class Music {
   trackUri: string;
 
   @Column('varchar', { length: 255, nullable: false })
-  provider: Provider;
+  provider: MusicProvider;
 
   @Column('varchar', { name: 'album_cover_url', length: 2083, nullable: false })
   albumCoverUrl: string;

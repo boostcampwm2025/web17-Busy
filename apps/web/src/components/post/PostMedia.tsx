@@ -1,19 +1,19 @@
 'use client';
 
-import type { Music, Post } from '@/types';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { usePostMedia } from '@/hooks';
+import { MusicResponseDto, PostResponseDto } from '@repo/dto';
 
 type Variant = 'card' | 'modal';
 
 type Props = {
-  post: Post;
+  post: PostResponseDto;
   variant: Variant;
 
   currentMusicId: string | null;
   isPlayingGlobal: boolean;
 
-  onPlay: (music: Music) => void;
+  onPlay: (music: MusicResponseDto) => void;
 
   /** 카드에서만: 컨테이너 클릭 시 상세 열기 */
   onClickContainer?: () => void;

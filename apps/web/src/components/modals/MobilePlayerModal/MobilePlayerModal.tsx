@@ -1,18 +1,18 @@
 'use client';
 
 import { X, Trash2, ChevronUp, ChevronDown, XCircle, ListPlus } from 'lucide-react';
-import type { Music } from '@/types';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores';
+import { MusicResponseDto } from '@repo/dto';
 
 type MobileQueueRowProps = {
-  music: Music;
+  music: MusicResponseDto;
   index: number;
   isCurrent: boolean;
   isFirst: boolean;
   isLast: boolean;
 
-  onPlay: (music: Music) => void;
+  onPlay: (music: MusicResponseDto) => void;
   onRemove: (musicId: string) => void;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
@@ -52,7 +52,7 @@ function MobileQueueRow({ music, index, isCurrent, isFirst, isLast, onPlay, onRe
         </button>
       </div>
 
-      <button type="button" onClick={() => onRemove(music.musicId)} title="삭제" className="p-2 text-gray-2 hover:text-accent-pink">
+      <button type="button" onClick={() => onRemove(music.id)} title="삭제" className="p-2 text-gray-2 hover:text-accent-pink">
         <Trash2 className="w-4 h-4" />
       </button>
     </li>
@@ -64,7 +64,7 @@ export default function MobilePlayerModal() {
   const enabled = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
 
   const queue = usePlayerStore((s) => s.queue);
-  const currentMusicId = usePlayerStore((s) => s.currentMusic?.musicId ?? null);
+  const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
 
   const playMusic = usePlayerStore((s) => s.playMusic);
   const clearQueue = usePlayerStore((s) => s.clearQueue);
@@ -117,10 +117,10 @@ export default function MobilePlayerModal() {
             <ul className="space-y-3  pb-4">
               {queue.map((music, index) => (
                 <MobileQueueRow
-                  key={`${music.musicId}-${index}`}
+                  key={`${music.id}-${index}`}
                   music={music}
                   index={index}
-                  isCurrent={currentMusicId === music.musicId}
+                  isCurrent={currentMusicId === music.id}
                   isFirst={index === 0}
                   isLast={index === queue.length - 1}
                   onPlay={playMusic}
