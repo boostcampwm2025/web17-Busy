@@ -26,7 +26,7 @@ export const useNotiStore = create<NotiStore>((set) => ({
   setFetchStatus: (status: NotiFetchState) => set((state) => (state.status === status ? state : { status })),
 
   updateNotis: async () => {
-    set({ status: 'loading', errorMessage: null });
+    set((state) => (state.status === 'idle' ? { status: 'loading', errorMessage: null } : state));
 
     try {
       const notis = (await fetchNotis()) as NotiResponseDto[];
