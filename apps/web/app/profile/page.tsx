@@ -1,5 +1,15 @@
+import { getLoggedInUserId, getUserProfileInfo, getUserProfilePosts } from '@/api';
+import LoginRequestScreen from '@/components/LoginRequestScreen';
+
+/** 내 프로필(me) 페이지 */
 export default async function Profile() {
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  const { userId } = await getLoggedInUserId();
+
+  if (!userId) return <LoginRequestScreen />;
+
+  const profileInfo = await getUserProfileInfo(userId);
+  const ProfilePosts = await getUserProfilePosts(userId);
+
   return (
     <div className="flex h-full justify-center items-center">
       <p className="text-xl">프로필 페이지 영역</p>
