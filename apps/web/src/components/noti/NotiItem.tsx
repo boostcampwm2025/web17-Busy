@@ -1,5 +1,6 @@
 'use client';
 
+import NotiActorHoverCard from './NotiActorHoverCard';
 import { NotiView } from './noti.types';
 
 export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (noti: NotiView) => void }) {
@@ -28,7 +29,9 @@ export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (
 
       {/* 본문 */}
       <div className="flex-1 min-w-0 pt-0.5">
-        <p className="text-sm text-primary leading-snug break-words">{`${noti.actorNickname} ${noti.messageBody}`}</p>
+        <p className="text-sm text-primary leading-snug break-words">
+          <NotiActorHoverCard nickname={noti.actorNickname} profileImgUrl={noti.actorProfileImgUrl} userId={noti.actorUserId} /> {noti.messageBody}
+        </p>
 
         <p className="text-[10px] text-gray-400 font-bold mt-1.5">{noti.createdAtText}</p>
       </div>
