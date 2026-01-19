@@ -1,0 +1,79 @@
+'use client';
+
+import { DEFAULT_IMGAES } from '@/constants/defaultImages';
+
+// TODO: dto로 대체
+interface ProfileInfoProps {
+  profile: {
+    userId: string;
+    nickname: string;
+    profileImgUrl: string | null;
+    bio: string;
+    followerCount: number;
+    followingCount: number;
+    isFollowing: boolean;
+  };
+  isMyProfile: boolean;
+}
+
+export default function ProfileInfo({ profile, isMyProfile = false }: ProfileInfoProps) {
+  const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
+  return (
+    <section className="max-w-4xl">
+      <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10 mb-12">
+        {/* 프로필 이미지 아바타 */}
+        <div className="shrink-0">
+          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-primary p-1 bg-white shadow-[3px_3px_0px_0px_#00214D]">
+            <img src={profileImgUrl ?? DEFAULT_IMGAES.PROFILE} alt={nickname} className="w-full h-full object-cover rounded-full" />
+          </div>
+        </div>
+
+        {/* 사용자 정보 영역 */}
+        <div className="flex-1 text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center md:items-center mb-4 space-y-2 md:space-y-0">
+            <h2 className="text-3xl font-black text-primary md:mr-6">{nickname}</h2>
+
+            {/* 리캡 생성/팔로우 버튼 */}
+            {isMyProfile ? (
+              <button
+                title="프로필 리캡 생성"
+                className="flex items-center px-6 py-2 bg-accent-yellow border-2 border-primary text-primary font-black rounded-full hover:bg-accent hover:shadow-[2px_2px_0px_0px_#00214D] transition-all group"
+              >
+                Recap
+              </button>
+            ) : isFollowing ? (
+              <button
+                title="팔로우 취소"
+                className="px-8 py-2 bg-primary text-white border-2 border-primary font-bold rounded-full hover:bg-secondary hover:border-secondary hover:shadow-[2px_2px_0px_0px_#00EBC7] transition-all"
+              >
+                팔로우 취소
+              </button>
+            ) : (
+              <button
+                title="팔로우"
+                className="px-8 py-2 bg-primary text-white border-2 border-primary font-bold rounded-full hover:bg-secondary hover:border-secondary hover:shadow-[2px_2px_0px_0px_#00EBC7] transition-all"
+              >
+                팔로우
+              </button>
+            )}
+          </div>
+
+          {/* 팔로우/팔로잉 사용자 정보 */}
+          <div className="flex items-center justify-center md:justify-start space-x-6 mb-4 text-primary">
+            <div className="flex flex-col items-center md:items-start">
+              <span className="font-bold text-xl">{followerCount}</span>
+              <span className="text-sm font-medium text-gray-500">팔로워</span>
+            </div>
+            <div className="flex flex-col items-center md:items-start">
+              <span className="font-bold text-xl">{followingCount}</span>
+              <span className="text-sm font-medium text-gray-500">팔로잉</span>
+            </div>
+          </div>
+
+          {/* 프로필 소개란 */}
+          <p className="text-primary font-medium whitespace-pre-wrap leading-relaxed max-w-md mx-auto md:mx-0">{bio}</p>
+        </div>
+      </div>
+    </section>
+  );
+}

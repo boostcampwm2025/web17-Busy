@@ -1,5 +1,5 @@
 import { getLoggedInUserId, getUserProfileInfo, getUserProfilePosts } from '@/api';
-import LoginRequestScreen from '@/components/LoginRequestScreen';
+import { LoginRequestScreen, ProfileInfo, ProfilePosts } from '@/components';
 
 /** 내 프로필(me) 페이지 */
 export default async function Profile() {
@@ -10,11 +10,12 @@ export default async function Profile() {
 
   // 내 프로필 정보 fetch
   const profileInfo = await getUserProfileInfo(userId);
-  const ProfilePosts = await getUserProfilePosts(userId);
+  const profilePosts = await getUserProfilePosts(userId);
 
   return (
-    <div className="flex h-full justify-center items-center">
-      <p className="text-xl">프로필 페이지 영역</p>
+    <div className="mx-auto p-6 md:p-10 gap-y-4">
+      <ProfileInfo profile={profileInfo} isMyProfile={true} />
+      <ProfilePosts posts={profilePosts} />
     </div>
   );
 }
