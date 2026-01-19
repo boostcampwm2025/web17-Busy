@@ -30,7 +30,7 @@ export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (
       <div className="relative flex-shrink-0">
         <div className="w-12 h-12">
           <img
-            src={noti.thumbnailUrl ?? '/images/default-avatar.png'}
+            src={noti.thumbnailUrl || `${process.env.NEXT_PUBLIC_DEFAULT_IMG}`}
             alt="noti"
             className={`w-full h-full object-cover border border-gray-200 ${thumbShape}`}
           />
@@ -63,7 +63,7 @@ export default function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (
               >
                 <button type="button" className="w-full flex items-center gap-3 text-left" onClick={handleActorClick}>
                   <img
-                    src={noti.actorProfileImgUrl ?? '/images/default-avatar.png'}
+                    src={noti.actorProfileImgUrl || `${process.env.NEXT_PUBLIC_DEFAULT_IMG}`}
                     alt={noti.actorNickname}
                     className="w-10 h-10 rounded-full border border-gray-200 object-cover"
                   />
