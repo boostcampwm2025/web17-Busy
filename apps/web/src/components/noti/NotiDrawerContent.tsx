@@ -17,7 +17,12 @@ export default function NotiDrawerContent() {
   const readNoti = useNotiStore((s) => s.readNoti);
   const errorMessage = useNotiStore((s) => s.errorMessage);
 
-  const notis = useMemo(() => rawNotis.map(toNotiView), [rawNotis]);
+  const notis = useMemo(() => {
+    return rawNotis
+      .map(toNotiView)
+      .slice()
+      .sort((a, b) => new Date(b.createdAtIso).getTime() - new Date(a.createdAtIso).getTime());
+  }, [rawNotis]);
 
   const handleClickNoti = (noti: NotiView) => {
     if (!noti.isRead) {
