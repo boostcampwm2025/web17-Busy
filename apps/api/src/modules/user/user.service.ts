@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { User } from './entities/user.entity';
 import { AuthProvider } from '../auth/types';
+import { GetUserDto } from '@repo/dto';
 
 type ProviderProfile = {
   provider: AuthProvider;
@@ -10,6 +11,12 @@ type ProviderProfile = {
   email?: string;
   profileImgUrl?: string;
   refreshToken?: string;
+};
+
+type UserWithFollowInfo = User & {
+  followerCount: number;
+  followingCount: number;
+  isFollowing?: number | string;
 };
 
 @Injectable()
@@ -84,5 +91,32 @@ export class UserService {
     const base = (input ?? '').trim().replace(/\s+/g, ' ');
     const candidate = base.length > 0 ? base : `user_${fallbackSeed.slice(-6)}`;
     return candidate.slice(0, this.NICKNAME_MAX_LEN);
+  }
+
+  async getUserProfile(
+    targetUserId: string,
+    userId?: string,
+  ): Promise<GetUserDto> {
+    const user = await this.userRepository.findWithFollowInfo(
+      targetUserId,
+      userId,
+    );
+
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    // dto 매핑을 위한 타입단언
+    const result = user as UserWithFollowInfo;
+
+    return {
+      id: result.id,
+      nickname: result.nickname,
+      profileImgUrl: result.profileImgUrl ?? null,
+      bio: result.bio ?? '',
+      followerCount: result.followerCount || 0,
+      followingCount: result.followingCount || 0,
+      isFollowing: !!Number(result.isFollowing),
+    };
   }
 }

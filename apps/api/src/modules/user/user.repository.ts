@@ -40,4 +40,28 @@ export class UserRepository {
   createQueryBuilder(alias: string) {
     return this.repository.createQueryBuilder(alias);
   }
+
+  async findWithFollowInfo(targetUserId: string, currentUserId?: string) {
+    const qb = this.repository
+      .createQueryBuilder('user')
+      .where('user.id = :targetUserId', { targetUserId });
+
+    qb.loadRelationCountAndMap('user.followerCount', 'user.followers');
+    qb.loadRelationCountAndMap('user.followingCount', 'user.followings');
+
+    // 팔로우 중인지 확인 (로그인 한 경우만)
+    if (currentUserId) {
+      qb.loadRelationCountAndMap(
+        'user.isFollowing',
+        'user.followers',
+        'follow',
+        (qb) =>
+          qb.where('follow.followingUserId = :currentUserId', {
+            currentUserId,
+          }),
+      );
+    }
+
+    return qb.getOne();
+  }
 }
