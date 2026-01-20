@@ -20,6 +20,7 @@ import {
   UpdateMusicsOrderOfPlaylistReqDto,
   UpdateTitlePlaylitReqDto,
 } from '@repo/dto';
+import { Playlist } from './entities/playlist.entity';
 
 @UseGuards(AuthGuard)
 @Controller('playlist')
@@ -39,10 +40,10 @@ export class PlaylistController {
   async createPlaylist(
     @UserId() userId: string,
     @Body() dto: CreatePlaylistReqDto,
-  ): Promise<{ ok: true }> {
+  ): Promise<{ ok: true; playlist: Playlist }> {
     const { title } = dto;
-    // await this.playlistService.create(title);
-    return { ok: true };
+    const playlist = await this.playlistService.create(userId, title);
+    return { ok: true, playlist };
   }
 
   // 플리 상세 조회

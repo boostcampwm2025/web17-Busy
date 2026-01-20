@@ -3,6 +3,8 @@ import { PlaylistRepository } from './playlist.repository';
 import { GetAllPlaylistsResDto, PlaylistBriefResDto } from '@repo/dto';
 import { Playlist } from './entities/playlist.entity';
 
+const PLAYLIST_DEFAULT_BASE_NAME = '플레이리스트 ';
+
 @Injectable()
 export class PlaylistService {
   constructor(private readonly playlistRepo: PlaylistRepository) {}
@@ -22,5 +24,18 @@ export class PlaylistService {
       tracksCount: Number(row.tracksCount ?? 0),
       firstAlbumCoverUrl: row.firstAlbumCoverUrl,
     };
+  }
+
+  async create(userId: string, title?: string): Promise<Playlist> {
+    let defaultName: string;
+    if (!title) defaultName = await this.buildDefaultPlaylistName(userId);
+
+    return await this.playlistRepo.create(userId, title ?? defaultName!);
+  }
+
+  private async buildDefaultPlaylistName(userId: string): Promise<string> {
+    // playlist 개수 + 1
+    const count = await this.playlistRepo.getCountOfPlaylistOf(userId);
+    return `${PLAYLIST_DEFAULT_BASE_NAME}${count + 1}`;
   }
 }

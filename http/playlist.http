@@ -9,14 +9,19 @@
 GET {{baseUrl}}/playlist HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 
-### 새로운 플리 추가
+### 새로운 플리 추가 - POST /playlist
 POST {{baseUrl}}/playlist HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
-  title: "새로운 플레이리스트!!"
+  "title": "새로운 플레이리스트!!"
 }
+
+### 새로운 플리 추가 2 - title 없이 디폴트로 생성
+POST {{baseUrl}}/playlist HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
+Content-Type: application/json
 
 ### 플리 상세 조회
 GET {{baseUrl}}/playlist/pppppppp-pppp-pppp-pppp-pppppppppppp HTTP/1.1
@@ -28,7 +33,7 @@ Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
-  title: "수정된 플리 제목~!!"
+  "title": "수정된 플리 제목~!!"
 }
 
 ### 플리 삭제

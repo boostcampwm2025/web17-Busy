@@ -38,4 +38,22 @@ export class PlaylistRepository {
       .where('p.owner_id = :userId', { userId })
       .getRawMany();
   }
+
+  async getCountOfPlaylistOf(userId: string) {
+    return await this.playlistRepo.count({
+      where: {
+        owner: { id: userId },
+      },
+    });
+  }
+
+  async create(userId: string, title: string) {
+    console.log('플리 레포', title);
+    const playlist = this.playlistRepo.create({
+      owner: { id: userId },
+      title,
+    });
+
+    return await this.playlistRepo.save(playlist);
+  }
 }
