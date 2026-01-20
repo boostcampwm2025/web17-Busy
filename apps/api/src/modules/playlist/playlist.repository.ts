@@ -62,6 +62,7 @@ export class PlaylistRepository {
   }
 
   async getPlaylistDetail(
+    userId: string,
     playlistId: string,
     manager?: EntityManager,
   ): Promise<Playlist | null> {
@@ -72,14 +73,15 @@ export class PlaylistRepository {
       .leftJoinAndSelect('p.playlistMusics', 'pm')
       .leftJoinAndSelect('pm.music', 'm')
       .where('p.playlist_id = :playlistId', { playlistId })
+      .andWhere('p.owner_id = :userId', { userId })
       .orderBy('pm.order_index', 'ASC')
       .getOne();
   }
 
-  async findById(playlistId: string, manager?: EntityManager) {
+  async findById(userId: string, playlistId: string, manager?: EntityManager) {
     const repo = this.getPlaylistRepo(manager);
 
-    return await repo.findOneBy({ id: playlistId });
+    return await repo.findOneBy({ id: playlistId, owner: { id: userId } });
   }
 
   async save(playlist: Playlist, manager?: EntityManager) {
@@ -88,10 +90,10 @@ export class PlaylistRepository {
     return await repo.save(playlist);
   }
 
-  async delete(playlistId: string, manager?: EntityManager) {
+  async delete(userId: string, playlistId: string, manager?: EntityManager) {
     const repo = this.getPlaylistRepo(manager);
 
-    const result = await repo.delete({ id: playlistId });
+    const result = await repo.delete({ id: playlistId, owner: { id: userId } });
 
     return result.affected ? result.affected > 0 : false;
   }

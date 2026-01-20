@@ -49,19 +49,25 @@ export class PlaylistController {
   // 플리 상세 조회
   @Get(':id')
   async getPlaylistById(
+    @UserId() userId: string,
     @Param('id') playlistId: string,
   ): Promise<GetPlaylistDetailResDto> {
-    return await this.playlistService.getPlaylistDetail(playlistId);
+    return await this.playlistService.getPlaylistDetail(userId, playlistId);
   }
 
   // 플리 제목 수정
   @Patch(':id')
   async patchTitle(
+    @UserId() userId: string,
     @Param('id') playlistId: string,
     @Body() dto: UpdateTitlePlaylitReqDto,
   ): Promise<{ ok: true; playlist: Playlist }> {
     const { title } = dto;
-    const playlist = await this.playlistService.update(playlistId, title);
+    const playlist = await this.playlistService.update(
+      userId,
+      playlistId,
+      title,
+    );
     return { ok: true, playlist };
   }
 
@@ -71,7 +77,7 @@ export class PlaylistController {
     @UserId() userId: string,
     @Param('id') playlistId: string,
   ): Promise<{ ok: true }> {
-    await this.playlistService.delete(playlistId);
+    await this.playlistService.delete(userId, playlistId);
     return { ok: true };
   }
 
@@ -83,7 +89,7 @@ export class PlaylistController {
     @Body() dto: AddMusicToPlaylistReqDto,
   ): Promise<{ ok: true }> {
     const { musics } = dto;
-    await this.playlistService.addMusics(playlistId, musics);
+    await this.playlistService.addMusics(userId, playlistId, musics);
     return { ok: true };
   }
 
@@ -95,7 +101,7 @@ export class PlaylistController {
     @Body() dto: UpdateMusicsOrderOfPlaylistReqDto,
   ): Promise<{ ok: true }> {
     const { musicIds } = dto;
-    await this.playlistService.changeMusicOrder(playlistId, musicIds);
+    await this.playlistService.changeMusicOrder(userId, playlistId, musicIds);
     return { ok: true };
   }
 }
