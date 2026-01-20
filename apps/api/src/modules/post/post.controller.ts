@@ -60,7 +60,7 @@ export class PostController {
   @UseInterceptors(FileInterceptor('coverImgUrl'))
   async createPostIncludeImg(
     @UserId() requestUserId: string,
-    @UploadedFile() coverImgUrl: Express.Multer.File,
+    @UploadedFile() coverImgFile: Express.Multer.File,
     @Body() body: CreatePostMultipartDto,
   ): Promise<{ ok: true }> {
     const { content } = body;
@@ -72,9 +72,11 @@ export class PostController {
       throw new BadRequestException('musics 형식이 올바르지 않습니다.');
     }
 
-    const thumbnailImgUrl = coverImgUrl
-      ? this.uploadService.toPublicUrl(coverImgUrl.filename)
-      : undefined;
+    let thumbnailImgUrl: string | undefined;
+
+    if (coverImgFile) {
+      thumbnailImgUrl = await this.uploadService.uploadPostImage(coverImgFile);
+    }
 
     await this.postService.create(
       requestUserId,
@@ -82,6 +84,7 @@ export class PostController {
       content,
       thumbnailImgUrl,
     );
+
     return { ok: true };
   }
 
