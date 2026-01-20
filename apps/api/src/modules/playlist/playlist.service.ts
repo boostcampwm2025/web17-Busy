@@ -120,4 +120,11 @@ export class PlaylistService {
       await this.playlistRepo.addMusics(playlistId, musicIds, firstIndex, tx);
     });
   }
+
+  async changeMusicOrder(playlistId: string, musicIds: string[]) {
+    return await this.ds.transaction(async (tx) => {
+      await this.playlistRepo.deleteAllMusics(playlistId, tx);
+      await this.playlistRepo.addMusics(playlistId, musicIds, 0, tx);
+    });
+  }
 }

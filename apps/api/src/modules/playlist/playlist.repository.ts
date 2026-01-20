@@ -128,6 +128,11 @@ export class PlaylistRepository {
     return await repo.save(pms);
   }
 
+  async deleteAllMusics(playlistId: string, manager?: EntityManager) {
+    const repo = this.getPmRepo(manager);
+    return await repo.delete({ playlist: { id: playlistId } });
+  }
+
   private getPlaylistRepo(manager?: EntityManager) {
     return manager ? manager.getRepository(Playlist) : this.playlistRepo;
   }

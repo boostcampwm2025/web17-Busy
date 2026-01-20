@@ -95,6 +95,7 @@ export class PlaylistController {
     @Body() dto: UpdateMusicsOrderOfPlaylistReqDto,
   ): Promise<{ ok: true }> {
     const { musicIds } = dto;
+    await this.playlistService.changeMusicOrder(playlistId, musicIds);
     return { ok: true };
   }
 }
