@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { AuthOptionalGuard } from 'src/common/guards/auth.optional-guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 import { UserDto, GetUserDto } from '@repo/dto';
 
@@ -23,7 +24,7 @@ export class UserController {
     const { id, nickname, profileImgUrl } = user;
     return { id, nickname, profileImgUrl };
   }
-
+  @UseGuards(AuthOptionalGuard)
   @Get(':userId')
   async getUser(
     @Param('userId') targetUserId: string,
