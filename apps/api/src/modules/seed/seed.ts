@@ -40,7 +40,7 @@ export const SEED_NOTIS = [
     receiver: { id: RECEIVER_ID },
     actor: { id: ACTOR_ID },
     type: NotiType.LIKE,
-    relatedId: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    relatedId: '33333333-3333-3333-3333-333333333333',
     isRead: false,
   },
   {

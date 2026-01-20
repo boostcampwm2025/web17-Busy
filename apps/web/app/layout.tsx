@@ -4,6 +4,7 @@ import { Header, Sidebar, RightPanel, ModalContainer, LoadingSpinner } from '@/c
 import SpotifyTokenFromHash from '@/hooks/auth/client/SpotifyTokenFromHash';
 import AuthLoginQueryHandler from '@/hooks/auth/client/AuthLoginQueryHandler';
 import { Suspense } from 'react';
+import NotiPollingGate from '@/components/noti/NotiPollingGate';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -26,6 +27,7 @@ export default function RootLayout({
           <AuthLoginQueryHandler />
         </Suspense>
         <ModalContainer />
+        <NotiPollingGate />
 
         <div className="flex h-screen overflow-hidden">
           {/* 좌측 사이드바 */}
