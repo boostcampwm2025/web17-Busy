@@ -14,8 +14,10 @@ export class PlaylistRepository {
     private readonly pmRepo: Repository<PlaylistMusic>,
   ) {}
 
-  async getAllPlaylists(userId: string) {
-    return await this.playlistRepo
+  async getAllPlaylists(userId: string, manager?: EntityManager) {
+    const repo = this.getPlaylistRepo(manager);
+
+    return await repo
       .createQueryBuilder('p')
       .select('p.playlist_id', 'id')
       .addSelect('p.title', 'title')
@@ -38,26 +40,34 @@ export class PlaylistRepository {
       .getRawMany();
   }
 
-  async getCountOfPlaylistOf(userId: string) {
-    return await this.playlistRepo.count({
+  async getCountOfPlaylistOf(userId: string, manager?: EntityManager) {
+    const repo = this.getPlaylistRepo(manager);
+
+    return await repo.count({
       where: {
         owner: { id: userId },
       },
     });
   }
 
-  async create(userId: string, title: string) {
-    console.log('플리 레포', title);
-    const playlist = this.playlistRepo.create({
+  async create(userId: string, title: string, manager?: EntityManager) {
+    const repo = this.getPlaylistRepo(manager);
+
+    const playlist = repo.create({
       owner: { id: userId },
       title,
     });
 
-    return await this.playlistRepo.save(playlist);
+    return await repo.save(playlist);
   }
 
-  async getPlaylistDetail(playlistId: string): Promise<Playlist | null> {
-    return await this.playlistRepo
+  async getPlaylistDetail(
+    playlistId: string,
+    manager?: EntityManager,
+  ): Promise<Playlist | null> {
+    const repo = this.getPlaylistRepo(manager);
+
+    return await repo
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.playlistMusics', 'pm')
       .leftJoinAndSelect('pm.music', 'm')
@@ -66,16 +76,23 @@ export class PlaylistRepository {
       .getOne();
   }
 
-  async findById(playlistId: string) {
-    return await this.playlistRepo.findOneBy({ id: playlistId });
+  async findById(playlistId: string, manager?: EntityManager) {
+    const repo = this.getPlaylistRepo(manager);
+
+    return await repo.findOneBy({ id: playlistId });
   }
 
-  async save(playlist: Playlist) {
-    return await this.playlistRepo.save(playlist);
+  async save(playlist: Playlist, manager?: EntityManager) {
+    const repo = this.getPlaylistRepo(manager);
+
+    return await repo.save(playlist);
   }
 
-  async delete(playlistId: string) {
-    const result = await this.playlistRepo.delete({ id: playlistId });
+  async delete(playlistId: string, manager?: EntityManager) {
+    const repo = this.getPlaylistRepo(manager);
+
+    const result = await repo.delete({ id: playlistId });
+
     return result.affected ? result.affected > 0 : false;
   }
 
@@ -83,7 +100,7 @@ export class PlaylistRepository {
     playlistId: string,
     manager?: EntityManager,
   ): Promise<number> {
-    const repo = manager ? manager.getRepository(PlaylistMusic) : this.pmRepo;
+    const repo = this.getPmRepo(manager);
 
     return await repo.count({
       where: {
@@ -98,7 +115,7 @@ export class PlaylistRepository {
     firstIndex: number,
     manager?: EntityManager,
   ) {
-    const repo = manager ? manager.getRepository(PlaylistMusic) : this.pmRepo;
+    const repo = this.getPmRepo(manager);
 
     const pms = repo.create(
       musicIds.map((mId, i) => ({
@@ -109,5 +126,13 @@ export class PlaylistRepository {
     );
 
     return await repo.save(pms);
+  }
+
+  private getPlaylistRepo(manager?: EntityManager) {
+    return manager ? manager.getRepository(Playlist) : this.playlistRepo;
+  }
+
+  private getPmRepo(manager?: EntityManager) {
+    return manager ? manager.getRepository(PlaylistMusic) : this.pmRepo;
   }
 }
