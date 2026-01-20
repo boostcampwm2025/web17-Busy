@@ -1,7 +1,7 @@
 'use client';
 
 import { MusicResponseDto as Music } from '@repo/dto';
-import { Pause, Play, Shuffle, SkipBack, SkipForward, Repeat, PlusCircle, FolderPlus } from 'lucide-react';
+import { Pause, Play, Shuffle, SkipBack, SkipForward, PlusCircle, FolderPlus } from 'lucide-react';
 import { useMemo } from 'react';
 import { usePlayerStore } from '@/stores';
 import { VolumeControl, SeekBar } from './index';
@@ -39,12 +39,6 @@ const formatMs = (ms: number): string => {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
-const calcProgressPercent = (positionMs: number, durationMs: number): number => {
-  if (durationMs <= 0) return 0;
-  const raw = (positionMs / durationMs) * 100;
-  return Math.min(100, Math.max(0, raw));
-};
-
 export default function NowPlaying(props: NowPlayingProps) {
   const { currentMusic, isPlaying, canPrev, canNext, positionMs, durationMs, onTogglePlay, onPrev, onNext, onShuffle, onRepeat, onPost, onSave } =
     props;
@@ -61,7 +55,6 @@ export default function NowPlaying(props: NowPlayingProps) {
     return durationMs > 0 ? durationMs : currentMusic.durationMs;
   }, [currentMusic, durationMs]);
 
-  const progressPercent = useMemo(() => calcProgressPercent(positionMs, shownDurationMs), [positionMs, shownDurationMs]);
   const currentText = useMemo(() => formatMs(positionMs), [positionMs]);
   const durationText = useMemo(() => formatMs(shownDurationMs), [shownDurationMs]);
 
