@@ -73,8 +73,6 @@ export const PostCardDetailModal = () => {
     // TODO(#next): 댓글 API 연동
   };
 
-  //const profileImg = safePost.author.profileImgUrl ?? DEFAULT_IMAGES.PROFILE;
-  //const profileImg = safePost.author.profileImgUrl?.trim() || DEFAULT_IMAGES.PROFILE;
   const profileImg = coalesceImageSrc(safePost.author.profileImgUrl, DEFAULT_IMAGES.PROFILE);
 
   return (
@@ -130,7 +128,6 @@ export const PostCardDetailModal = () => {
                 comments.map((c) => (
                   <div key={c.commentId} className="flex space-x-3 group">
                     <img
-                      //src={c.author.profileImgUrl ?? DEFAULT_IMAGES.PROFILE}
                       src={coalesceImageSrc(c.author.profileImgUrl, DEFAULT_IMAGES.PROFILE)}
                       alt={c.author.nickname}
                       className="w-9 h-9 rounded-full border border-primary/10 object-cover shrink-0"
