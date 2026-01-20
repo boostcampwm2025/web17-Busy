@@ -6,13 +6,13 @@ const DEFAULT_FOLLOW_LIMIT = 10;
 /** [GET] 팔로워 사용자 목록 조회 함수 (커서 페이지네이션) */
 export const getFollowerUsers = async (userId: string, cursor?: string, limit = DEFAULT_FOLLOW_LIMIT) => {
   const { data } = await internalClient.get<GetUserFollowDto>(`/follow/follower/${userId}`, { params: { limit, cursor } });
-  return { items: data.users, hasNext: data.hasNext, nextCursor: data.nextCursor };
+  return data;
 };
 
 /** [GET] 팔로잉 사용자 목록 조회 함수 (커서 페이지네이션) */
 export const getFollowingUsers = async (userId: string, cursor?: string, limit = DEFAULT_FOLLOW_LIMIT) => {
   const { data } = await internalClient.get<GetUserFollowDto>(`/follow/following/${userId}`, { params: { limit, cursor } });
-  return { items: data.users, hasNext: data.hasNext, nextCursor: data.nextCursor };
+  return data;
 };
 
 interface FollowActionRes {
