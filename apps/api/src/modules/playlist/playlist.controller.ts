@@ -71,6 +71,7 @@ export class PlaylistController {
     @UserId() userId: string,
     @Param('id') playlistId: string,
   ): Promise<{ ok: true }> {
+    await this.playlistService.delete(playlistId);
     return { ok: true };
   }
 

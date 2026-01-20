@@ -83,4 +83,11 @@ export class PlaylistService {
 
     return this.playlistRepo.save(playlist);
   }
+
+  async delete(playlistId: string): Promise<void> {
+    const isDeleted = await this.playlistRepo.delete(playlistId);
+
+    if (!isDeleted)
+      throw new NotFoundException('플레이리스트가 존재하지 않습니다.');
+  }
 }

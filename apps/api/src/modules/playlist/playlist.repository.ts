@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entities/playlist.entity';
-import { PlaylistMusic } from './entities/playlist-music.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -9,9 +8,6 @@ export class PlaylistRepository {
   constructor(
     @InjectRepository(Playlist)
     private readonly playlistRepo: Repository<Playlist>,
-
-    // @InjectRepository(PlaylistMusic)
-    // private readonly playlistMusicRepo: Repository<PlaylistMusic>,
   ) {}
 
   async getAllPlaylists(userId: string) {
@@ -72,5 +68,10 @@ export class PlaylistRepository {
 
   async save(playlist: Playlist) {
     return await this.playlistRepo.save(playlist);
+  }
+
+  async delete(id: string) {
+    const result = await this.playlistRepo.delete({ id });
+    return result.affected ? result.affected > 0 : false;
   }
 }
