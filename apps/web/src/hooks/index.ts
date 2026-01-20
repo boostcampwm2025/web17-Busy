@@ -8,6 +8,6 @@ export * from './useRelativeTime';
 export * from './queue/useQueueSync';
 export * from './queue/useGuestQueueSession';
 export * from './post/usePostDetail';
-export { default as useItunesSearch } from './search/useItunesSearch';
+export * from './search';
 export * from './playlist';
 export * from './post';
