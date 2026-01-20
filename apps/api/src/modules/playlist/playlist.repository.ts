@@ -66,31 +66,34 @@ export class PlaylistRepository {
       .getOne();
   }
 
-  async findById(id: string) {
-    return await this.playlistRepo.findOneBy({ id });
+  async findById(playlistId: string) {
+    return await this.playlistRepo.findOneBy({ id: playlistId });
   }
 
   async save(playlist: Playlist) {
     return await this.playlistRepo.save(playlist);
   }
 
-  async delete(id: string) {
-    const result = await this.playlistRepo.delete({ id });
+  async delete(playlistId: string) {
+    const result = await this.playlistRepo.delete({ id: playlistId });
     return result.affected ? result.affected > 0 : false;
   }
 
-  async countMusic(id: string, manager?: EntityManager): Promise<number> {
+  async countMusic(
+    playlistId: string,
+    manager?: EntityManager,
+  ): Promise<number> {
     const repo = manager ? manager.getRepository(PlaylistMusic) : this.pmRepo;
 
     return await repo.count({
       where: {
-        playlist: { id },
+        playlist: { id: playlistId },
       },
     });
   }
 
   async addMusics(
-    id: string,
+    playlistId: string,
     musicIds: string[],
     firstIndex: number,
     manager?: EntityManager,
@@ -99,7 +102,7 @@ export class PlaylistRepository {
 
     const pms = repo.create(
       musicIds.map((mId, i) => ({
-        playlist: { id },
+        playlist: { id: playlistId },
         music: { id: mId },
         orderIndex: i + firstIndex,
       })),
