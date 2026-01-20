@@ -3,6 +3,8 @@
 import React from 'react';
 import NotiActorHoverCard from './NotiActorHoverCard';
 import { NotiView } from './noti.types';
+import { DEFAULT_IMAGES } from '@/constants';
+import { coalesceImageSrc } from '@/utils';
 
 function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (noti: NotiView) => void }) {
   const containerBase = 'relative flex justify-between items-center gap-4 p-3 rounded-xl cursor-pointer transition-colors';
@@ -18,10 +20,10 @@ function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (noti: NotiView)
       {!noti.isRead && <div className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-accent-cyan" />}
 
       {/* 썸네일 */}
-      <div className="relative flex-shrink-0">
+      <div className="relative shrink-0">
         <div className="w-12 h-12">
           <img
-            src={noti.thumbnailUrl ?? '/images/default-avatar.png'}
+            src={coalesceImageSrc(noti.thumbnailUrl, DEFAULT_IMAGES.ALBUM)}
             alt="noti"
             className={`w-full h-full object-cover border border-gray-200 ${thumbShape}`}
           />

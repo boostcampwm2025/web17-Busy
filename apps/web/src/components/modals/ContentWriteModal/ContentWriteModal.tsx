@@ -7,8 +7,8 @@ import { CoverImgUploader } from './CoverImgUploader';
 import { MusicSearch } from './MusicSearch';
 import { SelectedMusicList } from './SelectedMusicList';
 import { MusicResponseDto as Music } from '@repo/dto';
-import { DEFAULT_IMGAES } from '@/constants/defaultImages';
 import { createPost } from '@/api';
+import { DEFAULT_IMAGES } from '@/constants';
 
 export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
   const { closeModal } = useModalStore();
@@ -24,7 +24,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // 현재 커버 이미지 계산 (커스텀 > 첫 번째 곡 커버 > 기본 이미지)
-  const activeCover = customCoverPreview || selectedMusics[0]?.albumCoverUrl || DEFAULT_IMGAES.ALBUM;
+  const activeCover = customCoverPreview || selectedMusics[0]?.albumCoverUrl || DEFAULT_IMAGES.ALBUM;
 
   // --- 핸들러 함수 ---
   // 파일 업로드
