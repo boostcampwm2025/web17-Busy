@@ -77,12 +77,13 @@ export class PlaylistController {
 
   // 플리에 음악 추가
   @Post(':id/music')
-  async addMusicToPlaylist(
+  async addMusicsToPlaylist(
     @UserId() userId: string,
     @Param('id') playlistId: string,
     @Body() dto: AddMusicToPlaylistReqDto,
   ): Promise<{ ok: true }> {
     const { musics } = dto;
+    await this.playlistService.addMusics(playlistId, musics);
     return { ok: true };
   }
 

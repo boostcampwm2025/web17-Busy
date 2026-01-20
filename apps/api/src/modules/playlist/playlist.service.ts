@@ -3,16 +3,26 @@ import { PlaylistRepository } from './playlist.repository';
 import {
   GetAllPlaylistsResDto,
   GetPlaylistDetailResDto,
+  MusicRequestDto,
   MusicResponseDto,
   PlaylistBriefResDto,
 } from '@repo/dto';
 import { Playlist } from './entities/playlist.entity';
+import { MusicService } from '../music/music.service';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 const PLAYLIST_DEFAULT_BASE_NAME = '플레이리스트 ';
 
 @Injectable()
 export class PlaylistService {
-  constructor(private readonly playlistRepo: PlaylistRepository) {}
+  constructor(
+    private readonly playlistRepo: PlaylistRepository,
+    private readonly musicService: MusicService,
+
+    @InjectDataSource()
+    private readonly ds: DataSource,
+  ) {}
 
   async getAllPlaylists(userId: string): Promise<GetAllPlaylistsResDto> {
     const playlists = (await this.playlistRepo.getAllPlaylists(userId)).map(
@@ -89,5 +99,25 @@ export class PlaylistService {
 
     if (!isDeleted)
       throw new NotFoundException('플레이리스트가 존재하지 않습니다.');
+  }
+
+  async addMusics(
+    playlistId: string,
+    musics: MusicRequestDto[],
+  ): Promise<void> {
+    const musicIds = await Promise.all(
+      musics.map(async (m) => {
+        if (m.id) return m.id;
+        const { id } = await this.musicService.addMusic(m);
+        return id;
+      }),
+    );
+
+    return await this.ds.transaction(async (tx) => {
+      const count = await this.playlistRepo.countMusic(playlistId, tx);
+      const firstIndex = count;
+
+      await this.playlistRepo.addMusics(playlistId, musicIds, firstIndex, tx);
+    });
   }
 }

@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entities/playlist.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
+import { PlaylistMusic } from './entities/playlist-music.entity';
 
 @Injectable()
 export class PlaylistRepository {
   constructor(
     @InjectRepository(Playlist)
     private readonly playlistRepo: Repository<Playlist>,
+
+    @InjectRepository(PlaylistMusic)
+    private readonly pmRepo: Repository<PlaylistMusic>,
   ) {}
 
   async getAllPlaylists(userId: string) {
@@ -73,5 +77,34 @@ export class PlaylistRepository {
   async delete(id: string) {
     const result = await this.playlistRepo.delete({ id });
     return result.affected ? result.affected > 0 : false;
+  }
+
+  async countMusic(id: string, manager?: EntityManager): Promise<number> {
+    const repo = manager ? manager.getRepository(PlaylistMusic) : this.pmRepo;
+
+    return await repo.count({
+      where: {
+        playlist: { id },
+      },
+    });
+  }
+
+  async addMusics(
+    id: string,
+    musicIds: string[],
+    firstIndex: number,
+    manager?: EntityManager,
+  ) {
+    const repo = manager ? manager.getRepository(PlaylistMusic) : this.pmRepo;
+
+    const pms = repo.create(
+      musicIds.map((mId, i) => ({
+        playlist: { id },
+        music: { id: mId },
+        orderIndex: i + firstIndex,
+      })),
+    );
+
+    return await repo.save(pms);
   }
 }
