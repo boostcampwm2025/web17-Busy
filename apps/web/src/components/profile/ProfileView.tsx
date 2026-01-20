@@ -1,13 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import { getUserProfileInfo, getUserProfilePosts } from '@/api';
 import { useInfiniteScroll } from '@/hooks';
 import { ProfileSkeleton } from '../skeleton';
 import ProfileInfo from './ProfileInfo/ProfileInfo';
 import ProfilePosts from './ProfilePosts';
-import ErrorScreen from '../ErrorScreen';
 import LoadingSpinner from '../LoadingSpinner';
 
 // TODO: dto로 대체
@@ -31,7 +29,7 @@ export default function ProfileView({ userId }: { userId: string }) {
     [userId],
   );
 
-  const { items, hasNext, initLoadedRef, error: scrollErrorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
+  const { items, hasNext, isInitialLoaded, initialError, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null);
   const [renderError, setRenderError] = useState<Error | null>(null);
 
@@ -53,19 +51,22 @@ export default function ProfileView({ userId }: { userId: string }) {
     fetchData();
   }, [userId]);
 
+  // 렌더링 단계에서 발생하는 에러 처리 (데이터 최초 fetch 관련)
   if (renderError) throw renderError;
+  if (initialError) throw initialError;
 
-  if (!initLoadedRef.current || !profileInfo) return <ProfileSkeleton />;
+  // 최초 요청 처리 중에만 스켈레톤 표시
+  if (!isInitialLoaded || !profileInfo) return <ProfileSkeleton />;
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorScreen}>
+    <>
       <div className="mx-auto p-6 md:p-10 gap-y-4">
         <ProfileInfo profile={profileInfo} />
         <ProfilePosts posts={items} />
       </div>
-      {scrollErrorMsg && (
+      {errorMsg && (
         <div className="text-center">
-          <p>{scrollErrorMsg}</p>
+          <p>{errorMsg}</p>
           <p className="text-sm mt-2">다시 시도해주세요.</p>
         </div>
       )}
@@ -74,6 +75,6 @@ export default function ProfileView({ userId }: { userId: string }) {
           <LoadingSpinner hStyle="py-6" />
         </div>
       )}
-    </ErrorBoundary>
+    </>
   );
 }

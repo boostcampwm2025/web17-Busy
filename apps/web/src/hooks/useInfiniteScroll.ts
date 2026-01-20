@@ -18,29 +18,36 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
   const [hasNext, setHasNext] = useState<boolean>(false);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null); // 추가 데이터 fetch 오류
 
-  const initLoadedRef = useRef(false);
+  // 초기 데이터 로드 관련 state
+  const [isInitialLoaded, setIsInitialLoaded] = useState(false);
+  const [initialError, setInitialError] = useState<Error | null>(null); // 초기 데이터 fetch 오류
 
-  const updateScrollStates = useCallback(
-    (data: InfiniteResponse<T>) => {
-      setItems((prev) => [...prev, ...data.items]);
-      setHasNext(data.hasNext);
-      setNextCursor(data.nextCursor);
-      setError(null);
-    },
-    [fetchFn],
-  );
+  /** 무한 스크롤 관련 상태 업데이트 함수 */
+  const updateScrollStates = useCallback((data: InfiniteResponse<T>) => {
+    setItems((prev) => [...prev, ...data.items]);
+    setHasNext(data.hasNext);
+    setNextCursor(data.nextCursor);
+    setErrorMsg(null);
+  }, []);
 
   /** 초기 데이터 fetch 함수 */
   const loadInitialData = useCallback(async () => {
     try {
       const data = await fetchFn();
       updateScrollStates(data);
-    } catch {
-      setError('오류가 발생했습니다.');
+    } catch (err) {
+      // 초기 데이터 fetch 실패 에러 처리 (앱 라우팅 레벨에서 error-boundary로 컴포넌트 교체)
+      if (err instanceof Error) {
+        setInitialError(err);
+      } else {
+        setInitialError(new Error('데이터 로드에 실패했습니다.'));
+      }
+    } finally {
+      setIsInitialLoaded(true);
     }
-  }, [fetchFn]);
+  }, [fetchFn, updateScrollStates]);
 
   /** 추가 데이터 fetch 함수 */
   const loadMore = useCallback(async () => {
@@ -52,18 +59,18 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
       const data = await fetchFn(nextCursor);
       updateScrollStates(data);
     } catch {
-      setError('오류가 발생했습니다.');
+      // 추가 데이터 fetch 실패 에러 처리 (페이지 하단에 에러 메시지 단순 렌더링 처리)
+      setErrorMsg('오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
-  }, [fetchFn, hasNext, isLoading, nextCursor]);
+  }, [fetchFn, hasNext, isLoading, nextCursor, updateScrollStates]);
 
   useEffect(() => {
-    if (initLoadedRef.current) return;
-
-    initLoadedRef.current = true;
+    // 초기 로딩 전에만 실행
+    if (isInitialLoaded) return;
     loadInitialData();
-  }, []);
+  }, [loadInitialData]);
 
   useEffect(() => {
     if (inView) loadMore();
@@ -73,8 +80,9 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
     items,
     hasNext,
     isLoading,
-    initLoadedRef,
-    error,
+    isInitialLoaded,
+    initialError,
+    errorMsg,
     ref,
   };
 }
