@@ -24,7 +24,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const { openModal } = useModalStore();
-  const { isAuthenticated, isLoading } = useAuthMe();
+  const { userId, isAuthenticated, isLoading } = useAuthMe();
 
   const unreadNotiCount = useNotiStore((s) => s.unreadCount);
 
@@ -61,16 +61,28 @@ export default function Sidebar() {
     setActiveDrawer(type);
   };
 
+  const handleMyProfileNavigate = () => {
+    if (!userId) return;
+    setActiveItem(SidebarItemType.PROFILE);
+    router.push(`/profile/${userId}`);
+  };
+
   const handleNavigate = (type: SidebarItemTypeValues) => {
+    setActiveItem(type);
     router.push(type === SidebarItemType.HOME ? '/' : `/${type}`);
   };
 
   const handleItemClick = (type: SidebarItemTypeValues) => {
-    setActiveItem(type);
     handleCloseDrawer();
 
     if (isDrawerItem(type)) {
+      setActiveItem(type);
       handleOpenDrawer(type);
+      return;
+    }
+
+    if (type === SidebarItemType.PROFILE) {
+      isAuthenticated ? handleMyProfileNavigate() : openModal(MODAL_TYPES.LOGIN);
       return;
     }
 
