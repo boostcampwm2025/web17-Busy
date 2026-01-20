@@ -6,3 +6,4 @@ export * from './like';
 export * from './comment';
 export * from './user';
 export * from './playlist';
+export * from './follow';
