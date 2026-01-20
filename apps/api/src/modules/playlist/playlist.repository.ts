@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entities/playlist.entity';
 import { PlaylistMusic } from './entities/playlist-music.entity';
 import { Repository } from 'typeorm';
-import { GetAllPlaylistsResDto } from '@repo/dto';
 
 @Injectable()
 export class PlaylistRepository {
@@ -55,5 +54,15 @@ export class PlaylistRepository {
     });
 
     return await this.playlistRepo.save(playlist);
+  }
+
+  async getPlaylistDetail(playlistId: string): Promise<Playlist | null> {
+    return await this.playlistRepo
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.playlistMusics', 'pm')
+      .leftJoinAndSelect('pm.music', 'm')
+      .where('p.playlist_id = :playlistId', { playlistId })
+      .orderBy('pm.order_index', 'ASC')
+      .getOne();
   }
 }

@@ -1,6 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PlaylistRepository } from './playlist.repository';
-import { GetAllPlaylistsResDto, PlaylistBriefResDto } from '@repo/dto';
+import {
+  GetAllPlaylistsResDto,
+  GetPlaylistDetailResDto,
+  MusicResponseDto,
+  PlaylistBriefResDto,
+} from '@repo/dto';
 import { Playlist } from './entities/playlist.entity';
 
 const PLAYLIST_DEFAULT_BASE_NAME = '플레이리스트 ';
@@ -37,5 +42,35 @@ export class PlaylistService {
     // playlist 개수 + 1
     const count = await this.playlistRepo.getCountOfPlaylistOf(userId);
     return `${PLAYLIST_DEFAULT_BASE_NAME}${count + 1}`;
+  }
+
+  async getPlaylistDetail(
+    playlistId: string,
+  ): Promise<GetPlaylistDetailResDto> {
+    const playlist = await this.playlistRepo.getPlaylistDetail(playlistId);
+    if (!playlist)
+      throw new NotFoundException('플레이리스트가 존재하지 않습니다.');
+
+    return this.toGetPlaylistDetailResDto(playlist);
+  }
+
+  private toGetPlaylistDetailResDto(playlist: Playlist) {
+    const musics: MusicResponseDto[] = (playlist.playlistMusics ?? [])
+      .map((pm) => pm.music)
+      .map((m) => ({
+        id: m.id,
+        title: m.title,
+        artistName: m.artistName,
+        trackUri: m.trackUri,
+        albumCoverUrl: m.albumCoverUrl,
+        provider: m.provider,
+        durationMs: m.durationMs,
+      }));
+
+    return {
+      id: playlist.id,
+      title: playlist.title,
+      musics,
+    };
   }
 }

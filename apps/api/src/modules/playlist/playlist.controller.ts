@@ -49,14 +49,9 @@ export class PlaylistController {
   // 플리 상세 조회
   @Get(':id')
   async getPlaylistById(
-    @UserId() userId: string,
     @Param('id') playlistId: string,
   ): Promise<GetPlaylistDetailResDto> {
-    return {
-      id: '',
-      title: '',
-      musics: [],
-    };
+    return await this.playlistService.getPlaylistDetail(playlistId);
   }
 
   // 플리 제목 수정
