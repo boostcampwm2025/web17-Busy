@@ -64,7 +64,7 @@ describe('FollowService', () => {
   describe('addFollow', () => {
     it('should call repository.createFollow and return success message', async () => {
       const userId = 'user-1';
-      const dto: CreateFollowDto = { orderUserId: 'user-2' };
+      const dto: CreateFollowDto = { otherUserId: 'user-2' };
 
       mockFollowRepository.createFollow.mockResolvedValue(undefined);
 
@@ -72,7 +72,7 @@ describe('FollowService', () => {
 
       expect(repository.createFollow).toHaveBeenCalledWith(
         userId,
-        dto.orderUserId,
+        dto.otherUserId,
       );
       expect(result).toEqual({ message: '팔로우 성공' });
     });
@@ -81,7 +81,7 @@ describe('FollowService', () => {
   describe('removeFollow', () => {
     it('should call repository.removeFollow and return success message', async () => {
       const userId = 'user-1';
-      const dto: DeleteFollowDto = { orderUserId: 'user-2' };
+      const dto: DeleteFollowDto = { otherUserId: 'user-2' };
 
       mockFollowRepository.removeFollow.mockResolvedValue(undefined);
 
@@ -89,7 +89,7 @@ describe('FollowService', () => {
 
       expect(repository.removeFollow).toHaveBeenCalledWith(
         userId,
-        dto.orderUserId,
+        dto.otherUserId,
       );
       expect(result).toEqual({ message: '팔로우 해제 성공' });
     });
