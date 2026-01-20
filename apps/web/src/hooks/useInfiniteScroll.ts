@@ -18,26 +18,30 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
   const [hasNext, setHasNext] = useState<boolean>(false);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateScrollStates = useCallback(async (cursor?: string) => {
-    try {
-      const data = await fetchFn(cursor);
+  const updateScrollStates = useCallback(
+    (data: InfiniteResponse<T>) => {
       setItems((prev) => [...prev, ...data.items]);
       setHasNext(data.hasNext);
       setNextCursor(data.nextCursor);
       setError(null);
-    } catch (err) {
-      setError('오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [fetchFn],
+  );
 
   /** 초기 데이터 fetch 함수 */
   const loadInitialData = useCallback(async () => {
-    setIsLoading(true);
-    updateScrollStates();
+    setIsInitialLoading(true);
+    try {
+      const data = await fetchFn();
+      updateScrollStates(data);
+    } catch (err) {
+      setError('오류가 발생했습니다.');
+    } finally {
+      setIsInitialLoading(false);
+    }
   }, [fetchFn]);
 
   /** 추가 데이터 fetch 함수 */
@@ -46,7 +50,14 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
     setIsLoading(true);
 
     await new Promise((resolve) => setTimeout(resolve, 500)); // 로딩 스피너 짧게 노출
-    updateScrollStates(nextCursor);
+    try {
+      const data = await fetchFn(nextCursor);
+      updateScrollStates(data);
+    } catch (err) {
+      setError('오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [fetchFn, hasNext, isLoading, nextCursor]);
 
   useEffect(() => {
@@ -61,6 +72,7 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
     items,
     hasNext,
     isLoading,
+    isInitialLoading,
     error,
     ref,
   };

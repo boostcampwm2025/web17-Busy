@@ -2,20 +2,18 @@
 
 import { useInfiniteScroll } from '@/hooks';
 import { getFeedPosts } from '@/api';
+import { PostResponseDto as Post } from '@repo/dto';
+import { FeedSkeleton } from '../skeleton';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
-import { PostResponseDto as Post } from '@repo/dto';
-
-/** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
-const fetchFeeds = async (cursor?: string) => {
-  const { posts, hasNext, nextCursor } = await getFeedPosts(cursor);
-  return { items: posts, hasNext, nextCursor };
-};
 
 export default function FeedSection() {
-  const { items, hasNext, error, ref } = useInfiniteScroll<Post>({
-    fetchFn: fetchFeeds,
+  const { items, hasNext, isInitialLoading, error, ref } = useInfiniteScroll<Post>({
+    fetchFn: getFeedPosts,
   });
+
+  // 최초 요청 대기 중에만 스켈레톤 표시
+  if (isInitialLoading) return <FeedSkeleton />;
 
   return (
     <>
