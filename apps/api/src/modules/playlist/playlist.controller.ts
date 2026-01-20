@@ -31,9 +31,7 @@ export class PlaylistController {
   async getAllPlaylists(
     @UserId() userId: string,
   ): Promise<GetAllPlaylistsResDto> {
-    return {
-      playlists: [],
-    };
+    return await this.playlistService.getAllPlaylists(userId);
   }
 
   // 새로운 플리 추가
@@ -99,15 +97,6 @@ export class PlaylistController {
     @Body() dto: UpdateMusicsOrderOfPlaylistReqDto,
   ): Promise<{ ok: true }> {
     const { musicIds } = dto;
-    return { ok: true };
-  }
-
-  // 플리에서 음악 제거
-  @Delete(':id/music/:orderIndex')
-  async deleteMusicFromPlaylist(
-    @UserId() userId: string,
-    @Param('id') playlistId: string,
-  ): Promise<{ ok: true }> {
     return { ok: true };
   }
 }
