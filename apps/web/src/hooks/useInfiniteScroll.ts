@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 interface InfiniteResponse<T> {
@@ -18,8 +18,9 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
   const [hasNext, setHasNext] = useState<boolean>(false);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const initLoadedRef = useRef(false);
 
   const updateScrollStates = useCallback(
     (data: InfiniteResponse<T>) => {
@@ -33,14 +34,11 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
 
   /** 초기 데이터 fetch 함수 */
   const loadInitialData = useCallback(async () => {
-    setIsInitialLoading(true);
     try {
       const data = await fetchFn();
       updateScrollStates(data);
-    } catch (err) {
+    } catch {
       setError('오류가 발생했습니다.');
-    } finally {
-      setIsInitialLoading(false);
     }
   }, [fetchFn]);
 
@@ -53,7 +51,7 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
     try {
       const data = await fetchFn(nextCursor);
       updateScrollStates(data);
-    } catch (err) {
+    } catch {
       setError('오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
@@ -61,6 +59,9 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
   }, [fetchFn, hasNext, isLoading, nextCursor]);
 
   useEffect(() => {
+    if (initLoadedRef.current) return;
+
+    initLoadedRef.current = true;
     loadInitialData();
   }, []);
 
@@ -72,7 +73,7 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
     items,
     hasNext,
     isLoading,
-    isInitialLoading,
+    initLoadedRef,
     error,
     ref,
   };
