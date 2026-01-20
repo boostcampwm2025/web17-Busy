@@ -1,7 +1,7 @@
 import { NotiRelatedType, NotiResponseDto } from '@repo/dto';
 import { NotiView } from './noti.types';
-import { formatRelativeTime } from '@/utils';
-import { DEFAULT_IMGAES } from '@/constants/defaultImages';
+import { formatRelativeTime, coalesceImageSrc } from '@/utils';
+import { DEFAULT_IMAGES } from '@/constants';
 
 function toNotiMessageBody(n: NotiResponseDto) {
   switch (n.type) {
@@ -26,11 +26,11 @@ export function toNotiView(n: NotiResponseDto): NotiView {
 
     actorUserId: n.actor.id,
     actorNickname: n.actor.nickname,
-    actorProfileImgUrl: n.actor.profileImgUrl ?? DEFAULT_IMGAES.PROFILE,
+    actorProfileImgUrl: coalesceImageSrc(n.actor.profileImgUrl, DEFAULT_IMAGES.PROFILE),
 
     messageBody: toNotiMessageBody(n),
 
-    thumbnailUrl: n.thumbnailUrl ?? (n.relatedType === NotiRelatedType.USER ? DEFAULT_IMGAES.PROFILE : DEFAULT_IMGAES.POST),
+    thumbnailUrl: n.thumbnailUrl?.trim() ?? (n.relatedType === NotiRelatedType.USER ? DEFAULT_IMAGES.PROFILE : DEFAULT_IMAGES.POST),
     thumbnailShape: n.thumbnailShape,
 
     relatedId: n.relatedId,
