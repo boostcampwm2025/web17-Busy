@@ -25,9 +25,9 @@ export default function ProfilePosts({ posts }: ProfilePostsProps) {
 
   return (
     <section className="w-full grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 py-8 border-t border-primary/10">
-      {posts.map((post) => {
+      {posts.map((post, idx) => {
         return (
-          <article key={post.id} className="group relative cursor-pointer" onClick={() => handleOpenDetail(post.id)}>
+          <article key={`${post.id}-${idx}`} className="group relative cursor-pointer" onClick={() => handleOpenDetail(post.id)}>
             {post.isMoreThanOneMusic && (
               <>
                 <div className="absolute inset-0 bg-gray-4 border-2 border-primary rounded-xl z-0 transform translate-x-1 translate-y-1 transition-transform duration-200"></div>
