@@ -52,10 +52,11 @@ export class PostService {
     musics.forEach((m) => (m.provider ??= MusicProvider.ITUNES));
     // const ensuredMusics = this.musicService.ensureMusics(musics);
     const musicIds = await Promise.all(
+      // findByUniqueKey 가 무조건 provider+trackUri 기준으로 중복 없이 DB의 UUID를 확보한다.
       musics.map(async (m) => {
-        if (m.id) return m.id;
-        const { id } = await this.musicService.addMusic(m);
-        return id;
+        const { id: _ignored, ...createDto } = m; // 요청 id는 외부 id일 수 있으므로 무시
+        const saved = await this.musicService.addMusic(createDto);
+        return saved.id; // DB music_id(UUID)
       }),
     );
 

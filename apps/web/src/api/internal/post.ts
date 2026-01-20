@@ -21,10 +21,7 @@ export const getPostDetail = async (postId: string) => {
   return data;
 };
 
+/** [POST] 게시글 생성 (Post 생성 시 music upsert 후 post_music 생성) */
 export const createPost = async (formData: FormData) => {
-  await internalClient.post('/post', formData, {
-    headers: {
-      'Content-Type': undefined,
-    },
-  });
+  await internalClient.post('/post', formData);
 };
