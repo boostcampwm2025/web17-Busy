@@ -1,4 +1,3 @@
-import { url } from 'inspector';
 import { SPOTIFY_AUTH_URL, SPOTIFY_SCOPES } from '../config/spotify';
 
 export function buildSpotifyAuthorizeUrl(params: { clientId: string; redirectUri: string; codeChallenge: string; state: string }) {
@@ -11,23 +10,4 @@ export function buildSpotifyAuthorizeUrl(params: { clientId: string; redirectUri
   url.searchParams.set('scope', SPOTIFY_SCOPES.join(' '));
   url.searchParams.set('state', params.state);
   return url.toString();
-}
-
-export async function exchangeSpotifyCodeWithBackend(args: { code: string; verifier: string }) {
-  const backendUrl = process.env.INTERNAL_API_URL!;
-  const url = new URL('auth/spotify/exchange', backendUrl);
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(args),
-  });
-
-  if (!res.ok) return { ok: false as const };
-
-  const data = (await res.json()) as {
-    spotifyAccessToken: string;
-    spotifyTokenExpiresIn: number;
-    appJwt: string;
-  };
-  return { ok: true as const, ...data };
 }

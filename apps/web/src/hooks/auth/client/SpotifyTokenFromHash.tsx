@@ -22,7 +22,8 @@ export default function SpotifyTokenFromHash() {
     if (Number.isNaN(expiresIn)) return;
 
     setAccessToken(token, expiresIn);
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    // AuthLoginQueryHandler 남은 해시가 처리되어야 함
+    // window.history.replaceState(null, '', window.location.pathname + window.location.search);
   }, [setAccessToken]);
 
   return null;

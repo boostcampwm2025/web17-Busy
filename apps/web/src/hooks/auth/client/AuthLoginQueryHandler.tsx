@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+import { APP_ACCESS_TOKEN_HASH_KEY, APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
 
 const QUERY_KEYS = {
   LOGIN: 'login',
@@ -22,6 +23,16 @@ export default function AuthLoginQueryHandler() {
   const { openModal, isOpen, modalType } = useModalStore();
 
   useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const params = new URLSearchParams(hash.slice(1));
+    const appJwt = params.get(APP_ACCESS_TOKEN_HASH_KEY);
+
+    if (appJwt) {
+      sessionStorage.setItem(APP_ACCESS_TOKEN_STORAGE_KEY, appJwt);
+    }
+
     const loginFlag = searchParams.get(QUERY_KEYS.LOGIN);
     if (loginFlag !== '1') return;
 
@@ -29,7 +40,7 @@ export default function AuthLoginQueryHandler() {
 
     // 이미 로그인 모달이 열려있으면 중복 오픈 방지
     if (!(isOpen && modalType === MODAL_TYPES.LOGIN)) {
-      openModal(MODAL_TYPES.LOGIN, authError);
+      openModal(MODAL_TYPES.LOGIN, { authError });
     }
 
     // 쿼리 제거 (반복 오픈 방지)
