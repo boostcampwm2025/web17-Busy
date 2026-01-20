@@ -9,5 +9,6 @@ import { Post } from '../post/entities/post.entity';
   imports: [TypeOrmModule.forFeature([Noti, Post])],
   controllers: [NotiController],
   providers: [NotiService],
+  exports: [NotiService],
 })
 export class NotiModule {}

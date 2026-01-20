@@ -1,5 +1,7 @@
 'use client';
 
+import { authMe, tmpLogin } from '@/api';
+import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
 import { useModalStore } from '@/stores';
 import React, { useState } from 'react';
 
@@ -12,19 +14,11 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
     if (loading) return;
     setLoading(true);
 
-    const res = await fetch('/api/auth/login/tmp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: userId }),
-    });
-
-    if (!res.ok) throw new Error('로그인에 실패했습니다.');
-
-    const meRes = await fetch('/api/user/me', { credentials: 'include' });
-    if (!meRes.ok) throw new Error('쿠키 저장/인증 확인 실패');
+    const appJwt = await tmpLogin(userId);
+    sessionStorage.setItem(APP_ACCESS_TOKEN_STORAGE_KEY, appJwt);
 
     // me - 전역으로 관리하면 될 듯
-    const me = await meRes.json();
+    // const me = await authMe();
 
     setLoading(false);
     closeModal();

@@ -26,3 +26,11 @@ export const getPostDetail = async (postId: string) => {
   const { data } = await internalClient.get<Post>(`/post/${postId}`);
   return data;
 };
+
+export const createPost = async (formData: FormData) => {
+  await internalClient.post('/post', formData, {
+    headers: {
+      'Content-Type': undefined,
+    },
+  });
+};

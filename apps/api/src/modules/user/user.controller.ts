@@ -19,10 +19,7 @@ export class UserController {
     const user = await this.userService.findById(userId);
     if (!user) throw new UnauthorizedException('사용자를 찾지 못했습니다.');
 
-    return {
-      id: user.id,
-      nickname: user.nickname,
-      profileImgUrl: user.profileImgUrl,
-    };
+    const { id, nickname, profileImgUrl } = user;
+    return { id, nickname, profileImgUrl };
   }
 }

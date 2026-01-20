@@ -5,9 +5,10 @@ import { LikeController } from './like.controller';
 import { LikeService } from './like.service';
 import { LikeRepository } from './like.repository';
 import { PostModule } from '../post/post.module';
+import { NotiModule } from '../noti/noti.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Like]), PostModule],
+  imports: [TypeOrmModule.forFeature([Like]), PostModule, NotiModule],
   controllers: [LikeController],
   providers: [LikeService, LikeRepository],
   exports: [LikeService, LikeRepository],

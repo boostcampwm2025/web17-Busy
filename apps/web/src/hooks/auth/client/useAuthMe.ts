@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { internalClient } from '@/api/internal/client';
-import { UserDto as User } from '@repo/dto';
+import { authMe } from '@/api';
 
 type AuthMeState = {
   userId: string | null;
@@ -22,7 +21,7 @@ export function useAuthMe(): AuthMeState {
 
     (async () => {
       try {
-        const { data } = await internalClient.get<User>('/user/me');
+        const data = await authMe();
         if (!alive) return;
         setState({ userId: data.id, isAuthenticated: true, isLoading: false });
       } catch {
