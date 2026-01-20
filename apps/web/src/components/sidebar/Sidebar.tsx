@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState, lazy } from 'react';
+import { useMemo, useState, lazy, useEffect } from 'react';
 import { LogIn, LogOut, Menu, PlusCircle } from 'lucide-react';
 
 import { menuItems } from '@/constants';
@@ -32,12 +32,16 @@ export default function Sidebar() {
     if (pathname === '/') {
       return SidebarItemType.HOME;
     }
-    return pathname.slice(1) as SidebarItemTypeValues;
+    return pathname.split('/')[1] as SidebarItemTypeValues;
   }, [pathname]);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeItem, setActiveItem] = useState<SidebarItemTypeValues>(initialActiveItem);
   const [activeDrawer, setActiveDrawer] = useState<SidebarItemTypeValues | null>(null);
+
+  useEffect(() => {
+    setActiveItem(initialActiveItem);
+  }, [pathname]);
 
   const handleToggleSidebar = () => {
     setIsExpanded((prev) => !prev);
@@ -58,7 +62,7 @@ export default function Sidebar() {
   };
 
   const handleNavigate = (type: SidebarItemTypeValues) => {
-    router.push(type === SidebarItemType.HOME ? '/' : type);
+    router.push(type === SidebarItemType.HOME ? '/' : `/${type}`);
   };
 
   const handleItemClick = (type: SidebarItemTypeValues) => {

@@ -4,12 +4,15 @@ import { usePlayerStore } from '@/stores';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { PostCard } from '@/components';
 import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import { useRouter } from 'next/navigation';
 
 interface FeedListProps {
   posts: Post[];
 }
 
 export default function FeedList({ posts }: FeedListProps) {
+  const router = useRouter();
+
   const playMusic = usePlayerStore((s) => s.playMusic);
   const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
@@ -21,8 +24,7 @@ export default function FeedList({ posts }: FeedListProps) {
   };
 
   const handleUserClick = (userId: string) => {
-    // TODO(#next): 프로필 라우팅 연결(정책에 맞게 /profile or /profile/{id})
-    void userId;
+    router.push(`/profile/${userId}`);
   };
 
   const handleOpenDetail = (post: Post) => {

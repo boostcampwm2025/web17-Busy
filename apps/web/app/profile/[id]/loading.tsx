@@ -28,7 +28,7 @@ function ProfilePulse() {
 
 function PostListPulse() {
   return (
-    <div className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+    <div className="w-full grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 mt-4">
       <div className="aspect-square rounded-xl bg-gray-3" />
       <div className="aspect-square rounded-xl bg-gray-3" />
       <div className="aspect-square rounded-xl bg-gray-3" />
