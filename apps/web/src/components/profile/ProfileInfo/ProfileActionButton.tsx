@@ -6,18 +6,6 @@ interface ProfileActionButtonProps {
 
 export default function ProfileActionButton({ isMyProfile, isFollowing, renderIn = 'page' }: ProfileActionButtonProps) {
   // TODO: 버튼별 액션 핸들러 연결하기
-  /**
-   * [프로필 페이지에서 볼 때]
-   * - 내 프로필이면 -> 리캡 생성 버튼
-   * - isFollowing -> [팔로잉] 버튼, 누르면 팔로우 취소 요청
-   * - !isFollowing -> [팔로우] 버튼, 누르면 팔로우 요청
-   *
-   * [팔로워/팔로잉 모달에서 볼 때]
-   * - 내 프로필이면 -> null
-   * - isFollowing -> [팔로잉] 버튼, 누르면 팔로우 취소 요청
-   * - !isFollowing -> [팔로우] 버튼, 누르면 팔로우 요청
-   */
-
   // 내 프로필이면 -> 프로필 페이지에서는 리캡 생성 버튼, 모달에서는 버튼 필요 x
   if (isMyProfile) {
     return renderIn === 'modal' ? null : (
