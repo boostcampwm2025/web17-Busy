@@ -10,8 +10,8 @@ export class PlaylistRepository {
     @InjectRepository(Playlist)
     private readonly playlistRepo: Repository<Playlist>,
 
-    @InjectRepository(PlaylistMusic)
-    private readonly playlistMusicRepo: Repository<PlaylistMusic>,
+    // @InjectRepository(PlaylistMusic)
+    // private readonly playlistMusicRepo: Repository<PlaylistMusic>,
   ) {}
 
   async getAllPlaylists(userId: string) {
@@ -64,5 +64,13 @@ export class PlaylistRepository {
       .where('p.playlist_id = :playlistId', { playlistId })
       .orderBy('pm.order_index', 'ASC')
       .getOne();
+  }
+
+  async findById(id: string) {
+    return await this.playlistRepo.findOneBy({ id });
+  }
+
+  async save(playlist: Playlist) {
+    return await this.playlistRepo.save(playlist);
   }
 }

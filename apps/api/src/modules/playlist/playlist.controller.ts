@@ -57,12 +57,12 @@ export class PlaylistController {
   // 플리 제목 수정
   @Patch(':id')
   async patchTitle(
-    @UserId() userId: string,
     @Param('id') playlistId: string,
     @Body() dto: UpdateTitlePlaylitReqDto,
-  ): Promise<{ ok: true }> {
+  ): Promise<{ ok: true; playlist: Playlist }> {
     const { title } = dto;
-    return { ok: true };
+    const playlist = await this.playlistService.update(playlistId, title);
+    return { ok: true, playlist };
   }
 
   // 플리 삭제

@@ -73,4 +73,14 @@ export class PlaylistService {
       musics,
     };
   }
+
+  async update(playlistId: string, title: string): Promise<Playlist> {
+    const playlist = await this.playlistRepo.findById(playlistId);
+    if (!playlist)
+      throw new NotFoundException('플레이리스트가 존재하지 않습니다.');
+
+    playlist.title = title;
+
+    return this.playlistRepo.save(playlist);
+  }
 }
