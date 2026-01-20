@@ -17,16 +17,16 @@ export class FollowService {
   ) {}
 
   async addFollow(userId: string, createFollowDto: CreateFollowDto) {
-    const { orderUserId } = createFollowDto;
+    const { otherUserId } = createFollowDto;
 
-    await this.followRepository.createFollow(userId, orderUserId);
+    await this.followRepository.createFollow(userId, otherUserId);
     return { message: '팔로우 성공' };
   }
 
   async removeFollow(userId: string, deleteFollowDto: DeleteFollowDto) {
-    const { orderUserId } = deleteFollowDto;
+    const { otherUserId } = deleteFollowDto;
 
-    await this.followRepository.removeFollow(userId, orderUserId);
+    await this.followRepository.removeFollow(userId, otherUserId);
     return { message: '팔로우 해제 성공' };
   }
 

@@ -1,7 +1,13 @@
-import { PostResponseDto } from './post.dto';
+export class PostPreviewDto {
+  postId: string;
+  coverImgUrl: string;
+  likeCount: number;
+  commentCount: number;
+  isMoreThanOneMusic: boolean;
+}
 
 export class FindByUserDto {
-  posts: PostResponseDto[];
+  posts: PostPreviewDto[];
   hasNext: boolean;
   nextCursor?: string;
 }

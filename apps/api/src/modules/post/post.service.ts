@@ -196,7 +196,8 @@ export class PostService {
     const hasNext = posts.length > limit;
     const targetPosts = hasNext ? posts.slice(0, limit) : posts;
 
-    let nextCursor: string | null = null;
+    let nextCursor: string | undefined = undefined;
+
     if (hasNext && targetPosts.length > 0) {
       const lastPost = targetPosts[targetPosts.length - 1];
       nextCursor = `${lastPost.createdAt.toISOString()}_${lastPost.id}`;
