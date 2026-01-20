@@ -1,7 +1,9 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
+  Param,
   Patch,
   Post,
   Put,
@@ -10,6 +12,14 @@ import {
 import { PlaylistService } from './playlist.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
+import {
+  AddMusicToPlaylistReqDto,
+  CreatePlaylistReqDto,
+  GetAllPlaylistsResDto,
+  GetPlaylistDetailResDto,
+  UpdateMusicsOrderOfPlaylistReqDto,
+  UpdateTitlePlaylitReqDto,
+} from '@repo/dto';
 
 @UseGuards(AuthGuard)
 @Controller('playlist')
@@ -18,33 +28,86 @@ export class PlaylistController {
 
   // 전체 플리 조회
   @Get()
-  getAllPlaylists(@UserId() userId: string) {}
+  async getAllPlaylists(
+    @UserId() userId: string,
+  ): Promise<GetAllPlaylistsResDto> {
+    return {
+      playlists: [],
+    };
+  }
 
   // 새로운 플리 추가
   @Post()
-  createPlaylist(@UserId() userId: string) {}
+  async createPlaylist(
+    @UserId() userId: string,
+    @Body() dto: CreatePlaylistReqDto,
+  ): Promise<{ ok: true }> {
+    const { title } = dto;
+    // await this.playlistService.create(title);
+    return { ok: true };
+  }
 
   // 플리 상세 조회
   @Get(':id')
-  getPlaylistById(@UserId() userId: string) {}
+  async getPlaylistById(
+    @UserId() userId: string,
+    @Param('id') playlistId: string,
+  ): Promise<GetPlaylistDetailResDto> {
+    return {
+      id: '',
+      title: '',
+      musics: [],
+    };
+  }
 
   // 플리 제목 수정
   @Patch(':id')
-  patchTitle(@UserId() userId: string) {}
+  async patchTitle(
+    @UserId() userId: string,
+    @Param('id') playlistId: string,
+    @Body() dto: UpdateTitlePlaylitReqDto,
+  ): Promise<{ ok: true }> {
+    const { title } = dto;
+    return { ok: true };
+  }
 
   // 플리 삭제
   @Delete(':id')
-  deletePlaylist(@UserId() userId: string) {}
+  async deletePlaylist(
+    @UserId() userId: string,
+    @Param('id') playlistId: string,
+  ): Promise<{ ok: true }> {
+    return { ok: true };
+  }
 
   // 플리에 음악 추가
   @Post(':id/music')
-  addMusicToPlaylist(@UserId() userId: string) {}
+  async addMusicToPlaylist(
+    @UserId() userId: string,
+    @Param('id') playlistId: string,
+    @Body() dto: AddMusicToPlaylistReqDto,
+  ): Promise<{ ok: true }> {
+    const { musics } = dto;
+    return { ok: true };
+  }
 
   // 플리 음악 순서 변경
   @Put(':id/music')
-  changeMusicOrderOfPlaylist(@UserId() userId: string) {}
+  async changeMusicOrderOfPlaylist(
+    @UserId() userId: string,
+    @Param('id') playlistId: string,
+    @Body() dto: UpdateMusicsOrderOfPlaylistReqDto,
+  ): Promise<{ ok: true }> {
+    const { musicIds } = dto;
+    return { ok: true };
+  }
 
   // 플리에서 음악 제거
   @Delete(':id/music/:orderIndex')
-  deleteMusicFromPlaylist(@UserId() userId: string) {}
+  async deleteMusicFromPlaylist(
+    @UserId() userId: string,
+    @Param('id') playlistId: string,
+  ): Promise<{ ok: true }> {
+    return { ok: true };
+  }
 }
