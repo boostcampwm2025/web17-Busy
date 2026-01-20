@@ -29,7 +29,7 @@ export default function ProfileView({ userId }: { userId: string }) {
     [userId],
   );
 
-  const { items, hasNext, isInitialLoaded, initialError, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
+  const { items, hasNext, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null);
   const [renderError, setRenderError] = useState<Error | null>(null);
 
@@ -56,7 +56,7 @@ export default function ProfileView({ userId }: { userId: string }) {
   if (initialError) throw initialError;
 
   // 최초 요청 처리 중에만 스켈레톤 표시
-  if (!isInitialLoaded || !profileInfo) return <ProfileSkeleton />;
+  if (isInitialLoading || !profileInfo) return <ProfileSkeleton />;
 
   return (
     <>

@@ -21,8 +21,9 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
   const [errorMsg, setErrorMsg] = useState<string | null>(null); // 추가 데이터 fetch 오류
 
   // 초기 데이터 로드 관련 state
-  const [isInitialLoaded, setIsInitialLoaded] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [initialError, setInitialError] = useState<Error | null>(null); // 초기 데이터 fetch 오류
+  const initialLoadedRef = useRef(false); // 초기 데이터 fetch 재호출 방지 가드
 
   /** 무한 스크롤 관련 상태 업데이트 함수 */
   const updateScrollStates = useCallback((data: InfiniteResponse<T>) => {
@@ -45,7 +46,7 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
         setInitialError(new Error('데이터 로드에 실패했습니다.'));
       }
     } finally {
-      setIsInitialLoaded(true);
+      setIsInitialLoading(false);
     }
   }, [fetchFn, updateScrollStates]);
 
@@ -68,7 +69,8 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
 
   useEffect(() => {
     // 초기 로딩 전에만 실행
-    if (isInitialLoaded) return;
+    if (initialLoadedRef.current) return;
+    initialLoadedRef.current = true;
     loadInitialData();
   }, [loadInitialData]);
 
@@ -80,7 +82,7 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
     items,
     hasNext,
     isLoading,
-    isInitialLoaded,
+    isInitialLoading,
     initialError,
     errorMsg,
     ref,
