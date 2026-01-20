@@ -1,4 +1,4 @@
-interface PlaylistBriefResDto {
+export interface PlaylistBriefResDto {
   id: string;
   title: string;
   tracksCount: number;
