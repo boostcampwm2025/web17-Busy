@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div role="status" className="animate-pulse flex flex-col w-full max-w-[890px] items-center mx-auto py-8 px-8 gap-y-4">
+    <div role="status" className="animate-pulse flex flex-col w-full max-w-222.5 items-center mx-auto py-8 px-8 gap-y-4">
       <ProfilePulse />
       <PostListPulse />
     </div>

@@ -21,7 +21,7 @@ export default function RightPanel() {
   // 비로그인 시에는 세션 스토리지로 현재 재생목록 상태를 새로고침 시에도 유지한다.
   useGuestQueueSession(enableGuestSession);
 
-  const { positionMs, durationMs } = useItunesHook();
+  const { positionMs, durationMs, seekToMs } = useItunesHook();
   const { openModal, closeModal, isOpen, modalType } = useModalStore();
   const isQueueOpen = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
 
@@ -104,6 +104,7 @@ export default function RightPanel() {
           onRepeat={handleDisabledRepeat}
           onPost={handleDisabledPost}
           onSave={handleDisabledSave}
+          onSeek={seekToMs}
         />
 
         <QueueList

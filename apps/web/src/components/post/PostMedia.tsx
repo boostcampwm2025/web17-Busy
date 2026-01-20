@@ -40,7 +40,7 @@ const stylesByVariant: Record<Variant, { container: string; playBtn: string; inf
 };
 
 export default function PostMedia({ post, variant, currentMusicId, isPlayingGlobal, onPlay, onClickContainer }: Props) {
-  const { isMulti, activeMusic, coverUrl, isActivePlaying, prev, next } = usePostMedia({
+  const { isMulti, activeMusic, coverUrl, isActivePlaying, prev, next, activeIndex } = usePostMedia({
     post,
     currentMusicId,
     isPlayingGlobal,
@@ -64,6 +64,8 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
     next();
   };
 
+  const isCoverPage = activeIndex === 0;
+
   return (
     <div className={styles.container} onClick={onClickContainer}>
       <img
@@ -73,12 +75,13 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
       />
 
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/35 transition-colors">
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <button type="button" onClick={handlePlay} className={styles.playBtn} title={isActivePlaying ? '일시정지' : '재생'}>
-            {isActivePlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
-          </button>
-        </div>
-
+        {!isCoverPage && activeMusic && (
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <button type="button" onClick={handlePlay} className={styles.playBtn} title={isActivePlaying ? '일시정지' : '재생'}>
+              {isActivePlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
+            </button>
+          </div>
+        )}
         {isMulti ? (
           <>
             <button type="button" onClick={handlePrev} className={`${styles.navBtn} left-3`} title="이전">

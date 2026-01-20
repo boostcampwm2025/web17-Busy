@@ -7,7 +7,7 @@ import { CoverImgUploader } from './CoverImgUploader';
 import { MusicSearch } from './MusicSearch';
 import { SelectedMusicList } from './SelectedMusicList';
 import { MusicResponseDto as Music } from '@repo/dto';
-import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import { DEFAULT_IMAGES } from '@/constants';
 
 export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
   const { closeModal } = useModalStore();
