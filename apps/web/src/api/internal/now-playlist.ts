@@ -1,4 +1,3 @@
-// src/api/internal/now-playlist.ts
 import { MusicResponseDto as Music } from '@repo/dto';
 import { internalClient } from './client';
 
