@@ -1,7 +1,14 @@
 import { MusicResponseDto as Music } from '@repo/dto';
 
+export interface PlaylistBrief {
+  id: string;
+  title: string;
+  tracksCount: number;
+  firstAlbumCoverUrl: string;
+}
+
 export interface Playlist {
-  playlistId: string;
+  id: string;
   title: string;
   musics: Music[];
 }

@@ -8,3 +8,5 @@ export * from './useRelativeTime';
 export * from './useQueueSync';
 export * from './useGuestQueueSession';
 export * from './usePostDetail';
+export { default as useItunesSearch } from './search/useItunesSearch';
+export * from './playlist';
