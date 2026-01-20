@@ -15,11 +15,7 @@ import {
 import { FollowService } from './follow.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
-import {
-  CreateFollowDto,
-  DeleteFollowDto,
-  GetUserFollowingsDto,
-} from '@repo/dto';
+import { CreateFollowDto, DeleteFollowDto, GetUserFollowDto } from '@repo/dto';
 
 @Controller('follow')
 export class FollowController {
@@ -45,12 +41,21 @@ export class FollowController {
     return await this.followService.removeFollow(userId, deleteFollowDto);
   }
 
-  @Get(':userId')
+  @Get('following/:userId')
   async getUserFollowings(
     @Param('userId') userId: string,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('cursor') cursor?: string,
-  ): Promise<GetUserFollowingsDto> {
+  ): Promise<GetUserFollowDto> {
     return await this.followService.getFollowings(userId, limit, cursor);
+  }
+
+  @Get('follower/:userId')
+  async getUserFollowers(
+    @Param('userId') userId: string,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('cursor') cursor?: string,
+  ): Promise<GetUserFollowDto> {
+    return await this.followService.getFollowers(userId, limit, cursor);
   }
 }
