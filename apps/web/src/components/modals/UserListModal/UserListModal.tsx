@@ -17,7 +17,7 @@ interface UserListModalProps {
 
 export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
   const { modalProps, closeModal } = useModalStore();
-  const { userId: profileUserId }: { userId: string } = modalProps;
+  const { profileUserId }: { profileUserId: string } = modalProps;
 
   const router = useRouter();
   const { userId: loggedInUserId } = useAuthMe();

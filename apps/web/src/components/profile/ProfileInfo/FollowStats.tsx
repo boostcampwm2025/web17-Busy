@@ -11,8 +11,8 @@ interface FollowStatsProps {
 export default function FollowStats({ profileUserId, followerCount, followingCount }: FollowStatsProps) {
   // 팔로우 사용자 모달 오픈 로직 연결
   const openModal = useModalStore((s) => s.openModal);
-  const handleOpenFollowerModal = () => openModal(MODAL_TYPES.FOLLOWER_USER, { userId: profileUserId });
-  const handleOpenFollowingModal = () => openModal(MODAL_TYPES.FOLLOWING_USER, { userId: profileUserId });
+  const handleOpenFollowerModal = () => openModal(MODAL_TYPES.FOLLOWER_USER, { profileUserId });
+  const handleOpenFollowingModal = () => openModal(MODAL_TYPES.FOLLOWING_USER, { profileUserId });
 
   // TODO: 팔로워/팔로잉 숫자 포맷팅 함수
   return (
