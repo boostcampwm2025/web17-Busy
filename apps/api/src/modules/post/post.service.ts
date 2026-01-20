@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-
+import { PostRepository } from './post.repository';
 import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
 import {
@@ -13,6 +13,7 @@ import {
   MusicResponseDto,
   MusicProvider,
   PostResponseDto,
+  FindByUserDto,
 } from '@repo/dto';
 import { PostMusicRepository } from './post-music.repository';
 import { MusicService } from '../music/music.service';
@@ -26,6 +27,8 @@ export class PostService {
 
     @InjectRepository(Post)
     private readonly postRepo: Repository<Post>,
+
+    private readonly postRepository: PostRepository,
 
     @InjectRepository(Like)
     private readonly likeRepo: Repository<Like>,
@@ -174,6 +177,60 @@ export class PostService {
       createdAt: createdAt.toISOString(),
       isEdited,
       isLiked,
+    };
+  }
+
+  async getByUserId(
+    userId: string,
+    limit: number,
+    cursor?: string,
+  ): Promise<FindByUserDto> {
+    const { date: cursorDate } = this.decodeCursor(cursor);
+
+    const posts = await this.postRepository.getPostsByUser(
+      userId,
+      limit + 1,
+      cursorDate,
+    );
+
+    const hasNext = posts.length > limit;
+    const targetPosts = hasNext ? posts.slice(0, limit) : posts;
+
+    let nextCursor: string | null = null;
+    if (hasNext && targetPosts.length > 0) {
+      const lastPost = targetPosts[targetPosts.length - 1];
+      nextCursor = `${lastPost.createdAt.toISOString()}_${lastPost.id}`;
+    }
+
+    return {
+      posts: targetPosts.map((post) => ({
+        postId: post.id,
+        coverImgUrl: post.coverImgUrl,
+        likeCount: post.likeCount,
+        commentCount: post.commentCount,
+        isMoreThanOneMusic: (post.postMusics?.length ?? 0) > 1,
+      })),
+      hasNext,
+      nextCursor,
+    };
+  }
+
+  private decodeCursor(cursor?: string) {
+    if (!cursor) {
+      return { date: null, id: null };
+    }
+
+    const separatorIndex = cursor.lastIndexOf('_');
+    if (separatorIndex === -1) {
+      return { date: null, id: null };
+    }
+
+    const dateString = cursor.substring(0, separatorIndex);
+    const idString = cursor.substring(separatorIndex + 1);
+
+    return {
+      date: new Date(dateString),
+      id: idString,
     };
   }
 }
