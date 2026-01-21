@@ -6,15 +6,17 @@ import { CoverImgUploader, MusicSearch, SelectedMusicList } from './index';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { useContentWrite } from '@/hooks';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
   const { closeModal } = useModalStore();
+
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleWriteSuccess = () => {
     closeModal();
-    router.push('/');
+    pathname === '/' ? router.refresh() : router.push('/');
   };
 
   const {
