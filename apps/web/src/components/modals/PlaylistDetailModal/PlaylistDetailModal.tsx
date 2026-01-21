@@ -3,7 +3,7 @@ import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic, G
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
-import { changeMusicOrderOfPlaylsit, getPlaylistDetail } from '@/api';
+import { addMusicsToPlaylist, changeMusicOrderOfPlaylsit, getPlaylistDetail } from '@/api';
 import { reorder } from '@/utils';
 
 export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
@@ -60,7 +60,11 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
     await requestChangeOrder();
   };
 
-  const handleAddSong = (song: UnsavedMusic) => {};
+  const handleAddSong = async (song: UnsavedMusic) => {
+    // 낙관적 업데이트 x - song id가 필요해서 안 됨
+    const { addedMusics } = await addMusicsToPlaylist(playlistId, song);
+    setSongs([...songs, ...addedMusics]);
+  };
 
   return (
     playlist && (
