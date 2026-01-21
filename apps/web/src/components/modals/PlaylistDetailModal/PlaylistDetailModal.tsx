@@ -3,7 +3,7 @@ import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic, G
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
-import { getPlaylistDetail } from '@/api';
+import { changeMusicOrderOfPlaylsit, getPlaylistDetail } from '@/api';
 
 export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
   const { closeModal } = useModalStore();
@@ -27,7 +27,19 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
   const onPlaySong = (song: SavedMusic) => {};
   const onPlayTotalSongs = () => {};
   const toggleSelectSong = (musicId: string) => {};
-  const deleteSelectedSongs = () => {};
+  const deleteSelectedSongs = async () => {
+    // 낙관적 업데이트
+    setSongs(songs.filter((s) => !selectedSongIds.has(s.id)));
+    setSelectedSongIds(new Set());
+
+    try {
+      const songIds = songs.map((s) => s.id);
+      await changeMusicOrderOfPlaylsit(playlistId, songIds); // playlist.id?
+    } catch (e) {
+      // 에러 처리
+      throw e;
+    }
+  };
   const moveSong = (index: number, direction: 'up' | 'down') => {};
   const handleAddSong = (song: UnsavedMusic) => {};
 
