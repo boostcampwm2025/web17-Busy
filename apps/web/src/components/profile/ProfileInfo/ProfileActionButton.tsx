@@ -12,6 +12,8 @@ export default function ProfileActionButton({ loggedInUserId, profileUserId, isF
   const isLoggedIn = !!loggedInUserId;
   const isMyProfile = loggedInUserId === profileUserId;
 
+  const BUTTON_TEXT = isFollowing ? '팔로잉' : '팔로우';
+
   const toggleIsFollowing = (profileUserId: string) => {
     // 사용자 목록 state에서 해당 사용자 찾아서 isFollowing 수정
   };
@@ -48,7 +50,7 @@ export default function ProfileActionButton({ loggedInUserId, profileUserId, isF
         disabled={!isLoggedIn}
         className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-transparent border-gray-3 text-gray-1 border-2 font-bold hover:bg-gray-4 transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
       >
-        팔로잉
+        {BUTTON_TEXT}
       </button>
     );
   }
@@ -60,7 +62,7 @@ export default function ProfileActionButton({ loggedInUserId, profileUserId, isF
       disabled={!isLoggedIn}
       className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-primary/90 text-white border-2 border-primary font-bold hover:bg-primary transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
     >
-      팔로우
+      {BUTTON_TEXT}
     </button>
   );
 }
