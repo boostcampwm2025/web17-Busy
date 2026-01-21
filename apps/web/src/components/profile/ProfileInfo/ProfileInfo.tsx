@@ -41,7 +41,7 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
             <h2 className="text-2xl font-black text-primary md:mr-6">{nickname}</h2>
 
             {/* 리캡 생성/팔로우 버튼 */}
-            <ProfileActionButton isMyProfile={isMyProfile} isFollowing={isFollowing} renderIn="page" />
+            <ProfileActionButton isLoggedIn={!!loggedInUserId} isMyProfile={isMyProfile} isFollowing={isFollowing} renderIn="page" />
           </div>
 
           {/* 팔로우/팔로잉 사용자 정보 */}
