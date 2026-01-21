@@ -2,14 +2,17 @@ import {
   Controller,
   Get,
   Param,
+  Query,
   UnauthorizedException,
   UseGuards,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { AuthOptionalGuard } from 'src/common/guards/auth.optional-guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
-import { UserDto, GetUserDto } from '@repo/dto';
+import { UserDto, GetUserDto, SearchUsersResDto } from '@repo/dto';
 
 @Controller('user')
 export class UserController {
@@ -33,5 +36,23 @@ export class UserController {
     const user = await this.userService.getUserProfile(targetUserId, userId);
 
     return user;
+  }
+
+  @UseGuards(AuthOptionalGuard)
+  @Get('search')
+  async searchUsers(
+    @Query('q') keyword: string,
+    @UserId() userId?: string,
+    @Query('cursor') cursor?: string,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
+  ): Promise<SearchUsersResDto> {
+    const users = await this.userService.searchUsers(
+      keyword,
+      limit,
+      cursor,
+      userId,
+    );
+
+    return users;
   }
 }
