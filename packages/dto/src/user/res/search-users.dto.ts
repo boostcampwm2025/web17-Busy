@@ -1,5 +1,10 @@
-import { GetUserDto } from './get-user.dto';
+interface UserDto {
+  id: string;
+  nickname: string;
+  profileImgUrl: string | null;
+  isFollowing: boolean;
+}
 
 export class SearchUsersResDto {
-  users: GetUserDto[];
+  users: UserDto[];
 }
