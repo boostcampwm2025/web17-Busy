@@ -26,7 +26,15 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
   // todo
   const onPlaySong = (song: SavedMusic) => {};
   const onPlayTotalSongs = () => {};
-  const toggleSelectSong = (musicId: string) => {};
+
+  const toggleSelectSong = (songId: string) => {
+    const newSelected = new Set(selectedSongIds);
+    if (selectedSongIds.has(songId)) newSelected.delete(songId);
+    else newSelected.add(songId);
+
+    setSelectedSongIds(newSelected);
+  };
+
   const deleteSelectedSongs = async () => {
     // 낙관적 업데이트
     setSongs(songs.filter((s) => !selectedSongIds.has(s.id)));
@@ -40,6 +48,7 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
       throw e;
     }
   };
+
   const moveSong = (index: number, direction: 'up' | 'down') => {};
   const handleAddSong = (song: UnsavedMusic) => {};
 
