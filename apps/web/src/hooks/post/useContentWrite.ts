@@ -33,7 +33,10 @@ type Return = {
   onSubmit: () => Promise<void>;
 };
 
+const isUuid = (id: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+
 const toMusicPayload = (m: Music) => ({
+  id: isUuid(m.id) ? m.id : undefined,
   title: m.title,
   artistName: m.artistName,
   albumCoverUrl: m.albumCoverUrl,
