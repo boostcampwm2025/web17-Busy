@@ -7,6 +7,7 @@ export const MODAL_TYPES = {
   MOBILE_QUEUE: 'MOBILE_QUEUE',
   FOLLOWER_USER: 'FOLLOWER_USER',
   FOLLOWING_USER: 'FOLLOWING_USER',
+  PLAYLIST_DETAIL: 'PLAYLIST_DETAIL',
 } as const;
 
 export type ModalType = (typeof MODAL_TYPES)[keyof typeof MODAL_TYPES] | null;

@@ -4,6 +4,7 @@ import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { ContentWriteModal, PostCardDetailModal, LoginModal, MobilePlayerModal } from './index';
 import { UserListModal } from './UserListModal';
 import { getFollowerUsers, getFollowingUsers } from '@/api';
+import { PlaylistDetailModal } from './PlaylistDetailModal';
 
 export default function ModalContainer() {
   const { isOpen, modalType, modalProps } = useModalStore();
@@ -29,6 +30,9 @@ export default function ModalContainer() {
 
       {/* 6. 팔로잉 사용자 목록 모달 */}
       {modalType === MODAL_TYPES.FOLLOWING_USER && <UserListModal title="팔로잉 목록" fetchFn={getFollowingUsers} />}
+
+      {/* 7. 플레이리스트 상세 모달 */}
+      {modalType === MODAL_TYPES.PLAYLIST_DETAIL && <PlaylistDetailModal playlistId={modalProps.playlistId} />}
     </>
   );
 }
