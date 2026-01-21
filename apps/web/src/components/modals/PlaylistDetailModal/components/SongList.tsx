@@ -1,3 +1,4 @@
+import { usePlayerStore } from '@/stores';
 import type { MusicResponseDto } from '@repo/dto';
 import { CheckSquare, ChevronDown, ChevronUp, Music, Play, Square } from 'lucide-react';
 
@@ -7,7 +8,6 @@ function SongItem({
   isLast,
   isChecked,
   toggleSelectSong,
-  onPlaySong,
   moveSong,
 }: {
   song: MusicResponseDto;
@@ -15,9 +15,10 @@ function SongItem({
   isLast: boolean;
   isChecked: boolean;
   toggleSelectSong: (musicId: string) => void;
-  onPlaySong: (song: MusicResponseDto) => void;
   moveSong: (index: number, direction: 'up' | 'down') => void;
 }) {
+  const playMusic = usePlayerStore((s) => s.playMusic);
+
   return (
     <li className="group flex items-center p-2 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors">
       {/* Checkbox (Left) */}
@@ -26,7 +27,7 @@ function SongItem({
       </button>
 
       {/* Song Info (Click to play individual) */}
-      <div className="flex items-center flex-1 min-w-0 cursor-pointer" onClick={() => onPlaySong(song)}>
+      <div className="flex items-center flex-1 min-w-0 cursor-pointer" onClick={() => playMusic(song)}>
         <div className="relative w-10 h-10 mr-3 flex-shrink-0">
           <img src={song.albumCoverUrl} alt="cover" className="w-full h-full rounded border border-gray-200 object-cover" />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded flex items-center justify-center transition-colors">
@@ -56,13 +57,11 @@ export function SongList({
   songs,
   selectedSongIds,
   toggleSelectSong,
-  onPlaySong,
   moveSong,
 }: {
   songs: MusicResponseDto[];
   selectedSongIds: Set<string>;
   toggleSelectSong: (musicId: string) => void;
-  onPlaySong: (song: MusicResponseDto) => void;
   moveSong: (index: number, direction: 'up' | 'down') => void;
 }) {
   return (
@@ -82,7 +81,6 @@ export function SongList({
               isLast={idx === songs.length - 1}
               isChecked={selectedSongIds.has(song.id)}
               toggleSelectSong={toggleSelectSong}
-              onPlaySong={onPlaySong}
               moveSong={moveSong}
             />
           ))}

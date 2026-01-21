@@ -24,8 +24,7 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
     initialFetchPlaylist();
   }, []);
 
-  // todo
-  const onPlaySong = (song: SavedMusic) => {};
+  // todo - player store에서 여러 곡 추가 기능이 추가 되어야 할 듯
   const onPlayTotalSongs = () => {};
 
   const toggleSelectSong = (songId: string) => {
@@ -90,7 +89,7 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
           {selectedSongIds.size > 0 && <Toolbar selectedSongIds={selectedSongIds} deleteSelectedSongs={deleteSelectedSongs} />}
 
           {/* Song List */}
-          <SongList songs={songs} selectedSongIds={selectedSongIds} toggleSelectSong={toggleSelectSong} onPlaySong={onPlaySong} moveSong={moveSong} />
+          <SongList songs={songs} selectedSongIds={selectedSongIds} toggleSelectSong={toggleSelectSong} moveSong={moveSong} />
         </div>
       </div>
     )
