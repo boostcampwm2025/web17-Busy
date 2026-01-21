@@ -25,7 +25,7 @@ export default function ProfileActionButton({ isLoggedIn, isMyProfile, isFollowi
       <button
         title="팔로우 취소"
         disabled={!isLoggedIn}
-        className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-transparent border-gray-3 text-gray-1 border-2 font-bold hover:bg-gray-4 transition-colors disabled:cursor-not-allowed disabled:bg-primary/30 disabled:border-primary/50`}
+        className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-transparent border-gray-3 text-gray-1 border-2 font-bold hover:bg-gray-4 transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
       >
         팔로잉
       </button>
@@ -37,7 +37,7 @@ export default function ProfileActionButton({ isLoggedIn, isMyProfile, isFollowi
     <button
       title="팔로우"
       disabled={!isLoggedIn}
-      className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-primary/90 text-white border-2 border-primary font-bold hover:bg-primary transition-colors disabled:cursor-not-allowed disabled:bg-primary/30 disabled:border-primary/50`}
+      className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-primary/90 text-white border-2 border-primary font-bold hover:bg-primary transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
     >
       팔로우
     </button>
