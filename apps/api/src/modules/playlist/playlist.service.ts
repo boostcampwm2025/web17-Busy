@@ -113,7 +113,7 @@ export class PlaylistService {
     userId: string,
     playlistId: string,
     musics: MusicRequestDto[],
-  ): Promise<GetPlaylistDetailResDto> {
+  ): Promise<MusicResponseDto[]> {
     const playlist = await this.playlistRepo.findById(userId, playlistId);
     if (!playlist)
       throw new NotFoundException('플레이리스트가 존재하지 않습니다.');
@@ -135,11 +135,7 @@ export class PlaylistService {
       await this.playlistRepo.addMusics(playlistId, musicIds, firstIndex, tx);
     });
 
-    return {
-      id: playlist.id,
-      title: playlist.title,
-      musics: musicResponses,
-    };
+    return musicResponses;
   }
 
   private toMusicResponse(

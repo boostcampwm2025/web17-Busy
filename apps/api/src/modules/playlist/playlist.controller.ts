@@ -13,11 +13,12 @@ import { PlaylistService } from './playlist.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 import {
+  AddMusicsToPlaylist,
   AddMusicToPlaylistReqDto,
   CreatePlaylistReqDto,
-  CreatePlaylistResDto,
   GetAllPlaylistsResDto,
   GetPlaylistDetailResDto,
+  PlaylistResDto,
   UpdateMusicsOrderOfPlaylistReqDto,
   UpdateTitlePlaylitReqDto,
 } from '@repo/dto';
@@ -40,7 +41,7 @@ export class PlaylistController {
   async createPlaylist(
     @UserId() userId: string,
     @Body() dto: CreatePlaylistReqDto,
-  ): Promise<CreatePlaylistResDto> {
+  ): Promise<PlaylistResDto> {
     const { title } = dto;
     const playlist = await this.playlistService.create(userId, title);
     return {
@@ -64,14 +65,17 @@ export class PlaylistController {
     @UserId() userId: string,
     @Param('id') playlistId: string,
     @Body() dto: UpdateTitlePlaylitReqDto,
-  ): Promise<{ ok: true }> {
+  ): Promise<PlaylistResDto> {
     const { title } = dto;
     const playlist = await this.playlistService.update(
       userId,
       playlistId,
       title,
     );
-    return { ok: true };
+    return {
+      id: playlist.id,
+      title: playlist.title,
+    };
   }
 
   // 플리 삭제
@@ -90,9 +94,14 @@ export class PlaylistController {
     @UserId() userId: string,
     @Param('id') playlistId: string,
     @Body() dto: AddMusicToPlaylistReqDto,
-  ): Promise<GetPlaylistDetailResDto> {
+  ): Promise<AddMusicsToPlaylist> {
     const { musics } = dto;
-    return await this.playlistService.addMusics(userId, playlistId, musics);
+    const addedMusics = await this.playlistService.addMusics(
+      userId,
+      playlistId,
+      musics,
+    );
+    return { addedMusics };
   }
 
   // 플리 음악 순서 변경
