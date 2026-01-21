@@ -49,7 +49,12 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
     router.push(`/profile/${profileUserId}`);
   };
 
-  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchUsers });
+  const { items, setItems, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchUsers });
+
+  /** 팔로우/언팔로우 후 사용자 목록의 isFollowing 상태 업데이트 함수 */
+  const handleFollowActionComplete = (updatedUserId: string) => {
+    setItems((prevItems) => prevItems.map((user) => (user.id === updatedUserId ? { ...user, isFollowing: !user.isFollowing } : user)));
+  };
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 animate-fade-in">
@@ -89,7 +94,13 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
                       </div>
 
                       {/* 사용자별 액션 버튼 */}
-                      <ProfileActionButton loggedInUserId={loggedInUserId} profileUserId={user.id} isFollowing={user.isFollowing} renderIn="modal" />
+                      <ProfileActionButton
+                        loggedInUserId={loggedInUserId}
+                        profileUserId={user.id}
+                        isFollowing={user.isFollowing}
+                        renderIn="modal"
+                        onFollowActionComplete={() => handleFollowActionComplete(user.id)}
+                      />
                     </li>
                   );
                 })}

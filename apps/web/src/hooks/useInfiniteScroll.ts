@@ -73,6 +73,7 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
 
   return {
     items,
+    setItems,
     hasNext,
     isInitialLoading,
     errorMsg,

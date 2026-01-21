@@ -5,6 +5,7 @@ import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import Image from 'next/image';
 import ProfileActionButton from './ProfileActionButton';
 import FollowStats from './FollowStats';
+import { useState } from 'react';
 
 // TODO: dto로 대체
 interface ProfileInfoProps {
@@ -19,9 +20,19 @@ interface ProfileInfoProps {
   };
 }
 
-export default function ProfileInfo({ profile }: ProfileInfoProps) {
+export default function ProfileInfo({ profile: initialProfile }: ProfileInfoProps) {
+  const [profile, setProfile] = useState(initialProfile);
   const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
   const { userId: loggedInUserId } = useAuthMe();
+
+  /** 팔로우/언팔로우 후 프로필 정보 isFollowing 및 count 상태 업데이트 함수 */
+  const handleFollowActionComplete = () => {
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      isFollowing: !prevProfile.isFollowing,
+      followerCount: prevProfile.isFollowing ? prevProfile.followerCount - 1 : prevProfile.followerCount + 1,
+    }));
+  };
 
   return (
     <section className="max-w-4xl">
@@ -39,7 +50,13 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
             <h2 className="text-2xl font-black text-primary md:mr-6">{nickname}</h2>
 
             {/* 리캡 생성/팔로우 버튼 */}
-            <ProfileActionButton loggedInUserId={loggedInUserId} profileUserId={profile.id} isFollowing={isFollowing} renderIn="page" />
+            <ProfileActionButton
+              loggedInUserId={loggedInUserId}
+              profileUserId={profile.id}
+              isFollowing={isFollowing}
+              renderIn="page"
+              onFollowActionComplete={handleFollowActionComplete}
+            />
           </div>
 
           {/* 팔로우/팔로잉 사용자 정보 */}
