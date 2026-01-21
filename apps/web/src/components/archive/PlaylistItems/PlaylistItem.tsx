@@ -1,3 +1,4 @@
+import { DEFAULT_IMAGES } from '@/constants';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import type { PlaylistBriefResDto as Playlist } from '@repo/dto';
 import { ChevronRight, Library } from 'lucide-react';
@@ -20,7 +21,7 @@ export default function PlaylistItem(playlist: Playlist) {
         <div className="absolute top-0 right-0 w-full h-full bg-primary/20 rounded-lg transform rotate-6 border border-primary/20 transition-transform group-hover:rotate-12"></div>
         <div className="absolute top-0 right-0 w-full h-full bg-white rounded-lg border border-primary/20 transform rotate-3"></div>
         <img
-          src={playlist.firstAlbumCoverUrl}
+          src={playlist.firstAlbumCoverUrl || DEFAULT_IMAGES.ALBUM}
           alt={playlist.title}
           className="relative w-full h-full object-cover rounded-lg border-2 border-primary z-10"
         />
