@@ -19,6 +19,7 @@ import { LikeModule } from './modules/like/like.module';
 import { MusicModule } from './modules/music/music.module';
 import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
 import { PlaylistModule } from './modules/playlist/playlist.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { PlaylistModule } from './modules/playlist/playlist.module';
     PlaylistModule,
     PostModule,
     SeedModule,
+    UploadModule,
     UserModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
