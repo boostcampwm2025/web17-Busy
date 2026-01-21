@@ -62,7 +62,7 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
 
   const handleAddSong = async (song: UnsavedMusic) => {
     // 낙관적 업데이트 x - song id가 필요해서 안 됨
-    const { addedMusics } = await addMusicsToPlaylist(playlistId, song);
+    const { addedMusics } = await addMusicsToPlaylist(playlistId, [song]);
     setSongs([...songs, ...addedMusics]);
   };
 
@@ -87,7 +87,7 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
           />
 
           {/* Search Dropdown Area */}
-          {isSearchOpen && <SearchDropdown handleAddSong={handleAddSong} />}
+          {isSearchOpen && <SearchDropdown isSearchOpen={isSearchOpen} handleAddSong={handleAddSong} />}
 
           {/* Toolbar (Delete) */}
           {selectedSongIds.size > 0 && <Toolbar selectedSongIds={selectedSongIds} deleteSelectedSongs={deleteSelectedSongs} />}
