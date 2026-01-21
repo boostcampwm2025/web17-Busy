@@ -1,11 +1,11 @@
 'use client';
 
 import { MODAL_TYPES, useModalStore } from '@/stores';
-import { PostPreviewDto } from '@repo/dto';
+import { PostPreviewDto as PostPreview } from '@repo/dto';
 import { Heart, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 
-export default function ProfilePosts({ posts }: { posts: PostPreviewDto[] }) {
+export default function ProfilePosts({ posts }: { posts: PostPreview[] }) {
   const openModal = useModalStore((s) => s.openModal);
 
   const handleOpenDetail = (postId: string) => {
