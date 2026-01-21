@@ -1,4 +1,4 @@
-export * from './req/add-music-to-playlist.dto';
+export * from './req/add-musics-to-playlist.dto';
 export * from './req/create-playlist.dto';
 export * from './req/update-musics-order-of-playlist.dto';
 export * from './req/update-title-of-playlist.dto';

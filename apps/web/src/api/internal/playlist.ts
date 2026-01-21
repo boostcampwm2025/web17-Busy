@@ -32,7 +32,7 @@ export const deletePlaylist = async (playlistId: string): Promise<{ ok: true }> 
 };
 
 // 플리에 음악 추가
-export const addMusicsToPlaylist = async (playlistId: string, musics: MusicRequestDto): Promise<AddMusicsToPlaylist> => {
+export const addMusicsToPlaylist = async (playlistId: string, musics: MusicRequestDto[]): Promise<AddMusicsToPlaylist> => {
   const { data } = await internalClient.post<AddMusicsToPlaylist>(`/playlist/${playlistId}/music`, { musics });
   return data;
 };

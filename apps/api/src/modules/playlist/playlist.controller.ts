@@ -14,7 +14,7 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 import {
   AddMusicsToPlaylist,
-  AddMusicToPlaylistReqDto,
+  AddMusicsToPlaylistReqDto,
   CreatePlaylistReqDto,
   GetAllPlaylistsResDto,
   GetPlaylistDetailResDto,
@@ -93,7 +93,7 @@ export class PlaylistController {
   async addMusicsToPlaylist(
     @UserId() userId: string,
     @Param('id') playlistId: string,
-    @Body() dto: AddMusicToPlaylistReqDto,
+    @Body() dto: AddMusicsToPlaylistReqDto,
   ): Promise<AddMusicsToPlaylist> {
     const { musics } = dto;
     const addedMusics = await this.playlistService.addMusics(
