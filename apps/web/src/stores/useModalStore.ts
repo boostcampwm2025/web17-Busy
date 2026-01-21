@@ -5,6 +5,8 @@ export const MODAL_TYPES = {
   LOGIN: 'LOGIN',
   POST_DETAIL: 'POST_DETAIL',
   MOBILE_QUEUE: 'MOBILE_QUEUE',
+  FOLLOWER_USER: 'FOLLOWER_USER',
+  FOLLOWING_USER: 'FOLLOWING_USER',
 } as const;
 
 export type ModalType = (typeof MODAL_TYPES)[keyof typeof MODAL_TYPES] | null;

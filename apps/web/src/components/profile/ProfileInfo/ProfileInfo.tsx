@@ -41,11 +41,11 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
             <h2 className="text-2xl font-black text-primary md:mr-6">{nickname}</h2>
 
             {/* 리캡 생성/팔로우 버튼 */}
-            <ProfileActionButton isMyProfile={isMyProfile} isFollowing={isFollowing} />
+            <ProfileActionButton isMyProfile={isMyProfile} isFollowing={isFollowing} renderIn="page" />
           </div>
 
           {/* 팔로우/팔로잉 사용자 정보 */}
-          <FollowStats followerCount={followerCount} followingCount={followingCount} />
+          <FollowStats profileUserId={profile.userId} followerCount={followerCount} followingCount={followingCount} />
 
           {/* 프로필 소개란 */}
           <p className="text-primary font-medium whitespace-pre-wrap leading-relaxed text-justify max-w-md lg:max-w-lg mx-auto md:mx-0">{bio}</p>
