@@ -1,4 +1,4 @@
-import { fetchNotis, markNotiRead } from '@/api/noti/fetchNotis';
+import { fetchNotis, markNotiRead } from '@/api';
 import type { NotiResponseDto } from '@repo/dto';
 import { create } from 'zustand';
 

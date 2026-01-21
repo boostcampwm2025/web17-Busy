@@ -6,3 +6,4 @@ export * from './user';
 export * from './playlist';
 export * from './follow';
 export * from './user';
+export * from './noti';

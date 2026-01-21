@@ -1,4 +1,4 @@
-import { internalClient } from '../internal/client';
+import { internalClient } from './client';
 
 export async function fetchNotis() {
   const { data } = await internalClient.get('/noti');
