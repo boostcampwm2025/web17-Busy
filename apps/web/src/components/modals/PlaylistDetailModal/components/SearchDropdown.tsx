@@ -28,7 +28,7 @@ export function SearchDropdown({ isSearchOpen, handleAddSong }: { isSearchOpen: 
             {results.map((song) => (
               <button
                 key={song.id}
-                onClick={() => handleAddSong(song)}
+                onClick={() => handleAddSong({ ...song, id: undefined })}
                 className="w-full flex items-center p-2 hover:bg-grayish text-left border-b border-gray-100 last:border-0"
               >
                 <img src={song.albumCoverUrl} alt={song.title} className="w-8 h-8 rounded border border-gray-200 mr-2" />
