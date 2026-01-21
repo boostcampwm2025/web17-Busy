@@ -28,7 +28,7 @@ export class CommentService {
   ): Promise<Comment> {
     const { postId, content } = createCommentDto;
 
-    const txResult = this.dataSource.transaction(async (manager) => {
+    const txResult = await this.dataSource.transaction(async (manager) => {
       // 게시글 존재 확인
       const post = await this.postRepository.findPostById(postId, manager);
       if (!post) {

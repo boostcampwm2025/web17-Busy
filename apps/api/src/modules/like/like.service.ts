@@ -24,7 +24,7 @@ export class LikeService {
   async addLike(userId: string, createLikeDto: CreateLikeDto) {
     const { postId } = createLikeDto;
 
-    const txResult = this.dataSource.transaction(async (manager) => {
+    const txResult = await this.dataSource.transaction(async (manager) => {
       // 좋아요 존재 여부 확인
       const isLiked = await this.likeRepository.checkIsLiked(userId, postId);
       if (isLiked) {

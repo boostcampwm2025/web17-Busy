@@ -10,11 +10,15 @@ import {
   SEED_POST_MUSICS,
   SEED_POSTS,
   SEED_USERS,
+  SEED_PLAYLISTS,
+  SEED_PLAYLIST_MUSICS,
 } from './seed';
 import { Post } from '../post/entities/post.entity';
 import { PostMusic } from '../post/entities/post-music.entity';
 import { User } from '../user/entities/user.entity';
 import { Like } from '../like/entities/like.entity';
+import { Playlist } from '../playlist/entities/playlist.entity';
+import { PlaylistMusic } from '../playlist/entities/playlist-music.entity';
 
 @Injectable()
 export class DevSeedService implements OnApplicationBootstrap {
@@ -36,6 +40,12 @@ export class DevSeedService implements OnApplicationBootstrap {
 
     @InjectRepository(Like)
     private readonly likeRepo: Repository<Like>,
+
+    @InjectRepository(Playlist)
+    private readonly playlistRepo: Repository<Playlist>,
+
+    @InjectRepository(PlaylistMusic)
+    private readonly pmRepo: Repository<PlaylistMusic>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -47,6 +57,8 @@ export class DevSeedService implements OnApplicationBootstrap {
     await this.postRepo.save(SEED_POSTS);
     await this.postMusicRepo.save(SEED_POST_MUSICS);
     await this.likeRepo.save(SEED_LIKES);
+    await this.playlistRepo.save(SEED_PLAYLISTS);
+    await this.pmRepo.save(SEED_PLAYLIST_MUSICS);
 
     console.log('seeding completed');
   }

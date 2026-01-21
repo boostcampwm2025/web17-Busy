@@ -1,12 +1,14 @@
-import { User } from 'src/modules/user/entities/user.entity';
 import {
   BeforeInsert,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
 } from 'typeorm';
+import { User } from 'src/modules/user/entities/user.entity';
+import { PlaylistMusic } from './playlist-music.entity';
 
 import { v7 as uuidV7 } from 'uuid';
 
@@ -26,4 +28,7 @@ export class Playlist {
 
   @Column('varchar', { length: 20, nullable: false })
   title: string;
+
+  @OneToMany(() => PlaylistMusic, (pm) => pm.playlist)
+  playlistMusics: PlaylistMusic[];
 }

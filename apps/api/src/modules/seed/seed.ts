@@ -208,3 +208,56 @@ export const SEED_LIKES = [
   { userId: user2Id, postId: post2Id },
   { userId: user1Id, postId: post3Id },
 ];
+
+export const SEED_PLAYLISTS = [
+  {
+    id: 'pppppppp-pppp-pppp-pppp-pppppppppppp',
+    owner: { id: '11111111-1111-1111-1111-111111111111' },
+    title: '첫번째 플리',
+  },
+  {
+    id: 'qqqqqqqq-qqqq-qqqq-qqqq-qqqqqqqqqqqq',
+    owner: { id: '11111111-1111-1111-1111-111111111111' },
+    title: '두번째 플리',
+  },
+];
+
+export const SEED_PLAYLIST_MUSICS = [
+  {
+    id: '11111111-1111-1111-1111-111111111111',
+    playlist: { id: 'pppppppp-pppp-pppp-pppp-pppppppppppp' },
+    music: { id: '11111111-1111-1111-1111-111111111111' },
+    orderIndex: 0,
+  },
+  {
+    id: '22222222-2222-2222-2222-222222222222',
+    playlist: { id: 'pppppppp-pppp-pppp-pppp-pppppppppppp' },
+    music: { id: '22222222-2222-2222-2222-222222222222' },
+    orderIndex: 1,
+  },
+  {
+    id: '33333333-3333-3333-3333-333333333333',
+    playlist: { id: 'pppppppp-pppp-pppp-pppp-pppppppppppp' },
+    music: { id: '33333333-3333-3333-3333-333333333333' },
+    orderIndex: 2,
+  },
+  {
+    id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    playlist: { id: 'pppppppp-pppp-pppp-pppp-pppppppppppp' },
+    music: { id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' },
+    orderIndex: 3,
+  },
+
+  {
+    id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    playlist: { id: 'qqqqqqqq-qqqq-qqqq-qqqq-qqqqqqqqqqqq' },
+    music: { id: '11111111-1111-1111-1111-111111111111' },
+    orderIndex: 0,
+  },
+  {
+    id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    playlist: { id: 'qqqqqqqq-qqqq-qqqq-qqqq-qqqqqqqqqqqq' },
+    music: { id: '11111111-1111-1111-1111-111111111111' },
+    orderIndex: 1,
+  },
+];
