@@ -113,25 +113,40 @@ export class PlaylistService {
     userId: string,
     playlistId: string,
     musics: MusicRequestDto[],
-  ): Promise<void> {
+  ): Promise<GetPlaylistDetailResDto> {
     const playlist = await this.playlistRepo.findById(userId, playlistId);
     if (!playlist)
       throw new NotFoundException('플레이리스트가 존재하지 않습니다.');
 
-    const musicIds = await Promise.all(
+    const musicResponses: MusicResponseDto[] = await Promise.all(
       musics.map(async (m) => {
-        if (m.id) return m.id;
+        if (m.id) return this.toMusicResponse(m, m.id);
         const { id } = await this.musicService.addMusic(m);
-        return id;
+        return this.toMusicResponse(m, id);
       }),
     );
 
-    return await this.ds.transaction(async (tx) => {
+    const musicIds = musicResponses.map((m) => m.id);
+
+    await this.ds.transaction(async (tx) => {
       const count = await this.playlistRepo.countMusic(playlistId, tx);
       const firstIndex = count;
 
       await this.playlistRepo.addMusics(playlistId, musicIds, firstIndex, tx);
     });
+
+    return {
+      id: playlist.id,
+      title: playlist.title,
+      musics: musicResponses,
+    };
+  }
+
+  private toMusicResponse(
+    musicRequest: MusicRequestDto,
+    musicId: string,
+  ): MusicResponseDto {
+    return { ...musicRequest, id: musicId };
   }
 
   async changeMusicOrder(
