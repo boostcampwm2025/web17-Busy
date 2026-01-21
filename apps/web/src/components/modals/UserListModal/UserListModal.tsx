@@ -1,6 +1,6 @@
 'use client';
 
-import ProfileActionButton from '@/components/profile/ProfileInfo/ProfileActionButton';
+import { ProfileActionButton } from '@/components/profile';
 import { DEFAULT_IMAGES } from '@/constants';
 import { useInfiniteScroll } from '@/hooks';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';

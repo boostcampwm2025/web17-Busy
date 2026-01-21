@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getUser, getUserProfilePosts } from '@/api';
 import { useInfiniteScroll } from '@/hooks';
 import { ProfileSkeleton } from '../skeleton';
-import ProfileInfo from './ProfileInfo/ProfileInfo';
+import { ProfileInfo } from './ProfileInfo';
 import ProfilePosts from './ProfilePosts';
 import LoadingSpinner from '../LoadingSpinner';
 import { GetUserDto } from '@repo/dto';
