@@ -1,7 +1,6 @@
 'use client';
 
-import PlaylistItem from './playlist-item/PlaylistItem';
-import LikeMusicsPlaylistItem from './playlist-item/LikePlaylistItem';
+import { LikeMusicsPlaylistItem, PlaylistItem } from './PlaylistItems';
 import ArchiveViewHeader from './ArchiveViewHeader';
 
 export default function ArchiveView() {
@@ -15,7 +14,10 @@ export default function ArchiveView() {
 
         {/* 플리 목록 */}
         <div className="flex flex-col space-y-4">
+          {/* 좋아요 표시한 곡 목록 */}
           <LikeMusicsPlaylistItem />
+
+          {/* 사용자의 플리 목록 */}
           {ids.map((id) => (
             <PlaylistItem
               id={id}
