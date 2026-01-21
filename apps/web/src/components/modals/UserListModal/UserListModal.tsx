@@ -6,22 +6,10 @@ import { DEFAULT_IMAGES } from '@/constants';
 import { useInfiniteScroll } from '@/hooks';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useModalStore, useProfileStore } from '@/stores';
-//import { GetUserFollowDto } from '@repo/dto';
+import { GetUserFollowDto } from '@repo/dto';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
-
-// ! 임시 interface, 머지하기 전 삭제
-interface GetUserFollowDto {
-  users: {
-    id: string;
-    nickname: string;
-    profileImgUrl: string;
-    isFollowing: boolean;
-  }[];
-  hasNext: boolean;
-  nextCursor?: string;
-}
 
 interface UserListModalProps {
   title: string;
