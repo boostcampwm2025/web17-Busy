@@ -7,4 +7,6 @@ interface UserDto {
 
 export class SearchUsersResDto {
   users: UserDto[];
+  hasNext: boolean;
+  nextCursor?: string;
 }
