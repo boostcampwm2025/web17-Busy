@@ -19,7 +19,7 @@ export default function ProfileView({ userId }: { userId: string }) {
     [userId],
   );
 
-  const { items, hasNext, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
   const [profileInfo, setProfileInfo] = useState<GetUserDto | null>(null);
   const [renderError, setRenderError] = useState<Error | null>(null);
 
@@ -41,9 +41,8 @@ export default function ProfileView({ userId }: { userId: string }) {
     fetchData();
   }, [userId]);
 
-  // 렌더링 단계에서 발생하는 에러 처리 (데이터 최초 fetch 관련)
+  // 렌더링 단계에서 발생하는 에러 처리 (무한스크롤 에러는 메시지만 표시)
   if (renderError) throw renderError;
-  if (initialError) throw initialError;
 
   // 최초 요청 처리 중에만 스켈레톤 표시
   if (isInitialLoading || !profileInfo) return <ProfileSkeleton />;

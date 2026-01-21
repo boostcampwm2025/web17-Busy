@@ -8,12 +8,9 @@ import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
 
 export default function FeedSection() {
-  const { items, hasNext, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll<Post>({
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll<Post>({
     fetchFn: getFeedPosts,
   });
-
-  // 렌더링 단계에서 발생하는 에러 처리 (데이터 최초 fetch 관련)
-  if (initialError) throw initialError;
 
   // 최초 요청 처리 중에만 스켈레톤 표시
   if (isInitialLoading) return <FeedSkeleton />;
