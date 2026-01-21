@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { UserRepository } from './user.repository';
 import { User } from './entities/user.entity';
 import { AuthProvider } from '../auth/types';
+import { GetUserDto } from '@repo/dto';
 
 type ProviderProfile = {
   provider: AuthProvider;
@@ -13,47 +13,40 @@ type ProviderProfile = {
   refreshToken?: string;
 };
 
-const NICKNAME_MAX_LEN = 12;
-
-function normalizeNickname(input: string | undefined, fallbackSeed: string) {
-  const base = (input ?? '').trim().replace(/\s+/g, ' ');
-  const candidate = base.length > 0 ? base : `user_${fallbackSeed.slice(-6)}`;
-  return candidate.slice(0, NICKNAME_MAX_LEN);
-}
+type UserWithFollowInfo = User & {
+  followerCount: number;
+  followingCount: number;
+  isFollowing?: number | string;
+};
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
-  ) {}
+  private readonly NICKNAME_MAX_LEN = 12;
+
+  constructor(private readonly userRepository: UserRepository) {}
 
   async findOrCreateByProviderUserId(profile: ProviderProfile): Promise<User> {
-    const nickname = normalizeNickname(
+    const nickname = this.normalizeNickname(
       profile.nickname,
       profile.providerUserId,
     );
 
-    const existing = await this.userRepo.findOne({
-      where: {
-        provider: profile.provider,
-        providerUserId: profile.providerUserId,
-      },
-    });
+    const existing = await this.userRepository.findByProvider(
+      profile.provider,
+      profile.providerUserId,
+    );
 
     if (existing) {
-      const next = this.userRepo.merge(existing, {
+      return this.userRepository.updateUser(existing, {
         nickname,
         email: profile.email ?? existing.email,
         profileImgUrl: profile.profileImgUrl ?? existing.profileImgUrl,
         providerRefreshToken:
           profile.refreshToken ?? existing.providerRefreshToken,
       });
-
-      return this.userRepo.save(next);
     }
 
-    const created = this.userRepo.create({
+    return this.userRepository.createUser({
       provider: profile.provider,
       providerUserId: profile.providerUserId,
       nickname,
@@ -61,8 +54,6 @@ export class UserService {
       profileImgUrl: profile.profileImgUrl,
       providerRefreshToken: profile.refreshToken,
     });
-
-    return this.userRepo.save(created);
   }
 
   async findOrCreateBySpotifyUserId(profile: {
@@ -92,7 +83,40 @@ export class UserService {
     };
   }
 
-  async findById(userId: string) {
-    return this.userRepo.findOneBy({ id: userId });
+  async findById(userId: string): Promise<User | null> {
+    return this.userRepository.findUserById(userId);
+  }
+
+  private normalizeNickname(input: string | undefined, fallbackSeed: string) {
+    const base = (input ?? '').trim().replace(/\s+/g, ' ');
+    const candidate = base.length > 0 ? base : `user_${fallbackSeed.slice(-6)}`;
+    return candidate.slice(0, this.NICKNAME_MAX_LEN);
+  }
+
+  async getUserProfile(
+    targetUserId: string,
+    userId?: string,
+  ): Promise<GetUserDto> {
+    const user = await this.userRepository.findWithFollowInfo(
+      targetUserId,
+      userId,
+    );
+
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    // dto 매핑을 위한 타입단언
+    const result = user as UserWithFollowInfo;
+
+    return {
+      id: result.id,
+      nickname: result.nickname,
+      profileImgUrl: result.profileImgUrl ?? null,
+      bio: result.bio ?? '',
+      followerCount: result.followerCount || 0,
+      followingCount: result.followingCount || 0,
+      isFollowing: !!Number(result.isFollowing),
+    };
   }
 }

@@ -23,6 +23,7 @@ import {
   CreatePostMultipartDto,
   MusicRequestDto,
   UpdatePostRequestDto,
+  FindByUserDto,
 } from '@repo/dto';
 
 import { AuthGuard } from 'src/common/guards/auth.guard';
@@ -115,5 +116,20 @@ export class PostController {
   ): Promise<{ ok: true }> {
     await this.postService.delete(requestUserId, postId);
     return { ok: true };
+  }
+
+  @Get('/user/:userId')
+  async getByUserId(
+    @Param('userId') userId: string,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('cursor') cursor?: string,
+  ): Promise<FindByUserDto> {
+    try {
+      return await this.postService.getByUserId(userId, limit, cursor);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
+      );
+    }
   }
 }
