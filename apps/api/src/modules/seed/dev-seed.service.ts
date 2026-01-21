@@ -51,12 +51,22 @@ export class DevSeedService implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     if (process.env.NODE_ENV === 'production') return;
 
+    // Delete child rows first to satisfy FK constraints.
+    await this.postMusicRepo.deleteAll();
+    await this.pmRepo.deleteAll();
+    await this.likeRepo.deleteAll();
+    await this.notiRepo.deleteAll();
+    await this.postRepo.deleteAll();
+    await this.playlistRepo.deleteAll();
+    await this.musicRepo.deleteAll();
+    await this.userRepo.deleteAll();
+
     await this.userRepo.save(SEED_USERS);
-    await this.notiRepo.save(SEED_NOTIS);
     await this.musicRepo.save(SEED_MUSICS);
     await this.postRepo.save(SEED_POSTS);
     await this.postMusicRepo.save(SEED_POST_MUSICS);
     await this.likeRepo.save(SEED_LIKES);
+    await this.notiRepo.save(SEED_NOTIS);
     await this.playlistRepo.save(SEED_PLAYLISTS);
     await this.pmRepo.save(SEED_PLAYLIST_MUSICS);
 
