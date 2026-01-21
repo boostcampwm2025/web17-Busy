@@ -5,6 +5,7 @@ export * from './search';
 export * from './post';
 export * from './feed';
 export * from './profile';
+export * from './skeleton';
 
 export { default as ErrorScreen } from './ErrorScreen';
 export { default as LoadingSpinner } from './LoadingSpinner';

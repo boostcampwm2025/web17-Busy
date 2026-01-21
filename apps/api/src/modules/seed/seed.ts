@@ -4,9 +4,18 @@ import { Music } from '../music/entities/music.entity';
 import { Post } from '../post/entities/post.entity';
 import { PostMusic } from '../post/entities/post-music.entity';
 
+const user1Id = '11111111-1111-1111-1111-111111111111';
+const user2Id = '22222222-2222-2222-2222-222222222222';
+const music1Id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+const music2Id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+const music3Id = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+const post1Id = '018f3b7a-b8f1-74ab-a6e2-3d9c0f1b8e45';
+const post2Id = '018f3b7a-a2d4-7f09-9c31-1e8b7a5d4c22';
+const post3Id = '018f3b7a-9c6e-7c21-8b4f-6a2d5e3c9f10';
+
 export const SEED_USERS = [
   {
-    id: '11111111-1111-1111-1111-111111111111',
+    id: user1Id,
     nickname: '테스트 사용자 1',
     email: 'example111@naver.com',
     profileImgUrl:
@@ -14,7 +23,7 @@ export const SEED_USERS = [
     bio: '하이요~~',
   },
   {
-    id: '22222222-2222-2222-2222-222222222222',
+    id: user2Id,
     nickname: '테스트 사용자 2',
     email: 'example222@naver.com',
     profileImgUrl:
@@ -23,8 +32,8 @@ export const SEED_USERS = [
   },
 ];
 
-const RECEIVER_ID = '11111111-1111-1111-1111-111111111111';
-const ACTOR_ID = '22222222-2222-2222-2222-222222222222';
+const RECEIVER_ID = user1Id;
+const ACTOR_ID = user2Id;
 
 export const SEED_NOTIS = [
   {
@@ -32,7 +41,7 @@ export const SEED_NOTIS = [
     receiver: { id: RECEIVER_ID },
     actor: { id: ACTOR_ID },
     type: NotiType.COMMENT,
-    relatedId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    relatedId: post1Id,
     isRead: false,
   },
   {
@@ -40,7 +49,7 @@ export const SEED_NOTIS = [
     receiver: { id: RECEIVER_ID },
     actor: { id: ACTOR_ID },
     type: NotiType.LIKE,
-    relatedId: '33333333-3333-3333-3333-333333333333',
+    relatedId: post2Id,
     isRead: false,
   },
   {
@@ -128,25 +137,17 @@ export const SEED_MUSICS: DeepPartial<Music>[] = [
   },
 ];
 
-const user1Id = '11111111-1111-1111-1111-111111111111';
-const user2Id = '22222222-2222-2222-2222-222222222222';
-const music1Id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
-const music2Id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
-const music3Id = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
-const post1Id = '33333333-3333-3333-3333-333333333333';
-const post2Id = '44444444-4444-4444-4444-444444444444';
-
 export const SEED_POSTS: DeepPartial<Post>[] = [
   {
-    id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', // noti.relatedId
-    author: { id: SEED_USERS[0].id },
+    id: post1Id, // noti.relatedId
+    author: { id: user1Id },
     coverImgUrl: SEED_MUSICS[0].albumCoverUrl!, // 커버 이미지: music 1 앨범커버
     content: '요즘 이 곡 진짜 반복재생 중… 분위기 미쳤다. 너네도 들어봐.',
     likeCount: 1,
     commentCount: 1,
   },
   {
-    id: post1Id,
+    id: post2Id,
     author: { id: user1Id },
     coverImgUrl:
       'https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/9a/fa/45/9afa45ec-7823-7e58-5580-27c01cdd709d/akmu_cover.jpg/600x600bb.jpg',
@@ -155,7 +156,7 @@ export const SEED_POSTS: DeepPartial<Post>[] = [
     commentCount: 0,
   },
   {
-    id: post2Id,
+    id: post3Id,
     author: { id: user2Id },
     coverImgUrl:
       'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/12/31/63/12316366-55bb-065c-8ad9-47e107fa79b2/AKMU_NEXT_EPISODE.jpg/600x600bb.jpg',
@@ -172,38 +173,38 @@ const pm3Id = '77777777-7777-7777-7777-777777777777';
 export const SEED_POST_MUSICS: DeepPartial<PostMusic>[] = [
   {
     id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-    post: { id: SEED_POSTS[0].id } as DeepPartial<Post>,
+    post: { id: post1Id } as DeepPartial<Post>,
     music: { id: SEED_MUSICS[0].id } as DeepPartial<Music>,
     orderIndex: 0,
   },
   {
     id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
-    post: { id: SEED_POSTS[0].id } as DeepPartial<Post>,
+    post: { id: post1Id } as DeepPartial<Post>,
     music: { id: SEED_MUSICS[2].id } as DeepPartial<Music>,
     orderIndex: 1,
   },
   {
     id: pm1Id,
-    post: { id: post1Id },
+    post: { id: post2Id },
     music: { id: music1Id },
     orderIndex: 0,
   },
   {
     id: pm2Id,
-    post: { id: post1Id },
+    post: { id: post2Id },
     music: { id: music2Id },
     orderIndex: 1,
   },
 
   {
     id: pm3Id,
-    post: { id: post2Id },
+    post: { id: post3Id },
     music: { id: music3Id },
     orderIndex: 0,
   },
 ];
 
 export const SEED_LIKES = [
-  { userId: user2Id, postId: post1Id },
-  { userId: user1Id, postId: post2Id },
+  { userId: user2Id, postId: post2Id },
+  { userId: user1Id, postId: post3Id },
 ];
