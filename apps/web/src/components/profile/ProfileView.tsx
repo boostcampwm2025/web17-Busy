@@ -41,7 +41,7 @@ export default function ProfileView({ userId }: { userId: string }) {
     fetchData();
   }, [userId]);
 
-  // 렌더링 단계에서 발생하는 에러 처리 (무한스크롤 에러는 메시지만 표시)
+  // 프로필 사용자 정보 렌더링 단계에서 발생하는 에러 throw (무한스크롤 에러는 throw 없이 메시지만 표시)
   if (renderError) throw renderError;
 
   // 최초 요청 처리 중에만 스켈레톤 표시
