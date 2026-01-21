@@ -1,5 +1,5 @@
 import { MusicResponseDto } from '../../music';
 
-export class AddMusicsToPlaylist {
+export class AddMusicsToPlaylistResDto {
   addedMusics: MusicResponseDto[];
 }
