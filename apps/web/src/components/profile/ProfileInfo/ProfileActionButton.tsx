@@ -6,29 +6,30 @@ interface ProfileActionButtonProps {
   profileUserId: string;
   isFollowing: boolean;
   renderIn: 'page' | 'modal';
+  onActionComplete: () => void;
 }
 
-export default function ProfileActionButton({ loggedInUserId, profileUserId, isFollowing, renderIn = 'page' }: ProfileActionButtonProps) {
+export default function ProfileActionButton({
+  loggedInUserId,
+  profileUserId,
+  isFollowing,
+  renderIn = 'page',
+  onActionComplete,
+}: ProfileActionButtonProps) {
   const isLoggedIn = !!loggedInUserId;
   const isMyProfile = loggedInUserId === profileUserId;
 
   const BUTTON_TEXT = isFollowing ? '팔로잉' : '팔로우';
 
-  const toggleIsFollowing = (profileUserId: string) => {
-    // 사용자 목록 state에서 해당 사용자 찾아서 isFollowing 수정
-  };
+  const handleAddFollow = useCallback(async () => {
+    await addFollow(profileUserId);
+    onActionComplete();
+  }, [profileUserId, onActionComplete]);
 
-  const handleAddFollow = useCallback(() => {
-    async () => {
-      await addFollow(profileUserId);
-    };
-  }, []);
-
-  const handleRemoveFollow = useCallback(() => {
-    async () => {
-      await removeFollow(profileUserId);
-    };
-  }, []);
+  const handleRemoveFollow = useCallback(async () => {
+    await removeFollow(profileUserId);
+    onActionComplete();
+  }, [profileUserId, onActionComplete]);
 
   // 내 프로필이면 -> 프로필 페이지에서는 리캡 생성 버튼, 모달에서는 버튼 필요 x
   if (isMyProfile) {
@@ -46,6 +47,7 @@ export default function ProfileActionButton({ loggedInUserId, profileUserId, isF
   if (isFollowing) {
     return (
       <button
+        onClick={handleRemoveFollow}
         title="팔로우 취소"
         disabled={!isLoggedIn}
         className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-transparent border-gray-3 text-gray-1 border-2 font-bold hover:bg-gray-4 transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
@@ -58,6 +60,7 @@ export default function ProfileActionButton({ loggedInUserId, profileUserId, isF
   // isFollowing === false -> [팔로우] 버튼, 누르면 팔로우 요청
   return (
     <button
+      onClick={handleAddFollow}
       title="팔로우"
       disabled={!isLoggedIn}
       className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-primary/90 text-white border-2 border-primary font-bold hover:bg-primary transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
