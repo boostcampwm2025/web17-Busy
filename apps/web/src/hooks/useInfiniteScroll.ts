@@ -9,21 +9,43 @@ interface InfiniteResponse<T> {
 
 interface UseInfiniteScrollParams<T> {
   fetchFn: (cursor?: string, limit?: number) => Promise<InfiniteResponse<T>>;
+  /** query 변경 등으로 목록을 초기화해야 할 때 사용 */
+  resetKey?: string;
 }
 
-export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParams<T>) {
+export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteScrollParams<T>) {
   const { ref, inView } = useInView({ threshold: 0.8, rootMargin: '200px' });
 
   const [items, setItems] = useState<T[]>([]);
-  const [hasNext, setHasNext] = useState<boolean>(false);
+  const [hasNext, setHasNext] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null); // 추가 데이터 fetch 오류
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null); // 추가 데이터 fetch 오류
   // 초기 데이터 로드 관련 state
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [initialError, setInitialError] = useState<Error | null>(null); // 초기 데이터 fetch 오류
+
   const initialLoadedRef = useRef(false); // 초기 데이터 fetch 재호출 방지 가드
+
+  const reset = useCallback(() => {
+    setItems([]);
+    setHasNext(false);
+    setNextCursor(undefined);
+
+    setIsLoading(false);
+    setErrorMsg(null);
+
+    setIsInitialLoading(true);
+    setInitialError(null);
+
+    initialLoadedRef.current = false;
+  }, []);
+
+  useEffect(() => {
+    if (resetKey === undefined) return;
+    reset();
+  }, [resetKey, reset]);
 
   /** 무한 스크롤 관련 상태 업데이트 함수 */
   const updateScrollStates = useCallback((data: InfiniteResponse<T>) => {
@@ -40,11 +62,8 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
       updateScrollStates(data);
     } catch (err) {
       // 초기 데이터 fetch 실패 에러 처리 (앱 라우팅 레벨에서 error-boundary로 컴포넌트 교체)
-      if (err instanceof Error) {
-        setInitialError(err);
-      } else {
-        setInitialError(new Error('데이터 로드에 실패했습니다.'));
-      }
+      if (err instanceof Error) setInitialError(err);
+      else setInitialError(new Error('데이터 로드에 실패했습니다.'));
     } finally {
       setIsInitialLoading(false);
     }
@@ -53,9 +72,11 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
   /** 추가 데이터 fetch 함수 */
   const loadMore = useCallback(async () => {
     if (!hasNext || isLoading) return;
+
     setIsLoading(true);
 
     await new Promise((resolve) => setTimeout(resolve, 500)); // 로딩 스피너 짧게 노출
+
     try {
       const data = await fetchFn(nextCursor);
       updateScrollStates(data);
@@ -71,20 +92,22 @@ export default function useInfiniteScroll<T>({ fetchFn }: UseInfiniteScrollParam
     // 초기 로딩 전에만 실행
     if (initialLoadedRef.current) return;
     initialLoadedRef.current = true;
-    loadInitialData();
+    void loadInitialData();
   }, [loadInitialData]);
 
   useEffect(() => {
-    if (inView) loadMore();
-  }, [inView]);
+    if (inView) void loadMore();
+  }, [inView, loadMore]);
 
   return {
     items,
     hasNext,
+    nextCursor,
     isLoading,
     isInitialLoading,
     initialError,
     errorMsg,
     ref,
+    reset,
   };
 }

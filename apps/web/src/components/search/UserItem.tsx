@@ -1,14 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import type { GetUserDto } from '@repo/dto';
+import type { SearchUsersResDto } from '@repo/dto';
 import { addFollow } from '@/api';
-import { formatFollowCount } from '@/utils';
 import { coalesceImageSrc } from '@/utils';
 import { DEFAULT_IMAGES } from '@/constants';
 
+type SearchUser = SearchUsersResDto['users'][number];
+
 type Props = {
-  user: GetUserDto;
+  user: SearchUser;
   disabledFollow: boolean;
   onFollowed: (userId: string) => void;
 };
@@ -44,7 +45,6 @@ export default function UserItem({ user, disabledFollow, onFollowed }: Props) {
 
       <div className="flex-1 min-w-0">
         <p className="font-bold text-primary truncate">{user.nickname}</p>
-        <p className="text-xs text-gray-1 truncate">팔로워 {formatFollowCount(user.followerCount)}</p>
       </div>
 
       {user.isFollowing ? (
