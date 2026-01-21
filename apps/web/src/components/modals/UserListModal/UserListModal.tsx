@@ -86,12 +86,7 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
                     </div>
 
                     {/* 사용자별 액션 버튼 */}
-                    <ProfileActionButton
-                      isLoggedIn={!!loggedInUserId}
-                      isMyProfile={user.id === loggedInUserId}
-                      isFollowing={user.isFollowing}
-                      renderIn="modal"
-                    />
+                    <ProfileActionButton loggedInUserId={loggedInUserId} profileUserId={user.id} isFollowing={user.isFollowing} renderIn="modal" />
                   </li>
                 );
               })}

@@ -1,12 +1,33 @@
+import { addFollow, removeFollow } from '@/api';
+import { useCallback } from 'react';
+
 interface ProfileActionButtonProps {
-  isLoggedIn: boolean;
-  isMyProfile: boolean;
+  loggedInUserId: string | null;
+  profileUserId: string;
   isFollowing: boolean;
   renderIn: 'page' | 'modal';
 }
 
-export default function ProfileActionButton({ isLoggedIn, isMyProfile, isFollowing, renderIn = 'page' }: ProfileActionButtonProps) {
-  // TODO: 버튼별 액션 핸들러 연결하기
+export default function ProfileActionButton({ loggedInUserId, profileUserId, isFollowing, renderIn = 'page' }: ProfileActionButtonProps) {
+  const isLoggedIn = !!loggedInUserId;
+  const isMyProfile = loggedInUserId === profileUserId;
+
+  const toggleIsFollowing = (profileUserId: string) => {
+    // 사용자 목록 state에서 해당 사용자 찾아서 isFollowing 수정
+  };
+
+  const handleAddFollow = useCallback(() => {
+    async () => {
+      await addFollow(profileUserId);
+    };
+  }, []);
+
+  const handleRemoveFollow = useCallback(() => {
+    async () => {
+      await removeFollow(profileUserId);
+    };
+  }, []);
+
   // 내 프로필이면 -> 프로필 페이지에서는 리캡 생성 버튼, 모달에서는 버튼 필요 x
   if (isMyProfile) {
     return renderIn === 'modal' ? null : (

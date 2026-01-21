@@ -21,9 +21,7 @@ interface ProfileInfoProps {
 
 export default function ProfileInfo({ profile }: ProfileInfoProps) {
   const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
-
   const { userId: loggedInUserId } = useAuthMe();
-  const isMyProfile = profile.id === loggedInUserId;
 
   return (
     <section className="max-w-4xl">
@@ -41,7 +39,7 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
             <h2 className="text-2xl font-black text-primary md:mr-6">{nickname}</h2>
 
             {/* 리캡 생성/팔로우 버튼 */}
-            <ProfileActionButton isLoggedIn={!!loggedInUserId} isMyProfile={isMyProfile} isFollowing={isFollowing} renderIn="page" />
+            <ProfileActionButton loggedInUserId={loggedInUserId} profileUserId={profile.id} isFollowing={isFollowing} renderIn="page" />
           </div>
 
           {/* 팔로우/팔로잉 사용자 정보 */}
