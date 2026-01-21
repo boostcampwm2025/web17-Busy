@@ -10,7 +10,7 @@ import LoadingSpinner from '../LoadingSpinner';
 
 // TODO: dto로 대체
 interface ProfileInfo {
-  userId: string;
+  id: string;
   nickname: string;
   profileImgUrl: string;
   bio: string;

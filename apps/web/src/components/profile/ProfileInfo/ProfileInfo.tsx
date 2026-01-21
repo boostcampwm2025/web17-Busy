@@ -9,7 +9,7 @@ import FollowStats from './FollowStats';
 // TODO: dto로 대체
 interface ProfileInfoProps {
   profile: {
-    userId: string;
+    id: string;
     nickname: string;
     profileImgUrl: string | null;
     bio: string;
@@ -23,7 +23,7 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
   const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
 
   const { userId: loggedInUserId } = useAuthMe();
-  const isMyProfile = profile.userId === loggedInUserId;
+  const isMyProfile = profile.id === loggedInUserId;
 
   return (
     <section className="max-w-4xl">
@@ -45,7 +45,7 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
           </div>
 
           {/* 팔로우/팔로잉 사용자 정보 */}
-          <FollowStats profileUserId={profile.userId} followerCount={followerCount} followingCount={followingCount} />
+          <FollowStats profileUserId={profile.id} followerCount={followerCount} followingCount={followingCount} />
 
           {/* 프로필 소개란 */}
           <p className="text-primary font-medium whitespace-pre-wrap leading-relaxed text-justify max-w-md lg:max-w-lg mx-auto md:mx-0">{bio}</p>
