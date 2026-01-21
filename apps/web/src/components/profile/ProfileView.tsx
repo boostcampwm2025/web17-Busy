@@ -1,23 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { getUserProfileInfo, getUserProfilePosts } from '@/api';
+import { getUser, getUserProfilePosts } from '@/api';
 import { useInfiniteScroll } from '@/hooks';
 import { ProfileSkeleton } from '../skeleton';
 import ProfileInfo from './ProfileInfo/ProfileInfo';
 import ProfilePosts from './ProfilePosts';
 import LoadingSpinner from '../LoadingSpinner';
-
-// TODO: dto로 대체
-interface ProfileInfo {
-  id: string;
-  nickname: string;
-  profileImgUrl: string;
-  bio: string;
-  followerCount: number;
-  followingCount: number;
-  isFollowing: boolean;
-}
+import { GetUserDto } from '@repo/dto';
 
 export default function ProfileView({ userId }: { userId: string }) {
   /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
@@ -30,13 +20,13 @@ export default function ProfileView({ userId }: { userId: string }) {
   );
 
   const { items, hasNext, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
-  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null);
+  const [profileInfo, setProfileInfo] = useState<GetUserDto | null>(null);
   const [renderError, setRenderError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const info = await getUserProfileInfo(userId);
+        const info = await getUser(userId);
         setProfileInfo(info);
       } catch (err) {
         console.error('프로필 데이터 fetch 실패', err);
