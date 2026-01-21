@@ -23,7 +23,7 @@ function SongItem({
     <li className="group flex items-center p-2 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors">
       {/* Checkbox (Left) */}
       <button onClick={() => toggleSelectSong(song.id)} className="mr-3 text-gray-300 hover:text-primary transition-colors">
-        {isChecked ? <CheckSquare className="w-5 h-5 text-secondary" /> : <Square className="w-5 h-5" />}
+        {isChecked ? <CheckSquare className="w-5 h-5 text-accent-pink" /> : <Square className="w-5 h-5" />}
       </button>
 
       {/* Song Info (Click to play individual) */}

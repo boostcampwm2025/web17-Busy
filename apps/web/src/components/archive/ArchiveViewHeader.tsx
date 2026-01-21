@@ -26,7 +26,7 @@ export default function ArchiveViewHeader({ setPlaylists }: { setPlaylists: Disp
       </div>
 
       <button
-        className="mt-4 md:mt-0 flex items-center bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-secondary hover:shadow-[4px_4px_0px_0px_#00EBC7] transition-all border-2 border-transparent hover:border-black"
+        className="mt-4 md:mt-0 flex items-center bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-accent-pink hover:shadow-[4px_4px_0px_0px_#00EBC7] transition-all border-2 border-transparent hover:border-black"
         onClick={onCreateNewPlaylist}
       >
         <PlusCircle className="w-5 h-5 mr-2" />

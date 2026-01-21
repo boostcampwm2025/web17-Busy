@@ -29,7 +29,7 @@ export default function PlaylistItem(playlist: Playlist) {
 
       {/* 플리 정보 */}
       <div className="flex-1 min-w-0">
-        <h3 className="text-xl font-black text-primary truncate group-hover:text-secondary transition-colors">{playlist.title}</h3>
+        <h3 className="text-xl font-black text-primary truncate group-hover:text-accent-pink transition-colors">{playlist.title}</h3>
         <p className="text-sm font-bold text-gray-400 mt-1 flex items-center">
           <Library className="w-4 h-4 mr-1" />
           {playlist.tracksCount}곡 저장됨

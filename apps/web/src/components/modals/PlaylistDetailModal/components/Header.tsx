@@ -23,7 +23,7 @@ export function Header({ title, tracksCount, coverImgUrl, isSearchOpen, setIsSea
         <div className="relative w-28 h-28 flex-shrink-0">
           <div className="absolute inset-0 bg-primary translate-x-1 translate-y-1 rounded-xl"></div>
           <img src={coverImgUrl} alt={title} className="relative w-full h-full object-cover rounded-xl border-2 border-primary z-10" />
-          <div className="absolute -bottom-2 -right-2 z-20 bg-secondary text-white text-xs font-bold px-2 py-0.5 rounded-full border border-primary">
+          <div className="absolute -bottom-2 -right-2 z-20 bg-accent-pink text-white text-xs font-bold px-2 py-0.5 rounded-full border border-primary">
             {tracksCount}곡
           </div>
         </div>
