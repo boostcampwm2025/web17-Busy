@@ -1,140 +1,78 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { LoadingSpinner } from '@/components';
-import { SearchInput, SearchStateMessage, TrackItem } from './index';
+import { SearchInput, SearchStateMessage, TrackItem, UserItem } from './index';
+import { useMusicActions, useItunesSearch, useUserSearch } from '@/hooks';
+import { ITUNES_SEARCH } from '@/constants';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
-import { useDebouncedValue, useMusicActions } from '@/hooks';
-import { searchItunesSongs } from '@/api';
-import { itunesSongToMusic } from '@/mappers';
-import { MusicResponseDto as Music } from '@repo/dto';
+type Props = { enabled?: boolean };
 
-type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
+const isUserMode = (q: string) => q.trim().startsWith('@');
+const stripAt = (q: string) => q.trim().replace(/^@+/, '');
 
-const DEBOUNCE_MS = 300;
-const MIN_QUERY_LENGTH = 2;
-const DEFAULT_LIMIT = 20;
-const COUNTRY: 'KR' = 'KR';
-
-function SearchDrawerInner() {
+function SearchDrawerInner({ enabled = true }: Props) {
   const [query, setQuery] = useState('');
-  const debouncedQuery = useDebouncedValue(query, DEBOUNCE_MS);
-
-  const [status, setStatus] = useState<SearchStatus>('idle');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [results, setResults] = useState<Music[]>([]);
-  const [openPreviewMusicId, setOpenPreviewMusicId] = useState<string | null>(null);
-
-  const abortRef = useRef<AbortController | null>(null);
-
-  const trimmed = useMemo(() => debouncedQuery.trim(), [debouncedQuery]);
   const { addMusicToPlayer } = useMusicActions();
+  const { isAuthenticated } = useAuthMe();
 
-  const handleTogglePreview = (musicId: string) => {
-    setOpenPreviewMusicId((prev) => (prev === musicId ? null : musicId));
-  };
+  const userMode = useMemo(() => isUserMode(query), [query]);
+  const keyword = useMemo(() => (userMode ? stripAt(query) : query), [query, userMode]);
 
-  useEffect(() => {
-    abortRef.current?.abort();
-    abortRef.current = null;
+  const itunes = useItunesSearch({ query: keyword, enabled: enabled && !userMode });
+  const users = useUserSearch({ query: keyword, enabled: enabled && userMode });
 
-    if (trimmed.length === 0) {
-      setStatus('idle');
-      setErrorMessage(null);
-      setResults([]);
-      return;
-    }
+  const handleQueryChange = (nextValue: string) => setQuery(nextValue);
+  const handleQueryClear = () => setQuery('');
 
-    if (trimmed.length < MIN_QUERY_LENGTH) {
-      setStatus('idle');
-      setErrorMessage(null);
-      setResults([]);
-      return;
-    }
+  const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
 
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    setStatus('loading');
-    setErrorMessage(null);
-
-    let isActive = true;
-
-    const run = async () => {
-      try {
-        const data = await searchItunesSongs({
-          keyword: trimmed,
-          limit: DEFAULT_LIMIT,
-          country: COUNTRY,
-          signal: controller.signal,
-        });
-
-        const mapped = data.results
-          .map(itunesSongToMusic)
-          // previewUrl(trackUri)가 없는 트랙은 미리듣기 불가하므로 제외(정책)
-          .filter((m) => m.trackUri.length > 0);
-
-        if (!isActive) {
-          return;
-        }
-
-        setResults(mapped);
-        setStatus(mapped.length > 0 ? 'success' : 'empty');
-      } catch (e) {
-        if (!isActive) {
-          return;
-        }
-
-        const err = e as { name?: string; message?: string };
-        if (err?.name === 'AbortError') {
-          return;
-        }
-
-        setResults([]);
-        setStatus('error');
-        setErrorMessage(err?.message ?? '검색 중 오류가 발생했습니다.');
-      }
-    };
-
-    void run();
-
-    return () => {
-      isActive = false;
-      controller.abort();
-    };
-  }, [trimmed]);
-
-  const handleQueryChange = (nextValue: string) => {
-    setQuery(nextValue);
-  };
-
-  const handleQueryClear = () => {
-    setQuery('');
+  const renderIdle = (trimmed: string) => {
+    const needMin = trimmed.length > 0 && trimmed.length < ITUNES_SEARCH.MIN_QUERY_LENGTH;
+    const message = needMin ? `${ITUNES_SEARCH.MIN_QUERY_LENGTH}글자 이상 입력해주세요.` : undefined;
+    return <SearchStateMessage variant="hint" message={message} />;
   };
 
   const renderBody = () => {
-    if (status === 'idle') {
-      const message = trimmed.length > 0 && trimmed.length < MIN_QUERY_LENGTH ? '2글자 이상 입력해주세요.' : undefined;
-      return <SearchStateMessage variant="hint" message={message} />;
+    const state = userMode ? users : itunes;
+
+    if (state.status === 'idle') return renderIdle(state.trimmedQuery);
+    if (state.status === 'loading') return <LoadingSpinner />;
+    if (state.status === 'error') return <SearchStateMessage variant="error" message={state.errorMessage ?? undefined} />;
+    if (state.status === 'empty') return <SearchStateMessage variant="empty" />;
+
+    if (!userMode) {
+      return (
+        <div className="space-y-1">
+          {itunes.results.map((music) => (
+            <TrackItem key={music.id} music={music} disabledActions onPlay={addMusicToPlayer} />
+          ))}
+        </div>
+      );
     }
 
-    if (status === 'loading') {
-      return <LoadingSpinner />;
-    }
+    const handleFollowed = (userId: string) => {
+      setFollowedIds((prev) => {
+        const next = new Set(prev);
+        next.add(userId);
+        return next;
+      });
+    };
 
-    if (status === 'error') {
-      return <SearchStateMessage variant="error" message={errorMessage ?? undefined} />;
-    }
-
-    if (status === 'empty') {
-      return <SearchStateMessage variant="empty" />;
-    }
-
+    // userMode: 팔로우 버튼은 로그인시에만 활성화
+    // NOTE: 검색 결과를 즉시 "팔로우 중"으로 바꾸고 싶다면
+    // useUserSearch 결과를 로컬 override하는 방식으로 확장 가능
     return (
       <div className="space-y-1">
-        {results.map((music) => (
-          <TrackItem key={music.id} music={music} disabledActions onPlay={addMusicToPlayer} />
+        {users.results.map((u) => (
+          <UserItem
+            key={u.id}
+            user={{ ...u, isFollowing: u.isFollowing || followedIds.has(u.id) }}
+            disabledFollow={!isAuthenticated}
+            onFollowed={handleFollowed}
+          />
         ))}
       </div>
     );
@@ -144,7 +82,7 @@ function SearchDrawerInner() {
     <div className="flex flex-col h-full">
       <div className="p-6 border-b-2 border-primary/10">
         <h2 className="text-3xl font-black text-primary mb-6">검색</h2>
-        <SearchInput value={query} onChange={handleQueryChange} onClear={handleQueryClear} placeholder="음악 검색 (iTunes)" />
+        <SearchInput value={query} onChange={handleQueryChange} onClear={handleQueryClear} placeholder="음악 검색, @사용자 검색" />
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">{renderBody()}</div>
@@ -152,6 +90,6 @@ function SearchDrawerInner() {
   );
 }
 
-export default function SearchDrawerContent() {
-  return <SearchDrawerInner />;
+export default function SearchDrawerContent({ enabled = true }: Props) {
+  return <SearchDrawerInner enabled={enabled} />;
 }

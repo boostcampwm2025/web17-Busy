@@ -32,7 +32,7 @@ function NotiItem({ noti, onClick }: { noti: NotiView; onClick: (noti: NotiView)
 
       {/* 본문 */}
       <div className="flex-1 min-w-0 pt-0.5">
-        <p className="text-sm text-primary leading-snug break-words">
+        <p className="text-sm text-primary leading-snug wrap-break-word">
           <NotiActorHoverCard nickname={noti.actorNickname} profileImgUrl={noti.actorProfileImgUrl} userId={noti.actorUserId} /> {noti.messageBody}
         </p>
 

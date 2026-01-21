@@ -21,7 +21,7 @@ export default function NotiActorHoverCard({ userId, nickname, profileImgUrl }: 
         <span className="h-6 w-6 overflow-hidden rounded-full border border-gray-200">
           <img src={profileImgUrl} alt={nickname} className="h-full w-full object-cover" />
         </span>
-        <span className="max-w-[120px] truncate">{nickname}</span>
+        <span className="max-w-30 truncate">{nickname}</span>
       </span>
     </span>
   );
