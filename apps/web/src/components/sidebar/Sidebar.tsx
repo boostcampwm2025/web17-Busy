@@ -43,6 +43,10 @@ export default function Sidebar() {
     setActiveItem(initialActiveItem);
   }, [pathname]);
 
+  useEffect(() => {
+    !activeDrawer && setActiveItem(initialActiveItem);
+  }, [activeDrawer]);
+
   const handleToggleSidebar = () => {
     setIsExpanded((prev) => !prev);
   };
