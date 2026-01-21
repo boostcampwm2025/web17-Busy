@@ -26,7 +26,17 @@ export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteS
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [initialError, setInitialError] = useState<Error | null>(null); // 초기 데이터 fetch 오류
 
+  const prevResetKeyRef = useRef<string | undefined>(undefined);
+
   const initialLoadedRef = useRef(false); // 초기 데이터 fetch 재호출 방지 가드
+
+  /** 무한 스크롤 관련 상태 업데이트 함수 */
+  const updateScrollStates = useCallback((data: InfiniteResponse<T>) => {
+    setItems((prev) => [...prev, ...data.items]);
+    setHasNext(data.hasNext);
+    setNextCursor(data.nextCursor);
+    setErrorMsg(null);
+  }, []);
 
   const reset = useCallback(() => {
     setItems([]);
@@ -38,25 +48,12 @@ export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteS
 
     setIsInitialLoading(true);
     setInitialError(null);
-
-    initialLoadedRef.current = false;
-  }, []);
-
-  useEffect(() => {
-    if (resetKey === undefined) return;
-    reset();
-  }, [resetKey, reset]);
-
-  /** 무한 스크롤 관련 상태 업데이트 함수 */
-  const updateScrollStates = useCallback((data: InfiniteResponse<T>) => {
-    setItems((prev) => [...prev, ...data.items]);
-    setHasNext(data.hasNext);
-    setNextCursor(data.nextCursor);
-    setErrorMsg(null);
   }, []);
 
   /** 초기 데이터 fetch 함수 */
   const loadInitialData = useCallback(async () => {
+    setIsInitialLoading(true);
+    setInitialError(null);
     try {
       const data = await fetchFn();
       updateScrollStates(data);
@@ -75,7 +72,7 @@ export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteS
 
     setIsLoading(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 500)); // 로딩 스피너 짧게 노출
+    await new Promise((resolve) => setTimeout(resolve, 300)); // 로딩 스피너 짧게 노출
 
     try {
       const data = await fetchFn(nextCursor);
@@ -88,12 +85,25 @@ export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteS
     }
   }, [fetchFn, hasNext, isLoading, nextCursor, updateScrollStates]);
 
+  // 최초 1회 로드
   useEffect(() => {
-    // 초기 로딩 전에만 실행
-    if (initialLoadedRef.current) return;
-    initialLoadedRef.current = true;
     void loadInitialData();
   }, [loadInitialData]);
+
+  // resetKey 변경 시: reset + 초기 로드 재실행
+  useEffect(() => {
+    if (resetKey === undefined) return;
+
+    const prev = prevResetKeyRef.current;
+    prevResetKeyRef.current = resetKey;
+
+    // 첫 마운트에서는 중복 호출 방지
+    if (prev === undefined) return;
+    if (prev === resetKey) return;
+
+    reset();
+    void loadInitialData();
+  }, [resetKey, reset, loadInitialData]);
 
   useEffect(() => {
     if (inView) void loadMore();
