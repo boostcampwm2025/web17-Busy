@@ -6,7 +6,7 @@ import {
   CreateFollowDto,
   DeleteFollowDto,
   GetUserFollowDto,
-  UserWithFollowStatusDto,
+  UserDto,
 } from '@repo/dto';
 
 @Injectable()
@@ -104,7 +104,7 @@ export class FollowService {
   private async paginate(
     follows: Follow[],
     limit: number,
-    userExtractor: (follow: Follow) => UserWithFollowStatusDto,
+    userExtractor: (follow: Follow) => UserDto,
     cursorGenerator: (lastItem: Follow) => string,
     userId?: string | undefined,
   ): Promise<GetUserFollowDto> {
