@@ -5,7 +5,7 @@ function SongItem({
   song,
   idx,
   isLast,
-  selectedSongIds,
+  isChecked,
   toggleSelectSong,
   onPlaySong,
   moveSong,
@@ -13,7 +13,7 @@ function SongItem({
   song: MusicResponseDto;
   idx: number;
   isLast: boolean;
-  selectedSongIds: Set<string>;
+  isChecked: boolean;
   toggleSelectSong: (musicId: string) => void;
   onPlaySong: (song: MusicResponseDto) => void;
   moveSong: (index: number, direction: 'up' | 'down') => void;
@@ -22,7 +22,7 @@ function SongItem({
     <li className="group flex items-center p-2 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors">
       {/* Checkbox (Left) */}
       <button onClick={() => toggleSelectSong(song.id)} className="mr-3 text-gray-300 hover:text-primary transition-colors">
-        {selectedSongIds.has(song.id) ? <CheckSquare className="w-5 h-5 text-secondary" /> : <Square className="w-5 h-5" />}
+        {isChecked ? <CheckSquare className="w-5 h-5 text-secondary" /> : <Square className="w-5 h-5" />}
       </button>
 
       {/* Song Info (Click to play individual) */}
@@ -80,7 +80,7 @@ export function SongList({
               song={song}
               idx={idx}
               isLast={idx === songs.length - 1}
-              selectedSongIds={selectedSongIds}
+              isChecked={selectedSongIds.has(song.id)}
               toggleSelectSong={toggleSelectSong}
               onPlaySong={onPlaySong}
               moveSong={moveSong}
