@@ -5,9 +5,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "declaration": true,
-    "declarationMap": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "declarationMap": true
   },
   "include": ["src"]
 }
