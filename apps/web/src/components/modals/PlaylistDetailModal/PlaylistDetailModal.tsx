@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
 import { changeMusicOrderOfPlaylsit, getPlaylistDetail } from '@/api';
+import { reorder } from '@/utils';
 
 export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
   const { closeModal } = useModalStore();
@@ -35,11 +36,7 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
     setSelectedSongIds(newSelected);
   };
 
-  const deleteSelectedSongs = async () => {
-    // 낙관적 업데이트
-    setSongs(songs.filter((s) => !selectedSongIds.has(s.id)));
-    setSelectedSongIds(new Set());
-
+  const requestChangeOrder = async () => {
     try {
       const songIds = songs.map((s) => s.id);
       await changeMusicOrderOfPlaylsit(playlistId, songIds); // playlist.id?
@@ -49,7 +46,21 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
     }
   };
 
-  const moveSong = (index: number, direction: 'up' | 'down') => {};
+  const deleteSelectedSongs = async () => {
+    // 낙관적 업데이트
+    setSongs(songs.filter((s) => !selectedSongIds.has(s.id)));
+    setSelectedSongIds(new Set());
+
+    await requestChangeOrder();
+  };
+
+  const moveSong = async (index: number, direction: 'up' | 'down') => {
+    // 낙관적 업데이트
+    setSongs((prev) => reorder(prev, index, direction));
+
+    await requestChangeOrder();
+  };
+
   const handleAddSong = (song: UnsavedMusic) => {};
 
   return (
