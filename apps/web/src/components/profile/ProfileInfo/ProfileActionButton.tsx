@@ -1,12 +1,16 @@
+'use client';
+
 import { addFollow, removeFollow } from '@/api';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+
+const SmallSpinner = () => <div className="h-5 w-5 mx-2.5 my-0.5 animate-spin rounded-full border-2 border-gray-300 border-t-black" />;
 
 interface ProfileActionButtonProps {
   loggedInUserId: string | null;
   profileUserId: string;
   isFollowing: boolean;
   renderIn: 'page' | 'modal';
-  onActionComplete: () => void;
+  onFollowActionComplete: () => void; // 팔로우 상태 업데이트 함수
 }
 
 export default function ProfileActionButton({
@@ -14,22 +18,30 @@ export default function ProfileActionButton({
   profileUserId,
   isFollowing,
   renderIn = 'page',
-  onActionComplete,
+  onFollowActionComplete,
 }: ProfileActionButtonProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
   const isLoggedIn = !!loggedInUserId;
   const isMyProfile = loggedInUserId === profileUserId;
 
   const BUTTON_TEXT = isFollowing ? '팔로잉' : '팔로우';
 
-  const handleAddFollow = useCallback(async () => {
-    await addFollow(profileUserId);
-    onActionComplete();
-  }, [profileUserId, onActionComplete]);
-
-  const handleRemoveFollow = useCallback(async () => {
-    await removeFollow(profileUserId);
-    onActionComplete();
-  }, [profileUserId, onActionComplete]);
+  /** 팔로우 액션 처리 핸들러 (서버 요청 -> 상태 업데이트) */
+  const handleFollowAction = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      isFollowing ? await removeFollow(profileUserId) : await addFollow(profileUserId);
+      onFollowActionComplete();
+    } catch (e) {
+      // TODO: 에러 상태 UI 처리
+      setError(e as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [profileUserId, isFollowing, onFollowActionComplete]);
 
   // 내 프로필이면 -> 프로필 페이지에서는 리캡 생성 버튼, 모달에서는 버튼 필요 x
   if (isMyProfile) {
@@ -47,12 +59,14 @@ export default function ProfileActionButton({
   if (isFollowing) {
     return (
       <button
-        onClick={handleRemoveFollow}
+        onClick={handleFollowAction}
         title="팔로우 취소"
-        disabled={!isLoggedIn}
-        className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-transparent border-gray-3 text-gray-1 border-2 font-bold hover:bg-gray-4 transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
+        disabled={!isLoggedIn || isLoading}
+        className={`${
+          renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'
+        } flex items-center justify-center bg-transparent border-gray-2 text-gray-1 border-2 font-bold hover:bg-gray-4 transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
       >
-        {BUTTON_TEXT}
+        {isLoading ? <SmallSpinner /> : BUTTON_TEXT}
       </button>
     );
   }
@@ -60,12 +74,14 @@ export default function ProfileActionButton({
   // isFollowing === false -> [팔로우] 버튼, 누르면 팔로우 요청
   return (
     <button
-      onClick={handleAddFollow}
+      onClick={handleFollowAction}
       title="팔로우"
-      disabled={!isLoggedIn}
-      className={`${renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'} bg-primary/90 text-white border-2 border-primary font-bold hover:bg-primary transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
+      disabled={!isLoggedIn || isLoading}
+      className={`${
+        renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'
+      } flex items-center justify-center bg-primary/90 text-white border-2 border-primary font-bold hover:bg-primary transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
     >
-      {BUTTON_TEXT}
+      {isLoading ? <SmallSpinner /> : BUTTON_TEXT}
     </button>
   );
 }
