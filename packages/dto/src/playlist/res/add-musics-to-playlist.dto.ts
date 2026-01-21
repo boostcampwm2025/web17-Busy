@@ -1,5 +1,5 @@
-import { MusicRequestDto } from '../../music';
+import { MusicResponseDto } from '../../music';
 
 export class AddMusicsToPlaylist {
-  addedMusics: MusicRequestDto[];
+  addedMusics: MusicResponseDto[];
 }

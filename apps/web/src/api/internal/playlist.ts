@@ -1,5 +1,5 @@
 import { internalClient } from './client';
-import type { PlaylistResDto, GetAllPlaylistsResDto, GetPlaylistDetailResDto, MusicRequestDto } from '@repo/dto';
+import type { PlaylistResDto, GetAllPlaylistsResDto, GetPlaylistDetailResDto, MusicRequestDto, AddMusicsToPlaylist } from '@repo/dto';
 
 // 보관함 목록 가져오기 (미리보기)
 export const getAllPlaylists = async (): Promise<GetAllPlaylistsResDto['playlists']> => {
@@ -32,8 +32,8 @@ export const deletePlaylist = async (playlistId: string): Promise<{ ok: true }> 
 };
 
 // 플리에 음악 추가
-export const addMusicsToPlaylist = async (playlistId: string, musics: MusicRequestDto): Promise<GetPlaylistDetailResDto> => {
-  const { data } = await internalClient.post<GetPlaylistDetailResDto>(`/playlist/${playlistId}/music`, { musics });
+export const addMusicsToPlaylist = async (playlistId: string, musics: MusicRequestDto): Promise<AddMusicsToPlaylist> => {
+  const { data } = await internalClient.post<AddMusicsToPlaylist>(`/playlist/${playlistId}/music`, { musics });
   return data;
 };
 
