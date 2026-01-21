@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, FindOptionsWhere, Repository, LessThan } from 'typeorm';
 import { Post } from './entities/post.entity';
 
 @Injectable()
@@ -54,5 +54,42 @@ export class PostRepository {
   ): Promise<void> {
     const repo = manager ? manager.getRepository(Post) : this.repository;
     await repo.decrement({ id: postId }, 'commentCount', 1);
+  }
+
+  // 유저 모든 글 조회
+  async getPostsByUser(
+    userId: string,
+    take: number,
+    cursorDate: Date | null,
+  ): Promise<Post[]> {
+    const whereOption: FindOptionsWhere<Post> = {
+      author: {
+        id: userId,
+      },
+    };
+    if (cursorDate) {
+      whereOption.createdAt = LessThan(cursorDate);
+    }
+
+    return await this.repository.find({
+      where: whereOption,
+      relations: {
+        postMusics: true,
+      },
+      select: {
+        id: true,
+        coverImgUrl: true,
+        likeCount: true,
+        commentCount: true,
+        createdAt: true,
+        postMusics: {
+          id: true,
+        },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+      take: take,
+    });
   }
 }

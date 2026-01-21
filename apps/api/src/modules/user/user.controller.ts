@@ -1,13 +1,15 @@
 import {
   Controller,
   Get,
+  Param,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { AuthOptionalGuard } from 'src/common/guards/auth.optional-guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
-import { UserDto } from '@repo/dto';
+import { UserDto, GetUserDto } from '@repo/dto';
 
 @Controller('user')
 export class UserController {
@@ -21,5 +23,15 @@ export class UserController {
 
     const { id, nickname, profileImgUrl } = user;
     return { id, nickname, profileImgUrl };
+  }
+  @UseGuards(AuthOptionalGuard)
+  @Get(':userId')
+  async getUser(
+    @Param('userId') targetUserId: string,
+    @UserId() userId?: string,
+  ): Promise<GetUserDto> {
+    const user = await this.userService.getUserProfile(targetUserId, userId);
+
+    return user;
   }
 }
