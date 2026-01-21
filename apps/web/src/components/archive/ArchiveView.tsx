@@ -2,9 +2,20 @@
 
 import { LikeMusicsPlaylistItem, PlaylistItem } from './PlaylistItems';
 import ArchiveViewHeader from './ArchiveViewHeader';
+import { getAllPlaylists } from '@/api';
+import { useEffect, useState } from 'react';
+import type { PlaylistBriefResDto } from '@repo/dto';
 
 export default function ArchiveView() {
-  const ids = ['플리 1', '플리 2', '플리 3', '플리 4', '플리 5'];
+  const [playlists, setPlaylists] = useState<PlaylistBriefResDto[]>([]);
+
+  const fetchInitialPlaylists = async () => {
+    setPlaylists(await getAllPlaylists());
+  };
+
+  useEffect(() => {
+    fetchInitialPlaylists();
+  }, []);
 
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
@@ -18,13 +29,8 @@ export default function ArchiveView() {
           <LikeMusicsPlaylistItem />
 
           {/* 사용자의 플리 목록 */}
-          {ids.map((id) => (
-            <PlaylistItem
-              id={id}
-              title={'짭 플리'}
-              tracksCount={123}
-              firstAlbumCoverUrl={'https://i.scdn.co/image/ab67616d00004851b62a7d11f28702ade7c5aa3f'}
-            />
+          {playlists.map((p) => (
+            <PlaylistItem key={p.id} id={p.id} title={p.title} tracksCount={p.tracksCount} firstAlbumCoverUrl={p.firstAlbumCoverUrl} />
           ))}
         </div>
       </div>

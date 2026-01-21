@@ -12,7 +12,6 @@ export default function PlaylistItem(playlist: Playlist) {
 
   return (
     <div
-      key={playlist.id}
       onClick={handlePlaylistClick}
       className="group flex items-center bg-white border-2 border-primary rounded-xl p-4 cursor-pointer hover:bg-gray-50 hover:shadow-[6px_6px_0px_0px_#00EBC7] hover:-translate-y-1 transition-all duration-200"
     >
