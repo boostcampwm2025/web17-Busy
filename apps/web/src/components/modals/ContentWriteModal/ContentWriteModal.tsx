@@ -6,9 +6,16 @@ import { CoverImgUploader, MusicSearch, SelectedMusicList } from './index';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { useContentWrite } from '@/hooks';
+import { useRouter } from 'next/navigation';
 
 export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
   const { closeModal } = useModalStore();
+  const router = useRouter();
+
+  const handleWriteSuccess = () => {
+    closeModal();
+    router.push('/');
+  };
 
   const {
     selectedMusics,
@@ -28,7 +35,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
     onSubmit,
   } = useContentWrite({
     initialMusic,
-    onSuccess: closeModal,
+    onSuccess: handleWriteSuccess,
   });
 
   return (
