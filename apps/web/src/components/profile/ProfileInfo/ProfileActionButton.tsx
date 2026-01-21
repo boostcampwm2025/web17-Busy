@@ -2,6 +2,7 @@
 
 import { addFollow, removeFollow } from '@/api';
 import { useCallback, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const SmallSpinner = () => <div className="h-5 w-5 mx-2.5 my-0.5 animate-spin rounded-full border-2 border-gray-300 border-t-black" />;
 
@@ -21,7 +22,6 @@ export default function ProfileActionButton({
   onFollowActionComplete,
 }: ProfileActionButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
   const isLoggedIn = !!loggedInUserId;
   const isMyProfile = loggedInUserId === profileUserId;
@@ -31,13 +31,11 @@ export default function ProfileActionButton({
   /** 팔로우 액션 처리 핸들러 (서버 요청 -> 상태 업데이트) */
   const handleFollowAction = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
     try {
       isFollowing ? await removeFollow(profileUserId) : await addFollow(profileUserId);
       onFollowActionComplete();
-    } catch (e) {
-      // TODO: 에러 상태 UI 처리
-      setError(e as Error);
+    } catch {
+      toast.error(`요청 처리에 실패했습니다.`);
     } finally {
       setIsLoading(false);
     }
