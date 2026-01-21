@@ -1,6 +1,6 @@
 'use client';
 
-import { PostResponseDto } from '@repo/dto';
+import type { PostResponseDto } from '@repo/dto';
 import { Heart, MessageCircle } from 'lucide-react';
 
 type Props = {

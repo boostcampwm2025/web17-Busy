@@ -1,4 +1,4 @@
-import { FeedResponseDto as Feed, PostResponseDto as Post } from '@repo/dto';
+import type { FeedResponseDto as Feed, PostResponseDto as Post } from '@repo/dto';
 import { internalClient } from './client';
 import { MOCK_PROFILE_POSTS } from '@/constants';
 

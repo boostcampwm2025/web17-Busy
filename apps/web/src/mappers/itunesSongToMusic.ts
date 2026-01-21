@@ -1,5 +1,5 @@
 import type { ItunesSongResult } from '@/api';
-import { MusicProvider, MusicResponseDto as Music } from '@repo/dto';
+import { MusicProvider, type MusicResponseDto as Music } from '@repo/dto';
 
 const FALLBACK_COVER_URL = 'https://via.placeholder.com/400?text=No+Cover';
 

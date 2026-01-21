@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 type Args = {
   post: Post;

@@ -1,5 +1,5 @@
 import type { SpotifyTrack } from '@/api';
-import { MusicProvider, MusicResponseDto as Music } from '@repo/dto';
+import { MusicProvider, type MusicResponseDto as Music } from '@repo/dto';
 
 const joinArtistNames = (artists: { name: string }[]): string =>
   artists

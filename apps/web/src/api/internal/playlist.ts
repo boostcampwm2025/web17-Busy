@@ -1,5 +1,5 @@
 import { internalClient } from './client';
-import { GetAllPlaylistsResDto, GetPlaylistDetailResDto } from '@repo/dto';
+import type { GetAllPlaylistsResDto, GetPlaylistDetailResDto } from '@repo/dto';
 
 // 보관함 목록 가져오기 (미리보기)
 export const getAllPlaylists = async (): Promise<GetAllPlaylistsResDto['playlists']> => {

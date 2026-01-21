@@ -1,6 +1,6 @@
 'use client';
 
-import { MusicResponseDto as Music } from '@repo/dto';
+import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle } from 'lucide-react';
 
 interface QueueListProps {

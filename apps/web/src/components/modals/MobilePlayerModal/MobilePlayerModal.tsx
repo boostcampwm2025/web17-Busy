@@ -3,7 +3,7 @@
 import { X, Trash2, ChevronUp, ChevronDown, XCircle, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores';
-import { MusicResponseDto as Music } from '@repo/dto';
+import type { MusicResponseDto as Music } from '@repo/dto';
 
 type MobileQueueRowProps = {
   music: Music;

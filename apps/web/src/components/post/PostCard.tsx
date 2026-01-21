@@ -1,7 +1,7 @@
 'use client';
 
 import { PostHeader, PostMedia, PostActions, PostContentPreview } from './index';
-import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 interface PostCardProps {
   post: Post;

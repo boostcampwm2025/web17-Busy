@@ -1,7 +1,7 @@
 'use client';
 
 import { MODAL_TYPES, useModalStore, usePlayerStore } from '@/stores';
-import { MusicResponseDto as Music } from '@repo/dto';
+import type { MusicResponseDto as Music } from '@repo/dto';
 
 export default function useMusicActions() {
   const playMusic = usePlayerStore((s) => s.playMusic);

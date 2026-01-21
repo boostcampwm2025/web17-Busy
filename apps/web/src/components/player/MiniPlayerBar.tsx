@@ -1,6 +1,6 @@
 'use client';
 
-import { MusicResponseDto as Music } from '@repo/dto';
+import type { MusicResponseDto as Music } from '@repo/dto';
 import { FolderPlus, Pause, Play, PlusCircle, SkipBack, SkipForward, ListPlus } from 'lucide-react';
 
 interface MiniPlayerBarProps {

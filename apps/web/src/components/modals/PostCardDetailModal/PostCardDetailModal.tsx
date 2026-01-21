@@ -8,7 +8,7 @@ import { useScrollLock, usePostDetail } from '@/hooks';
 import { formatRelativeTime, coalesceImageSrc } from '@/utils';
 import { buildMockComments, EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { PostMedia, LoadingSpinner } from '@/components';
-import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 export const PostCardDetailModal = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
