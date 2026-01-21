@@ -21,7 +21,7 @@ export default function ArchiveView() {
     <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
       <div className="max-w-4xl mx-auto">
         {/* 페이지 헤더 */}
-        <ArchiveViewHeader />
+        <ArchiveViewHeader setPlaylists={setPlaylists} />
 
         {/* 플리 목록 */}
         <div className="flex flex-col space-y-4">
