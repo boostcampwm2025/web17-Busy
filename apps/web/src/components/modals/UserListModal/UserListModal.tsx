@@ -49,7 +49,7 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
     router.push(`/profile/${profileUserId}`);
   };
 
-  const { items, hasNext, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchUsers });
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchUsers });
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 animate-fade-in">
@@ -64,47 +64,51 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
         </div>
 
         {/* 사용자 목록 */}
-        <div className="flex-1 overflow-y-auto p-2">
-          {items.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-gray-400 py-10">
-              <p className="font-bold text-sm">사용자가 없습니다.</p>
-            </div>
-          ) : (
-            <ul className="space-y-1">
-              {items.map((user, idx) => {
-                return (
-                  <li key={user.id + idx} className="flex items-center justify-between p-3 hover:bg-grayish rounded-xl transition-colors group">
-                    <div className="flex items-center flex-1 min-w-0 mr-4">
-                      <button onClick={() => handleProfileClick(user.id)} className="relative shrink-0 w-10 h-10">
-                        <img
-                          src={user.profileImgUrl || DEFAULT_IMAGES.PROFILE}
-                          alt={user.nickname}
-                          className="w-full h-full rounded-full border border-primary object-cover"
-                        />
-                      </button>
-                      <p className="ml-3 min-w-0 font-bold text-md text-primary truncate">{user.nickname}</p>
-                    </div>
+        {isInitialLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="flex-1 overflow-y-auto p-2">
+            {items.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-gray-400 py-10">
+                <p className="font-bold text-sm">사용자가 없습니다.</p>
+              </div>
+            ) : (
+              <ul className="space-y-1">
+                {items.map((user, idx) => {
+                  return (
+                    <li key={user.id + idx} className="flex items-center justify-between p-3 hover:bg-grayish rounded-xl transition-colors group">
+                      <div className="flex items-center flex-1 min-w-0 mr-4">
+                        <button onClick={() => handleProfileClick(user.id)} className="relative shrink-0 w-10 h-10">
+                          <img
+                            src={user.profileImgUrl || DEFAULT_IMAGES.PROFILE}
+                            alt={user.nickname}
+                            className="w-full h-full rounded-full border border-primary object-cover"
+                          />
+                        </button>
+                        <p className="ml-3 min-w-0 font-bold text-md text-primary truncate">{user.nickname}</p>
+                      </div>
 
-                    {/* 사용자별 액션 버튼 */}
-                    <ProfileActionButton loggedInUserId={loggedInUserId} profileUserId={user.id} isFollowing={user.isFollowing} renderIn="modal" />
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          {/** 무한 스크롤 처리 영역 */}
-          {errorMsg && (
-            <div className="text-center">
-              <p>{errorMsg}</p>
-              <p className="text-sm mt-2">다시 시도해주세요.</p>
-            </div>
-          )}
-          {hasNext && (
-            <div ref={ref}>
-              <LoadingSpinner hStyle="py-6" />
-            </div>
-          )}
-        </div>
+                      {/* 사용자별 액션 버튼 */}
+                      <ProfileActionButton loggedInUserId={loggedInUserId} profileUserId={user.id} isFollowing={user.isFollowing} renderIn="modal" />
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {/** 무한 스크롤 처리 영역 */}
+            {errorMsg && (
+              <div className="text-center">
+                <p>{errorMsg}</p>
+                <p className="text-sm mt-2">다시 시도해주세요.</p>
+              </div>
+            )}
+            {hasNext && (
+              <div ref={ref}>
+                <LoadingSpinner hStyle="py-6" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
