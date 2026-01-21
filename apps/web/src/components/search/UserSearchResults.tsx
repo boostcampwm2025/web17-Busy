@@ -13,21 +13,21 @@ type Props = {
   loadMoreRef: (node?: Element | null) => void;
 
   isAuthenticated: boolean;
-  followedIds: Set<string>;
-  onFollowed: (userId: string) => void;
+
+  /** userId -> isFollowing override */
+  followOverrides: Map<string, boolean>;
+  onFollowChange: (userId: string, next: boolean) => void;
 };
 
-export default function UserSearchResults({ users, hasNext, isLoadingMore, loadMoreRef, isAuthenticated, followedIds, onFollowed }: Props) {
+export default function UserSearchResults({ users, hasNext, isLoadingMore, loadMoreRef, isAuthenticated, followOverrides, onFollowChange }: Props) {
   return (
     <div className="space-y-1">
-      {users.map((u) => (
-        <UserItem
-          key={u.id}
-          user={{ ...u, isFollowing: u.isFollowing || followedIds.has(u.id) }}
-          disabledFollow={!isAuthenticated}
-          onFollowed={onFollowed}
-        />
-      ))}
+      {users.map((u) => {
+        const override = followOverrides.get(u.id);
+        const isFollowing = override ?? u.isFollowing;
+
+        return <UserItem key={u.id} user={{ ...u, isFollowing }} disabledFollow={!isAuthenticated} onFollowChange={onFollowChange} />;
+      })}
 
       {hasNext ? <div ref={loadMoreRef} /> : null}
 

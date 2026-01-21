@@ -10,7 +10,13 @@ const stripAt = (q: string) => q.trim().replace(/^@+/, '');
 
 export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
   const [query, setQuery] = useState('');
-  const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
+
+  /**
+   * 팔로우 상태 오버라이드(Optimistic UI)
+   * - userId -> true/false 로 강제 덮어쓰기
+   * - 스크롤로 아이템이 unmount/mount 되어도 상태 유지
+   */
+  const [followOverrides, setFollowOverrides] = useState<Map<string, boolean>>(new Map());
 
   const mode: Mode = useMemo(() => (isUserMode(query) ? 'user' : 'music'), [query]);
   const keyword = useMemo(() => (mode === 'user' ? stripAt(query) : query), [mode, query]);
@@ -22,10 +28,10 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
 
   const clearQuery = () => setQuery('');
 
-  const markFollowed = (userId: string) => {
-    setFollowedIds((prev) => {
-      const next = new Set(prev);
-      next.add(userId);
+  const setFollowState = (userId: string, isFollowing: boolean) => {
+    setFollowOverrides((prev) => {
+      const next = new Map(prev);
+      next.set(userId, isFollowing);
       return next;
     });
   };
@@ -40,10 +46,9 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
 
     itunes,
     users,
-
     active,
 
-    followedIds,
-    markFollowed,
+    followOverrides,
+    setFollowState,
   };
 }

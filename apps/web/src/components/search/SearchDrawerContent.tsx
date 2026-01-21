@@ -21,7 +21,7 @@ function SearchDrawerInner({ enabled = true }: Props) {
   const { isAuthenticated } = useAuthMe();
   const { addMusicToPlayer } = useMusicActions();
 
-  const { query, setQuery, clearQuery, mode, itunes, users, active, followedIds, markFollowed } = useSearchDrawer({ enabled });
+  const { query, setQuery, clearQuery, mode, itunes, users, active, followOverrides, setFollowState } = useSearchDrawer({ enabled });
 
   const hintMessage = useMemo(() => getHintMessage(active.trimmedQuery), [active.trimmedQuery]);
 
@@ -44,8 +44,8 @@ function SearchDrawerInner({ enabled = true }: Props) {
         isLoadingMore={users.isLoadingMore}
         loadMoreRef={users.ref}
         isAuthenticated={isAuthenticated}
-        followedIds={followedIds}
-        onFollowed={markFollowed}
+        followOverrides={followOverrides}
+        onFollowChange={setFollowState}
       />
     );
   };
