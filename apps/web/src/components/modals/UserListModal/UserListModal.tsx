@@ -5,7 +5,7 @@ import { ProfileActionButton } from '@/components/profile';
 import { DEFAULT_IMAGES } from '@/constants';
 import { useInfiniteScroll } from '@/hooks';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { useModalStore } from '@/stores';
+import { useModalStore, useProfileStore } from '@/stores';
 //import { GetUserFollowDto } from '@repo/dto';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -35,25 +35,35 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
   const router = useRouter();
   const { userId: loggedInUserId } = useAuthMe();
 
+  const incrementFollowingCount = useProfileStore((s) => s.incrementFollowingCount);
+  const decrementFollowingCount = useProfileStore((s) => s.decrementFollowingCount);
+
   /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
   const fetchUsers = useCallback(
     async (cursor?: string, limit?: number) => {
       const data = await fetchFn(profileUserId, cursor, limit);
       return { items: data.users, hasNext: data.hasNext, nextCursor: data.nextCursor };
     },
-    [profileUserId],
+    [profileUserId, fetchFn],
   );
-
-  const handleProfileClick = (profileUserId: string) => {
-    closeModal();
-    router.push(`/profile/${profileUserId}`);
-  };
 
   const { items, setItems, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchUsers });
 
-  /** 팔로우/언팔로우 후 사용자 목록의 isFollowing 상태 업데이트 함수 */
-  const handleFollowActionComplete = (updatedUserId: string) => {
+  /** 팔로우/언팔로우 후 사용자 목록 및 프로필 정보(팔로잉 수) 상태 업데이트 함수 */
+  const handleFollowActionComplete = (updatedUserId: string, prevIsFollowing: boolean) => {
+    // 모달의 사용자 목록 로컬 상태 업데이트
     setItems((prevItems) => prevItems.map((user) => (user.id === updatedUserId ? { ...user, isFollowing: !user.isFollowing } : user)));
+
+    // 내가 내 프로필에서 다른 사람을 팔로우/언팔로우 하는 경우, 전역 프로필(내 프로필) 스토어 상태 업데이트
+    if (profileUserId === loggedInUserId) {
+      prevIsFollowing ? decrementFollowingCount() : incrementFollowingCount();
+    }
+  };
+
+  /** 프로필 클릭 시 해당 프로필 페이지 내비게이션 함수 */
+  const handleProfileClick = (profileUserId: string) => {
+    closeModal();
+    router.push(`/profile/${profileUserId}`);
   };
 
   return (
@@ -99,7 +109,7 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
                         profileUserId={user.id}
                         isFollowing={user.isFollowing}
                         renderIn="modal"
-                        onFollowActionComplete={() => handleFollowActionComplete(user.id)}
+                        onFollowActionComplete={() => handleFollowActionComplete(user.id, user.isFollowing)}
                       />
                     </li>
                   );
