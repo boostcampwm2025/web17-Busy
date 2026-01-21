@@ -1,13 +1,18 @@
-import { getLoggedInUserId } from '@/api';
-import { LoginRequestScreen } from '@/components';
-import { redirect } from 'next/navigation';
+'use client';
 
-/** 내 프로필(me) 페이지 접근 > 동적 라우트 redirect 역할만 */
-export default async function Profile() {
-  //const { userId } = await getLoggedInUserId();
-  const userId = '11111111-1111-1111-1111-111111111111';
+import { LoadingSpinner, LoginRequestScreen } from '@/components';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
-  if (!userId) return <LoginRequestScreen />;
+/** 내 프로필(me) 페이지 접근 > 동적 경로로 이동하는 역할만 */
+export default function Profile() {
+  const router = useRouter();
+  const { userId } = useAuthMe();
 
-  redirect(`/profile/${userId}`);
+  useEffect(() => {
+    userId && router.push(`/profile/${userId}`);
+  }, [userId]);
+
+  return userId ? <LoadingSpinner /> : <LoginRequestScreen />;
 }

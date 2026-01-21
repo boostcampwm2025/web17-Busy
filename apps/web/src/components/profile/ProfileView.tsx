@@ -1,0 +1,80 @@
+'use client';
+
+import { useCallback, useEffect, useState } from 'react';
+import { getUserProfileInfo, getUserProfilePosts } from '@/api';
+import { useInfiniteScroll } from '@/hooks';
+import { ProfileSkeleton } from '../skeleton';
+import ProfileInfo from './ProfileInfo/ProfileInfo';
+import ProfilePosts from './ProfilePosts';
+import LoadingSpinner from '../LoadingSpinner';
+
+// TODO: dto로 대체
+interface ProfileInfo {
+  userId: string;
+  nickname: string;
+  profileImgUrl: string;
+  bio: string;
+  followerCount: number;
+  followingCount: number;
+  isFollowing: boolean;
+}
+
+export default function ProfileView({ userId }: { userId: string }) {
+  /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
+  const fetchProfilePosts = useCallback(
+    async (cursor?: string, limit?: number) => {
+      const data = await getUserProfilePosts(userId, cursor, limit);
+      return data;
+    },
+    [userId],
+  );
+
+  const { items, hasNext, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
+  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null);
+  const [renderError, setRenderError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const info = await getUserProfileInfo(userId);
+        setProfileInfo(info);
+      } catch (err) {
+        console.error('프로필 데이터 fetch 실패', err);
+        if (err instanceof Error) {
+          setRenderError(err);
+        } else {
+          setRenderError(new Error('프로필 로딩 중 에러가 발생했습니다.'));
+        }
+      }
+    };
+
+    fetchData();
+  }, [userId]);
+
+  // 렌더링 단계에서 발생하는 에러 처리 (데이터 최초 fetch 관련)
+  if (renderError) throw renderError;
+  if (initialError) throw initialError;
+
+  // 최초 요청 처리 중에만 스켈레톤 표시
+  if (isInitialLoading || !profileInfo) return <ProfileSkeleton />;
+
+  return (
+    <>
+      <div className="mx-auto p-6 md:p-10 gap-y-4">
+        <ProfileInfo profile={profileInfo} />
+        <ProfilePosts posts={items} />
+      </div>
+      {errorMsg && (
+        <div className="text-center">
+          <p>{errorMsg}</p>
+          <p className="text-sm mt-2">다시 시도해주세요.</p>
+        </div>
+      )}
+      {hasNext && (
+        <div ref={ref}>
+          <LoadingSpinner hStyle="py-6" />
+        </div>
+      )}
+    </>
+  );
+}

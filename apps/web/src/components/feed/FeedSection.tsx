@@ -2,28 +2,28 @@
 
 import { useInfiniteScroll } from '@/hooks';
 import { getFeedPosts } from '@/api';
+import { PostResponseDto as Post } from '@repo/dto';
+import { FeedSkeleton } from '../skeleton';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
-import { FeedResponseDto, PostResponseDto } from '@repo/dto';
 
-/** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
-const fetchFeeds = async (cursor?: string) => {
-  const { posts, hasNext, nextCursor } = await getFeedPosts(cursor);
-  return { items: posts, hasNext, nextCursor };
-};
-
-export default function FeedSection({ initialData }: { initialData?: FeedResponseDto }) {
-  const { items, hasNext, error, ref } = useInfiniteScroll<PostResponseDto>({
-    initialData: { items: initialData?.posts ?? [], hasNext: initialData?.hasNext ?? false, nextCursor: initialData?.nextCursor },
-    fetchFn: fetchFeeds,
+export default function FeedSection() {
+  const { items, hasNext, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll<Post>({
+    fetchFn: getFeedPosts,
   });
+
+  // 렌더링 단계에서 발생하는 에러 처리 (데이터 최초 fetch 관련)
+  if (initialError) throw initialError;
+
+  // 최초 요청 처리 중에만 스켈레톤 표시
+  if (isInitialLoading) return <FeedSkeleton />;
 
   return (
     <>
       <FeedList posts={items} />
-      {error && (
+      {errorMsg && (
         <div className="text-center">
-          <p>{error}</p>
+          <p>{errorMsg}</p>
           <p className="text-sm mt-2">다시 시도해주세요.</p>
         </div>
       )}
