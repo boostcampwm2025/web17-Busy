@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:3002/api
-@ACCESS_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJpYXQiOjE3NjgzNzYwMjYsImV4cCI6MTc3MzU2MDAyNn0.qnflWdgcGE2bCHVau498Ox87tSD8LUiU4mo6Oy7_DE4
+@ACCESS_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTliZTE2My00YjM3LTc2YWQtYWViMy02OTg2YTM0ODlkZTYiLCJpYXQiOjE3NjkwMTQ3NjcsImV4cCI6MTc2OTAxNjU2N30.37cVyZXFQra1gTMyqLSSYZg5lwJsXNH4p7HfJvXD_MU
 
 ############################################################
 # 플레이리스트 API 테스트
@@ -24,11 +24,11 @@ Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
 ### 플리 상세 조회
-GET {{baseUrl}}/playlist/pppppppp-pppp-pppp-pppp-pppppppppppp HTTP/1.1
+GET {{baseUrl}}/playlist/019be167-a8ad-7726-974f-7163392a054f HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 
 ### 플리 제목 수정
-PATCH {{baseUrl}}/playlist/pppppppp-pppp-pppp-pppp-pppppppppppp HTTP/1.1
+PATCH {{baseUrl}}/playlist/019be167-a8ad-7726-974f-7163392a054f HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
@@ -37,18 +37,18 @@ Content-Type: application/json
 }
 
 ### 플리 삭제
-DELETE {{baseUrl}}/playlist/pppppppp-pppp-pppp-pppp-pppppppppppp HTTP/1.1
+DELETE {{baseUrl}}/playlist/019be167-a8ae-7178-8817-9981c912bbbb HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 
 ### 플리에 음악 추가
-POST {{baseUrl}}/playlist/pppppppp-pppp-pppp-pppp-pppppppppppp/music HTTP/1.1
+POST {{baseUrl}}/playlist/019be167-a8ad-7726-974f-7163392a054f/music HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
   "musics": [
     {
-      "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      "id": "019be165-6364-75ba-88a6-6e4331ec10fb",
       "trackUri": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/86/4d/a5/864da591-eeb0-27db-bbfa-a190ee20a05c/mzaf_17780542814473670833.plus.aac.p.m4a",
       "albumCoverUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/12/31/63/12316366-55bb-065c-8ad9-47e107fa79b2/AKMU_NEXT_EPISODE.jpg/600x600bb.jpg",
       "title": "낙하 (with 아이유)",
@@ -68,14 +68,14 @@ Content-Type: application/json
 }
 
 ### 플리 음악 순서 변경
-PUT {{baseUrl}}/playlist/pppppppp-pppp-pppp-pppp-pppppppppppp/music HTTP/1.1
+PUT {{baseUrl}}/playlist/019be167-a8ad-7726-974f-7163392a054f/music HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
   "musicIds": [
-    "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-    "22222222-2222-2222-2222-222222222222",
-    "11111111-1111-1111-1111-111111111111"
+    "019be163-4b3a-7619-a3cd-79c79137c492",
+    "019be165-248b-74bd-a6a5-87a65385ea36",
+    "019be165-248a-746b-b9c1-762e7a76f52d"
   ]
 }
