@@ -9,9 +9,9 @@ interface TrackItemProps {
   /** 보관함/작성 등 후속 이슈에서 연결 */
   disabledActions?: boolean;
 
-  onPlay?: (music: Music) => void;
-  onAddToArchive?: (music: Music) => void;
-  onOpenWrite?: (music: Music) => void;
+  onPlay: (music: Music) => void;
+  onAddToArchive: (track: Music, playlistId: string) => void;
+  onOpenWrite: (music: Music) => void;
 }
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';
@@ -22,12 +22,12 @@ export default function TrackItem({ music, disabledActions = true, onPlay, onAdd
   };
 
   const handleArchiveClick = () => {
-    if (disabledActions) return;
-    onAddToArchive?.(music);
+    //if (disabledActions) return;
+    onAddToArchive?.(music, '');
   };
 
   const handleWriteClick = () => {
-    if (disabledActions) return;
+    //if (disabledActions) return;
     onOpenWrite?.(music);
   };
 
@@ -57,7 +57,7 @@ export default function TrackItem({ music, disabledActions = true, onPlay, onAdd
         <button
           type="button"
           onClick={handleArchiveClick}
-          disabled
+          //disabled
           title={DISABLED_ACTION_TITLE}
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
@@ -69,7 +69,7 @@ export default function TrackItem({ music, disabledActions = true, onPlay, onAdd
         <button
           type="button"
           onClick={handleWriteClick}
-          disabled={disabledActions}
+          //disabled={disabledActions}
           title={disabledActions ? DISABLED_ACTION_TITLE : '컨텐츠 작성'}
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
