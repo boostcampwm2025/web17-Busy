@@ -6,7 +6,7 @@ import { Header, SearchDropdown, SongList, Toolbar } from './components';
 import { addMusicsToPlaylist, changeMusicOrderOfPlaylsit as changeMusicOrderOfPlaylist, getPlaylistDetail } from '@/api';
 import { reorder } from '@/utils';
 
-export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
+export default function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
   const { closeModal } = useModalStore();
 
   const addToQueue = usePlayerStore((s) => s.addToQueue);
