@@ -20,7 +20,7 @@ export default function ModalContainer() {
   return (
     <>
       {/* 1. 컨텐츠 작성 모달 */}
-      {modalType === MODAL_TYPES.WRITE && <ContentWriteModal initialMusic={modalProps.initialMusic} />}
+      {modalType === MODAL_TYPES.WRITE && <ContentWriteModal initialMusic={modalProps.initialMusic} initialMusics={modalProps.initialMusics} />}
 
       {/* 2. 로그인 모달 */}
       {modalType === MODAL_TYPES.LOGIN && <LoginModal />}

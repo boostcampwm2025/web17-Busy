@@ -9,13 +9,18 @@ import { getAllPlaylists, addMusicsToPlaylist, createNewPlaylist } from '@/api';
 import { DEFAULT_IMAGES } from '@/constants';
 import { coalesceImageSrc } from '@/utils';
 
-import type { MusicRequestDto, MusicResponseDto as Music, AddMusicsToPlaylistResDto } from '@repo/dto';
+import type { MusicRequestDto, MusicResponseDto as Music } from '@repo/dto';
 import { LoadingSpinner } from '@/components';
 
-type Props = {};
+type PlaylistBrief = {
+  id: string;
+  title: string;
+  tracksCount: number;
+  firstAlbumCoverUrl: string;
+};
 
 const toMusicRequestDto = (m: Music): MusicRequestDto => ({
-  id: m.id, // DB UUID 보장(ensure 후 들어옴)
+  id: m.id,
   trackUri: m.trackUri,
   provider: m.provider,
   albumCoverUrl: m.albumCoverUrl,
@@ -24,32 +29,37 @@ const toMusicRequestDto = (m: Music): MusicRequestDto => ({
   durationMs: m.durationMs,
 });
 
-export default function PlaylistPickerModal(_props: Props) {
+const dedupeById = (musics: Music[]): Music[] => {
+  const seen = new Set<string>();
+  const out: Music[] = [];
+  for (const m of musics) {
+    if (seen.has(m.id)) continue;
+    seen.add(m.id);
+    out.push(m);
+  }
+  return out;
+};
+
+export default function PlaylistPickerModal() {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
-
   const enabled = isOpen && modalType === 'PLAYLIST_PICKER';
-  const music = enabled ? (modalProps?.music as Music | undefined) : undefined;
 
-  const [playlists, setPlaylists] = useState<Array<{ id: string; title: string; tracksCount: number; firstAlbumCoverUrl: string }>>([]);
+  const musics = enabled ? (modalProps?.musics as Music[] | undefined) : undefined;
+
+  const [playlists, setPlaylists] = useState<PlaylistBrief[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  // 버튼/항목 클릭 중
-  const [submittingPlaylistId, setSubmittingPlaylistId] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const canSubmit = Boolean(music) && !submittingPlaylistId && !isCreating;
+  const [submittingPlaylistId, setSubmittingPlaylistId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
-  const fetchPlaylists = async () => {
-    const list = await getAllPlaylists();
-    setPlaylists(list);
-  };
+  const canSubmit = Boolean(musics && musics.length > 0) && !submittingPlaylistId && !isCreating;
 
   useEffect(() => {
     if (!enabled) return;
 
-    if (!music) {
+    if (!musics || musics.length === 0) {
       closeModal();
       return;
     }
@@ -61,8 +71,9 @@ export default function PlaylistPickerModal(_props: Props) {
       setErrorMsg(null);
 
       try {
-        await fetchPlaylists();
+        const list = await getAllPlaylists();
         if (!alive) return;
+        setPlaylists(list);
       } catch {
         if (!alive) return;
         setPlaylists([]);
@@ -77,23 +88,24 @@ export default function PlaylistPickerModal(_props: Props) {
     return () => {
       alive = false;
     };
-  }, [enabled, music, closeModal]);
+  }, [enabled, musics, closeModal]);
 
-  const handleSaveResultToast = (res: AddMusicsToPlaylistResDto) => {
-    const added = Array.isArray(res.addedMusics) ? res.addedMusics.length : 0;
-
-    // BE가 "중복 제외 후 실제 추가된 곡만" 반환
-    if (added === 0) toast.info('이미 플레이리스트에 있는 곡이에요.');
+  const handleSaveResultToast = (addedCount: number) => {
+    if (addedCount === 0) toast.info('이미 플레이리스트에 있는 곡이에요.');
     else toast.success('보관함에 저장했어요.');
   };
 
   const saveToPlaylist = async (playlistId: string) => {
-    if (!music) return;
+    if (!musics || musics.length === 0) return;
 
-    const req = [toMusicRequestDto(music)];
+    const unique = dedupeById(musics);
+    const req = unique.map(toMusicRequestDto);
+
     const res = await addMusicsToPlaylist(playlistId, req);
 
-    handleSaveResultToast(res);
+    const addedCount = Array.isArray(res.addedMusics) ? res.addedMusics.length : 0;
+    handleSaveResultToast(addedCount);
+
     closeModal();
   };
 
@@ -115,13 +127,12 @@ export default function PlaylistPickerModal(_props: Props) {
 
   const handleCreateAndSave = async () => {
     if (!canSubmit) return;
-    if (!music) return;
 
     setIsCreating(true);
     setErrorMsg(null);
 
     try {
-      const created = await createNewPlaylist(); // 기본 제목 생성은 BE에서
+      const created = await createNewPlaylist();
       await saveToPlaylist(created.id);
     } catch {
       setErrorMsg('새 플레이리스트를 만들지 못했습니다.');
@@ -145,7 +156,6 @@ export default function PlaylistPickerModal(_props: Props) {
       <div className="absolute inset-0" onClick={closeModal} />
 
       <div className="relative bg-white w-full max-w-md rounded-3xl border-2 border-primary flex flex-col max-h-[70vh] overflow-hidden animate-scale-up z-10">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary bg-white">
           <h2 className="text-xl font-black text-primary">플레이리스트 선택</h2>
           <button onClick={closeModal} className="p-1 hover:bg-grayish rounded-full transition-colors">
@@ -153,7 +163,6 @@ export default function PlaylistPickerModal(_props: Props) {
           </button>
         </div>
 
-        {/* Create */}
         <div className="px-6 py-3 border-b border-gray-100">
           <button
             type="button"
@@ -167,7 +176,6 @@ export default function PlaylistPickerModal(_props: Props) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
           {isLoading ? (
             <div className="py-6">

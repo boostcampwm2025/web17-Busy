@@ -2,6 +2,9 @@
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle } from 'lucide-react';
+import { useMusicActions } from '@/hooks';
+import { useModalStore, MODAL_TYPES } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 interface QueueListProps {
   queue: Music[];
@@ -15,18 +18,43 @@ interface QueueListProps {
   onSelect: (music: Music) => void;
 }
 
-const DISABLED_ACTION_TITLE = '추후 연결 예정';
-
 export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown, onSelect }: QueueListProps) {
   const isEmpty = queue.length === 0;
+
+  /**
+   * NOTE:
+   * - 사용자의 로그인 유무를 체크한다.
+   * - 사용자가 보관함 추가와 컨텐츠 생성 버튼을 누를 때 로그인 유무로 지원한다.
+   * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
+   */
+  const { userId, isAuthenticated } = useAuthMe();
+  const { openModal } = useModalStore();
+
+  /** 보관함 추가와 컨텐츠 생성을 위한 함수  */
+  const { openWriteModalWithQueue, addQueueToArchive } = useMusicActions();
 
   const handleClearClick = () => {
     if (isEmpty) return;
     onClear();
   };
 
-  const handleDisabledArchive = () => {};
-  const handleDisabledAdd = () => {};
+  const handleArchive = async () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
+    if (isEmpty) return;
+    await addQueueToArchive(queue);
+  };
+
+  const handleAdd = async () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
+    if (isEmpty) return;
+    await openWriteModalWithQueue(queue);
+  };
 
   return (
     <div className="flex-1 flex flex-col p-6 overflow-hidden bg-gray-4/30">
@@ -39,20 +67,18 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={handleDisabledArchive}
-            disabled
-            title={DISABLED_ACTION_TITLE}
-            className="p-2 bg-white border-2 border-primary rounded-md opacity-50 cursor-not-allowed"
+            onClick={handleArchive}
+            title={'보관함 플레이리스트 저장'}
+            className="p-2 bg-white border-2 border-primary rounded-md  cursor-not-allowed"
           >
             <Box className="w-4 h-4" />
           </button>
 
           <button
             type="button"
-            onClick={handleDisabledAdd}
-            disabled
-            title={DISABLED_ACTION_TITLE}
-            className="p-2 bg-accent-pink text-white border-2 border-primary rounded-md opacity-50 cursor-not-allowed"
+            onClick={handleAdd}
+            title={'새로운 컨텐츠 작성'}
+            className="p-2 bg-accent-pink text-white border-2 border-primary rounded-md  cursor-not-allowed"
           >
             <Plus className="w-4 h-4" />
           </button>
