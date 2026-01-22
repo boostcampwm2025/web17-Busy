@@ -10,11 +10,6 @@ import { useContentWrite } from '@/hooks';
 export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) => {
   const { closeModal } = useModalStore();
 
-  const handleWriteSuccess = () => {
-    closeModal();
-    window.location.reload();
-  };
-
   const {
     selectedMusics,
     content,
@@ -33,7 +28,7 @@ export const ContentWriteModal = ({ initialMusic }: { initialMusic?: Music }) =>
     onSubmit,
   } = useContentWrite({
     initialMusic,
-    onSuccess: handleWriteSuccess,
+    onSuccess: closeModal,
   });
 
   return (
