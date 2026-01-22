@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 import { useModalStore } from '@/stores/useModalStore';
-import { getAllPlaylists, addMusicsToPlaylist } from '@/api';
+import { getAllPlaylists, addMusicsToPlaylist, createNewPlaylist } from '@/api';
 import { DEFAULT_IMAGES } from '@/constants';
 import { coalesceImageSrc } from '@/utils';
 
-import type { MusicRequestDto, MusicResponseDto as Music } from '@repo/dto';
+import type { MusicRequestDto, MusicResponseDto as Music, AddMusicsToPlaylistResDto } from '@repo/dto';
 import { LoadingSpinner } from '@/components';
 
 type Props = {};
@@ -31,13 +32,23 @@ export default function PlaylistPickerModal(_props: Props) {
 
   const [playlists, setPlaylists] = useState<Array<{ id: string; title: string; tracksCount: number; firstAlbumCoverUrl: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 버튼/항목 클릭 중
+  const [submittingPlaylistId, setSubmittingPlaylistId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const canSubmit = Boolean(music) && !isSubmitting;
+  const canSubmit = Boolean(music) && !submittingPlaylistId && !isCreating;
+
+  const fetchPlaylists = async () => {
+    const list = await getAllPlaylists();
+    setPlaylists(list);
+  };
 
   useEffect(() => {
     if (!enabled) return;
+
     if (!music) {
       closeModal();
       return;
@@ -50,9 +61,8 @@ export default function PlaylistPickerModal(_props: Props) {
       setErrorMsg(null);
 
       try {
-        const list = await getAllPlaylists();
+        await fetchPlaylists();
         if (!alive) return;
-        setPlaylists(list);
       } catch {
         if (!alive) return;
         setPlaylists([]);
@@ -69,20 +79,55 @@ export default function PlaylistPickerModal(_props: Props) {
     };
   }, [enabled, music, closeModal]);
 
-  const handleSelect = async (playlistId: string) => {
+  const handleSaveResultToast = (res: AddMusicsToPlaylistResDto) => {
+    const added = Array.isArray(res.addedMusics) ? res.addedMusics.length : 0;
+
+    // BE가 "중복 제외 후 실제 추가된 곡만" 반환
+    if (added === 0) toast.info('이미 플레이리스트에 있는 곡이에요.');
+    else toast.success('보관함에 저장했어요.');
+  };
+
+  const saveToPlaylist = async (playlistId: string) => {
     if (!music) return;
+
+    const req = [toMusicRequestDto(music)];
+    const res = await addMusicsToPlaylist(playlistId, req);
+
+    handleSaveResultToast(res);
+    closeModal();
+  };
+
+  const handleSelect = async (playlistId: string) => {
     if (!canSubmit) return;
 
-    setIsSubmitting(true);
+    setSubmittingPlaylistId(playlistId);
     setErrorMsg(null);
 
     try {
-      await addMusicsToPlaylist(playlistId, [toMusicRequestDto(music)]);
-      closeModal();
+      await saveToPlaylist(playlistId);
     } catch {
       setErrorMsg('플레이리스트에 저장하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      toast.error('저장에 실패했습니다.');
     } finally {
-      setIsSubmitting(false);
+      setSubmittingPlaylistId(null);
+    }
+  };
+
+  const handleCreateAndSave = async () => {
+    if (!canSubmit) return;
+    if (!music) return;
+
+    setIsCreating(true);
+    setErrorMsg(null);
+
+    try {
+      const created = await createNewPlaylist(); // 기본 제목 생성은 BE에서
+      await saveToPlaylist(created.id);
+    } catch {
+      setErrorMsg('새 플레이리스트를 만들지 못했습니다.');
+      toast.error('플레이리스트 생성에 실패했습니다.');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -108,6 +153,20 @@ export default function PlaylistPickerModal(_props: Props) {
           </button>
         </div>
 
+        {/* Create */}
+        <div className="px-6 py-3 border-b border-gray-100">
+          <button
+            type="button"
+            onClick={() => void handleCreateAndSave()}
+            disabled={!canSubmit}
+            className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-primary bg-white font-black text-primary py-3
+                       hover:bg-grayish disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Plus className="w-4 h-4" />
+            {isCreating ? '생성/저장 중…' : '새 플레이리스트 만들고 저장'}
+          </button>
+        </div>
+
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
           {isLoading ? (
@@ -124,39 +183,39 @@ export default function PlaylistPickerModal(_props: Props) {
             </div>
           ) : (
             <ul className="space-y-1">
-              {playlists.map((pl) => (
-                <li key={pl.id}>
-                  <button
-                    type="button"
-                    onClick={() => void handleSelect(pl.id)}
-                    disabled={!canSubmit}
-                    className="w-full flex items-center justify-between p-3 hover:bg-grayish rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <div className="flex items-center min-w-0">
-                      <img
-                        src={coalesceImageSrc(pl.firstAlbumCoverUrl, DEFAULT_IMAGES.ALBUM)}
-                        alt={pl.title}
-                        className="w-10 h-10 rounded-lg border border-gray-3 object-cover shrink-0"
-                      />
-                      <div className="ml-3 min-w-0 text-left">
-                        <p className="font-bold text-primary truncate">{pl.title}</p>
-                        <p className="text-xs text-gray-2">{pl.tracksCount}곡</p>
-                      </div>
-                    </div>
+              {playlists.map((pl) => {
+                const busy = submittingPlaylistId === pl.id;
 
-                    <span className="text-xs font-black text-primary">{isSubmitting ? '저장 중…' : '선택'}</span>
-                  </button>
-                </li>
-              ))}
+                return (
+                  <li key={pl.id}>
+                    <button
+                      type="button"
+                      onClick={() => void handleSelect(pl.id)}
+                      disabled={!canSubmit}
+                      className="w-full flex items-center justify-between p-3 hover:bg-grayish rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <div className="flex items-center min-w-0">
+                        <img
+                          src={coalesceImageSrc(pl.firstAlbumCoverUrl, DEFAULT_IMAGES.ALBUM)}
+                          alt={pl.title}
+                          className="w-10 h-10 rounded-lg border border-gray-3 object-cover shrink-0"
+                        />
+                        <div className="ml-3 min-w-0 text-left">
+                          <p className="font-bold text-primary truncate">{pl.title}</p>
+                          <p className="text-xs text-gray-2">{pl.tracksCount}곡</p>
+                        </div>
+                      </div>
+
+                      <span className="text-xs font-black text-primary">{busy ? '저장 중…' : '선택'}</span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
 
-        {/* Footer (옵션) */}
-        <div className="px-6 py-4 border-t border-gray-100 text-[11px] text-gray-2">
-          {/* TODO(BE): 플리 생성/검색/정렬 등 UX 확정 후 확장 */}
-          저장할 플레이리스트를 선택하세요.
-        </div>
+        <div className="px-6 py-4 border-t border-gray-100 text-[11px] text-gray-2">저장할 플레이리스트를 선택하세요.</div>
       </div>
     </div>
   );
