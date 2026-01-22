@@ -2,7 +2,26 @@
 const nextConfig = {
   output: 'standalone',
   images: {
-    domains: ['is1-ssl.mzstatic.com', 'www.gravatar.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'is*.mzstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.gravatar.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'kr.object.ncloudstorage.com',
+        pathname: `/${process.env.NCP_BUCKET_NAME}/**`,
+      },
+    ],
   },
 };
 
