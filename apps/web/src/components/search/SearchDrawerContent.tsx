@@ -18,7 +18,7 @@ function getHintMessage(trimmed: string): string | undefined {
 }
 
 function SearchDrawerInner({ enabled = true }: Props) {
-  const { isAuthenticated } = useAuthMe();
+  const { userId, isAuthenticated } = useAuthMe();
   const { addMusicToPlayer } = useMusicActions();
 
   const { query, setQuery, clearQuery, mode, itunes, users, active, followOverrides, setFollowState } = useSearchDrawer({ enabled });
@@ -43,6 +43,7 @@ function SearchDrawerInner({ enabled = true }: Props) {
         hasNext={users.hasNext}
         isLoadingMore={users.isLoadingMore}
         loadMoreRef={users.ref}
+        meId={userId}
         isAuthenticated={isAuthenticated}
         followOverrides={followOverrides}
         onFollowChange={setFollowState}
