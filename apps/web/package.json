@@ -22,6 +22,7 @@
     "react-dom": "^19.2.0",
     "react-error-boundary": "^6.0.2",
     "react-intersection-observer": "^10.0.0",
+    "react-toastify": "^11.0.5",
     "tailwindcss": "^4.1.18",
     "zustand": "^5.0.9"
   },

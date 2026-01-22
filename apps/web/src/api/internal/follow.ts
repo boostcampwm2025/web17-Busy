@@ -15,18 +15,12 @@ export const getFollowingUsers = async (userId: string, cursor?: string, limit =
   return data;
 };
 
-type FollowActionRes = { ok?: boolean; message?: string };
-
-/** [POST] 팔로우 요청 (BE: POST /follow, body: { otherUserId }) */
+/** [POST] 팔로우 요청 함수 */
 export const addFollow = async (otherUserId: string) => {
-  const body: CreateFollowDto = { otherUserId };
-  const { data } = await internalClient.post<FollowActionRes>('/follow', body);
-  return data;
+  await internalClient.post(`/follow`, { otherUserId });
 };
 
-/** [DELETE] 팔로우 취소 (BE: DELETE /follow, body: { otherUserId }) */
+/** [DELETE] 팔로우 취소 요청 함수 */
 export const removeFollow = async (otherUserId: string) => {
-  const body: DeleteFollowDto = { otherUserId };
-  const { data } = await internalClient.delete<FollowActionRes>('/follow', { data: body });
-  return data;
+  await internalClient.delete(`/follow`, { data: { otherUserId } });
 };
