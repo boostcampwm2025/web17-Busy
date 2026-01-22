@@ -1,13 +1,16 @@
-import { useModalStore } from '@/stores';
+import { useModalStore, usePlayerStore } from '@/stores';
 import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic, GetPlaylistDetailResDto } from '@repo/dto';
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
-import { addMusicsToPlaylist, changeMusicOrderOfPlaylsit, getPlaylistDetail } from '@/api';
+import { addMusicsToPlaylist, changeMusicOrderOfPlaylsit as changeMusicOrderOfPlaylist, getPlaylistDetail } from '@/api';
 import { reorder } from '@/utils';
 
 export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
   const { closeModal } = useModalStore();
+
+  const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const playMusic = usePlayerStore((s) => s.playMusic);
 
   const [playlist, setPlaylist] = useState<GetPlaylistDetailResDto | null>(null);
   const [songs, setSongs] = useState<SavedMusic[]>([]);
@@ -24,8 +27,13 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
     initialFetchPlaylist();
   }, []);
 
-  // todo - player store에서 여러 곡 추가 기능이 추가 되어야 할 듯
-  const onPlayTotalSongs = () => {};
+  // 이미 현재 재생 목록에 있는 곡들은 추가 안 됨
+  const onPlayTotalSongs = () => {
+    if (songs.length > 0) {
+      addToQueue(songs);
+      playMusic(songs[0]!);
+    }
+  };
 
   const toggleSelectSong = (songId: string) => {
     const newSelected = new Set(selectedSongIds);
@@ -38,7 +46,7 @@ export function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
   const requestChangeOrder = async () => {
     try {
       const songIds = songs.map((s) => s.id);
-      await changeMusicOrderOfPlaylsit(playlistId, songIds); // playlist.id?
+      await changeMusicOrderOfPlaylist(playlistId, songIds); // playlist.id?
     } catch (e) {
       // 에러 처리
       throw e;
