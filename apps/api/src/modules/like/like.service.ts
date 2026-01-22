@@ -44,12 +44,14 @@ export class LikeService {
       return { message: '좋아요 성공', postId };
     });
 
-    // 알림 생성은 await 안 함
-    this.notiService.create({
-      type: NotiType.LIKE,
-      actorId: userId,
-      relatedId: postId,
-    });
+    // 알림 생성은 await 안 함 (실패해도 좋아요 기능은 성공해야 함)
+    void this.notiService
+      .create({
+        type: NotiType.LIKE,
+        actorId: userId,
+        relatedId: postId,
+      })
+      .catch(() => {});
 
     return txResult;
   }

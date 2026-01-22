@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 
-import { Like } from 'typeorm';
+import { Like } from '../like/entities/like.entity';
 import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
 import { PostController } from './post.controller';

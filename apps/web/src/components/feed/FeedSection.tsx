@@ -6,10 +6,13 @@ import { PostResponseDto as Post } from '@repo/dto';
 import { FeedSkeleton } from '../skeleton';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
+import { useFeedRefreshStore } from '@/stores';
 
 export default function FeedSection() {
+  const nonce = useFeedRefreshStore((s) => s.nonce);
   const { items, hasNext, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll<Post>({
     fetchFn: getFeedPosts,
+    resetKey: String(nonce), // 글 작성 성공 시 초기화/재조회 트리거
   });
 
   // 렌더링 단계에서 발생하는 에러 처리 (데이터 최초 fetch 관련)
