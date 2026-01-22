@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { useInfiniteScroll, useDebouncedValue } from '@/hooks';
-import { ITUNES_SEARCH, MOCK_SEARCH_USERS } from '@/constants';
+import { ITUNES_SEARCH } from '@/constants';
 import { searchUsers } from '@/api';
 
 import type { SearchUsersResDto } from '@repo/dto';
@@ -33,24 +33,7 @@ type Result = {
 
 const DEFAULT_LIMIT = 10;
 
-const toFallbackMessage = (): string => '사용자 검색 API 미연동: 목업 데이터로 대체합니다. (백엔드 연동 후 제거)';
-
 const shouldFetch = (enabled: boolean, q: string, minLen: number) => enabled && q.length >= minLen;
-
-const filterMockUsers = (keyword: string): SearchUser[] => {
-  const q = keyword.trim().toLowerCase();
-  if (!q) return [];
-  return MOCK_SEARCH_USERS.filter((u) => u.nickname.toLowerCase().includes(q));
-};
-
-const paginateMock = (all: SearchUser[], cursor?: string, limit = DEFAULT_LIMIT): SearchUsersResDto => {
-  const offset = cursor ? Math.max(0, Number(cursor)) : 0;
-  const users = all.slice(offset, offset + limit);
-  const nextOffset = offset + users.length;
-  const hasNext = nextOffset < all.length;
-
-  return { users, hasNext, nextCursor: hasNext ? String(nextOffset) : undefined };
-};
 
 export default function useUserSearch({
   query,
@@ -68,30 +51,14 @@ export default function useUserSearch({
     async (cursor?: string) => {
       if (!canFetch) return { items: [], hasNext: false, nextCursor: undefined };
 
-      try {
-        const data = await searchUsers(trimmedQuery, cursor, limit);
-        const users = Array.isArray(data.users) ? data.users : [];
+      const data = await searchUsers(trimmedQuery, cursor, limit);
+      const users = Array.isArray(data.users) ? data.users : [];
 
-        return {
-          items: users,
-          hasNext: Boolean(data.hasNext),
-          nextCursor: data.nextCursor,
-        };
-      } catch {
-        /**
-         * TODO(BE):
-         * - /user/search 백엔드 연동 완료 후 fallback 제거
-         * - error UX(토스트/재시도) 정책 확정
-         */
-        const all = filterMockUsers(trimmedQuery);
-        const page = paginateMock(all, cursor, limit);
-
-        return {
-          items: page.users,
-          hasNext: page.hasNext,
-          nextCursor: page.nextCursor,
-        };
-      }
+      return {
+        items: users,
+        hasNext: Boolean(data.hasNext),
+        nextCursor: data.nextCursor,
+      };
     },
     [canFetch, trimmedQuery, limit],
   );
@@ -115,8 +82,7 @@ export default function useUserSearch({
   const errorMessage = useMemo(() => {
     if (status === 'error') return initialError?.message ?? '검색 중 오류가 발생했습니다.';
     if (errorMsg) return errorMsg;
-    // mock fallback 사용 중 안내는 "error"가 아니라도 표시 가능(SearchDrawer에서만 노출도 가능)
-    return initialError ? toFallbackMessage() : null;
+    return 'error';
   }, [status, initialError, errorMsg]);
 
   return {
