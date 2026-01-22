@@ -45,13 +45,11 @@ export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteS
     setErrorMsg(null);
 
     setIsInitialLoading(true);
-    setInitialError(null);
   }, []);
 
   /** 초기 데이터 fetch 함수 */
   const loadInitialData = useCallback(async () => {
     setIsInitialLoading(true);
-    setInitialError(null);
     try {
       const data = await fetchFn();
       updateScrollStates(data);
@@ -82,7 +80,9 @@ export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteS
 
   // 최초 1회 로드
   useEffect(() => {
-    void loadInitialData();
+    if (initialLoadedRef.current) return;
+    initialLoadedRef.current = true;
+    loadInitialData();
   }, [loadInitialData]);
 
   // resetKey 변경 시: reset + 초기 로드 재실행

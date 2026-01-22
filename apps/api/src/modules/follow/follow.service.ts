@@ -26,8 +26,8 @@ export class FollowService {
 
     await this.notiService.create({
       type: NotiType.FOLLOW,
-      receiverId: userId,
-      actorId: otherUserId,
+      receiverId: otherUserId,
+      actorId: userId,
     });
 
     return { message: '팔로우 성공' };
