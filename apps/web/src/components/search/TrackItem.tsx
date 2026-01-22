@@ -1,6 +1,8 @@
 'use client';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useModalStore, MODAL_TYPES } from '@/stores';
 import { Box, Play, PlusCircle } from 'lucide-react';
 
 interface TrackItemProps {
@@ -17,17 +19,28 @@ interface TrackItemProps {
 const DISABLED_ACTION_TITLE = '추후 연결 예정';
 
 export default function TrackItem({ music, disabledActions = true, onPlay, onAddToArchive, onOpenWrite }: TrackItemProps) {
+  // 사용자가 로그인이 된 상태인지를 확인해 준다.
+  const { isAuthenticated, isLoading } = useAuthMe();
+  const { openModal } = useModalStore();
   const handlePlayClick = () => {
     onPlay?.(music);
   };
 
   const handleArchiveClick = () => {
     //if (disabledActions) return;
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
     onAddToArchive?.(music, '');
   };
 
   const handleWriteClick = () => {
     //if (disabledActions) return;
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
     onOpenWrite?.(music);
   };
 
