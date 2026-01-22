@@ -1,6 +1,6 @@
 'use client';
 
-import { MusicResponseDto as Music } from '@repo/dto';
+import type { MusicResponseDto as Music } from '@repo/dto';
 import { Pause, Play, Shuffle, SkipBack, SkipForward, PlusCircle, FolderPlus } from 'lucide-react';
 import { useMemo } from 'react';
 import { usePlayerStore } from '@/stores';

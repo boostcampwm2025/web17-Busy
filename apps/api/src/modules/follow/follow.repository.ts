@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Follow } from './entities/follow.entity';
-import { Repository, LessThan, FindOptionsWhere } from 'typeorm';
+import { Repository, LessThan, FindOptionsWhere, In } from 'typeorm';
 
 @Injectable()
 export class FollowRepository {
@@ -112,5 +112,26 @@ export class FollowRepository {
       },
       take: take,
     });
+  }
+
+  async findFollowingStatus(
+    currentUserId: string,
+    targetUserIds: string[],
+  ): Promise<string[]> {
+    if (targetUserIds.length === 0) {
+      return [];
+    }
+
+    const follows = await this.repository.find({
+      where: {
+        followingUserId: currentUserId,
+        followedUserId: In(targetUserIds),
+      },
+      select: {
+        followedUserId: true,
+      },
+    });
+
+    return follows.map((follow) => follow.followedUserId);
   }
 }

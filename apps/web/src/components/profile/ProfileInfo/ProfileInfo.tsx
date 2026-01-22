@@ -1,29 +1,18 @@
 'use client';
 
-import { DEFAULT_IMAGES } from '@/constants/defaultImages';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import Image from 'next/image';
 import ProfileActionButton from './ProfileActionButton';
 import FollowStats from './FollowStats';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useProfileStore } from '@/stores';
+import { GetUserDto as Profile } from '@repo/dto';
 
-// TODO: dto로 대체
-interface ProfileInfoProps {
-  profile: {
-    userId: string;
-    nickname: string;
-    profileImgUrl: string | null;
-    bio: string;
-    followerCount: number;
-    followingCount: number;
-    isFollowing: boolean;
-  };
-}
-
-export default function ProfileInfo({ profile }: ProfileInfoProps) {
-  const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
-
+export default function ProfileInfo({ profile }: { profile: Profile }) {
   const { userId: loggedInUserId } = useAuthMe();
-  const isMyProfile = profile.userId === loggedInUserId;
+  const toggleFollow = useProfileStore((s) => s.toggleFollow);
+
+  const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
 
   return (
     <section className="max-w-4xl">
@@ -41,11 +30,17 @@ export default function ProfileInfo({ profile }: ProfileInfoProps) {
             <h2 className="text-2xl font-black text-primary md:mr-6">{nickname}</h2>
 
             {/* 리캡 생성/팔로우 버튼 */}
-            <ProfileActionButton isMyProfile={isMyProfile} isFollowing={isFollowing} renderIn="page" />
+            <ProfileActionButton
+              loggedInUserId={loggedInUserId}
+              profileUserId={profile.id}
+              isFollowing={isFollowing}
+              renderIn="page"
+              onFollowActionComplete={toggleFollow}
+            />
           </div>
 
           {/* 팔로우/팔로잉 사용자 정보 */}
-          <FollowStats profileUserId={profile.userId} followerCount={followerCount} followingCount={followingCount} />
+          <FollowStats profileUserId={profile.id} followerCount={followerCount} followingCount={followingCount} />
 
           {/* 프로필 소개란 */}
           <p className="text-primary font-medium whitespace-pre-wrap leading-relaxed text-justify max-w-md lg:max-w-lg mx-auto md:mx-0">{bio}</p>

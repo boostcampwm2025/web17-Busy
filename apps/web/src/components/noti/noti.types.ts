@@ -1,4 +1,4 @@
-import { NotiRelatedType, NotiThumbnailShapeType } from '@repo/dto';
+import type { NotiRelatedType, NotiThumbnailShapeType } from '@repo/dto';
 
 export type NotiView = {
   id: string;

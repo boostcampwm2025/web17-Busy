@@ -1,4 +1,4 @@
-import { PostResponseDto } from '@repo/dto';
+import type { PostResponseDto } from '@repo/dto';
 
 export const EMPTY_POST: PostResponseDto = {
   id: 'empty',

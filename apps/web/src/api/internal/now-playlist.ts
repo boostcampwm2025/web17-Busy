@@ -1,4 +1,4 @@
-import { MusicResponseDto as Music } from '@repo/dto';
+import type { MusicResponseDto as Music } from '@repo/dto';
 import { internalClient } from './client';
 
 // [GET] 재생 목록 가져오기

@@ -1,5 +1,5 @@
-import type { GetAllPlaylistsResDto, GetPlaylistDetailResDto } from '@repo/dto';
-import { MusicProvider, MusicResponseDto as Music } from '@repo/dto';
+import type { GetAllPlaylistsResDto, GetPlaylistDetailResDto, MusicResponseDto as Music } from '@repo/dto';
+import { MusicProvider } from '@repo/dto/values';
 
 /**
  * DTO 타입 정리

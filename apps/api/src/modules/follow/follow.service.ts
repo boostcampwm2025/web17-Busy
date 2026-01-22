@@ -40,6 +40,17 @@ export class FollowService {
     return { message: '팔로우 해제 성공' };
   }
 
+
+  async getFollowingIds(
+    currentUserId: string,
+    targetUserIds: string[],
+  ): Promise<string[]> {
+    return this.followRepository.findFollowingStatus(
+      currentUserId,
+      targetUserIds,
+    );
+  }
+  
   async getFollowings(
     targetUserId: string,
     limit: number,

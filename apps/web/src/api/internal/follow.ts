@@ -1,5 +1,5 @@
 import { internalClient } from './client';
-import { GetUserFollowDto } from '@repo/dto';
+import type { GetUserFollowDto } from '@repo/dto';
 
 const DEFAULT_FOLLOW_LIMIT = 10;
 
@@ -15,18 +15,12 @@ export const getFollowingUsers = async (userId: string, cursor?: string, limit =
   return data;
 };
 
-interface FollowActionRes {
-  message: string;
-}
-
 /** [POST] 팔로우 요청 함수 */
-export const addFollow = async (userId: string) => {
-  const { data } = await internalClient.post<FollowActionRes>(`/follow/${userId}`);
-  return data;
+export const addFollow = async (otherUserId: string) => {
+  await internalClient.post(`/follow`, { otherUserId });
 };
 
 /** [DELETE] 팔로우 취소 요청 함수 */
-export const removeFollow = async (userId: string) => {
-  const { data } = await internalClient.delete<FollowActionRes>(`/follow/${userId}`);
-  return data;
+export const removeFollow = async (otherUserId: string) => {
+  await internalClient.delete(`/follow`, { data: { otherUserId } });
 };

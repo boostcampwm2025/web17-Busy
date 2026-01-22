@@ -1,27 +1,57 @@
 'use client';
 
-import { PostResponseDto } from '@repo/dto';
+import type { PostResponseDto } from '@repo/dto';
 import { Heart, MessageCircle } from 'lucide-react';
 
 type Props = {
   post: PostResponseDto;
   onClickLike?: () => void;
   onClickComment?: () => void;
+
+  /** 비로그인/요청 중 등 비활성화 */
+  disabledLike?: boolean;
 };
 
-export default function PostActions({ post, onClickLike, onClickComment }: Props) {
+export default function PostActions({ post, onClickLike, onClickComment, disabledLike = false }: Props) {
   const stop = (e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation();
+  const liked = Boolean(post.isLiked);
+
+  const heartClassName = [
+    'w-7 h-7 transition-colors',
+    liked ? 'text-accent-pink fill-accent-pink' : 'text-primary group-hover:text-accent-pink group-hover:fill-accent-pink',
+  ].join(' ');
+
+  const likeCountClassName = ['font-bold text-sm transition-colors', liked ? 'text-accent-pink' : 'text-primary group-hover:text-accent-pink'].join(
+    ' ',
+  );
 
   return (
     <div className="flex items-center gap-6 mb-4">
-      <button type="button" onClick={(e) => (stop(e), onClickLike?.())} className="flex items-center gap-1 group" title="좋아요">
-        <Heart className="w-7 h-7 text-primary group-hover:text-accent-pink group-hover:fill-accent-pink transition-colors" />
-        <span className="font-bold text-sm group-hover:text-accent-pink">{post.likeCount}</span>
+      <button
+        type="button"
+        onClick={(e) => {
+          stop(e);
+          onClickLike?.();
+        }}
+        disabled={disabledLike}
+        className="flex items-center gap-1 group disabled:opacity-40 disabled:cursor-not-allowed"
+        title={disabledLike ? '로그인 후 사용 가능' : '좋아요'}
+      >
+        <Heart className={heartClassName} />
+        <span className={likeCountClassName}>{post.likeCount}</span>
       </button>
 
-      <button type="button" onClick={(e) => (stop(e), onClickComment?.())} className="flex items-center gap-1 group" title="댓글">
+      <button
+        type="button"
+        onClick={(e) => {
+          stop(e);
+          onClickComment?.();
+        }}
+        className="flex items-center gap-1 group"
+        title="댓글"
+      >
         <MessageCircle className="w-7 h-7 text-primary group-hover:text-accent-cyan transition-colors" />
-        <span className="font-bold text-sm group-hover:text-accent-cyan">{post.commentCount}</span>
+        <span className="font-bold text-sm text-primary group-hover:text-accent-cyan transition-colors">{post.commentCount}</span>
       </button>
     </div>
   );

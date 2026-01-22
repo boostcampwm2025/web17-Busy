@@ -1,4 +1,5 @@
-import { MusicProvider, MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import { MusicProvider } from '@repo/dto/values';
 
 const now = Date.now();
 const minutes = (n: number) => n * 60 * 1000;

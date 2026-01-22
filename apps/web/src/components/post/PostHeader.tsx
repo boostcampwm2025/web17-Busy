@@ -2,7 +2,7 @@
 
 import { MoreHorizontal } from 'lucide-react';
 import { useRelativeTime } from '@/hooks';
-import { PostResponseDto } from '@repo/dto';
+import type { PostResponseDto } from '@repo/dto';
 import { DEFAULT_IMAGES } from '@/constants';
 import { coalesceImageSrc } from '@/utils';
 

@@ -41,7 +41,7 @@ export class PostService {
   async create(
     userId: string,
     musics: MusicRequestDto[],
-    content: string,
+    content?: string,
     thumbnailImgUrl?: string,
   ): Promise<void> {
     if (musics.length === 0)

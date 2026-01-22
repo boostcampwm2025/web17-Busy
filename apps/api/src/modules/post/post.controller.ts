@@ -31,6 +31,7 @@ import { UserId } from 'src/common/decorators/userId.decorator';
 import { FeedService } from './feed.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from '../upload/upload.service';
+import { AuthOptionalGuard } from 'src/common/guards/auth.optional-guard';
 
 @Controller('post')
 export class PostController {
@@ -41,6 +42,7 @@ export class PostController {
   ) {}
 
   @Get('feed')
+  @UseGuards(AuthOptionalGuard)
   async feed(
     @UserId() requestUserId: string | null,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -89,9 +91,10 @@ export class PostController {
     return { ok: true };
   }
 
+  @UseGuards(AuthOptionalGuard)
   @Get(':id')
   async getPostDetail(
-    @UserId() requestUserId: string,
+    @UserId() requestUserId: string | null,
     @Param('id') postId: string,
   ): Promise<PostResponseDto | null> {
     return await this.postService.getPostDetail(postId, requestUserId);

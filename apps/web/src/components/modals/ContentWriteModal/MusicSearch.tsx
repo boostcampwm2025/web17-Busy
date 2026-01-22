@@ -7,7 +7,7 @@ import { ITUNES_SEARCH } from '@/constants';
 import { useItunesSearch, usePlaylistRecommendations, type PlaylistDetail } from '@/hooks';
 import { PlaylistBriefItem } from '@/components';
 
-import { MusicResponseDto as Music } from '@repo/dto';
+import type { MusicResponseDto as Music } from '@repo/dto';
 
 interface MusicSearchProps {
   searchQuery: string;

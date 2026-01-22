@@ -47,15 +47,27 @@ export class NotiService {
   async create(createNoti: CreateNotiType) {
     if (createNoti.type === NotiType.FOLLOW) {
       return await this.createFollowNoti(createNoti);
-    } else {
-      const post = await this.postRepo.findOneBy({ id: createNoti.relatedId });
-      if (!post) throw new BadRequestException('게시글이 존재하지 않습니다.');
-
-      return await this.createLikeOrCommentNoti({
-        ...createNoti,
-        receiverId: post.author.id,
-      });
     }
+
+    // author relation을 안전하게 로딩(최소 필드)
+    const post = await this.postRepo
+      .createQueryBuilder('post')
+      .leftJoin('post.author', 'author')
+      .select(['post.id', 'author.id'])
+      .where('post.id = :id', { id: createNoti.relatedId })
+      .getOne();
+
+    const receiverId = post?.author?.id;
+    if (!receiverId)
+      throw new BadRequestException('게시글이 존재하지 않습니다.');
+
+    // 자기 자신에게는 알림 생성하지 않음(정책)
+    if (receiverId === createNoti.actorId) return;
+
+    return await this.createLikeOrCommentNoti({
+      ...createNoti,
+      receiverId,
+    });
   }
 
   private async createFollowNoti({
@@ -91,6 +103,7 @@ export class NotiService {
       actor: { id: actorId },
       type,
       relatedId,
+      isRead: false, // 추가해야 오류가 안 나옵니다.
     });
 
     return await this.notiRepo.save(noti);
