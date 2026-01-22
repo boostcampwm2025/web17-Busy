@@ -128,14 +128,23 @@ export class PlaylistService {
 
     const musicIds = musicResponses.map((m) => m.id);
 
-    await this.ds.transaction(async (tx) => {
-      const count = await this.playlistRepo.countMusic(playlistId, tx);
-      const firstIndex = count;
+    const addedIds = await this.ds.transaction(async (tx) => {
+      const existingIds = new Set(
+        await this.playlistRepo.getMusicIdsOfPlaylist(playlistId, tx),
+      );
+      // 이미 들어있는 곡은 제외
+      const deduped = musicIds.filter((id) => !existingIds.has(id));
+      if (deduped.length === 0) return [];
 
-      await this.playlistRepo.addMusics(playlistId, musicIds, firstIndex, tx);
+      const count = await this.playlistRepo.countMusic(playlistId, tx);
+      await this.playlistRepo.addMusics(playlistId, deduped, count, tx);
+
+      return deduped;
     });
 
-    return musicResponses;
+    // 실제로 추가된 곡만 반환
+    const addedSet = new Set(addedIds);
+    return musicResponses.filter((m) => addedSet.has(m.id));
   }
 
   private toMusicResponse(
