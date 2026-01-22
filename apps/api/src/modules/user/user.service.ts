@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { User } from './entities/user.entity';
 import { AuthProvider } from '../auth/types';
-import { GetUserDto } from '@repo/dto';
+import { GetUserDto, SearchUsersResDto } from '@repo/dto';
+import { FollowService } from '../follow/follow.service';
 
 type ProviderProfile = {
   provider: AuthProvider;
@@ -23,7 +24,10 @@ type UserWithFollowInfo = User & {
 export class UserService {
   private readonly NICKNAME_MAX_LEN = 12;
 
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly followService: FollowService,
+  ) {}
 
   async findOrCreateByProviderUserId(profile: ProviderProfile): Promise<User> {
     const nickname = this.normalizeNickname(
@@ -117,6 +121,50 @@ export class UserService {
       followerCount: result.followerCount || 0,
       followingCount: result.followingCount || 0,
       isFollowing: !!Number(result.isFollowing),
+    };
+  }
+
+  async searchUsers(
+    keyword: string,
+    limit: number,
+    cursor?: string,
+    currentUserId?: string,
+  ): Promise<SearchUsersResDto> {
+    const users = await this.userRepository.searchByNickname(
+      keyword,
+      limit + 1,
+      cursor,
+    );
+    const hasNext = users.length > limit;
+    const targetUsers = hasNext ? users.slice(0, limit) : users;
+
+    let followedUserIds = new Set<string>();
+    // 아이디가 존재하는 경우 isFollowing 탐색
+    if (currentUserId && targetUsers.length > 0) {
+      const targetIds = targetUsers.map((u) => u.id);
+
+      const followingIds = await this.followService.getFollowingIds(
+        currentUserId,
+        targetIds,
+      );
+
+      followedUserIds = new Set(followingIds);
+    }
+
+    const nextCursor =
+      hasNext && targetUsers.length > 0
+        ? targetUsers[targetUsers.length - 1].id
+        : undefined;
+
+    return {
+      users: targetUsers.map((user) => ({
+        id: user.id,
+        nickname: user.nickname,
+        profileImgUrl: user.profileImgUrl ?? null,
+        isFollowing: followedUserIds.has(user.id),
+      })),
+      hasNext,
+      nextCursor,
     };
   }
 }

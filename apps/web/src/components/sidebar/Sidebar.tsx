@@ -43,6 +43,10 @@ export default function Sidebar() {
     setActiveItem(initialActiveItem);
   }, [pathname]);
 
+  useEffect(() => {
+    !activeDrawer && setActiveItem(initialActiveItem);
+  }, [activeDrawer]);
+
   const handleToggleSidebar = () => {
     setIsExpanded((prev) => !prev);
   };
@@ -90,6 +94,10 @@ export default function Sidebar() {
   };
 
   const handleOpenWriteModal = () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
     openModal(MODAL_TYPES.WRITE);
   };
 

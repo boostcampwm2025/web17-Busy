@@ -10,7 +10,7 @@ interface SearchStateProps {
 }
 
 const DEFAULT_MESSAGES: Record<SearchStateVariant, string> = {
-  hint: '새로운 음악을 찾아보세요',
+  hint: '새로운 음악이나 사용자를 찾아보세요',
   empty: '검색 결과가 없습니다.',
   error: '검색 중 오류가 발생했습니다.',
 };

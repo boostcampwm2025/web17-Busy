@@ -31,6 +31,9 @@ export default function AuthLoginQueryHandler() {
 
     if (appJwt) {
       sessionStorage.setItem(APP_ACCESS_TOKEN_STORAGE_KEY, appJwt);
+      // hash 재처리/상태 꼬임 방지를 위해 리로드로 인증 상태를 재평가
+      window.location.assign('/');
+      return;
     }
 
     const loginFlag = searchParams.get(QUERY_KEYS.LOGIN);

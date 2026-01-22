@@ -1,22 +1,11 @@
 'use client';
 
 import { MODAL_TYPES, useModalStore } from '@/stores';
+import { PostPreviewDto as PostPreview } from '@repo/dto';
 import { Heart, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 
-// TODO: dto로 대체
-interface ProfilePostsProps {
-  posts: {
-    id: string;
-    coverImgUrl: string;
-    content: string;
-    likeCount: number;
-    commentCount: number;
-    isMoreThanOneMusic: boolean;
-  }[];
-}
-
-export default function ProfilePosts({ posts }: ProfilePostsProps) {
+export default function ProfilePosts({ posts }: { posts: PostPreview[] }) {
   const openModal = useModalStore((s) => s.openModal);
 
   const handleOpenDetail = (postId: string) => {
@@ -24,10 +13,10 @@ export default function ProfilePosts({ posts }: ProfilePostsProps) {
   };
 
   return (
-    <section className="w-full grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 py-8 border-t border-primary/10">
+    <section className="w-full grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 py-8 border-t border-primary/20">
       {posts.map((post, idx) => {
         return (
-          <article key={`${post.id}-${idx}`} className="group relative cursor-pointer" onClick={() => handleOpenDetail(post.id)}>
+          <article key={`${post.postId}-${idx}`} className="group relative cursor-pointer" onClick={() => handleOpenDetail(post.postId)}>
             {post.isMoreThanOneMusic && (
               <>
                 <div className="absolute inset-0 bg-gray-4 border-2 border-primary rounded-xl z-0 transform translate-x-1 translate-y-1 transition-transform duration-200"></div>
@@ -44,7 +33,7 @@ export default function ProfilePosts({ posts }: ProfilePostsProps) {
             >
               <Image
                 src={post.coverImgUrl}
-                alt={`사용자 게시물:${post.id}`}
+                alt={`사용자 게시물:${post.postId}`}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-110"
               />

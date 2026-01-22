@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, LessThan, ILike } from 'typeorm';
 import { User } from './entities/user.entity';
 import { AuthProvider } from '../auth/types';
 
@@ -63,5 +63,32 @@ export class UserRepository {
     }
 
     return qb.getOne();
+  }
+
+  async searchByNickname(
+    keyword: string,
+    take: number,
+    cursorId?: string,
+  ): Promise<User[]> {
+    const whereOption: any = {
+      nickname: ILike(`${keyword}%`),
+    };
+
+    if (cursorId) {
+      whereOption.id = LessThan(cursorId);
+    }
+
+    return this.repository.find({
+      where: whereOption,
+      select: {
+        id: true,
+        nickname: true,
+        profileImgUrl: true,
+      },
+      order: {
+        id: 'DESC',
+      },
+      take,
+    });
   }
 }
