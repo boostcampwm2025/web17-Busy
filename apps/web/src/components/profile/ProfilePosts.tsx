@@ -34,8 +34,9 @@ export default function ProfilePosts({ posts }: { posts: PostPreview[] }) {
               <Image
                 src={post.coverImgUrl}
                 alt={`사용자 게시물:${post.postId}`}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                width={500}
+                height={500}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white space-y-2">
                 <div className="flex items-center space-x-2 font-bold 2xl:text-lg">
