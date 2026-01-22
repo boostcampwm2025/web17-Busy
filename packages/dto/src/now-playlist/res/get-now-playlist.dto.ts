@@ -1,13 +1,5 @@
-class MusicInfo {
-  musicId: string;
-  trackUri: string;
-  provider: string;
-  title: string;
-  artistName: string;
-  albumCoverUrl: string;
-  durationMs: number;
-}
+import { MusicResponseDto } from '../../music';
 
 export class GetNowPlaylistResDto {
-  music: MusicInfo[];
+  musics: MusicResponseDto[];
 }

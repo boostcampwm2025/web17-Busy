@@ -25,19 +25,3 @@ export function buildGoogleAuthorizeUrl(params: BuildGoogleAuthorizeUrlParams) {
 
   return url.toString();
 }
-
-export async function exchangeGoogleCodeWithBackend(args: { code: string; verifier: string }) {
-  const backendUrl = process.env.INTERNAL_API_URL!;
-  const url = new URL('auth/google/exchange', backendUrl);
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(args),
-  });
-
-  if (!res.ok) return { ok: false as const };
-
-  const data = (await res.json()) as { appJwt: string };
-  return { ok: true as const, ...data };
-}

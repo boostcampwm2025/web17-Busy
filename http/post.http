@@ -1,5 +1,5 @@
-@baseUrl = http://localhost:3002
-@cookie = jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJpYXQiOjE3NjgzNzYwMjYsImV4cCI6MTc3MzU2MDAyNn0.qnflWdgcGE2bCHVau498Ox87tSD8LUiU4mo6Oy7_DE4
+@baseUrl = http://localhost:3002/api
+@ACCESS_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTliZTE2My00YjM3LTc2YWQtYWViMy02OTg2YTM0ODlkZTYiLCJpYXQiOjE3NjkwMTQ3NjcsImV4cCI6MTc2OTAxNjU2N30.37cVyZXFQra1gTMyqLSSYZg5lwJsXNH4p7HfJvXD_MU
 
 ############################################################
 # 게시글 API 테스트
@@ -7,32 +7,21 @@
 
 ### 게시글 생성 - POST /post
 POST {{baseUrl}}/post HTTP/1.1
-Cookie: {{cookie}}
+Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
   "content": "new post~~",
-  "thumbnailImgUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/2e/88/88/2e8888ad-a0cf-eece-70a7-1ff81377a3ab/24UMGIM00198.rgb.jpg/600x600bb.jpg",
-  "musics": [
-    {
-      "musicId": "11111111-1111-1111-1111-111111111111",
-      "title": "we cant be friends",
-      "artistName": "Ariana Grande",
-      "albumCoverUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/2e/88/88/2e8888ad-a0cf-eece-70a7-1ff81377a3ab/24UMGIM00198.rgb.jpg/600x600bb.jpg",
-      "trackUri": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/22/fc/88/22fc885b-27c8-4693-7400-9e774eae9d7a/mzaf_5140833304960295464.plus.aac.p.m4a",
-      "provider": "apple",
-      "durationMs": 30000
-    }
-  ]
+  "musics": "[{\"id\":\"019be163-4b3a-7619-a3cd-79c79137c492\",\"title\":\"we cant be friends\",\"artistName\":\"Ariana Grande\",\"albumCoverUrl\":\"https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/2e/88/88/2e8888ad-a0cf-eece-70a7-1ff81377a3ab/24UMGIM00198.rgb.jpg/600x600bb.jpg\",\"trackUri\":\"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/22/fc/88/22fc885b-27c8-4693-7400-9e774eae9d7a/mzaf_5140833304960295464.plus.aac.p.m4a\",\"provider\":\"apple\",\"durationMs\":30000}]"
 }
 
 ### 게시글 상세 조회 - GET /post/:id
-GET {{baseUrl}}/post/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa HTTP/1.1
-Cookie: {{cookie}}
+GET {{baseUrl}}/post/018f3b7a-b8f1-74ab-a6e2-3d9c0f1b8e45 HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
 
 ### 게시글 수정 - PATCH /post/:id
-PATCH {{baseUrl}}/post/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa HTTP/1.1
-Cookie: {{cookie}}
+PATCH {{baseUrl}}/post/018f3b7a-b8f1-74ab-a6e2-3d9c0f1b8e45 HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
@@ -40,5 +29,5 @@ Content-Type: application/json
 }
 
 ### 게시글 삭제 - DELETE /post/:id
-DELETE {{baseUrl}}/post/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa HTTP/1.1
-Cookie: {{cookie}}
+DELETE {{baseUrl}}/post/018f3b7a-b8f1-74ab-a6e2-3d9c0f1b8e45 HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}

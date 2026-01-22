@@ -1,8 +1,10 @@
 'use client';
 
-import { Pause, Play, Shuffle, SkipBack, SkipForward, Repeat, PlusCircle, FolderPlus } from 'lucide-react';
-import type { Music } from '@/types';
+import type { MusicResponseDto as Music } from '@repo/dto';
+import { Pause, Play, Shuffle, SkipBack, SkipForward, PlusCircle, FolderPlus } from 'lucide-react';
 import { useMemo } from 'react';
+import { usePlayerStore } from '@/stores';
+import { VolumeControl, SeekBar } from './index';
 
 interface NowPlayingProps {
   currentMusic: Music | null;
@@ -23,6 +25,8 @@ interface NowPlayingProps {
 
   onPost: () => void;
   onSave: () => void;
+
+  onSeek: (ms: number) => void;
 }
 
 const DISABLED_ACTION_TITLE = '추후 연결 예정';
@@ -35,56 +39,45 @@ const formatMs = (ms: number): string => {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
-const calcProgressPercent = (positionMs: number, durationMs: number): number => {
-  if (durationMs <= 0) return 0;
-  const raw = (positionMs / durationMs) * 100;
-  return Math.min(100, Math.max(0, raw));
-};
+export default function NowPlaying(props: NowPlayingProps) {
+  const { currentMusic, isPlaying, canPrev, canNext, positionMs, durationMs, onTogglePlay, onPrev, onNext, onShuffle, onRepeat, onPost, onSave } =
+    props;
 
-export default function NowPlaying({
-  currentMusic,
-  isPlaying,
-  canPrev,
-  canNext,
-  positionMs,
-  durationMs,
-  onTogglePlay,
-  onPrev,
-  onNext,
-  onShuffle,
-  onRepeat,
-  onPost,
-  onSave,
-}: NowPlayingProps) {
   const isPlayable = Boolean(currentMusic);
+
+  const volume = usePlayerStore((s) => s.volume);
+  const setVolume = usePlayerStore((s) => s.setVolume);
+  const playError = usePlayerStore((s) => s.playError);
+  const setPlayError = usePlayerStore((s) => s.setPlayError);
 
   const shownDurationMs = useMemo(() => {
     if (!currentMusic) return 0;
     return durationMs > 0 ? durationMs : currentMusic.durationMs;
   }, [currentMusic, durationMs]);
 
-  const progressPercent = useMemo(() => calcProgressPercent(positionMs, shownDurationMs), [positionMs, shownDurationMs]);
   const currentText = useMemo(() => formatMs(positionMs), [positionMs]);
   const durationText = useMemo(() => formatMs(shownDurationMs), [shownDurationMs]);
 
   const handleTogglePlayClick = () => {
     if (!isPlayable) return;
+    setPlayError(null);
     onTogglePlay();
   };
 
   const handlePrevClick = () => {
     if (!canPrev) return;
+    setPlayError(null);
     onPrev();
   };
 
   const handleNextClick = () => {
     if (!canNext) return;
+    setPlayError(null);
     onNext();
   };
 
   const handleShuffleClick = () => onShuffle();
   const handleRepeatClick = () => onRepeat();
-
   const handlePostClick = () => onPost();
   const handleSaveClick = () => onSave();
 
@@ -103,9 +96,7 @@ export default function NowPlaying({
         </div>
 
         <div className="mb-3 opacity-50">
-          <div className="w-full bg-gray-3 h-2 rounded-full overflow-hidden border border-primary">
-            <div className="h-full bg-accent-cyan rounded-full" style={{ width: '0%' }} />
-          </div>
+          <SeekBar positionMs={positionMs} durationMs={shownDurationMs} disabled={!currentMusic || shownDurationMs <= 0} onSeek={props.onSeek} />
           <div className="flex justify-between text-[11px] font-bold text-gray-2 mt-2">
             <span>0:00</span>
             <span>0:00</span>
@@ -125,9 +116,7 @@ export default function NowPlaying({
           <button type="button" disabled className="text-gray-2 cursor-not-allowed">
             <SkipForward className="w-6 h-6" />
           </button>
-          <button type="button" disabled className="text-gray-2 cursor-not-allowed">
-            <Repeat className="w-5 h-5" />
-          </button>
+          <VolumeControl value={volume} onChange={setVolume} disabled={!currentMusic} />
         </div>
       </div>
     );
@@ -137,7 +126,6 @@ export default function NowPlaying({
     <div className="p-4 border-b-2 border-primary">
       <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-2 text-center">Now Playing</h2>
 
-      {/* 가운데 검은 원 제거 + 크기 축소 */}
       <div className="mx-auto w-full max-w-55 aspect-square rounded-2xl border-2 border-primary overflow-hidden bg-gray-4 mb-2">
         <img src={currentMusic.albumCoverUrl} alt={currentMusic.title} className="w-full h-full object-cover" />
       </div>
@@ -147,7 +135,11 @@ export default function NowPlaying({
         <p className="text-xs font-bold text-gray-1 truncate">{currentMusic.artistName}</p>
       </div>
 
-      {/* Quick Actions: disabled 유지 */}
+      {/* 재생 실패 메시지(토스트 대신 인라인) */}
+      {playError ? (
+        <div className="mb-3 rounded-xl border-2 border-secondary bg-secondary/10 px-3 py-2 text-sm font-bold text-secondary">{playError}</div>
+      ) : null}
+
       <div className="flex items-center justify-center gap-2 mb-3">
         <button
           type="button"
@@ -172,18 +164,15 @@ export default function NowPlaying({
         </button>
       </div>
 
-      {/* 실제 progress/time 연동 */}
       <div className="mb-3">
-        <div className="w-full bg-gray-3 h-2 rounded-full overflow-hidden border border-primary">
-          <div className="h-full bg-accent-cyan rounded-full" style={{ width: `${progressPercent}%` }} />
-        </div>
+        {/* 진행바 + seek */}
+        <SeekBar positionMs={positionMs} durationMs={shownDurationMs} disabled={!currentMusic || shownDurationMs <= 0} onSeek={props.onSeek} />
         <div className="flex justify-between text-[11px] font-bold text-gray-2 mt-2">
           <span>{currentText}</span>
           <span>{durationText}</span>
         </div>
       </div>
 
-      {/* 재생 버튼 크기 축소 */}
       <div className="flex items-center justify-center gap-4">
         <button
           type="button"
@@ -223,16 +212,7 @@ export default function NowPlaying({
         >
           <SkipForward className="w-6 h-6" />
         </button>
-
-        <button
-          type="button"
-          onClick={handleRepeatClick}
-          disabled
-          title={DISABLED_ACTION_TITLE}
-          className="text-gray-2 opacity-50 cursor-not-allowed"
-        >
-          <Repeat className="w-5 h-5" />
-        </button>
+        <VolumeControl value={volume} onChange={setVolume} disabled={!currentMusic} />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
-import type { Music } from '@/types';
 import type { ItunesSongResult } from '@/api';
+import type { MusicResponseDto as Music } from '@repo/dto';
+import { MusicProvider } from '@repo/dto/values';
 
 const FALLBACK_COVER_URL = 'https://via.placeholder.com/400?text=No+Cover';
 
@@ -17,8 +18,8 @@ const toHighResArtworkUrl = (artworkUrl100?: string): string => {
  */
 export const itunesSongToMusic = (track: ItunesSongResult): Music => {
   return {
-    musicId: track.trackId.toString(),
-    provider: 'APPLE',
+    id: track.trackId.toString(),
+    provider: MusicProvider.ITUNES,
     trackUri: track.previewUrl ?? '',
 
     albumCoverUrl: toHighResArtworkUrl(track.artworkUrl100),

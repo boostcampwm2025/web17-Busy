@@ -1,5 +1,12 @@
-import type { Provider } from 'src/common/constants';
-import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
+import { AuthProvider } from 'src/modules/auth/types';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  PrimaryColumn,
+  OneToMany,
+} from 'typeorm';
+import { Follow } from 'src/modules/follow/entities/follow.entity';
 
 import { v7 as uuidV7 } from 'uuid';
 
@@ -25,8 +32,16 @@ export class User {
   @Column('varchar', { length: 255, nullable: true })
   bio: string;
 
+  // 내가 팔로우 하는 목록 (Following)
+  @OneToMany(() => Follow, (follow) => follow.followingUser)
+  followings: Follow[];
+
+  // 나를 팔로우 하는 목록 (Follower)
+  @OneToMany(() => Follow, (follow) => follow.followedUser)
+  followers: Follow[];
+
   @Column('varchar', { length: 255, nullable: true })
-  provider: Provider;
+  provider: AuthProvider;
 
   @Column('varchar', { name: 'provider_user_id', length: 255, nullable: true })
   providerUserId: string;

@@ -1,6 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { URLSearchParams } from 'url';
 import {
+  AuthProvider,
   GoogleTokenResponse,
   GoogleUserInfoResponse,
   SpotifyCurrentUserResponse,
@@ -9,7 +10,6 @@ import {
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Provider } from '../../common/constants';
 
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const GOOGLE_USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo';
@@ -155,7 +155,7 @@ export class AuthService {
     // Phase 2에서 findOrCreateByProviderUserId로 일반화 예정
     // 일단은 Google도 user 테이블에 저장되어야 "제대로 로그인"이 성립함.
     const user = await this.userService.findOrCreateByProviderUserId({
-      provider: Provider.GOOGLE,
+      provider: AuthProvider.GOOGLE,
       providerUserId: me.sub,
       nickname: me.name ?? 'Google User',
       email: me.email,

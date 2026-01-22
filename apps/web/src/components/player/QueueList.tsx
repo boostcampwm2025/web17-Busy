@@ -1,6 +1,6 @@
 'use client';
 
-import type { Music } from '@/types';
+import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle } from 'lucide-react';
 
 interface QueueListProps {
@@ -81,14 +81,14 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
       ) : (
         <ul className="flex-1 overflow-y-auto space-y-3 pr-1">
           {queue.map((music, index) => {
-            const isCurrent = currentMusicId === music.musicId;
+            const isCurrent = currentMusicId === music.id;
 
             const handleSelectClick = () => {
               onSelect(music);
             };
 
             const handleRemoveClick = () => {
-              onRemove(music.musicId);
+              onRemove(music.id);
             };
 
             const handleMoveUpClick = () => {
@@ -101,7 +101,7 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
 
             return (
               <li
-                key={music.musicId}
+                key={`${music.id}-${index}`}
                 className={`flex items-center gap-3 p-3 rounded-xl border-2 ${
                   isCurrent ? 'border-primary bg-white' : 'border-transparent hover:border-gray-3 hover:bg-white'
                 }`}

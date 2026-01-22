@@ -1,0 +1,81 @@
+@baseUrl = http://localhost:3002/api
+@ACCESS_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTliZTE2My00YjM3LTc2YWQtYWViMy02OTg2YTM0ODlkZTYiLCJpYXQiOjE3NjkwMTQ3NjcsImV4cCI6MTc2OTAxNjU2N30.37cVyZXFQra1gTMyqLSSYZg5lwJsXNH4p7HfJvXD_MU
+
+############################################################
+# 플레이리스트 API 테스트
+############################################################
+
+### 전체 플리 조회 - GET /playlist
+GET {{baseUrl}}/playlist HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
+
+### 새로운 플리 추가 - POST /playlist
+POST {{baseUrl}}/playlist HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "새로운 플레이리스트!!"
+}
+
+### 새로운 플리 추가 2 - title 없이 디폴트로 생성
+POST {{baseUrl}}/playlist HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
+Content-Type: application/json
+
+### 플리 상세 조회
+GET {{baseUrl}}/playlist/019be167-a8ad-7726-974f-7163392a054f HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
+
+### 플리 제목 수정
+PATCH {{baseUrl}}/playlist/019be167-a8ad-7726-974f-7163392a054f HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "수정된 플리 제목~!!"
+}
+
+### 플리 삭제
+DELETE {{baseUrl}}/playlist/019be167-a8ae-7178-8817-9981c912bbbb HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
+
+### 플리에 음악 추가
+POST {{baseUrl}}/playlist/019be167-a8ad-7726-974f-7163392a054f/music HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "musics": [
+    {
+      "id": "019be165-6364-75ba-88a6-6e4331ec10fb",
+      "trackUri": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/86/4d/a5/864da591-eeb0-27db-bbfa-a190ee20a05c/mzaf_17780542814473670833.plus.aac.p.m4a",
+      "albumCoverUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/12/31/63/12316366-55bb-065c-8ad9-47e107fa79b2/AKMU_NEXT_EPISODE.jpg/600x600bb.jpg",
+      "title": "낙하 (with 아이유)",
+      "artistName": "악뮤",
+      "durationMs": 30000,
+      "provider": "itunes"
+    },
+    {
+      "trackUri": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5b/88/47/5b8847a9-21eb-2393-8d6a-8f37108da2e3/mzaf_16072264406110905806.plus.aac.p.m4a",
+      "albumCoverUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8c/e9/c7/8ce9c707-4273-4752-f613-548b8fc773e2/KM0002628-_-0312.jpg/600x600bb.jpg",
+      "title": "까탈레나",
+      "artistName": "오렌지카라멜",
+      "durationMs": 30000,
+      "provider": "itunes"
+    }
+  ]
+}
+
+### 플리 음악 순서 변경
+PUT {{baseUrl}}/playlist/019be167-a8ad-7726-974f-7163392a054f/music HTTP/1.1
+Authorization: Bearer {{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "musicIds": [
+    "019be163-4b3a-7619-a3cd-79c79137c492",
+    "019be165-248b-74bd-a6a5-87a65385ea36",
+    "019be165-248a-746b-b9c1-762e7a76f52d"
+  ]
+}

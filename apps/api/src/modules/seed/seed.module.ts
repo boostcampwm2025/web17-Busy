@@ -7,10 +7,21 @@ import { Post } from '../post/entities/post.entity';
 import { PostMusic } from '../post/entities/post-music.entity';
 import { Like } from '../like/entities/like.entity';
 import { Noti } from '../noti/entities/noti.entity';
+import { Playlist } from '../playlist/entities/playlist.entity';
+import { PlaylistMusic } from '../playlist/entities/playlist-music.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Music, Post, PostMusic, Like, Noti]),
+    TypeOrmModule.forFeature([
+      User,
+      Music,
+      Post,
+      PostMusic,
+      Like,
+      Noti,
+      Playlist,
+      PlaylistMusic,
+    ]),
   ],
   providers: [DevSeedService],
 })

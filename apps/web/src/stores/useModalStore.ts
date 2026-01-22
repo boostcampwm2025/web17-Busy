@@ -3,6 +3,11 @@ import { create } from 'zustand';
 export const MODAL_TYPES = {
   WRITE: 'WRITE',
   LOGIN: 'LOGIN',
+  POST_DETAIL: 'POST_DETAIL',
+  MOBILE_QUEUE: 'MOBILE_QUEUE',
+  FOLLOWER_USER: 'FOLLOWER_USER',
+  FOLLOWING_USER: 'FOLLOWING_USER',
+  PLAYLIST_DETAIL: 'PLAYLIST_DETAIL',
 } as const;
 
 export type ModalType = (typeof MODAL_TYPES)[keyof typeof MODAL_TYPES] | null;
@@ -11,6 +16,7 @@ interface ModalState {
   modalType: ModalType;
   isOpen: boolean;
   modalProps: any;
+
   openModal: (type: ModalType, props?: any) => void;
   closeModal: () => void;
 }

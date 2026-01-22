@@ -13,16 +13,27 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<Request>();
-    const jwt = req.cookies?.jwt;
 
-    if (!jwt) throw new UnauthorizedException('JWT가 확인되지 않습니다.');
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      throw new UnauthorizedException('Authorization 헤더가 없습니다.');
+    }
+
+    const [type, token] = authHeader.split(' ');
+
+    if (type !== 'Bearer' || !token) {
+      throw new UnauthorizedException(
+        'Authorization 헤더 형식이 잘못되었습니다.',
+      );
+    }
 
     try {
-      const payload = await this.jwtService.verifyAsync(jwt);
+      const payload = await this.jwtService.verifyAsync(token);
       (req as any).user = payload;
+
       return true;
     } catch {
-      throw new UnauthorizedException('JWT를 읽는데 실패했습니다.');
+      throw new UnauthorizedException('JWT를 검증에 실패했습니다.');
     }
   }
 }

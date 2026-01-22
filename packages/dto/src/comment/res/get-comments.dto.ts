@@ -1,12 +1,10 @@
+import { UserDto } from '../../user';
+
 interface comment {
   id: string;
   content: string;
-  createdAt: Date;
-  author: {
-    id: string;
-    nickname: string;
-    profileImgUrl: string;
-  };
+  createdAt: string;
+  author: UserDto;
 }
 
 export class GetCommentsResDto {

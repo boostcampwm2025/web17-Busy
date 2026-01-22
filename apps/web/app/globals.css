@@ -49,6 +49,10 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -58,4 +62,46 @@ button {
 ::-webkit-scrollbar-thumb {
   background: #00214d;
   border-radius: 4px;
+}
+
+/* input 기본 트랙/thumb 정렬을 강제로 맞춤 */
+.volume-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 24px; /* 클릭 영역은 넓게 유지 */
+  background: transparent;
+  display: block;
+}
+
+/* WebKit: 트랙 높이를 정의해야 thumb 보정이 정확해짐 */
+.volume-range::-webkit-slider-runnable-track {
+  height: 6px; /* 네 트랙(h-1.5=6px)과 맞춤 */
+  background: transparent;
+}
+
+/* WebKit: thumb를 트랙 중앙으로 내리기 */
+.volume-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #00ebc7;
+  border: 2px solid rgba(0, 33, 77, 0.2);
+
+  margin-top: -4px; /* (thumb 14 - track 6) / 2 = 4 */
+}
+
+/* Firefox */
+.volume-range::-moz-range-track {
+  height: 6px;
+  background: transparent;
+}
+
+.volume-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #00ebc7;
+  border: 2px solid rgba(0, 33, 77, 0.2);
 }

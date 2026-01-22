@@ -1,13 +1,16 @@
+import { UserDto } from '../../user';
+import { NotiRelatedType } from '../noti-related.enum';
+import { NotiThumbnailShapeType } from '../noti-thumbnail-shape.enum';
+import { NotiType } from '../noti-type.enum';
+
 export class NotiResponseDto {
-  notiId: string;
-  actor: {
-    userId: string;
-    nickname: string;
-    profileImgUrl: string;
-  };
-  type: string; // enum... 백엔드를 참조할 순 없어서... 임시...
-  relatedId?: string | null;
+  id: string;
+  actor: UserDto;
+  type: NotiType;
+  relatedId: string;
+  relatedType: NotiRelatedType;
   isRead: boolean;
-  createdAt: Date;
-  imgUrl: string;
+  createdAt: string;
+  thumbnailUrl: string | null;
+  thumbnailShape: NotiThumbnailShapeType;
 }

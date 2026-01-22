@@ -1,3 +1,4 @@
+import { spotifyToken } from '@/api';
 import { create } from 'zustand';
 
 type SpotifyAuthState = {
@@ -30,12 +31,9 @@ export const useSpotifyAuthStore = create<SpotifyAuthState>((set, get) => ({
       return accessToken as string;
     }
 
-    const res = await fetch('/api/auth/spotify/token');
-    if (!res.ok) {
-      throw new Error('스포티파이 access token을 받아오는데 실패했습니다.');
-    }
+    const token = await spotifyToken();
 
-    const data = (await res.json()) as { accessToken: string; expiresIn: number };
+    const data = token as { accessToken: string; expiresIn: number };
     get().setAccessToken(data.accessToken, data.expiresIn);
 
     return data.accessToken;

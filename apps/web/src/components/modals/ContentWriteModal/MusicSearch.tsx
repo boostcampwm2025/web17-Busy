@@ -1,160 +1,46 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, Sparkles, Library, Music as MusicIcon } from 'lucide-react';
-import type { Music, Playlist } from '@/types';
-import { searchItunesSongs } from '@/api';
-import { itunesSongToMusic } from '@/mappers';
-import { useDebouncedValue } from '@/hooks';
+import { useMemo } from 'react';
+import { Music as MusicIcon, Search, Sparkles } from 'lucide-react';
 
-type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
+import { ITUNES_SEARCH } from '@/constants';
+import { useItunesSearch, usePlaylistRecommendations, type PlaylistDetail } from '@/hooks';
+import { PlaylistBriefItem } from '@/components';
 
-const DEBOUNCE_MS = 300;
-const MIN_QUERY_LENGTH = 2;
-const DEFAULT_LIMIT = 20;
-const COUNTRY: 'KR' = 'KR';
-
-// 목업 데이터 | 음악, {내 플레이리스트}
-const MOCK_MUSICS: Music[] = [
-  {
-    musicId: '11111111-1111-1111-1111-111111111111',
-    title: 'we cant be friends',
-    artistName: 'Ariana Grande',
-    albumCoverUrl:
-      'https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/2e/88/88/2e8888ad-a0cf-eece-70a7-1ff81377a3ab/24UMGIM00198.rgb.jpg/600x600bb.jpg',
-    trackUri:
-      'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/22/fc/88/22fc885b-27c8-4693-7400-9e774eae9d7a/mzaf_5140833304960295464.plus.aac.p.m4a',
-    provider: 'APPLE',
-    durationMs: 300,
-  },
-  {
-    musicId: '22222222-2222-2222-2222-222222222222',
-    title: 'Die For You',
-    artistName: 'The Weekend',
-    albumCoverUrl:
-      'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b5/92/bb/b592bb72-52e3-e756-9b26-9f56d08f47ab/16UMGIM67864.rgb.jpg/600x600bb.jpg',
-    trackUri:
-      'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/de/52/1d/de521dd3-f0f5-b694-4f30-3d465cc5bd0b/mzaf_9744418488383113655.plus.aac.p.m4a',
-    provider: 'APPLE',
-    durationMs: 300,
-  },
-  {
-    musicId: '33333333-3333-3333-3333-333333333333',
-    title: 'Ditto',
-    artistName: 'NewJeans',
-    albumCoverUrl:
-      'https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/f6/29/42/f629426e-92fe-535c-cbe4-76e70850819b/196922287107_Cover.jpg/600x600bb.jpg',
-    trackUri:
-      'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/67/af/3d/67af3de7-8967-bc14-073d-a8712338ac32/mzaf_190692881480987912.plus.aac.p.m4a',
-    provider: 'APPLE',
-    durationMs: 300,
-  },
-];
-
-const MOCK_PLAYLISTS: Playlist[] = [
-  {
-    playlistId: 'p1',
-    title: '비 오는 날 듣기 좋은 노래',
-    musics: [MOCK_MUSICS[0]!, MOCK_MUSICS[1]!],
-  },
-  {
-    playlistId: 'p2',
-    title: '노동요',
-    musics: [MOCK_MUSICS[2]!],
-  },
-];
+import type { MusicResponseDto as Music } from '@repo/dto';
 
 interface MusicSearchProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+
   isSearchOpen: boolean;
   setIsSearchOpen: (isOpen: boolean) => void;
+
   onAddMusic: (music: Music) => void;
-  onAddPlaylist: (playlist: Playlist) => void;
+  onAddPlaylist: (playlist: PlaylistDetail) => void;
 }
 
+const MIN_QUERY_HINT = `${ITUNES_SEARCH.MIN_QUERY_LENGTH}글자 이상 입력해주세요.`;
+
 export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen, onAddMusic, onAddPlaylist }: MusicSearchProps) => {
-  const debouncedQuery = useDebouncedValue(searchQuery, DEBOUNCE_MS);
-  const trimmed = useMemo(() => debouncedQuery.trim(), [debouncedQuery]);
+  const { status, results, errorMessage, trimmedQuery } = useItunesSearch({
+    query: searchQuery,
+    enabled: isSearchOpen,
+  });
 
-  const [status, setStatus] = useState<SearchStatus>('idle');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [results, setResults] = useState<Music[]>([]);
+  const hasQuery = useMemo(() => trimmedQuery.length > 0, [trimmedQuery]);
+  const needMin = useMemo(() => trimmedQuery.length > 0 && trimmedQuery.length < ITUNES_SEARCH.MIN_QUERY_LENGTH, [trimmedQuery]);
 
-  const abortRef = useRef<AbortController | null>(null);
+  const recommendEnabled = useMemo(() => isSearchOpen && !hasQuery, [isSearchOpen, hasQuery]);
 
-  useEffect(() => {
-    if (!isSearchOpen) {
-      abortRef.current?.abort();
-      abortRef.current = null;
-      setStatus('idle');
-      setErrorMessage(null);
-      setResults([]);
-      return;
-    }
-
-    abortRef.current?.abort();
-    abortRef.current = null;
-
-    if (trimmed.length === 0) {
-      setStatus('idle');
-      setErrorMessage(null);
-      setResults([]);
-      return;
-    }
-
-    if (trimmed.length < MIN_QUERY_LENGTH) {
-      setStatus('idle');
-      setErrorMessage(null);
-      setResults([]);
-      return;
-    }
-
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    setStatus('loading');
-    setErrorMessage(null);
-
-    let isActive = true;
-
-    const run = async () => {
-      try {
-        const data = await searchItunesSongs({
-          keyword: trimmed,
-          limit: DEFAULT_LIMIT,
-          country: COUNTRY,
-          signal: controller.signal,
-        });
-
-        const mapped = data.results
-          .map(itunesSongToMusic)
-          // previewUrl(=trackUri)가 없는 곡은 미리듣기 불가 -> 제외(정책)
-          .filter((m) => m.trackUri.trim().length > 0);
-
-        if (!isActive) return;
-
-        setResults(mapped);
-        setStatus(mapped.length > 0 ? 'success' : 'empty');
-      } catch (e) {
-        if (!isActive) return;
-
-        const err = e as { name?: string; message?: string };
-        if (err?.name === 'AbortError') return;
-
-        setResults([]);
-        setStatus('error');
-        setErrorMessage(err?.message ?? '검색 중 오류가 발생했습니다.');
-      }
-    };
-
-    void run();
-
-    return () => {
-      isActive = false;
-      controller.abort();
-    };
-  }, [isSearchOpen, trimmed]);
+  const {
+    status: playlistStatus,
+    briefs,
+    errorMessage: playlistError,
+    selectedPlaylistId,
+    refetch,
+    selectPlaylist,
+  } = usePlaylistRecommendations({ enabled: recommendEnabled });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -169,86 +55,50 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
     setIsSearchOpen(false);
   };
 
-  const handleAddPlaylistClick = (playlist: Playlist) => {
-    onAddPlaylist(playlist);
+  const handleSelectPlaylist = async (playlistId: string) => {
+    const detail = await selectPlaylist(playlistId);
+    if (!detail) return;
+
+    onAddPlaylist(detail);
   };
 
-  const handleAddMusicClick = (music: Music) => {
-    onAddMusic(music);
-  };
+  const renderPlaylistSection = () => {
+    return (
+      <>
+        <div className="px-4 py-2 flex items-center text-xs font-bold text-accent-cyan uppercase tracking-wider bg-gray-4/50 border-b border-gray-3 mb-1">
+          <Sparkles className="w-3 h-3 mr-1" />
+          추천 (내 플레이리스트)
+        </div>
 
-  const renderBody = () => {
-    const hasQuery = trimmed.length > 0;
-
-    if (!hasQuery) {
-      return (
-        <>
-          <div className="px-4 py-2 flex items-center text-xs font-bold text-accent-cyan uppercase tracking-wider bg-gray-4/50 border-b border-gray-3 mb-1">
-            <Sparkles className="w-3 h-3 mr-1" />
-            추천 (내 플레이리스트)
+        {playlistStatus === 'loading' ? (
+          <div className="p-4 text-center text-gray-2 text-sm">불러오는 중...</div>
+        ) : briefs.length === 0 ? (
+          <div className="p-4 text-center text-gray-2 text-sm">
+            보관함이 비어있습니다.
+            <div className="mt-2">
+              <button type="button" onClick={refetch} className="text-xs font-bold underline text-gray-1">
+                다시 시도
+              </button>
+            </div>
           </div>
+        ) : (
+          <div className="space-y-1">
+            {briefs.map((pl) => (
+              <PlaylistBriefItem key={pl.id} brief={pl} isLoading={selectedPlaylistId === pl.id} onSelect={handleSelectPlaylist} />
+            ))}
+          </div>
+        )}
 
-          {MOCK_PLAYLISTS.length > 0 ? (
-            MOCK_PLAYLISTS.map((playlist) => {
-              const coverUrl = playlist.musics[0]?.albumCoverUrl;
+        {playlistError ? <div className="px-4 py-2 text-[11px] text-gray-2">{playlistError}</div> : null}
+      </>
+    );
+  };
 
-              return (
-                <button
-                  key={playlist.playlistId}
-                  type="button"
-                  onClick={() => handleAddPlaylistClick(playlist)}
-                  className="w-full flex items-center px-4 py-3 hover:bg-gray-4 transition-colors text-left group"
-                >
-                  {/* 첫 번째 곡 커버를 대표 이미지로 사용 */}
-                  <div className="relative mr-4">
-                    <div className="absolute top-1 -right-1 w-10 h-10 bg-gray-2 border border-gray-3 rounded-lg rotate-6" />
-                    <div className="absolute top-0.5 -right-0.5 w-10 h-10 bg-gray-3 border border-gray-3 rounded-lg rotate-3" />
-
-                    {coverUrl ? (
-                      <img src={coverUrl} alt="playlist-cover" className="relative w-10 h-10 rounded-lg border border-gray-3 object-cover z-10" />
-                    ) : (
-                      <div className="relative w-10 h-10 rounded-lg border border-gray-3 bg-white z-10 flex items-center justify-center">
-                        <Library className="w-4 h-4 text-gray-1" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm text-primary truncate group-hover:text-accent-cyan transition-colors">{playlist.title}</p>
-                    <div className="flex items-center text-xs text-gray-1 mt-0.5">
-                      <Library className="w-3 h-3 mr-1" />
-                      <span>{playlist.musics.length}곡</span>
-                    </div>
-                  </div>
-
-                  <div className="text-xs font-bold text-gray-2 px-2 py-1 border border-gray-3 rounded group-hover:bg-white group-hover:text-primary group-hover:border-primary transition-colors">
-                    선택
-                  </div>
-                </button>
-              );
-            })
-          ) : (
-            <div className="p-4 text-center text-gray-2 text-sm">보관함이 비어있습니다.</div>
-          )}
-        </>
-      );
-    }
-
-    if (trimmed.length < MIN_QUERY_LENGTH) {
-      return <div className="p-4 text-center text-gray-2 text-sm">2글자 이상 입력해주세요.</div>;
-    }
-
-    if (status === 'loading') {
-      return <div className="p-4 text-center text-gray-2 text-sm">검색 중...</div>;
-    }
-
-    if (status === 'error') {
-      return <div className="p-4 text-center text-gray-2 text-sm">{errorMessage ?? '검색 중 오류가 발생했습니다.'}</div>;
-    }
-
-    if (status === 'empty') {
-      return <div className="p-4 text-center text-gray-2 text-sm">검색 결과가 없습니다.</div>;
-    }
+  const renderSearchResults = () => {
+    if (needMin) return <div className="p-4 text-center text-gray-2 text-sm">{MIN_QUERY_HINT}</div>;
+    if (status === 'loading') return <div className="p-4 text-center text-gray-2 text-sm">검색 중...</div>;
+    if (status === 'error') return <div className="p-4 text-center text-gray-2 text-sm">{errorMessage ?? '검색 중 오류가 발생했습니다.'}</div>;
+    if (status === 'empty') return <div className="p-4 text-center text-gray-2 text-sm">검색 결과가 없습니다.</div>;
 
     return (
       <>
@@ -259,9 +109,9 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
 
         {results.map((music) => (
           <button
-            key={music.musicId}
+            key={music.id}
             type="button"
-            onClick={() => handleAddMusicClick(music)}
+            onClick={() => onAddMusic(music)}
             className="w-full flex items-center px-4 py-2 hover:bg-gray-4 transition-colors text-left group"
           >
             <img src={music.albumCoverUrl} alt="art" className="w-10 h-10 rounded object-cover mr-3 border border-gray-3" />
@@ -273,6 +123,11 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
         ))}
       </>
     );
+  };
+
+  const renderBody = () => {
+    if (!hasQuery) return renderPlaylistSection();
+    return renderSearchResults();
   };
 
   return (

@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Suspense } from 'react';
-import { Header, Sidebar, RightPanel, ModalContainer } from '@/components';
+import { Header, Sidebar, RightPanel, ModalContainer, LoadingSpinner } from '@/components';
 import SpotifyTokenFromHash from '@/hooks/auth/client/SpotifyTokenFromHash';
 import AuthLoginQueryHandler from '@/hooks/auth/client/AuthLoginQueryHandler';
+import { Suspense } from 'react';
+import NotiPollingGate from '@/components/noti/NotiPollingGate';
+import ToastProvider from '@/components/ToastContainer';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -22,28 +24,31 @@ export default function RootLayout({
     <html lang="kr">
       <body>
         <SpotifyTokenFromHash />
-        <Suspense fallback={null}>
+        <Suspense fallback={<LoadingSpinner />}>
           <AuthLoginQueryHandler />
         </Suspense>
         <ModalContainer />
+        <NotiPollingGate />
 
-        <div className="flex h-screen overflow-hidden">
-          {/* 좌측 사이드바 */}
-          <Sidebar />
+        <ToastProvider>
+          <div className="flex h-screen overflow-hidden">
+            {/* 좌측 사이드바 */}
+            <Sidebar />
 
-          <div className="flex flex-col flex-1 h-full lg:flex-row">
-            {/* 중앙 컨텐츠: column 레이아웃에서 flex-1로 높이 차지 */}
-            <main className="flex-1 flex flex-col min-h-0">
-              <Header />
-              <div className="flex-1 overflow-y-auto">{children}</div>
-            </main>
+            <div className="flex flex-col flex-1 h-full lg:flex-row">
+              {/* 중앙 컨텐츠: column 레이아웃에서 flex-1로 높이 차지 */}
+              <main className="flex-1 flex flex-col min-h-0">
+                <Header />
+                <div className="flex-1 overflow-y-auto">{children}</div>
+              </main>
 
-            {/* 우측/하단 플레이어 영역 */}
-            <aside className="shrink-0 w-full h-24 border-t-2 border-primary lg:w-95 lg:h-full lg:border-t-0 lg:border-l-2">
-              <RightPanel />
-            </aside>
+              {/* 우측/하단 플레이어 영역 */}
+              <aside className="shrink-0 w-full h-24 border-t-2 border-primary lg:w-95 lg:h-full lg:border-t-0 lg:border-l-2">
+                <RightPanel />
+              </aside>
+            </div>
           </div>
-        </div>
+        </ToastProvider>
       </body>
     </html>
   );

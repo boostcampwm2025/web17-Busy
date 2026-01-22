@@ -1,4 +1,4 @@
-import type { NotiType } from 'src/common/constants';
+import { NotiType } from '@repo/dto';
 import { User } from 'src/modules/user/entities/user.entity';
 import {
   BeforeInsert,
@@ -36,7 +36,7 @@ export class Noti {
   @Column('char', { name: 'related_id', length: 36, nullable: true })
   relatedId: string;
 
-  @Column('bool', { name: 'is_read', nullable: false })
+  @Column('bool', { name: 'is_read', nullable: false, default: false })
   isRead: boolean;
 
   @CreateDateColumn({ name: 'created_at' })

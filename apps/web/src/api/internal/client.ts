@@ -1,3 +1,4 @@
+import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
 import axios from 'axios';
 
 // 내 서버용 Axios 인스턴스
@@ -8,4 +9,15 @@ export const internalClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+internalClient.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const appJwt = sessionStorage.getItem(APP_ACCESS_TOKEN_STORAGE_KEY);
+    if (appJwt) {
+      config.headers = config.headers ?? {};
+      config.headers.Authorization = `Bearer ${appJwt}`;
+    }
+  }
+  return config;
 });

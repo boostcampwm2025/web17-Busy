@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState, lazy } from 'react';
+import { useMemo, useState, lazy, useEffect } from 'react';
 import { LogIn, LogOut, Menu, PlusCircle } from 'lucide-react';
 
 import { menuItems } from '@/constants';
@@ -10,30 +10,45 @@ import { useModalStore, MODAL_TYPES } from '@/stores';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
+import { NotiDrawerContent } from '../noti';
 
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { performLogout } from '@/hooks/auth/client/logout';
+import { useNotiStore } from '@/stores/useNotiStore';
 
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);
+const needLogin = (type: SidebarItemTypeValues) => {
+  return type === SidebarItemType.PROFILE || type === SidebarItemType.ARCHIVE || type === SidebarItemType.SETTING;
+};
 
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
   const { openModal } = useModalStore();
-  const { isAuthenticated, isLoading } = useAuthMe();
+  const { userId, isAuthenticated, isLoading } = useAuthMe();
+
+  const unreadNotiCount = useNotiStore((s) => s.unreadCount);
 
   const initialActiveItem = useMemo<SidebarItemTypeValues>(() => {
     if (pathname === '/') {
       return SidebarItemType.HOME;
     }
-    return pathname.slice(1) as SidebarItemTypeValues;
+    return pathname.split('/')[1] as SidebarItemTypeValues;
   }, [pathname]);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeItem, setActiveItem] = useState<SidebarItemTypeValues>(initialActiveItem);
   const [activeDrawer, setActiveDrawer] = useState<SidebarItemTypeValues | null>(null);
+
+  useEffect(() => {
+    setActiveItem(initialActiveItem);
+  }, [pathname]);
+
+  useEffect(() => {
+    !activeDrawer && setActiveItem(initialActiveItem);
+  }, [activeDrawer]);
 
   const handleToggleSidebar = () => {
     setIsExpanded((prev) => !prev);
@@ -53,31 +68,43 @@ export default function Sidebar() {
     setActiveDrawer(type);
   };
 
+  const handleMyProfileNavigate = () => {
+    if (!userId) return;
+    setActiveItem(SidebarItemType.PROFILE);
+    router.push(`/profile/${userId}`);
+  };
+
   const handleNavigate = (type: SidebarItemTypeValues) => {
-    router.push(type === SidebarItemType.HOME ? '/' : type);
+    setActiveItem(type);
+    router.push(type === SidebarItemType.HOME ? '/' : `/${type}`);
   };
 
   const handleItemClick = (type: SidebarItemTypeValues) => {
-    setActiveItem(type);
     handleCloseDrawer();
 
     if (isDrawerItem(type)) {
+      setActiveItem(type);
       handleOpenDrawer(type);
       return;
     }
 
-    handleNavigate(type);
+    if (needLogin(type) && !isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
+
+    type === SidebarItemType.PROFILE ? handleMyProfileNavigate() : handleNavigate(type);
   };
 
   const handleOpenWriteModal = () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
     openModal(MODAL_TYPES.WRITE);
   };
 
-  const handlerOpenLoginModal = () => {
-    openModal(MODAL_TYPES.LOGIN);
-  };
-
-  const handleAuthButtonClick = async () => {
+  const handlerOpenLoginModal = async () => {
     if (isLoading) return;
 
     if (!isAuthenticated) {
@@ -127,7 +154,13 @@ export default function Sidebar() {
               onClick={() => handleItemClick(item.type)}
               isActive={item.type === activeItem}
               shouldShowSpan={isExpanded}
-            />
+            >
+              {item.type === SidebarItemType.NOTIFICATION && unreadNotiCount > 0 && (
+                <span className="absolute top-1 left-6 min-w-5 h-5 px-1 rounded-full bg-accent-pink text-white text-[10px] flex items-center justify-center">
+                  {unreadNotiCount > 99 ? '99+' : unreadNotiCount}
+                </span>
+              )}
+            </MenuButton>
           ))}
 
           <div className="h-0.5 bg-gray-4 mx-2 my-4" />
@@ -149,7 +182,7 @@ export default function Sidebar() {
         {/* 로그인/로그아웃 토글 버튼 */}
         <button
           type="button"
-          onClick={() => void handleAuthButtonClick()}
+          onClick={handlerOpenLoginModal}
           disabled={isLoading}
           className="flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed"
           title={isAuthenticated ? '로그아웃' : '로그인'}
@@ -163,15 +196,17 @@ export default function Sidebar() {
         </button>
       </nav>
 
-      {/* 드로어 영역 */}
+      {/* 1. 검색 */}
       <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded}>
-        <SearchDrawerContent />
+        <SearchDrawerContent enabled={isSearchOpen} />
       </Drawer>
 
+      {/* 2. 알림 */}
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
-        <div className="flex h-full justify-center items-center text-lg">알림 드로어</div>
+        <NotiDrawerContent />
       </Drawer>
 
+      {/* 3. 싱크룸 */}
       <Drawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
         <div className="flex h-full justify-center items-center text-lg">협업 드로어</div>
       </Drawer>

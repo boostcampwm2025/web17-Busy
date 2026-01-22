@@ -10,11 +10,15 @@ import {
   SEED_POST_MUSICS,
   SEED_POSTS,
   SEED_USERS,
+  SEED_PLAYLISTS,
+  SEED_PLAYLIST_MUSICS,
 } from './seed';
 import { Post } from '../post/entities/post.entity';
 import { PostMusic } from '../post/entities/post-music.entity';
 import { User } from '../user/entities/user.entity';
 import { Like } from '../like/entities/like.entity';
+import { Playlist } from '../playlist/entities/playlist.entity';
+import { PlaylistMusic } from '../playlist/entities/playlist-music.entity';
 
 @Injectable()
 export class DevSeedService implements OnApplicationBootstrap {
@@ -36,18 +40,34 @@ export class DevSeedService implements OnApplicationBootstrap {
 
     @InjectRepository(Like)
     private readonly likeRepo: Repository<Like>,
+
+    @InjectRepository(Playlist)
+    private readonly playlistRepo: Repository<Playlist>,
+
+    @InjectRepository(PlaylistMusic)
+    private readonly pmRepo: Repository<PlaylistMusic>,
   ) {}
 
   async onApplicationBootstrap() {
     if (process.env.NODE_ENV === 'production') return;
 
+    // Delete child rows first to satisfy FK constraints.
+    await this.postMusicRepo.deleteAll();
+    await this.pmRepo.deleteAll();
+    await this.likeRepo.deleteAll();
+    await this.notiRepo.deleteAll();
+    await this.postRepo.deleteAll();
+    await this.playlistRepo.deleteAll();
+    await this.musicRepo.deleteAll();
+    await this.userRepo.deleteAll();
+
     await this.userRepo.save(SEED_USERS);
-    await this.notiRepo.save(SEED_NOTIS);
     await this.musicRepo.save(SEED_MUSICS);
     await this.postRepo.save(SEED_POSTS);
     await this.postMusicRepo.save(SEED_POST_MUSICS);
     await this.likeRepo.save(SEED_LIKES);
-
-    console.log('seeding completed');
+    await this.notiRepo.save(SEED_NOTIS);
+    await this.playlistRepo.save(SEED_PLAYLISTS);
+    await this.pmRepo.save(SEED_PLAYLIST_MUSICS);
   }
 }

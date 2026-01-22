@@ -1,32 +1,61 @@
 'use client';
 
 import { MODAL_TYPES, useModalStore, usePlayerStore } from '@/stores';
-import { Music } from '@/types';
+import type { CreateMusicReqDto, MusicResponseDto as Music } from '@repo/dto';
+import { createMusic } from '@/api/internal/music';
 
+const isUuid = (v: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+
+const toCreateMusicReqDto = (m: Music): CreateMusicReqDto => ({
+  trackUri: m.trackUri,
+  provider: m.provider,
+  albumCoverUrl: m.albumCoverUrl,
+  title: m.title,
+  artistName: m.artistName,
+  durationMs: m.durationMs,
+});
+
+/**
+ * NOTE:
+ * - 검색(iTunes) 결과는 id가 외부 trackId일 수 있음
+ * - 서버에서 upsert 후 반환된 DB UUID를 받아 플레이어/모달에서 사용
+ */
 export default function useMusicActions() {
   const playMusic = usePlayerStore((s) => s.playMusic);
   const openModal = useModalStore((s) => s.openModal);
 
-  /**
-   * 음악 정보 DB 저장 함수 -> 필요한가?
-   * DB 저장해야 하는 시점
-   * 1. 컨텐츠 등록 시 (백엔드에서 처리)
-   * 2. 보관함 저장 시 (백엔드에서 처리)
-   * 3. 음악 재생 시?
-   */
-  const saveMusicMetadata = (track: Music) => {};
+  const ensureMusicInDb = async (track: Music): Promise<Music> => {
+    // 이미 DB UUID면 그대로 사용
+    if (track.id && isUuid(track.id)) return track;
 
-  /** 현재 플레이리스트에 음악 저장 함수 (검색 결과의 음악 재생 버튼, 피드 게시물 클릭 시 사용) */
-  const addMusicToPlayer = (track: Music) => playMusic(track);
+    // 외부 id면 DB에 upsert 후 DB UUID로 교체
+    const saved = await createMusic(toCreateMusicReqDto(track));
+    return saved;
+  };
 
-  /** 음악으로 컨텐츠 작성 모달 오픈 함수 */
-  const openWriteModalWithMusic = (track: Music) => openModal(MODAL_TYPES.WRITE, { initialMusic: track });
+  /** 재생: DB에 보장 후 플레이어에 전달 */
+  const addMusicToPlayer = async (track: Music) => {
+    const ensured = await ensureMusicInDb(track);
+    playMusic(ensured);
+  };
 
-  /** TODO: 보관함에 음악 저장 함수 */
-  const addMusicToArchive = (track: Music, playlistId: string) => {};
+  /** 작성 모달: DB에 보장 후 initialMusic으로 전달 */
+  const openWriteModalWithMusic = async (track: Music) => {
+    const ensured = await ensureMusicInDb(track);
+    openModal(MODAL_TYPES.WRITE, { initialMusic: ensured });
+  };
+
+  /** TODO: 보관함 저장도 동일하게 ensure 후 처리 */
+  const addMusicToArchive = async (track: Music, playlistId: string) => {
+    const ensured = await ensureMusicInDb(track);
+    // TODO: playlist API 확정 후 연결
+    void playlistId;
+    void ensured;
+  };
 
   return {
     addMusicToPlayer,
     openWriteModalWithMusic,
+    addMusicToArchive,
   };
 }

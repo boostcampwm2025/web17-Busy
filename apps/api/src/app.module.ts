@@ -19,6 +19,7 @@ import { LikeModule } from './modules/like/like.module';
 import { MusicModule } from './modules/music/music.module';
 import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
 import { PlaylistModule } from './modules/playlist/playlist.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { PlaylistModule } from './modules/playlist/playlist.module';
     PlaylistModule,
     PostModule,
     SeedModule,
+    UploadModule,
     UserModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
@@ -51,7 +53,8 @@ import { PlaylistModule } from './modules/playlist/playlist.module';
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
         entities: [join(__dirname, '**/*.entity.{ts,js}')],
-        synchronize: process.env.NODE_ENV !== 'production',
+        synchronize: true,
+        // synchronize: process.env.NODE_ENV !== 'production',
       }),
       inject: [ConfigService],
     }),

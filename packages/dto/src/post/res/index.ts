@@ -1,3 +1,3 @@
 export * from './feedResponseDto';
-export * from './getPostDetailResponseDto';
-export * from './shared';
+export * from './post.dto';
+export * from './find-by-user.dto';

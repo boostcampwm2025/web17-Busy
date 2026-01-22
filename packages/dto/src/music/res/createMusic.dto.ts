@@ -1,11 +1,3 @@
-import { Provider } from '../music-provider.enum';
+import { MusicResponseDto } from '../music.dto';
 
-export class CreateMusicResDto {
-  id: string;
-  trackUri: string;
-  provider: Provider;
-  albumCoverUrl: string;
-  title: string;
-  artistName: string;
-  durationMs: number;
-}
+export class CreateMusicResDto extends MusicResponseDto {}

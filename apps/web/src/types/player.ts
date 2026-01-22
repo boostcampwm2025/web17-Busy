@@ -1,4 +1,4 @@
-import type { Music } from './music';
+import type { MusicResponseDto as Music } from '@repo/dto';
 
 export interface NowPlayingState {
   currentMusic: Music | null;

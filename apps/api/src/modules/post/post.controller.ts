@@ -19,10 +19,11 @@ import {
 import { PostService } from './post.service';
 import {
   FeedResponseDto,
-  GetPostDetailResponseDto,
+  PostResponseDto,
   CreatePostMultipartDto,
-  MusicRequest,
+  MusicRequestDto,
   UpdatePostRequestDto,
+  FindByUserDto,
 } from '@repo/dto';
 
 import { AuthGuard } from 'src/common/guards/auth.guard';
@@ -30,6 +31,7 @@ import { UserId } from 'src/common/decorators/userId.decorator';
 import { FeedService } from './feed.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from '../upload/upload.service';
+import { AuthOptionalGuard } from 'src/common/guards/auth.optional-guard';
 
 @Controller('post')
 export class PostController {
@@ -40,6 +42,7 @@ export class PostController {
   ) {}
 
   @Get('feed')
+  @UseGuards(AuthOptionalGuard)
   async feed(
     @UserId() requestUserId: string | null,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -60,21 +63,23 @@ export class PostController {
   @UseInterceptors(FileInterceptor('coverImgUrl'))
   async createPostIncludeImg(
     @UserId() requestUserId: string,
-    @UploadedFile() coverImgUrl: Express.Multer.File,
+    @UploadedFile() coverImgFile: Express.Multer.File,
     @Body() body: CreatePostMultipartDto,
   ): Promise<{ ok: true }> {
     const { content } = body;
 
-    let musics: MusicRequest[];
+    let musics: MusicRequestDto[];
     try {
       musics = JSON.parse(body.musics ?? '[]');
     } catch {
       throw new BadRequestException('musics 형식이 올바르지 않습니다.');
     }
 
-    const thumbnailImgUrl = coverImgUrl
-      ? this.uploadService.toPublicUrl(coverImgUrl.filename)
-      : undefined;
+    let thumbnailImgUrl: string | undefined;
+
+    if (coverImgFile) {
+      thumbnailImgUrl = await this.uploadService.uploadPostImage(coverImgFile);
+    }
 
     await this.postService.create(
       requestUserId,
@@ -82,14 +87,16 @@ export class PostController {
       content,
       thumbnailImgUrl,
     );
+
     return { ok: true };
   }
 
+  @UseGuards(AuthOptionalGuard)
   @Get(':id')
   async getPostDetail(
-    @UserId() requestUserId: string,
+    @UserId() requestUserId: string | null,
     @Param('id') postId: string,
-  ): Promise<GetPostDetailResponseDto | null> {
+  ): Promise<PostResponseDto | null> {
     return await this.postService.getPostDetail(postId, requestUserId);
   }
 
@@ -112,5 +119,20 @@ export class PostController {
   ): Promise<{ ok: true }> {
     await this.postService.delete(requestUserId, postId);
     return { ok: true };
+  }
+
+  @Get('/user/:userId')
+  async getByUserId(
+    @Param('userId') userId: string,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('cursor') cursor?: string,
+  ): Promise<FindByUserDto> {
+    try {
+      return await this.postService.getByUserId(userId, limit, cursor);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
+      );
+    }
   }
 }
