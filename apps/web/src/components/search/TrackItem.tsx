@@ -1,47 +1,44 @@
 'use client';
 
-import type { MusicResponseDto as Music } from '@repo/dto';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { useModalStore, MODAL_TYPES } from '@/stores';
 import { Box, Play, PlusCircle } from 'lucide-react';
 
+import { useModalStore, MODAL_TYPES } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useMusicActions } from '@/hooks';
+import type { MusicResponseDto as Music } from '@repo/dto';
 interface TrackItemProps {
   music: Music;
-
-  /** 보관함/작성 등 후속 이슈에서 연결 */
-  disabledActions?: boolean;
-
-  onPlay: (music: Music) => void;
-  onAddToArchive: (track: Music, playlistId: string) => void;
-  onOpenWrite: (music: Music) => void;
 }
 
-const DISABLED_ACTION_TITLE = '추후 연결 예정';
-
-export default function TrackItem({ music, disabledActions = true, onPlay, onAddToArchive, onOpenWrite }: TrackItemProps) {
+export default function TrackItem({ music }: TrackItemProps) {
   // 사용자가 로그인이 된 상태인지를 확인해 준다.
   const { isAuthenticated, isLoading } = useAuthMe();
   const { openModal } = useModalStore();
-  const handlePlayClick = () => {
-    onPlay?.(music);
+
+  /** 재생 / 작성 모달 / 보관함 선택  */
+  const { addMusicToPlayer, openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
+
+  const handlePlayClick = async () => {
+    // DB upsert 포함(내부 ensureMusicInDb)
+    await addMusicToPlayer(music);
+  };
+
+  const handleWriteClick = async () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
+    // DB upsert 포함(내부 ensureMusicInDb)
+    await openWriteModalWithMusic(music);
   };
 
   const handleArchiveClick = () => {
-    //if (disabledActions) return;
     if (!isAuthenticated) {
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
-    onAddToArchive?.(music, '');
-  };
-
-  const handleWriteClick = () => {
-    //if (disabledActions) return;
-    if (!isAuthenticated) {
-      openModal(MODAL_TYPES.LOGIN);
-      return;
-    }
-    onOpenWrite?.(music);
+    // DB upsert 포함(내부 ensureMusicInDb)
+    addMusicToArchive(music);
   };
 
   return (
@@ -66,24 +63,22 @@ export default function TrackItem({ music, disabledActions = true, onPlay, onAdd
           <Play className="w-4 h-4" />
         </button>
 
-        {/* 보관함: 아직 미구현이면 disabled 고정(정책 유지) */}
+        {/* 보관함 */}
         <button
           type="button"
           onClick={handleArchiveClick}
-          //disabled
-          title={DISABLED_ACTION_TITLE}
+          title="보관함 선택 추가"
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Box className="w-4 h-4" />
         </button>
 
-        {/* 작성: disabledActions가 true면 잠금 */}
+        {/* 작성 */}
         <button
           type="button"
           onClick={handleWriteClick}
-          //disabled={disabledActions}
-          title={disabledActions ? DISABLED_ACTION_TITLE : '컨텐츠 작성'}
+          title="컨텐츠 작성"
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
         >
