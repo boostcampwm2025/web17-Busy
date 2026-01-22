@@ -7,19 +7,29 @@ import {
   DeleteFollowDto,
   GetUserFollowDto,
   UserDto,
+  NotiType,
 } from '@repo/dto';
+import { NotiService } from '../noti/noti.service';
 
 @Injectable()
 export class FollowService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly followRepository: FollowRepository,
+    private readonly notiService: NotiService,
   ) {}
 
   async addFollow(userId: string, createFollowDto: CreateFollowDto) {
     const { otherUserId } = createFollowDto;
 
     await this.followRepository.createFollow(userId, otherUserId);
+
+    await this.notiService.create({
+      type: NotiType.FOLLOW,
+      receiverId: userId,
+      actorId: otherUserId,
+    });
+
     return { message: '팔로우 성공' };
   }
 
@@ -30,6 +40,7 @@ export class FollowService {
     return { message: '팔로우 해제 성공' };
   }
 
+
   async getFollowingIds(
     currentUserId: string,
     targetUserIds: string[],
@@ -39,12 +50,17 @@ export class FollowService {
       targetUserIds,
     );
   }
-
-  async getFollowings(userId: string, limit: number, cursor?: string) {
+  
+  async getFollowings(
+    targetUserId: string,
+    limit: number,
+    cursor?: string,
+    userId?: string,
+  ) {
     const { date: cursorDate } = this.decodeCursor(cursor);
 
     const follows = await this.followRepository.getFollowings(
-      userId,
+      targetUserId,
       limit + 1,
       cursorDate,
     );
@@ -54,14 +70,20 @@ export class FollowService {
       limit,
       (follow) => follow.followedUser,
       (follow) => follow.createdAt.toISOString(),
+      userId,
     );
   }
 
-  async getFollowers(userId: string, limit: number, cursor?: string) {
+  async getFollowers(
+    targetUserId: string,
+    limit: number,
+    cursor?: string,
+    userId?: string,
+  ) {
     const { date: cursorDate, id: cursorId } = this.decodeCursor(cursor);
 
     const follows = await this.followRepository.getFollowers(
-      userId,
+      targetUserId,
       limit + 1,
       cursorDate,
       cursorId,
@@ -72,6 +94,7 @@ export class FollowService {
       limit,
       (follow) => follow.followingUser,
       (follow) => `${follow.createdAt.toISOString()}_${follow.followingUserId}`,
+      userId,
     );
   }
 
@@ -99,24 +122,43 @@ export class FollowService {
     }
   }
 
-  private paginate(
+  private async paginate(
     follows: Follow[],
     limit: number,
-    userMapper: (follow: Follow) => UserDto,
+    userExtractor: (follow: Follow) => UserDto,
     cursorGenerator: (lastItem: Follow) => string,
-  ): GetUserFollowDto {
+    userId?: string | undefined,
+  ): Promise<GetUserFollowDto> {
     const hasNext = follows.length > limit;
     const targetFollows = hasNext ? follows.slice(0, limit) : follows;
 
-    let nextCursor: string | undefined = undefined;
+    // 표시될 유저의 팔로우 여부 확인
+    let followingSet = new Set<string>();
+    if (userId && targetFollows.length > 0) {
+      const targetUserIds = targetFollows.map((f) => userExtractor(f).id);
 
+      const followingIds = await this.getFollowingIds(userId, targetUserIds);
+
+      followingSet = new Set(followingIds);
+    }
+
+    const users = targetFollows.map((follow) => {
+      const user = userExtractor(follow);
+      return {
+        id: user.id,
+        nickname: user.nickname,
+        profileImgUrl: user.profileImgUrl ?? null,
+        isFollowing: followingSet.has(user.id),
+      };
+    });
+
+    let nextCursor: string | undefined = undefined;
     if (hasNext && targetFollows.length > 0) {
       const lastItem = targetFollows[targetFollows.length - 1];
       nextCursor = cursorGenerator(lastItem);
     }
-
     return {
-      users: targetFollows.map(userMapper),
+      users,
       hasNext,
       nextCursor,
     };
