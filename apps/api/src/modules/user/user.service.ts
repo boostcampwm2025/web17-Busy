@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { User } from './entities/user.entity';
 import { AuthProvider } from '../auth/types';
@@ -100,27 +100,33 @@ export class UserService {
   async getUserProfile(
     targetUserId: string,
     userId?: string,
-  ): Promise<GetUserDto> {
-    const user = await this.userRepository.findWithFollowInfo(
-      targetUserId,
-      userId,
-    );
-
+  ): Promise<GetUserDto | undefined> {
+    const user = await this.userRepository.findUserById(targetUserId);
     if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+      return;
     }
 
-    // dto 매핑을 위한 타입단언
-    const result = user as UserWithFollowInfo;
+    // 로그인 유저가 타겟 유저를 팔로우 중인지 확인 && 비로그인시 false
+    let isFollowing: boolean = false;
+    if (userId) {
+      if (
+        (await this.followService.getFollowingIds(userId, [targetUserId]))
+          .length > 0
+      ) {
+        isFollowing = true;
+      }
+    }
+    const { followerCount, followingCount } =
+      await this.followService.countFollow(targetUserId);
 
     return {
-      id: result.id,
-      nickname: result.nickname,
-      profileImgUrl: result.profileImgUrl ?? null,
-      bio: result.bio ?? '',
-      followerCount: result.followerCount || 0,
-      followingCount: result.followingCount || 0,
-      isFollowing: !!Number(result.isFollowing),
+      id: user.id,
+      nickname: user.nickname,
+      profileImgUrl: user.profileImgUrl,
+      bio: user.bio,
+      followerCount: followerCount,
+      followingCount: followingCount,
+      isFollowing: isFollowing,
     };
   }
 

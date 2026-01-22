@@ -134,4 +134,22 @@ export class FollowRepository {
 
     return follows.map((follow) => follow.followedUserId);
   }
+
+  // 특정 유저의 팔로우 수
+  async countFollowing(userId: string): Promise<number> {
+    return this.repository.count({
+      where: {
+        followingUserId: userId,
+      },
+    });
+  }
+
+  // 특정 유저의 팔로워 수
+  async countFollowers(userId: string): Promise<number> {
+    return this.repository.count({
+      where: {
+        followedUserId: userId,
+      },
+    });
+  }
 }

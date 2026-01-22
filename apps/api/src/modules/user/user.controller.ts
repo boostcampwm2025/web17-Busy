@@ -51,7 +51,7 @@ export class UserController {
   async getUser(
     @Param('userId') targetUserId: string,
     @UserId() userId?: string,
-  ): Promise<GetUserDto> {
+  ): Promise<GetUserDto | undefined> {
     const user = await this.userService.getUserProfile(targetUserId, userId);
 
     return user;

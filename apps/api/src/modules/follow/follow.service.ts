@@ -162,4 +162,14 @@ export class FollowService {
       nextCursor,
     };
   }
+
+  async countFollow(userId: string) {
+    const follower = await this.followRepository.countFollowers(userId);
+    const following = await this.followRepository.countFollowing(userId);
+
+    return {
+      followerCount: follower,
+      followingCount: following,
+    };
+  }
 }
