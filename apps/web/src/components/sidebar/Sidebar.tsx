@@ -18,6 +18,9 @@ import { useNotiStore } from '@/stores/useNotiStore';
 
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);
+const needLogin = (type: SidebarItemTypeValues) => {
+  return type === SidebarItemType.PROFILE || type === SidebarItemType.ARCHIVE || type === SidebarItemType.SETTING;
+};
 
 export default function Sidebar() {
   const router = useRouter();
@@ -85,12 +88,12 @@ export default function Sidebar() {
       return;
     }
 
-    if (type === SidebarItemType.PROFILE || type === SidebarItemType.ARCHIVE || type === SidebarItemType.SETTING) {
-      isAuthenticated ? handleMyProfileNavigate() : openModal(MODAL_TYPES.LOGIN);
+    if (needLogin(type) && !isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
       return;
     }
 
-    handleNavigate(type);
+    type === SidebarItemType.PROFILE ? handleMyProfileNavigate() : handleNavigate(type);
   };
 
   const handleOpenWriteModal = () => {
