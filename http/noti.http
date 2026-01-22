@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:3002/api
-@ACCESS_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJpYXQiOjE3NjgzNzYwMjYsImV4cCI6MTc3MzU2MDAyNn0.qnflWdgcGE2bCHVau498Ox87tSD8LUiU4mo6Oy7_DE4
+@ACCESS_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTliZTE2My00YjM3LTc2YWQtYWViMy02OTg2YTM0ODlkZTYiLCJpYXQiOjE3NjkwMTQ3NjcsImV4cCI6MTc2OTAxNjU2N30.37cVyZXFQra1gTMyqLSSYZg5lwJsXNH4p7HfJvXD_MU
 
 ############################################################
 # 알림 API 테스트
@@ -10,23 +10,23 @@ GET {{baseUrl}}/noti HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 
 ### 알림 읽기 - PATCH /noti/:id
-PATCH {{baseUrl}}/noti/22222222-2222-2222-2222-222222222222 HTTP/1.1
+PATCH {{baseUrl}}/noti/019be164-455b-7534-a069-6ceba98b8c3a HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
 {}
 
 ### 알림 읽기 실패(잘못된 UUID) - PATCH /noti/:id
-PATCH {{baseUrl}}/noti/4444444-4444--4444-4444-444444444444 HTTP/1.1
+PATCH {{baseUrl}}/noti/019be164-8fc3-7087-8a6b-ea63b85bc8c8 HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 Content-Type: application/json
 
 {}
 
 ### 알림 삭제 - DELETE /noti/:id
-DELETE {{baseUrl}}/noti/22222222-2222-2222-2222-222222222222 HTTP/1.1
+DELETE {{baseUrl}}/noti/019be164-455b-7534-a069-6ceba98b8c3a HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}
 
 ### 알림 삭제 실패(잘못된 UUID) - DELETE /noti/:id
-DELETE {{baseUrl}}/noti/4444444-4444--4444-4444-444444444444 HTTP/1.1
+DELETE {{baseUrl}}/noti/019be164-8fc3-7087-8a6b-ea63b85bc8c8 HTTP/1.1
 Authorization: Bearer {{ACCESS_TOKEN}}

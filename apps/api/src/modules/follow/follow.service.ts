@@ -26,8 +26,8 @@ export class FollowService {
 
     await this.notiService.create({
       type: NotiType.FOLLOW,
-      receiverId: userId,
-      actorId: otherUserId,
+      receiverId: otherUserId,
+      actorId: userId,
     });
 
     return { message: '팔로우 성공' };
@@ -40,7 +40,6 @@ export class FollowService {
     return { message: '팔로우 해제 성공' };
   }
 
-
   async getFollowingIds(
     currentUserId: string,
     targetUserIds: string[],
@@ -50,7 +49,7 @@ export class FollowService {
       targetUserIds,
     );
   }
-  
+
   async getFollowings(
     targetUserId: string,
     limit: number,

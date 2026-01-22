@@ -13,14 +13,15 @@ import { PlaylistService } from './playlist.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 import {
-  AddMusicToPlaylistReqDto,
+  AddMusicsToPlaylistResDto,
+  AddMusicsToPlaylistReqDto,
   CreatePlaylistReqDto,
   GetAllPlaylistsResDto,
   GetPlaylistDetailResDto,
+  PlaylistResDto,
   UpdateMusicsOrderOfPlaylistReqDto,
   UpdateTitlePlaylitReqDto,
 } from '@repo/dto';
-import { Playlist } from './entities/playlist.entity';
 
 @UseGuards(AuthGuard)
 @Controller('playlist')
@@ -40,10 +41,13 @@ export class PlaylistController {
   async createPlaylist(
     @UserId() userId: string,
     @Body() dto: CreatePlaylistReqDto,
-  ): Promise<{ ok: true; playlist: Playlist }> {
+  ): Promise<PlaylistResDto> {
     const { title } = dto;
     const playlist = await this.playlistService.create(userId, title);
-    return { ok: true, playlist };
+    return {
+      id: playlist.id,
+      title: playlist.title,
+    };
   }
 
   // 플리 상세 조회
@@ -61,14 +65,17 @@ export class PlaylistController {
     @UserId() userId: string,
     @Param('id') playlistId: string,
     @Body() dto: UpdateTitlePlaylitReqDto,
-  ): Promise<{ ok: true; playlist: Playlist }> {
+  ): Promise<PlaylistResDto> {
     const { title } = dto;
     const playlist = await this.playlistService.update(
       userId,
       playlistId,
       title,
     );
-    return { ok: true, playlist };
+    return {
+      id: playlist.id,
+      title: playlist.title,
+    };
   }
 
   // 플리 삭제
@@ -86,11 +93,15 @@ export class PlaylistController {
   async addMusicsToPlaylist(
     @UserId() userId: string,
     @Param('id') playlistId: string,
-    @Body() dto: AddMusicToPlaylistReqDto,
-  ): Promise<{ ok: true }> {
+    @Body() dto: AddMusicsToPlaylistReqDto,
+  ): Promise<AddMusicsToPlaylistResDto> {
     const { musics } = dto;
-    await this.playlistService.addMusics(userId, playlistId, musics);
-    return { ok: true };
+    const addedMusics = await this.playlistService.addMusics(
+      userId,
+      playlistId,
+      musics,
+    );
+    return { addedMusics };
   }
 
   // 플리 음악 순서 변경

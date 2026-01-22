@@ -27,24 +27,14 @@ export class UserController {
     const { id, nickname, profileImgUrl } = user;
     return { id, nickname, profileImgUrl };
   }
-  @UseGuards(AuthOptionalGuard)
-  @Get(':userId')
-  async getUser(
-    @Param('userId') targetUserId: string,
-    @UserId() userId?: string,
-  ): Promise<GetUserDto> {
-    const user = await this.userService.getUserProfile(targetUserId, userId);
-
-    return user;
-  }
 
   @UseGuards(AuthOptionalGuard)
   @Get('search')
   async searchUsers(
     @Query('q') keyword: string,
     @UserId() userId?: string,
-    @Query('cursor') cursor?: string,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
+    @Query('cursor') cursor?: string,
   ): Promise<SearchUsersResDto> {
     const users = await this.userService.searchUsers(
       keyword,
@@ -54,5 +44,16 @@ export class UserController {
     );
 
     return users;
+  }
+
+  @UseGuards(AuthOptionalGuard)
+  @Get(':userId')
+  async getUser(
+    @Param('userId') targetUserId: string,
+    @UserId() userId?: string,
+  ): Promise<GetUserDto> {
+    const user = await this.userService.getUserProfile(targetUserId, userId);
+
+    return user;
   }
 }

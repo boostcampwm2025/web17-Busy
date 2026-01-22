@@ -5,6 +5,7 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 import type { PlaylistDetail } from '@/hooks';
 import { createPost } from '@/api';
 import { DEFAULT_IMAGES } from '@/constants';
+import { reorder } from '@/utils';
 import { useFeedRefreshStore } from '@/stores';
 
 type Options = {
@@ -45,20 +46,6 @@ const toMusicPayload = (m: Music) => ({
   provider: m.provider,
   durationMs: m.durationMs,
 });
-
-const reorder = <T>(arr: T[], index: number, direction: 'up' | 'down'): T[] => {
-  const next = [...arr];
-  const swapIndex = direction === 'up' ? index - 1 : index + 1;
-
-  const a = next[index];
-  const b = next[swapIndex];
-
-  if (!a || !b) return next;
-
-  next[index] = b;
-  next[swapIndex] = a;
-  return next;
-};
 
 export const useContentWrite = ({ initialMusic, onSuccess }: Options): Return => {
   const [selectedMusics, setSelectedMusics] = useState<Music[]>(initialMusic ? [initialMusic] : []);
