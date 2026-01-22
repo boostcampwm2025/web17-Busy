@@ -1,10 +1,16 @@
 'use client';
 
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { ContentWriteModal, PostCardDetailModal, LoginModal, MobilePlayerModal } from './index';
-import { UserListModal } from './UserListModal';
+import {
+  ContentWriteModal,
+  PostCardDetailModal,
+  LoginModal,
+  MobilePlayerModal,
+  UserListModal,
+  PlaylistDetailModal,
+  PlaylistPickerModal,
+} from './index';
 import { getFollowerUsers, getFollowingUsers } from '@/api';
-import { PlaylistDetailModal } from './PlaylistDetailModal';
 
 export default function ModalContainer() {
   const { isOpen, modalType, modalProps } = useModalStore();
@@ -33,6 +39,9 @@ export default function ModalContainer() {
 
       {/* 7. 플레이리스트 상세 모달 */}
       {modalType === MODAL_TYPES.PLAYLIST_DETAIL && <PlaylistDetailModal playlistId={modalProps.playlistId} />}
+
+      {/* 8. 보관함 저장(플레이리스트 선택) 모달 */}
+      {modalType === MODAL_TYPES.PLAYLIST_PICKER && <PlaylistPickerModal />}
     </>
   );
 }
