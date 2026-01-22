@@ -68,8 +68,9 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
           <button
             type="button"
             onClick={handleArchive}
+            disabled={isEmpty}
             title={'보관함 플레이리스트 저장'}
-            className="p-2 bg-white border-2 border-primary rounded-md  cursor-not-allowed"
+            className="p-2 bg-white border-2 border-primary rounded-md  disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Box className="w-4 h-4" />
           </button>
@@ -77,8 +78,9 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
           <button
             type="button"
             onClick={handleAdd}
+            disabled={isEmpty}
             title={'새로운 컨텐츠 작성'}
-            className="p-2 bg-accent-pink text-white border-2 border-primary rounded-md  cursor-not-allowed"
+            className="p-2 bg-accent-pink text-white border-2 border-primary rounded-md  disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-4 h-4" />
           </button>
