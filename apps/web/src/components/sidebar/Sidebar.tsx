@@ -85,7 +85,7 @@ export default function Sidebar() {
       return;
     }
 
-    if (type === SidebarItemType.PROFILE) {
+    if (type === SidebarItemType.PROFILE || type === SidebarItemType.ARCHIVE || type === SidebarItemType.SETTING) {
       isAuthenticated ? handleMyProfileNavigate() : openModal(MODAL_TYPES.LOGIN);
       return;
     }
