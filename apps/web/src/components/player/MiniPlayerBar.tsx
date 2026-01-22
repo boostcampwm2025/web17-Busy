@@ -2,6 +2,9 @@
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { FolderPlus, Pause, Play, PlusCircle, SkipBack, SkipForward, ListPlus } from 'lucide-react';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useMusicActions } from '@/hooks';
 
 interface MiniPlayerBarProps {
   currentMusic: Music | null;
@@ -17,13 +20,7 @@ interface MiniPlayerBarProps {
   onNext: () => void;
 
   onToggleQueue: () => void;
-
-  /** 이번 이슈에서는 비활성/빈 핸들러 */
-  onPost: () => void;
-  onSave: () => void;
 }
-
-const DISABLED_ACTION_TITLE = '추후 연결 예정';
 
 export default function MiniPlayerBar({
   currentMusic,
@@ -35,10 +32,20 @@ export default function MiniPlayerBar({
   onPrev,
   onNext,
   onToggleQueue,
-  onPost,
-  onSave,
 }: MiniPlayerBarProps) {
   const isPlayable = Boolean(currentMusic);
+
+  /**
+   * NOTE:
+   * - 사용자의 로그인 유무를 체크한다.
+   * - 사용자가 보관함 추가와 컨텐츠 생성 버튼을 누를 때 로그인 유무로 지원한다.
+   * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
+   */
+  const { userId, isAuthenticated } = useAuthMe();
+  const { openModal } = useModalStore();
+
+  /** 보관함 추가와 컨텐츠 생성을 위한 함수  */
+  const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
   const handleTogglePlayClick = () => {
     if (!isPlayable) {
@@ -65,12 +72,24 @@ export default function MiniPlayerBar({
     onToggleQueue();
   };
 
-  const handlePostClick = () => {
-    onPost();
+  const handlePostClick = async () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
+    if (!currentMusic) return;
+    // DB upsert 포함(내부 ensureMusicInDb)
+    await openWriteModalWithMusic(currentMusic);
   };
 
-  const handleSaveClick = () => {
-    onSave();
+  const handleSaveClick = async () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
+    if (!currentMusic) return;
+    // DB upsert 포함(내부 ensureMusicInDb)
+    await addMusicToArchive(currentMusic);
   };
 
   const queueTitle = isQueueOpen ? '재생목록 닫기' : '재생목록 열기';
@@ -127,24 +146,11 @@ export default function MiniPlayerBar({
           <ListPlus className="w-5 h-5" />
         </button>
 
-        {/* Quick Actions: 이번 이슈에서는 disabled */}
-        <button
-          type="button"
-          onClick={handlePostClick}
-          disabled
-          title={DISABLED_ACTION_TITLE}
-          className="p-2 text-gray-2 opacity-50 cursor-not-allowed"
-        >
+        <button type="button" onClick={handlePostClick} title={'컨텐츠 생성'} className="p-2 text-primary">
           <PlusCircle className="w-5 h-5" />
         </button>
 
-        <button
-          type="button"
-          onClick={handleSaveClick}
-          disabled
-          title={DISABLED_ACTION_TITLE}
-          className="p-2 text-gray-2 opacity-50 cursor-not-allowed"
-        >
+        <button type="button" onClick={handleSaveClick} title={'보관함 선택 후 추가'} className="p-2 text-primary">
           <FolderPlus className="w-5 h-5" />
         </button>
       </div>
