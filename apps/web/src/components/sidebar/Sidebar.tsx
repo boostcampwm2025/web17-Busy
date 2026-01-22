@@ -94,6 +94,10 @@ export default function Sidebar() {
   };
 
   const handleOpenWriteModal = () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
     openModal(MODAL_TYPES.WRITE);
   };
 

@@ -1,6 +1,5 @@
 import { internalClient } from './client';
-import type { GetUserDto as Profile } from '@repo/dto';
-import type { SearchUsersResDto } from '@repo/dto';
+import type { GetUserDto as Profile, SearchUsersResDto } from '@repo/dto';
 
 /** [GET] 사용자 프로필 정보 요청 */
 export const getUser = async (userId: string): Promise<Profile> => {
@@ -8,8 +7,10 @@ export const getUser = async (userId: string): Promise<Profile> => {
   return data;
 };
 
-export const searchUsers = async (q: string): Promise<SearchUsersResDto> => {
-  const encoded = encodeURIComponent(q.trim());
-  const { data } = await internalClient.get<SearchUsersResDto>(`/user/search?q=${encoded}`);
+/** [GET] 사용자 검색 (cursor 기반) */
+export const searchUsers = async (q: string, cursor?: string, limit?: number): Promise<SearchUsersResDto> => {
+  const { data } = await internalClient.get<SearchUsersResDto>('/user/search', {
+    params: { q: q.trim(), cursor, limit },
+  });
   return data;
 };
