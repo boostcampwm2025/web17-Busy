@@ -7,19 +7,29 @@ import {
   DeleteFollowDto,
   GetUserFollowDto,
   UserDto,
+  NotiType,
 } from '@repo/dto';
+import { NotiService } from '../noti/noti.service';
 
 @Injectable()
 export class FollowService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly followRepository: FollowRepository,
+    private readonly notiService: NotiService,
   ) {}
 
   async addFollow(userId: string, createFollowDto: CreateFollowDto) {
     const { otherUserId } = createFollowDto;
 
     await this.followRepository.createFollow(userId, otherUserId);
+
+    await this.notiService.create({
+      type: NotiType.FOLLOW,
+      receiverId: userId,
+      actorId: otherUserId,
+    });
+
     return { message: '팔로우 성공' };
   }
 
