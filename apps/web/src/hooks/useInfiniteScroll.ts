@@ -24,7 +24,7 @@ export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteS
   const [errorMsg, setErrorMsg] = useState<string | null>(null); // 추가 데이터 fetch 오류
   // 초기 데이터 로드 관련 state
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-
+  const [initialError, setInitialError] = useState<Error | null>(null); // 초기 데이터 fetch 오류
   const prevResetKeyRef = useRef<string | undefined>(undefined);
   const initialLoadedRef = useRef(false); // 초기 데이터 fetch 재호출 방지 가드
 
@@ -45,6 +45,7 @@ export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteS
     setErrorMsg(null);
 
     setIsInitialLoading(true);
+    setInitialError(null);
   }, []);
 
   /** 초기 데이터 fetch 함수 */
@@ -111,6 +112,7 @@ export default function useInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteS
     nextCursor,
     isLoading,
     isInitialLoading,
+    initialError,
     errorMsg,
     ref,
     reset,
