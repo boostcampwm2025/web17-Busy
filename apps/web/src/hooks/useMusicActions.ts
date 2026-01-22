@@ -45,12 +45,10 @@ export default function useMusicActions() {
     openModal(MODAL_TYPES.WRITE, { initialMusic: ensured });
   };
 
-  /** TODO: 보관함 저장도 동일하게 ensure 후 처리 */
-  const addMusicToArchive = async (track: Music, playlistId: string) => {
+  /** 보관함 저장: music DB에 보장 후 플레이리스트 선택 모달 오픈 */
+  const addMusicToArchive = async (track: Music) => {
     const ensured = await ensureMusicInDb(track);
-    // TODO: playlist API 확정 후 연결
-    void playlistId;
-    void ensured;
+    openModal(MODAL_TYPES.PLAYLIST_PICKER, { music: ensured });
   };
 
   return {
