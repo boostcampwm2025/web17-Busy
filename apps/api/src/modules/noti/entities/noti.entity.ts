@@ -36,7 +36,7 @@ export class Noti {
   @Column('char', { name: 'related_id', length: 36, nullable: true })
   relatedId: string;
 
-  @Column('bool', { name: 'is_read', nullable: false })
+  @Column('bool', { name: 'is_read', nullable: false, default: false })
   isRead: boolean;
 
   @CreateDateColumn({ name: 'created_at' })

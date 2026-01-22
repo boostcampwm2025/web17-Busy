@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PostResponseDto as Post } from '@repo/dto';
 import { getPostDetail } from '@/api/internal/post';
 
@@ -16,11 +16,6 @@ type Result = {
   error: string | null;
 };
 
-/**
- * usePostDetail
- * - postId가 있고 passedPost가 없으면: /post/:postId fetch
- * - passedPost가 있고 id가 postId와 일치하면: passedPost 사용(fetch skip)
- */
 export function usePostDetail({ enabled, postId, passedPost }: Params): Result {
   const matchedPost = useMemo(() => {
     if (!postId || !passedPost) return null;
@@ -30,6 +25,8 @@ export function usePostDetail({ enabled, postId, passedPost }: Params): Result {
   const [post, setPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     if (!enabled) {
@@ -46,6 +43,7 @@ export function usePostDetail({ enabled, postId, passedPost }: Params): Result {
       return;
     }
 
+    // passedPost가 정확히 일치하면 즉시 사용 (fetch skip)
     if (matchedPost) {
       setPost(matchedPost);
       setIsLoading(false);
@@ -53,30 +51,33 @@ export function usePostDetail({ enabled, postId, passedPost }: Params): Result {
       return;
     }
 
-    let cancelled = false;
+    // postId 기준으로 항상 새 요청 보장
+    setPost(null);
+    setError(null);
+    setIsLoading(true);
+
+    const myReqId = ++requestIdRef.current;
 
     const run = async () => {
-      setIsLoading(true);
-      setError(null);
-
       try {
         const detail = await getPostDetail(postId);
-        if (cancelled) return;
+        if (requestIdRef.current !== myReqId) return;
+
         setPost(detail);
+        setError(null);
       } catch (e) {
-        if (cancelled) return;
+        if (requestIdRef.current !== myReqId) return;
+
         setPost(null);
         setError(e instanceof Error ? e.message : 'failed to fetch post detail');
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (requestIdRef.current === myReqId) {
+          setIsLoading(false);
+        }
       }
     };
 
     void run();
-
-    return () => {
-      cancelled = true;
-    };
   }, [enabled, postId, matchedPost]);
 
   return { post, isLoading, error };

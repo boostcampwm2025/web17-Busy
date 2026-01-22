@@ -1,5 +1,5 @@
 export const MOCK_PROFILE = {
-  userId: '11111111-1111-1111-1111-111111111111',
+  id: '11111111-1111-1111-1111-111111111111',
   nickname: '테스트 사용자 1',
   profileImgUrl: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y&s=128',
   bio: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',

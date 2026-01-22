@@ -1,25 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { getUserProfileInfo, getUserProfilePosts } from '@/api';
+import { getUser, getUserProfilePosts } from '@/api';
 import { useInfiniteScroll } from '@/hooks';
+import { useProfileStore } from '@/stores';
 import { ProfileSkeleton } from '../skeleton';
-import ProfileInfo from './ProfileInfo/ProfileInfo';
+import { ProfileInfo } from './ProfileInfo';
 import ProfilePosts from './ProfilePosts';
 import LoadingSpinner from '../LoadingSpinner';
 
-// TODO: dto로 대체
-interface ProfileInfo {
-  userId: string;
-  nickname: string;
-  profileImgUrl: string;
-  bio: string;
-  followerCount: number;
-  followingCount: number;
-  isFollowing: boolean;
-}
-
 export default function ProfileView({ userId }: { userId: string }) {
+  const { profile, setProfile } = useProfileStore();
+
   /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
   const fetchProfilePosts = useCallback(
     async (cursor?: string, limit?: number) => {
@@ -29,15 +21,14 @@ export default function ProfileView({ userId }: { userId: string }) {
     [userId],
   );
 
-  const { items, hasNext, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
-  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null);
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
   const [renderError, setRenderError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const info = await getUserProfileInfo(userId);
-        setProfileInfo(info);
+        const info = await getUser(userId);
+        setProfile(info);
       } catch (err) {
         console.error('프로필 데이터 fetch 실패', err);
         if (err instanceof Error) {
@@ -49,21 +40,18 @@ export default function ProfileView({ userId }: { userId: string }) {
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, setProfile]);
 
-  // 렌더링 단계에서 발생하는 에러 처리 (데이터 최초 fetch 관련)
+  // 프로필 사용자 정보 렌더링 단계에서 발생하는 에러 throw (무한스크롤 에러는 throw 없이 메시지만 표시)
   if (renderError) throw renderError;
-  if (initialError) throw initialError;
 
-  // 최초 요청 처리 중에만 스켈레톤 표시
-  if (isInitialLoading || !profileInfo) return <ProfileSkeleton />;
+  // 최초 요청 처리 중이거나, 스토어의 프로필 id와 현재 페이지의 프로필 id가 다를 때 스켈레톤 표시
+  if (isInitialLoading || !profile || profile.id !== userId) return <ProfileSkeleton />;
 
   return (
-    <>
-      <div className="mx-auto p-6 md:p-10 gap-y-4">
-        <ProfileInfo profile={profileInfo} />
-        <ProfilePosts posts={items} />
-      </div>
+    <div className="mx-auto p-6 md:p-10 gap-y-4">
+      <ProfileInfo profile={profile} />
+      <ProfilePosts posts={items} />
       {errorMsg && (
         <div className="text-center">
           <p>{errorMsg}</p>
@@ -75,6 +63,6 @@ export default function ProfileView({ userId }: { userId: string }) {
           <LoadingSpinner hStyle="py-6" />
         </div>
       )}
-    </>
+    </div>
   );
 }

@@ -36,6 +36,7 @@ export class LikeRepository {
         createdAt: true,
         user: {
           id: true,
+          nickname: true,
           profileImgUrl: true,
         },
       },

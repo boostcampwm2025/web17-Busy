@@ -6,6 +6,7 @@ import type { PlaylistDetail } from '@/hooks';
 import { createPost } from '@/api';
 import { DEFAULT_IMAGES } from '@/constants';
 import { reorder } from '@/utils';
+import { useFeedRefreshStore } from '@/stores';
 
 type Options = {
   initialMusic?: Music;
@@ -120,6 +121,9 @@ export const useContentWrite = ({ initialMusic, onSuccess }: Options): Return =>
     if (customCoverFile) fd.append('coverImgUrl', customCoverFile);
 
     await createPost(fd);
+
+    // 피드 무한스크롤 초기화/재조회 트리거
+    useFeedRefreshStore.getState().bump();
     onSuccess();
   };
 

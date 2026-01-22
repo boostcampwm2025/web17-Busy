@@ -69,7 +69,5 @@ export class DevSeedService implements OnApplicationBootstrap {
     await this.notiRepo.save(SEED_NOTIS);
     await this.playlistRepo.save(SEED_PLAYLISTS);
     await this.pmRepo.save(SEED_PLAYLIST_MUSICS);
-
-    console.log('seeding completed');
   }
 }
