@@ -19,7 +19,7 @@ function getHintMessage(trimmed: string): string | undefined {
 
 function SearchDrawerInner({ enabled = true }: Props) {
   const { userId, isAuthenticated } = useAuthMe();
-  const { addMusicToPlayer } = useMusicActions();
+  const { addMusicToPlayer, openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
   const { query, setQuery, clearQuery, mode, itunes, users, active, followOverrides, setFollowState } = useSearchDrawer({ enabled });
 
@@ -34,7 +34,14 @@ function SearchDrawerInner({ enabled = true }: Props) {
     if (active.status === 'empty') return <SearchStateMessage variant="empty" />;
 
     if (mode === 'music') {
-      return <MusicSearchResults musics={itunes.results} onPlay={addMusicToPlayer} />;
+      return (
+        <MusicSearchResults
+          musics={itunes.results}
+          onPlay={addMusicToPlayer}
+          onAddToArchive={addMusicToArchive}
+          onOpenWrite={openWriteModalWithMusic}
+        />
+      );
     }
 
     return (
