@@ -2,6 +2,8 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import { coalesceImageSrc } from '@/utils';
+import { DEFAULT_IMAGES } from '@/constants';
 
 type Args = {
   post: Post;
@@ -22,8 +24,8 @@ export function usePostMedia({ post, currentMusicId, isPlayingGlobal }: Args) {
 
   // 0번째는 무조건 커버이미지
   const coverUrl = useMemo(() => {
-    if (activeIndex === 0) return post.coverImgUrl;
-    return activeMusic?.albumCoverUrl ?? post.coverImgUrl;
+    const raw = activeIndex === 0 ? post.coverImgUrl : (activeMusic?.albumCoverUrl ?? post.coverImgUrl);
+    return coalesceImageSrc(raw, DEFAULT_IMAGES.ALBUM); // 빈 문자열 방지
   }, [activeIndex, activeMusic, post.coverImgUrl]);
 
   const isActivePlaying = Boolean(activeMusic && isPlayingGlobal && currentMusicId === activeMusic.id);

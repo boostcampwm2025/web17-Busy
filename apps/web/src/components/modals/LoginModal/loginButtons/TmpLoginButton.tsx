@@ -22,6 +22,9 @@ export const TmpLoginButton = ({ userId, nickname }: { userId: string; nickname:
 
     setLoading(false);
     closeModal();
+
+    // 인증 상태 반영을 위해 리로드(로그아웃과 동일 전략)
+    window.location.assign('/');
   };
 
   return (

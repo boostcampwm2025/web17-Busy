@@ -49,11 +49,13 @@ export class CommentService {
     });
 
     // 알림 생성은 await 안 함
-    this.notiService.create({
-      type: NotiType.COMMENT,
-      actorId: userId,
-      relatedId: postId,
-    });
+    void this.notiService
+      .create({
+        type: NotiType.COMMENT,
+        actorId: userId,
+        relatedId: postId,
+      })
+      .catch(() => {});
 
     return txResult;
   }

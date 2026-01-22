@@ -1,4 +1,4 @@
-interface UserDto {
+export interface SearchUserDto {
   id: string;
   nickname: string;
   profileImgUrl: string | null;
@@ -6,7 +6,7 @@ interface UserDto {
 }
 
 export class SearchUsersResDto {
-  users: UserDto[];
+  users: SearchUserDto[];
   hasNext: boolean;
   nextCursor?: string;
 }
