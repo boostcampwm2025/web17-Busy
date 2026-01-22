@@ -96,4 +96,9 @@ export class AuthController {
     this.logger.warn('spotify/token is not implemented yet');
     return;
   }
+
+  @Get('check')
+  healthCheck() {
+    return { status: 'ok' };
+  }
 }
