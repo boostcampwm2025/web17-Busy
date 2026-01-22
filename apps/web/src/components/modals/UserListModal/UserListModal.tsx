@@ -3,13 +3,13 @@
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ProfileActionButton } from '@/components/profile';
 import { DEFAULT_IMAGES } from '@/constants';
-import { useInfiniteScroll } from '@/hooks';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import type { GetUserFollowDto } from '@repo/dto';
 import { useModalStore, useProfileStore } from '@/stores';
-import { GetUserFollowDto } from '@repo/dto';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
+import { useInfiniteScroll } from '@/hooks';
 
 interface UserListModalProps {
   title: string;

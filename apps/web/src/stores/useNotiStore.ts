@@ -1,5 +1,5 @@
 import { fetchNotis, markNotiRead } from '@/api/noti/fetchNotis';
-import { NotiResponseDto } from '@repo/dto';
+import type { NotiResponseDto } from '@repo/dto';
 import { create } from 'zustand';
 
 type NotiFetchState = 'idle' | 'loading' | 'success' | 'error' | 'no-login';

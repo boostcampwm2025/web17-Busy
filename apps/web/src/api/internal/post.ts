@@ -1,4 +1,4 @@
-import { FeedResponseDto as Feed, FindByUserDto, PostResponseDto as Post } from '@repo/dto';
+import type { FeedResponseDto as Feed, PostResponseDto as Post, FindByUserDto } from '@repo/dto';
 import { internalClient } from './client';
 
 const DEFAULT_FEED_LIMIT = 12;

@@ -1,4 +1,4 @@
-import { UserDto } from '@repo/dto';
+import type { UserDto } from '@repo/dto';
 import { internalClient } from './client';
 
 export async function logout() {

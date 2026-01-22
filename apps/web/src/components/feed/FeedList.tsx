@@ -3,7 +3,7 @@
 import { usePlayerStore } from '@/stores';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { PostCard } from '@/components';
-import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 import { useRouter } from 'next/navigation';
 
 interface FeedListProps {

@@ -2,7 +2,7 @@
 
 import { useInfiniteScroll } from '@/hooks';
 import { getFeedPosts } from '@/api';
-import { PostResponseDto as Post } from '@repo/dto';
+import type { PostResponseDto as Post } from '@repo/dto';
 import { FeedSkeleton } from '../skeleton';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';

@@ -1,4 +1,5 @@
-import { NotiRelatedType, NotiResponseDto } from '@repo/dto';
+import { NotiRelatedType } from '@repo/dto/values';
+import type { NotiResponseDto } from '@repo/dto';
 import { NotiView } from './noti.types';
 import { formatRelativeTime, coalesceImageSrc } from '@/utils';
 import { DEFAULT_IMAGES } from '@/constants';

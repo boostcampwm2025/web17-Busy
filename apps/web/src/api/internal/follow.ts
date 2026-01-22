@@ -1,5 +1,5 @@
 import { internalClient } from './client';
-import { CreateFollowDto, DeleteFollowDto, GetUserFollowDto } from '@repo/dto';
+import type { GetUserFollowDto } from '@repo/dto';
 
 const DEFAULT_FOLLOW_LIMIT = 10;
 

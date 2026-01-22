@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { usePostMedia } from '@/hooks';
-import { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 type Variant = 'card' | 'modal';
 

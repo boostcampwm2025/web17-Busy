@@ -1,6 +1,6 @@
 'use client';
 
-import { MusicResponseDto as Music } from '@repo/dto';
+import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Play, PlusCircle } from 'lucide-react';
 
 interface TrackItemProps {
