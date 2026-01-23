@@ -1,60 +1,34 @@
 const MS = {
-  second: 1_000,
   minute: 60_000,
   hour: 3_600_000,
   day: 86_400_000,
 } as const;
 
-export type FutureMode = 'just-now' | 'in';
-
-const parseIsoToMs = (iso: string, assumeUtcWhenNoTz = false): number | null => {
-  const raw = (iso ?? '').trim();
-  if (!raw) return null;
-
-  const hasTz = raw.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(raw) || /[+-]\d{4}$/.test(raw);
-
-  const normalized = !hasTz && assumeUtcWhenNoTz ? raw.replace(' ', 'T') + 'Z' : raw.replace(' ', 'T');
-
-  const t = new Date(normalized).getTime();
-  return Number.isFinite(t) ? t : null;
-};
-
-const formatKoreanRelative = (diffMs: number): string => {
-  if (diffMs < MS.minute) return '방금 전';
-  if (diffMs < MS.hour) return `${Math.floor(diffMs / MS.minute)}분 전`;
-  if (diffMs < MS.day) return `${Math.floor(diffMs / MS.hour)}시간 전`;
-  return `${Math.floor(diffMs / MS.day)}일 전`;
-};
-
-const formatKoreanFuture = (diffMs: number): string => {
-  if (diffMs < MS.minute) return '잠시 후';
-  if (diffMs < MS.hour) return `${Math.floor(diffMs / MS.minute)}분 후`;
-  if (diffMs < MS.day) return `${Math.floor(diffMs / MS.hour)}시간 후`;
-  return `${Math.floor(diffMs / MS.day)}일 후`;
-};
-
 /**
- * 상대 시간 표시 (한국어)
- * @param iso 서버에서 내려온 createdAt (ISO 권장)
- * @param assumeUtcWhenNoTz "YYYY-MM-DD HH:mm:ss" 같은 TZ 없는 문자열을 UTC로 간주할지
- * @param futureMode 서버/DB 시간이 미래로 찍혔을 때 처리 정책
+ * ISO(UTC 'Z' 포함 권장)를 상대시간 문자열로 변환합니다.
+ * - createdAt이 "미래"로 들어오는 경우(타임존/서버시간 불일치)도 방어 처리합니다.
  */
-export const formatRelativeTime = (iso: string, assumeUtcWhenNoTz = false, futureMode: FutureMode = 'just-now'): string => {
-  const createdAt = parseIsoToMs(iso, assumeUtcWhenNoTz);
-  if (createdAt === null) return '';
+export const formatRelativeTime = (iso: string): string => {
+  const createdAt = new Date(iso).getTime();
+  if (!Number.isFinite(createdAt)) return '';
 
   const diff = Date.now() - createdAt;
 
+  // 미래(서버/DB/클라 시간 불일치) 방어: 1분 이내 미래는 '방금 전'으로 처리
   if (diff < 0) {
-    const abs = Math.abs(diff);
-    return futureMode === 'in' ? formatKoreanFuture(abs) : '방금 전';
+    if (Math.abs(diff) < MS.minute) return '방금 전';
+    // 미래가 크게 나오면 일단 '방금 전'으로 뭉개지 말고 '방금 전' 대신 표기
+    return '방금 전';
   }
 
-  return formatKoreanRelative(diff);
+  if (diff < MS.minute) return '방금 전';
+  if (diff < MS.hour) return `${Math.floor(diff / MS.minute)}분 전`;
+  if (diff < MS.day) return `${Math.floor(diff / MS.hour)}시간 전`;
+  return `${Math.floor(diff / MS.day)}일 전`;
 };
 
 export const formatMs = (ms: number): string => {
-  const safe = Number.isFinite(ms) ? Math.max(0, ms) : 0;
+  const safe = Math.max(0, ms);
   const totalSeconds = Math.floor(safe / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
