@@ -68,10 +68,7 @@ export default function RightPanel() {
     playMusic(music);
   };
 
-  const handleDisabledPost = () => {};
-  const handleDisabledSave = () => {};
-  const handleDisabledShuffle = () => {};
-  const handleDisabledRepeat = () => {};
+  const handleShuffle = () => {};
 
   return (
     <>
@@ -85,8 +82,6 @@ export default function RightPanel() {
         onPrev={handlePrev}
         onNext={handleNext}
         onToggleQueue={handleToggleQueue}
-        onPost={handleDisabledPost}
-        onSave={handleDisabledSave}
       />
 
       <section className="hidden lg:flex flex-col h-full w-full bg-white">
@@ -100,10 +95,7 @@ export default function RightPanel() {
           onTogglePlay={handleTogglePlay}
           onPrev={handlePrev}
           onNext={handleNext}
-          onShuffle={handleDisabledShuffle}
-          onRepeat={handleDisabledRepeat}
-          onPost={handleDisabledPost}
-          onSave={handleDisabledSave}
+          onShuffle={handleShuffle}
           onSeek={seekToMs}
         />
 

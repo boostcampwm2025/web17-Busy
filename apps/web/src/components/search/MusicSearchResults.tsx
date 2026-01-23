@@ -5,16 +5,15 @@ import { TrackItem } from './index';
 
 type Props = {
   musics: Music[];
-  onPlay: (music: Music) => void;
-  onAddToArchive: (track: Music, playlistId: string) => void;
-  onOpenWrite: (music: Music) => void;
+  meId: string | null;
+  isAuthenticated: boolean;
 };
 
-export default function MusicSearchResults({ musics, onPlay, onAddToArchive, onOpenWrite }: Props) {
+export default function MusicSearchResults({ musics, meId, isAuthenticated }: Props) {
   return (
     <div className="space-y-1">
       {musics.map((music) => (
-        <TrackItem key={music.id} music={music} disabledActions onPlay={onPlay} onAddToArchive={onAddToArchive} onOpenWrite={onOpenWrite} />
+        <TrackItem key={music.id} music={music} meId={meId} isAuthenticated={isAuthenticated} />
       ))}
     </div>
   );

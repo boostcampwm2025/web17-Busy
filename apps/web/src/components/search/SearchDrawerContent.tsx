@@ -5,22 +5,14 @@ import { useMemo } from 'react';
 import { LoadingSpinner } from '@/components';
 import { SearchInput, SearchStateMessage, MusicSearchResults, UserSearchResults } from './index';
 
-import { ITUNES_SEARCH } from '@/constants';
+import { getHintMessage } from '@/utils';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { useMusicActions, useSearchDrawer } from '@/hooks';
+import { useSearchDrawer } from '@/hooks';
 
 type Props = { enabled?: boolean };
 
-function getHintMessage(trimmed: string): string | undefined {
-  const needMin = trimmed.length > 0 && trimmed.length < ITUNES_SEARCH.MIN_QUERY_LENGTH;
-  if (!needMin) return undefined;
-  return `${ITUNES_SEARCH.MIN_QUERY_LENGTH}글자 이상 입력해주세요.`;
-}
-
 function SearchDrawerInner({ enabled = true }: Props) {
   const { userId, isAuthenticated } = useAuthMe();
-  const { addMusicToPlayer, openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
-
   const { query, setQuery, clearQuery, mode, itunes, users, active, followOverrides, setFollowState } = useSearchDrawer({ enabled });
 
   const hintMessage = useMemo(() => getHintMessage(active.trimmedQuery), [active.trimmedQuery]);
@@ -34,14 +26,7 @@ function SearchDrawerInner({ enabled = true }: Props) {
     if (active.status === 'empty') return <SearchStateMessage variant="empty" />;
 
     if (mode === 'music') {
-      return (
-        <MusicSearchResults
-          musics={itunes.results}
-          onPlay={addMusicToPlayer}
-          onAddToArchive={addMusicToArchive}
-          onOpenWrite={openWriteModalWithMusic}
-        />
-      );
+      return <MusicSearchResults musics={itunes.results} meId={userId} isAuthenticated={isAuthenticated} />;
     }
 
     return (

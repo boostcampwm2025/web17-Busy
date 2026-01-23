@@ -5,6 +5,10 @@ import { Pause, Play, Shuffle, SkipBack, SkipForward, PlusCircle, FolderPlus } f
 import { useMemo } from 'react';
 import { usePlayerStore } from '@/stores';
 import { VolumeControl, SeekBar } from './index';
+import { useMusicActions, useSearchDrawer } from '@/hooks';
+import { useModalStore, MODAL_TYPES } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { formatMs } from '@/utils';
 
 interface NowPlayingProps {
   currentMusic: Music | null;
@@ -21,27 +25,11 @@ interface NowPlayingProps {
   onNext: () => void;
 
   onShuffle: () => void;
-  onRepeat: () => void;
-
-  onPost: () => void;
-  onSave: () => void;
-
   onSeek: (ms: number) => void;
 }
 
-const DISABLED_ACTION_TITLE = '추후 연결 예정';
-
-const formatMs = (ms: number): string => {
-  const safe = Math.max(0, ms);
-  const totalSeconds = Math.floor(safe / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-};
-
 export default function NowPlaying(props: NowPlayingProps) {
-  const { currentMusic, isPlaying, canPrev, canNext, positionMs, durationMs, onTogglePlay, onPrev, onNext, onShuffle, onRepeat, onPost, onSave } =
-    props;
+  const { currentMusic, isPlaying, canPrev, canNext, positionMs, durationMs, onTogglePlay, onPrev, onNext, onShuffle } = props;
 
   const isPlayable = Boolean(currentMusic);
 
@@ -49,6 +37,18 @@ export default function NowPlaying(props: NowPlayingProps) {
   const setVolume = usePlayerStore((s) => s.setVolume);
   const playError = usePlayerStore((s) => s.playError);
   const setPlayError = usePlayerStore((s) => s.setPlayError);
+
+  /**
+   * NOTE:
+   * - 사용자의 로그인 유무를 체크한다.
+   * - 사용자가 보관함 추가와 컨텐츠 생성 버튼을 누를 때 로그인 유무로 지원한다.
+   * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
+   */
+  const { userId, isAuthenticated } = useAuthMe();
+  const { openModal } = useModalStore();
+
+  /** 보관함 추가와 컨텐츠 생성을 위한 함수  */
+  const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
   const shownDurationMs = useMemo(() => {
     if (!currentMusic) return 0;
@@ -76,11 +76,35 @@ export default function NowPlaying(props: NowPlayingProps) {
     onNext();
   };
 
-  const handleShuffleClick = () => onShuffle();
-  const handleRepeatClick = () => onRepeat();
-  const handlePostClick = () => onPost();
-  const handleSaveClick = () => onSave();
+  const handleShuffleClick = () => {
+    onShuffle();
+  };
 
+  const handlePostClick = async () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
+
+    if (!currentMusic) return;
+
+    // DB upsert 포함(내부 ensureMusicInDb)
+    await openWriteModalWithMusic(currentMusic);
+  };
+
+  const handleSaveClick = async () => {
+    if (!isAuthenticated) {
+      openModal(MODAL_TYPES.LOGIN);
+      return;
+    }
+
+    if (!currentMusic) return;
+
+    // DB upsert 포함(내부 ensureMusicInDb)
+    await addMusicToArchive(currentMusic);
+  };
+
+  // currentMusic 없음 UI
   if (!currentMusic) {
     return (
       <div className="p-4 border-b-2 border-primary">
@@ -122,6 +146,7 @@ export default function NowPlaying(props: NowPlayingProps) {
     );
   }
 
+  // currentMusic 있음 UI
   return (
     <div className="p-4 border-b-2 border-primary">
       <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-2 text-center">Now Playing</h2>
@@ -144,8 +169,7 @@ export default function NowPlaying(props: NowPlayingProps) {
         <button
           type="button"
           onClick={handlePostClick}
-          disabled
-          title={DISABLED_ACTION_TITLE}
+          title={'컨텐츠 작성'}
           className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-white font-bold text-xs opacity-50 cursor-not-allowed"
         >
           <PlusCircle className="w-4 h-4" />
@@ -155,8 +179,7 @@ export default function NowPlaying(props: NowPlayingProps) {
         <button
           type="button"
           onClick={handleSaveClick}
-          disabled
-          title={DISABLED_ACTION_TITLE}
+          title={'보관함에 음악 추가'}
           className="flex items-center gap-1 px-3 py-1.5 rounded-full border-2 border-primary text-primary font-bold text-xs opacity-50 cursor-not-allowed"
         >
           <FolderPlus className="w-4 h-4" />
@@ -174,13 +197,7 @@ export default function NowPlaying(props: NowPlayingProps) {
       </div>
 
       <div className="flex items-center justify-center gap-4">
-        <button
-          type="button"
-          onClick={handleShuffleClick}
-          disabled
-          title={DISABLED_ACTION_TITLE}
-          className="text-gray-2 opacity-50 cursor-not-allowed"
-        >
+        <button type="button" onClick={handleShuffleClick} disabled title={'랜덤 재생 버튼'} className="text-gray-2 opacity-50 cursor-not-allowed">
           <Shuffle className="w-5 h-5" />
         </button>
 

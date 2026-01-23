@@ -15,6 +15,8 @@ const toCreateMusicReqDto = (m: Music): CreateMusicReqDto => ({
   durationMs: m.durationMs,
 });
 
+const normalizeToArray = (v: Music | Music[]): Music[] => (Array.isArray(v) ? v : [v]);
+
 /**
  * NOTE:
  * - 검색(iTunes) 결과는 id가 외부 trackId일 수 있음
@@ -33,29 +35,59 @@ export default function useMusicActions() {
     return saved;
   };
 
+  const ensureMusicsInDb = async (tracks: Music[]): Promise<Music[]> => {
+    // 중복(동일 id) 최소화 + 순서 유지
+    const seen = new Set<string>();
+    const unique = tracks.filter((t) => {
+      const key = t.id ?? `${t.provider}:${t.trackUri}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    const ensured = await Promise.all(unique.map(ensureMusicInDb));
+    return ensured;
+  };
+
   /** 재생: DB에 보장 후 플레이어에 전달 */
   const addMusicToPlayer = async (track: Music) => {
     const ensured = await ensureMusicInDb(track);
     playMusic(ensured);
   };
 
-  /** 작성 모달: DB에 보장 후 initialMusic으로 전달 */
+  /** 작성 모달(단일): DB에 보장 후 initialMusic으로 전달 */
   const openWriteModalWithMusic = async (track: Music) => {
-    const ensured = await ensureMusicInDb(track);
-    openModal(MODAL_TYPES.WRITE, { initialMusic: ensured });
+    const [ensured] = await ensureMusicsInDb([track]);
+    if (!ensured) return;
+    openModal(MODAL_TYPES.WRITE, { initialMusics: [ensured] });
   };
 
-  /** TODO: 보관함 저장도 동일하게 ensure 후 처리 */
-  const addMusicToArchive = async (track: Music, playlistId: string) => {
-    const ensured = await ensureMusicInDb(track);
-    // TODO: playlist API 확정 후 연결
-    void playlistId;
-    void ensured;
+  /** 보관함 저장(단일): music DB에 보장 후 플레이리스트 선택 모달 오픈 */
+  const addMusicToArchive = async (track: Music) => {
+    const [ensured] = await ensureMusicsInDb([track]);
+    if (!ensured) return;
+    openModal(MODAL_TYPES.PLAYLIST_PICKER, { musics: [ensured] });
+  };
+
+  /** 작성 모달(큐 전체) */
+  const openWriteModalWithQueue = async (tracks: Music[]) => {
+    const ensured = await ensureMusicsInDb(tracks);
+    if (ensured.length === 0) return;
+    openModal(MODAL_TYPES.WRITE, { initialMusics: ensured });
+  };
+
+  /** 보관함 저장(큐 전체) */
+  const addQueueToArchive = async (tracks: Music[]) => {
+    const ensured = await ensureMusicsInDb(tracks);
+    if (ensured.length === 0) return;
+    openModal(MODAL_TYPES.PLAYLIST_PICKER, { musics: ensured });
   };
 
   return {
     addMusicToPlayer,
     openWriteModalWithMusic,
     addMusicToArchive,
+    openWriteModalWithQueue,
+    addQueueToArchive,
   };
 }

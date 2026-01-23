@@ -135,6 +135,26 @@ export class PlaylistRepository {
     return await repo.delete({ playlist: { id: playlistId } });
   }
 
+  /**
+   * NOTE:
+   * - 보관함 플레이리스트에 중복 저장 방지를 위한 함수
+   * - 보관함 한 번에 재생에서 오른쪽 패널(현재 재생목록) 에 중복으로 넘어가면 오류가 난다.
+   */
+  async getMusicIdsOfPlaylist(
+    playlistId: string,
+    manager?: EntityManager,
+  ): Promise<string[]> {
+    const repo = this.getPmRepo(manager);
+
+    const rows = await repo
+      .createQueryBuilder('pm')
+      .select('pm.music_id', 'musicId')
+      .where('pm.playlist_id = :playlistId', { playlistId })
+      .getRawMany<{ musicId: string }>();
+
+    return rows.map((r) => r.musicId);
+  }
+
   private getPlaylistRepo(manager?: EntityManager) {
     return manager ? manager.getRepository(Playlist) : this.playlistRepo;
   }

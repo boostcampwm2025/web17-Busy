@@ -33,6 +33,15 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
   const [optimisticLikeCount, setOptimisticLikeCount] = useState(baseLikeCount);
   const [likeSubmitting, setLikeSubmitting] = useState(false);
 
+  const postForActions: Post = useMemo(
+    () => ({
+      ...post,
+      isLiked: optimisticLiked,
+      likeCount: optimisticLikeCount,
+    }),
+    [post, optimisticLiked, optimisticLikeCount],
+  );
+
   /**
    *  핵심: override/서버값 변경 시 로컬 optimistic도 동기화
    * - Detail에서 눌러서 store가 바뀌어도 이 effect로 카드가 즉시 따라감
@@ -43,7 +52,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
     setLikeSubmitting(false);
   }, [post.id, baseLiked, baseLikeCount]);
 
-  const handleOpenDetail = useCallback(() => onOpenDetail(post), [onOpenDetail, post]);
+  const handleOpenDetail = useCallback(() => onOpenDetail(postForActions), [onOpenDetail, postForActions]);
 
   const handleToggleLike = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -76,15 +85,6 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
       setLikeSubmitting(false);
     }
   }, [isAuthenticated, likeSubmitting, optimisticLiked, optimisticLikeCount, post.id, setLikeOverride]);
-
-  const postForActions: Post = useMemo(
-    () => ({
-      ...post,
-      isLiked: optimisticLiked,
-      likeCount: optimisticLikeCount,
-    }),
-    [post, optimisticLiked, optimisticLikeCount],
-  );
 
   return (
     <article
