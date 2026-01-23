@@ -49,7 +49,6 @@ export default function PostHeader({ post, isOwner, onUserClick, onMoreClick }: 
     });
   };
 
-  //const profileImg = post.author.profileImgUrl?.trim() || DEFAULT_IMAGES.PROFILE;
   const profileImg = coalesceImageSrc(post.author.profileImgUrl, DEFAULT_IMAGES.PROFILE);
 
   return (
