@@ -34,8 +34,11 @@ RUN pnpm turbo run build --filter=web...
 
 # 3. Runner 단계: Node.js로 Next.js 서버 실행 (SSR 지원)
 FROM node:20-alpine AS runner
-WORKDIR /app
+RUN apk add --no-cache libc6-compat tzdata
+ENV TZ=UTC
+RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
 
+WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
