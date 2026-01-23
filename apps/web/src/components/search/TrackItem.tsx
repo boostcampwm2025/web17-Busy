@@ -3,16 +3,15 @@
 import { Box, Play, PlusCircle } from 'lucide-react';
 
 import { useModalStore, MODAL_TYPES } from '@/stores';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useMusicActions } from '@/hooks';
 import type { MusicResponseDto as Music } from '@repo/dto';
 interface TrackItemProps {
   music: Music;
+  meId: string | null;
+  isAuthenticated: boolean;
 }
 
-export default function TrackItem({ music }: TrackItemProps) {
-  // 사용자가 로그인이 된 상태인지를 확인해 준다.
-  const { isAuthenticated, isLoading } = useAuthMe();
+export default function TrackItem({ music, meId, isAuthenticated }: TrackItemProps) {
   const { openModal } = useModalStore();
 
   /** 재생 / 작성 모달 / 보관함 선택  */

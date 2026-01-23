@@ -26,7 +26,7 @@ function SearchDrawerInner({ enabled = true }: Props) {
     if (active.status === 'empty') return <SearchStateMessage variant="empty" />;
 
     if (mode === 'music') {
-      return <MusicSearchResults musics={itunes.results} />;
+      return <MusicSearchResults musics={itunes.results} meId={userId} isAuthenticated={isAuthenticated} />;
     }
 
     return (
