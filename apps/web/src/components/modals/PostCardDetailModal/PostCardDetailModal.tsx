@@ -42,7 +42,7 @@ export const PostCardDetailModal = () => {
   });
 
   // post가 로딩 중이면 EMPTY_POST로 UI가 흔들릴 수 있으니, 렌더용만 fallback 처리
-  const safePost = post ?? EMPTY_POST;
+  const safePost = post ?? passedPost ?? EMPTY_POST;
 
   // override 읽기 (postId 없을 때는 undefined)
   const likeOverride = usePostReactionOverridesStore((s) => (postId ? s.likesByPostId[postId] : undefined));
