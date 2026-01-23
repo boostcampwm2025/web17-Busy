@@ -54,6 +54,10 @@ import { UploadModule } from './modules/upload/upload.module';
         database: config.get<string>('DB_DATABASE'),
         entities: [join(__dirname, '**/*.entity.{ts,js}')],
         synchronize: process.env.NODE_ENV !== 'production',
+        timezone: 'Z',
+        extra: {
+          timezone: 'Z',
+        },
       }),
       inject: [ConfigService],
     }),
