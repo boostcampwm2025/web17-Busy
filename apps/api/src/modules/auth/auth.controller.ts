@@ -25,6 +25,11 @@ export class AuthController {
 
   constructor(private readonly authService: AuthService) {}
 
+  @Get('check')
+  healthCheck() {
+    return { status: 'ok' };
+  }
+
   /**
    * DEV-ONLY endpoint: 임시 유저 ID로 JWT 발급 (prod에서는 숨김)
    */

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   const result = await googleExchange({ code, verifier });
   if (!result.ok) return redirectAuthFail(request, 'token_exchange_failed');
 
-  const url = new URL('/', request.url);
+  const url = new URL('/', process.env.API_BASE_URL);
   url.hash = `${APP_ACCESS_TOKEN_HASH_KEY}=${encodeURIComponent(result.appJwt)}`;
 
   const res = NextResponse.redirect(url);
