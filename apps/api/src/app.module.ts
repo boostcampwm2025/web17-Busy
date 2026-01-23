@@ -53,7 +53,7 @@ import { UploadModule } from './modules/upload/upload.module';
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
         entities: [join(__dirname, '**/*.entity.{ts,js}')],
-        synchronize: false,
+        synchronize: process.env.NODE_ENV !== 'production',
       }),
       inject: [ConfigService],
     }),
