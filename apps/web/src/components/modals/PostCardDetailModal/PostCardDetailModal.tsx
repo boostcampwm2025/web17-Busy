@@ -14,6 +14,8 @@ import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { PostMedia, LoadingSpinner } from '@/components';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
+import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
+
 export const PostCardDetailModal = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
 
@@ -42,17 +44,22 @@ export const PostCardDetailModal = () => {
   // post가 로딩 중이면 EMPTY_POST로 UI가 흔들릴 수 있으니, 렌더용만 fallback 처리
   const safePost = post ?? EMPTY_POST;
 
+  // override 읽기 (postId 없을 때는 undefined)
+  const likeOverride = usePostReactionOverridesStore((s) => (postId ? s.likesByPostId[postId] : undefined));
+
+  // Detail 초기값 = override > 서버(post) > passedPost > 기본값
+  const initialIsLiked = likeOverride?.isLiked ?? post?.isLiked ?? passedPost?.isLiked ?? false;
+  const initialLikeCount = likeOverride?.likeCount ?? post?.likeCount ?? passedPost?.likeCount ?? 0;
+
   const createdAtText = useMemo(() => formatRelativeTime(safePost.createdAt), [safePost.createdAt]);
   const profileImg = useMemo(() => coalesceImageSrc(safePost.author.profileImgUrl, DEFAULT_IMAGES.PROFILE), [safePost.author.profileImgUrl]);
 
-  // Reactions: 폴링 포함 확장판을 사용한다는 전제
+  // Reactions: 폴링 포함을 사용
   const reactions = usePostReactions({
     enabled: Boolean(enabled && postId),
     postId: postId ?? '',
-    initialIsLiked: post?.isLiked ?? false,
-    initialLikeCount: post?.likeCount ?? 0,
-    // pollMs는 훅 기본값 쓰면 생략 가능
-    // pollMs: 5000,
+    initialIsLiked,
+    initialLikeCount,
   });
 
   const [isLikedUsersOpen, setIsLikedUsersOpen] = useState(false);
@@ -101,7 +108,7 @@ export const PostCardDetailModal = () => {
               <div className="flex items-center space-x-3 min-w-0">
                 <img src={profileImg} alt={safePost.author.nickname} className="w-9 h-9 rounded-full border border-primary object-cover" />
                 <span className="font-bold text-primary truncate">{safePost.author.nickname}</span>
-                <span className="text-xs text-accent-pink font-black shrink-0">• 팔로우</span>
+                {/* <span className="text-xs text-accent-pink font-black shrink-0">• 팔로우</span> */}
               </div>
               <MoreHorizontal className="w-5 h-5 text-gray-400 cursor-pointer hover:text-primary" />
             </div>
