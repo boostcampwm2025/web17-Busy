@@ -25,7 +25,6 @@ export default function PostHeader({ post, onUserClick, onMoreClick }: Props) {
     onMoreClick?.();
   };
 
-  //const profileImg = post.author.profileImgUrl?.trim() || DEFAULT_IMAGES.PROFILE;
   const profileImg = coalesceImageSrc(post.author.profileImgUrl, DEFAULT_IMAGES.PROFILE);
 
   return (
