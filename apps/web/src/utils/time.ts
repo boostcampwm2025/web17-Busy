@@ -13,3 +13,11 @@ export const formatRelativeTime = (iso: string): string => {
   if (diff < MS.day) return `${Math.floor(diff / MS.hour)}시간 전`;
   return `${Math.floor(diff / MS.day)}일 전`;
 };
+
+export const formatMs = (ms: number): string => {
+  const safe = Math.max(0, ms);
+  const totalSeconds = Math.floor(safe / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};

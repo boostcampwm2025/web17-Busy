@@ -93,17 +93,32 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     timerRef.current = null;
   }, []);
 
-  // post 변경 시 초기값 동기화
+  /**
+   * postId가 바뀔 때만 "전체 리셋"
+   * - 댓글 초기화는 여기서만 한다.
+   * - 좋아요 초기값 변화(=토글)로 댓글이 날아가면 안 됨.
+   */
   useEffect(() => {
-    setIsLiked(initialIsLiked);
-    setLikeCount(initialLikeCount);
     setComments([]);
     setCommentCount(0);
     setCommentText('');
+    setCommentsLoading(false);
+
     setIsSubmittingComment(false);
     setIsSubmittingLike(false);
+
     clearTimer();
-  }, [postId, initialIsLiked, initialLikeCount, clearTimer]);
+  }, [postId, clearTimer]);
+
+  /**
+   * like 초기값 동기화는 postId 단위로만 반영
+   * - Detail 열릴 때 1회 세팅
+   * - 이후 좋아요 토글은 local state/override store가 주도
+   */
+  useEffect(() => {
+    setIsLiked(initialIsLiked);
+    setLikeCount(initialLikeCount);
+  }, [postId, initialIsLiked, initialLikeCount]);
 
   // 내 정보 로드(댓글 optimistic author용 + 로그인 여부)
   useEffect(() => {
@@ -328,7 +343,6 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     isSubmittingComment,
 
     commentCount,
-
     refetchComments,
   };
 }
