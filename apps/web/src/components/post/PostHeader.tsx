@@ -1,10 +1,9 @@
 'use client';
 
 import { MoreHorizontal } from 'lucide-react';
-import { useRelativeTime } from '@/hooks';
 import type { PostResponseDto } from '@repo/dto';
 import { DEFAULT_IMAGES } from '@/constants';
-import { coalesceImageSrc } from '@/utils';
+import { coalesceImageSrc, formatRelativeTime } from '@/utils';
 
 type Props = {
   post: PostResponseDto;
@@ -13,7 +12,7 @@ type Props = {
 };
 
 export default function PostHeader({ post, onUserClick, onMoreClick }: Props) {
-  const createdAtText = useRelativeTime(post.createdAt);
+  const createdAtText = formatRelativeTime(post.createdAt);
 
   const handleUser = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
