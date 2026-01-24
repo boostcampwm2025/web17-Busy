@@ -20,7 +20,7 @@ export default function ProfilePosts({ posts, isMyProfile }: { posts: PostPrevie
     );
 
   return (
-    <section className="w-full flex-1 grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 py-8 border-t border-primary/20">
+    <section className="w-full grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 py-8 border-t border-primary/20">
       {posts.map((post, idx) => {
         return (
           <article key={`${post.postId}-${idx}`} className="group relative cursor-pointer" onClick={() => handleOpenDetail(post.postId)}>
