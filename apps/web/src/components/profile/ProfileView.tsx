@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getUser, getUserProfilePosts } from '@/api';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useInfiniteScroll } from '@/hooks';
-import { useProfileStore } from '@/stores';
+import { useFeedRefreshStore, useProfileStore } from '@/stores';
 import { ProfileSkeleton } from '../skeleton';
 import { ProfileInfo } from './ProfileInfo';
 import ProfilePosts from './ProfilePosts';
@@ -13,6 +13,8 @@ import LoadingSpinner from '../LoadingSpinner';
 export default function ProfileView({ userId }: { userId: string }) {
   const { userId: loggedInUserId } = useAuthMe();
   const { profile, setProfile } = useProfileStore();
+
+  const nonce = useFeedRefreshStore((s) => s.nonce);
 
   /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
   const fetchProfilePosts = useCallback(
@@ -23,7 +25,7 @@ export default function ProfileView({ userId }: { userId: string }) {
     [userId],
   );
 
-  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts });
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts, resetKey: String(nonce) });
   const [renderError, setRenderError] = useState<Error | null>(null);
 
   useEffect(() => {
