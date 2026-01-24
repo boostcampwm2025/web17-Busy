@@ -46,9 +46,9 @@ export default function Sidebar() {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   // 드로어별 open/close 여부 상태 관리
-  const isSearchOpen = activeDrawer === SidebarItemType.SEARCH && activeItem === SidebarItemType.SEARCH;
-  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION && activeItem === SidebarItemType.NOTIFICATION;
-  const isSyncOpen = activeDrawer === SidebarItemType.SYNC && activeItem === SidebarItemType.SYNC;
+  const isSearchOpen = activeDrawer === SidebarItemType.SEARCH;
+  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION;
+  const isSyncOpen = activeDrawer === SidebarItemType.SYNC;
 
   const handleToggleSidebar = () => setIsExpanded((prev) => !prev);
 
