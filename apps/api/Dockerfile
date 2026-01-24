@@ -25,9 +25,7 @@ RUN pnpm turbo run build --filter=api...
 # 3. Runner 단계 (PM2 실행)
 FROM node:20-alpine AS runner
 RUN apk add --no-cache bash curl tzdata
-# TZ 고정(권장: UTC)
-ENV TZ=UTC
-RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
+ENV TZ=Asia/Seoul
 RUN npm install -g pm2
 
 WORKDIR /app
