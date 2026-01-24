@@ -8,9 +8,11 @@ services:
       MYSQL_ROOT_PASSWORD: '1234'
       MYSQL_DATABASE: 'vibr'
       TZ: 'UTC'
-    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci', '--default-time-zone=+00:00']
+    volumes:
+      - vibr_mysql_data:/var/lib/mysql
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-u', 'root', '-p1234']
+      test: ['CMD', 'mysqladmin ping -h 127.0.0.1 -uroot -p1234 --silent']
       interval: 5s
       timeout: 3s
       retries: 20
