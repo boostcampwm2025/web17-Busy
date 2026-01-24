@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
-import { useRelativeTime } from '@/hooks';
 import type { PostResponseDto } from '@repo/dto';
 import { DEFAULT_IMAGES } from '@/constants';
-import { coalesceImageSrc } from '@/utils';
 import { deletePost } from '@/api/internal/post';
 import { toast } from 'react-toastify';
 import { showConfirmToast } from '../ConfirmToast';
+import { coalesceImageSrc, formatRelativeTime } from '@/utils';
 
 type Props = {
   post: PostResponseDto;
@@ -18,7 +17,7 @@ type Props = {
 };
 
 export default function PostHeader({ post, isOwner, onUserClick, onMoreClick }: Props) {
-  const createdAtText = useRelativeTime(post.createdAt);
+  const createdAtText = formatRelativeTime(post.createdAt);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleUser = (e: React.MouseEvent<HTMLDivElement>) => {
