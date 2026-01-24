@@ -4,7 +4,7 @@ import { MODAL_TYPES, useModalStore } from '@/stores';
 import { PostPreviewDto as PostPreview } from '@repo/dto';
 import { Heart, MessageCircle } from 'lucide-react';
 
-export default function ProfilePosts({ posts }: { posts: PostPreview[] }) {
+export default function ProfilePosts({ posts, isMyProfile }: { posts: PostPreview[]; isMyProfile: boolean }) {
   const openModal = useModalStore((s) => s.openModal);
 
   const handleOpenDetail = (postId: string) => {
@@ -13,14 +13,14 @@ export default function ProfilePosts({ posts }: { posts: PostPreview[] }) {
 
   if (posts.length === 0)
     return (
-      <section className="w-full h-full flex flex-col justify-center text-center">
+      <section className="w-full flex-1 flex flex-col gap-y-2 justify-center items-center text-center text-gray-1 font-semibold border-t border-primary/20">
         <p>등록된 글이 없습니다.</p>
-        <p></p>
+        {isMyProfile && <p>나만의 음악 취향을 공유해보세요.</p>}
       </section>
     );
 
   return (
-    <section className="w-full grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 py-8 border-t border-primary/20">
+    <section className="w-full flex-1 grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 py-8 border-t border-primary/20">
       {posts.map((post, idx) => {
         return (
           <article key={`${post.postId}-${idx}`} className="group relative cursor-pointer" onClick={() => handleOpenDetail(post.postId)}>

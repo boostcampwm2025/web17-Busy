@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { getUser, getUserProfilePosts } from '@/api';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useInfiniteScroll } from '@/hooks';
 import { useProfileStore } from '@/stores';
 import { ProfileSkeleton } from '../skeleton';
@@ -10,6 +11,7 @@ import ProfilePosts from './ProfilePosts';
 import LoadingSpinner from '../LoadingSpinner';
 
 export default function ProfileView({ userId }: { userId: string }) {
+  const { userId: loggedInUserId } = useAuthMe();
   const { profile, setProfile } = useProfileStore();
 
   /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
@@ -49,9 +51,9 @@ export default function ProfileView({ userId }: { userId: string }) {
   if (isInitialLoading || !profile || profile.id !== userId) return <ProfileSkeleton />;
 
   return (
-    <div className="mx-auto p-6 md:p-10 gap-y-4">
-      <ProfileInfo profile={profile} />
-      <ProfilePosts posts={items} />
+    <div className="h-full flex flex-col mx-auto p-6 md:p-10 gap-y-4">
+      <ProfileInfo profile={profile} loggedInUserId={loggedInUserId} />
+      <ProfilePosts posts={items} isMyProfile={loggedInUserId === userId} />
       {errorMsg && (
         <div className="text-center">
           <p>{errorMsg}</p>

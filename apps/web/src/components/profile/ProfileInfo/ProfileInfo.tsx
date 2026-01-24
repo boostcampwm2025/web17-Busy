@@ -3,12 +3,10 @@
 import ProfileActionButton from './ProfileActionButton';
 import FollowStats from './FollowStats';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useProfileStore } from '@/stores';
 import { GetUserDto as Profile } from '@repo/dto';
 
-export default function ProfileInfo({ profile }: { profile: Profile }) {
-  const { userId: loggedInUserId } = useAuthMe();
+export default function ProfileInfo({ profile, loggedInUserId }: { profile: Profile; loggedInUserId: string | null }) {
   const toggleFollow = useProfileStore((s) => s.toggleFollow);
 
   const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
