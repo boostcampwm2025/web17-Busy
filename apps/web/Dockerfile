@@ -37,12 +37,16 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 RUN apk add --no-cache tzdata
-ENV TZ=Asia/Seoul
 
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
 ENV NEXT_PUBLIC_APP_ORIGIN=https://vibr.site
+
+# TZ 고정(UTC)
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 
 # TZ 고정(UTC)
 ENV TZ=UTC
