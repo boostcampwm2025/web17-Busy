@@ -3,7 +3,6 @@
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { PostPreviewDto as PostPreview } from '@repo/dto';
 import { Heart, MessageCircle } from 'lucide-react';
-import Image from 'next/image';
 
 export default function ProfilePosts({ posts }: { posts: PostPreview[] }) {
   const openModal = useModalStore((s) => s.openModal);
@@ -11,6 +10,14 @@ export default function ProfilePosts({ posts }: { posts: PostPreview[] }) {
   const handleOpenDetail = (postId: string) => {
     openModal(MODAL_TYPES.POST_DETAIL, { postId });
   };
+
+  if (posts.length === 0)
+    return (
+      <section className="w-full h-full flex flex-col justify-center text-center">
+        <p>등록된 글이 없습니다.</p>
+        <p></p>
+      </section>
+    );
 
   return (
     <section className="w-full grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-6 py-8 border-t border-primary/20">

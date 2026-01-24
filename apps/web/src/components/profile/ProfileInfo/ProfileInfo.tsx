@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import ProfileActionButton from './ProfileActionButton';
 import FollowStats from './FollowStats';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
