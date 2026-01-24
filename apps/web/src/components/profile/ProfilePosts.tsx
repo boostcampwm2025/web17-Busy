@@ -31,11 +31,9 @@ export default function ProfilePosts({ posts }: { posts: PostPreview[] }) {
                     ${post.isMoreThanOneMusic ? 'group-hover:-translate-x-1' : ''} 
                 `}
             >
-              <Image
+              <img
                 src={post.coverImgUrl}
                 alt={`사용자 게시물:${post.postId}`}
-                width={500}
-                height={500}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white space-y-2">
