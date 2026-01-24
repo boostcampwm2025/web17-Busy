@@ -39,6 +39,12 @@ export class Noti {
   @Column('bool', { name: 'is_read', nullable: false, default: false })
   isRead: boolean;
 
-  @CreateDateColumn({ name: 'created_at' })
+  // 생성: INSERT 시각만
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'datetime',
+    precision: 6,
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   createdAt: Date;
 }
