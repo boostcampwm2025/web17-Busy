@@ -13,9 +13,9 @@ export default function ProfilePosts({ posts, isMyProfile }: { posts: PostPrevie
 
   if (posts.length === 0)
     return (
-      <section className="w-full flex-1 flex flex-col gap-y-2 justify-center items-center text-center text-gray-1 font-semibold border-t border-primary/20">
-        <p>등록된 글이 없습니다.</p>
-        {isMyProfile && <p>나만의 음악 취향을 공유해보세요.</p>}
+      <section className="w-full flex-1 flex flex-col gap-y-2 justify-center items-center text-center font-semibold border-t border-primary/20">
+        <p className="text-gray-1">등록된 글이 없습니다.</p>
+        {isMyProfile && <p className="text-gray-2">나만의 음악 취향을 공유해보세요.</p>}
       </section>
     );
 
