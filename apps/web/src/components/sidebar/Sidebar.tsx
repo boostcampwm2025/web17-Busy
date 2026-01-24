@@ -76,19 +76,23 @@ export default function Sidebar() {
   };
 
   const handleItemClick = (type: SidebarItemTypeValues) => {
+    // 열려 있는 드로어가 있다면 정리
     handleCloseDrawer();
 
+    // 드로어 아이콘 클릭 시 새 드로어 오픈
     if (isDrawerItem(type)) {
       setActiveItem(type);
       handleOpenDrawer(type);
       return;
     }
 
+    // 비로그인 상태에서 로그인이 필요한 기능 접근 시 로그인 모달 오픈
     if (needLogin(type) && !isAuthenticated) {
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
 
+    // 프로필 아이콘 클릭 시 내 프로필 페이지 경로로 이동 / 그 외 페이지 경로 그대로 이동
     type === SidebarItemType.PROFILE ? handleMyProfileNavigate() : handleNavigate(type);
   };
 
