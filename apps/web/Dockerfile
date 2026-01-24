@@ -37,11 +37,15 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 RUN apk add --no-cache tzdata
-ENV TZ=Asia/Seoul
 
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
+
+
+# TZ 고정(UTC)
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 보안을 위해 시스템 유저 생성
 RUN addgroup --system --gid 1001 nodejs
