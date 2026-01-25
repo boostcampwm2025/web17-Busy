@@ -1,9 +1,10 @@
+import { ConfirmOverlay } from '@/components';
 import { useModalStore, usePlayerStore } from '@/stores';
 import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic, GetPlaylistDetailResDto } from '@repo/dto';
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
-import { addMusicsToPlaylist, changeMusicOrderOfPlaylsit as changeMusicOrderOfPlaylist, getPlaylistDetail } from '@/api';
+import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist, getPlaylistDetail } from '@/api';
 import { reorder } from '@/utils';
 
 export default function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
@@ -16,6 +17,9 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
   const [songs, setSongs] = useState<SavedMusic[]>([]);
   const [selectedSongIds, setSelectedSongIds] = useState<Set<string>>(new Set());
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [draftTitle, setDraftTitle] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const initialFetchPlaylist = async () => {
     const fetched = await getPlaylistDetail(playlistId);
@@ -74,6 +78,34 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     setSongs([...songs, ...addedMusics]);
   };
 
+  const startRename = () => {
+    if (!playlist) return;
+    setDraftTitle(playlist.title);
+    setIsEditingTitle(true);
+  };
+
+  const commitRename = async () => {
+    if (!playlist) return;
+    const nextTitle = draftTitle.trim();
+    if (!nextTitle || nextTitle === playlist.title) {
+      setIsEditingTitle(false);
+      setDraftTitle(playlist.title);
+      return;
+    }
+    await editTitleOfPlaylist(playlistId, nextTitle);
+    setPlaylist({ ...playlist, title: nextTitle });
+    setIsEditingTitle(false);
+  };
+
+  const cancelRename = () => {
+    if (playlist) setDraftTitle(playlist.title);
+    setIsEditingTitle(false);
+  };
+
+  const requestDeletePlaylist = () => {
+    setConfirmOpen(true);
+  };
+
   return (
     playlist && (
       <div
@@ -92,6 +124,13 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
             isSearchOpen={isSearchOpen}
             setIsSearchOpen={setIsSearchOpen}
             onPlayTotalSongs={onPlayTotalSongs}
+            isEditingTitle={isEditingTitle}
+            draftTitle={draftTitle}
+            onStartRename={startRename}
+            onChangeTitle={setDraftTitle}
+            onCommitRename={commitRename}
+            onCancelRename={cancelRename}
+            onDelete={requestDeletePlaylist}
           />
 
           {/* Search Dropdown Area */}
@@ -103,6 +142,19 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
           {/* Song List */}
           <SongList songs={songs} selectedSongIds={selectedSongIds} toggleSelectSong={toggleSelectSong} moveSong={moveSong} />
         </div>
+
+        <ConfirmOverlay
+          open={confirmOpen}
+          title="플레이리스트를 삭제할까요?"
+          confirmLabel="삭제"
+          cancelLabel="취소"
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={async () => {
+            setConfirmOpen(false);
+            await deletePlaylist(playlistId);
+            closeModal();
+          }}
+        />
       </div>
     )
   );
