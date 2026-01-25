@@ -2,7 +2,7 @@
 
 import { LikeMusicsPlaylistItem, PlaylistItem } from './PlaylistItems';
 import ArchiveViewHeader from './ArchiveViewHeader';
-import { getAllPlaylists } from '@/api';
+import { deletePlaylist, editTitleOfPlaylist, getAllPlaylists } from '@/api';
 import { useEffect, useState } from 'react';
 import type { PlaylistBriefResDto } from '@repo/dto';
 
@@ -17,6 +17,16 @@ export default function ArchiveView() {
   useEffect(() => {
     fetchInitialPlaylists();
   }, []);
+
+  const handleRename = async (id: string, title: string) => {
+    await editTitleOfPlaylist(id, title);
+    setPlaylists((prev) => prev.map((p) => (p.id === id ? { ...p, title } : p)));
+  };
+
+  const handleDelete = async (id: string) => {
+    await deletePlaylist(id);
+    setPlaylists((prev) => prev.filter((p) => p.id !== id));
+  };
 
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
@@ -39,6 +49,8 @@ export default function ArchiveView() {
               firstAlbumCoverUrl={p.firstAlbumCoverUrl}
               openMenuId={openMenuId}
               setOpenMenuId={setOpenMenuId}
+              onRename={handleRename}
+              onDelete={handleDelete}
             />
           ))}
         </div>

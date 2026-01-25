@@ -8,6 +8,8 @@ import { createPortal } from 'react-dom';
 type Props = Playlist & {
   openMenuId: string | null;
   setOpenMenuId: (id: string | null) => void;
+  onRename: (id: string, title: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 };
 
 export default function PlaylistItem(playlist: Props) {
@@ -35,6 +37,26 @@ export default function PlaylistItem(playlist: Props) {
     playlist.setOpenMenuId(playlist.id);
   };
 
+  const onRename: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+    e.stopPropagation();
+    playlist.setOpenMenuId(null);
+
+    const nextTitle = window.prompt('새 플레이리스트 이름', playlist.title);
+    if (!nextTitle || nextTitle.trim() === playlist.title) return;
+
+    await playlist.onRename(playlist.id, nextTitle.trim());
+  };
+
+  const onDelete: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+    e.stopPropagation();
+    playlist.setOpenMenuId(null);
+
+    const ok = window.confirm('이 플레이리스트를 삭제할까요?');
+    if (!ok) return;
+
+    await playlist.onDelete(playlist.id);
+  };
+
   useEffect(() => {
     const onDocMouseDown = (e: MouseEvent) => {
       if (!isMenuOpen) return;
@@ -56,11 +78,14 @@ export default function PlaylistItem(playlist: Props) {
         style={{ top: menuPos.top, left: menuPos.left - 144 }} // menu width: 144px
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-primary hover:bg-gray-50">
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-primary hover:bg-gray-50" onClick={onRename}>
           <Pencil className="w-4 h-4" />
           이름 변경
         </button>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-[var(--color-accent-pink)] hover:bg-[color-mix(in_srgb,var(--color-accent-pink),white_90%)]">
+        <button
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-[var(--color-accent-pink)] hover:bg-[color-mix(in_srgb,var(--color-accent-pink),white_90%)]"
+          onClick={onDelete}
+        >
           <Trash2 className="w-4 h-4" />
           삭제
         </button>
