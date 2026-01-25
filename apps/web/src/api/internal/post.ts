@@ -29,3 +29,8 @@ export const createPost = async (formData: FormData) => {
     },
   });
 };
+
+/** [DELETE] 게시글 삭제 */
+export const deletePost = async (postId: string) => {
+  await internalClient.delete(`/post/${postId}`);
+};
