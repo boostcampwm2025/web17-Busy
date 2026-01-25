@@ -1,3 +1,4 @@
+import ConfirmOverlay from '@/components/ConfirmOverlay';
 import { DEFAULT_IMAGES } from '@/constants';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import type { PlaylistBriefResDto as Playlist } from '@repo/dto';
@@ -20,6 +21,8 @@ export default function PlaylistItem(playlist: Props) {
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const [menuPos, setMenuPos] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   // 플리 상세 모달 열기
   const handlePlaylistClick = () => {
@@ -51,10 +54,7 @@ export default function PlaylistItem(playlist: Props) {
     e.stopPropagation();
     playlist.setOpenMenuId(null);
 
-    const ok = window.confirm('이 플레이리스트를 삭제할까요?');
-    if (!ok) return;
-
-    await playlist.onDelete(playlist.id);
+    setConfirmOpen(true);
   };
 
   useEffect(() => {
@@ -129,6 +129,18 @@ export default function PlaylistItem(playlist: Props) {
       </button>
 
       {typeof window !== 'undefined' && menu && createPortal(menu, document.body)}
+
+      <ConfirmOverlay
+        open={confirmOpen}
+        title="플레이리스트를 삭제할까요?"
+        confirmLabel="삭제"
+        cancelLabel="취소"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={async () => {
+          setConfirmOpen(false);
+          await playlist.onDelete(playlist.id);
+        }}
+      />
     </div>
   );
 }
