@@ -8,6 +8,7 @@ import type { PlaylistBriefResDto } from '@repo/dto';
 
 export default function ArchiveView() {
   const [playlists, setPlaylists] = useState<PlaylistBriefResDto[]>([]);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const fetchInitialPlaylists = async () => {
     setPlaylists(await getAllPlaylists());
@@ -30,7 +31,15 @@ export default function ArchiveView() {
 
           {/* 사용자의 플리 목록 */}
           {playlists.map((p) => (
-            <PlaylistItem key={p.id} id={p.id} title={p.title} tracksCount={p.tracksCount} firstAlbumCoverUrl={p.firstAlbumCoverUrl} />
+            <PlaylistItem
+              key={p.id}
+              id={p.id}
+              title={p.title}
+              tracksCount={p.tracksCount}
+              firstAlbumCoverUrl={p.firstAlbumCoverUrl}
+              openMenuId={openMenuId}
+              setOpenMenuId={setOpenMenuId}
+            />
           ))}
         </div>
       </div>

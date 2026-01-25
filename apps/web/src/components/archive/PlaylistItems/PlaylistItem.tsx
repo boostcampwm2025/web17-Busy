@@ -1,15 +1,72 @@
 import { DEFAULT_IMAGES } from '@/constants';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import type { PlaylistBriefResDto as Playlist } from '@repo/dto';
-import { ChevronRight, Library } from 'lucide-react';
+import { Library, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
-export default function PlaylistItem(playlist: Playlist) {
+type Props = Playlist & {
+  openMenuId: string | null;
+  setOpenMenuId: (id: string | null) => void;
+};
+
+export default function PlaylistItem(playlist: Props) {
   const openModal = useModalStore((s) => s.openModal);
+  const isMenuOpen = playlist.openMenuId === playlist.id;
+
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number; width: number } | null>(null);
 
   // 플리 상세 모달 열기
   const handlePlaylistClick = () => {
     openModal(MODAL_TYPES.PLAYLIST_DETAIL, { playlistId: playlist.id });
   };
+
+  const toggleMenu: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.stopPropagation();
+    if (isMenuOpen) {
+      playlist.setOpenMenuId(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMenuPos({ top: rect.bottom + 8, left: rect.right, width: rect.width });
+    playlist.setOpenMenuId(playlist.id);
+  };
+
+  useEffect(() => {
+    const onDocMouseDown = (e: MouseEvent) => {
+      if (!isMenuOpen) return;
+      const target = e.target as Node;
+      if (buttonRef.current?.contains(target)) return;
+      if (menuRef.current?.contains(target)) return;
+      playlist.setOpenMenuId(null);
+    };
+    document.addEventListener('mousedown', onDocMouseDown);
+    return () => document.removeEventListener('mousedown', onDocMouseDown);
+  }, [isMenuOpen, playlist]);
+
+  const menu = useMemo(() => {
+    if (!isMenuOpen || !menuPos) return;
+    return (
+      <div
+        ref={menuRef}
+        className="fixed z-[9999] w-36 bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] overflow-hidden"
+        style={{ top: menuPos.top, left: menuPos.left - 144 }} // menu width: 144px
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-primary hover:bg-gray-50">
+          <Pencil className="w-4 h-4" />
+          이름 변경
+        </button>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-[var(--color-accent-pink)] hover:bg-[color-mix(in_srgb,var(--color-accent-pink),white_90%)]">
+          <Trash2 className="w-4 h-4" />
+          삭제
+        </button>
+      </div>
+    );
+  }, [isMenuOpen, menuPos]);
 
   return (
     <div
@@ -36,10 +93,17 @@ export default function PlaylistItem(playlist: Playlist) {
         </p>
       </div>
 
-      {/* 화살표 */}
-      <div className="px-2 text-gray-300 group-hover:text-primary transition-colors">
-        <ChevronRight className="w-8 h-8" />
-      </div>
+      {/* 더보기 메뉴 */}
+      <button
+        ref={buttonRef}
+        onClick={toggleMenu}
+        className="p-2 rounded-lg border-none text-gray-500 hover:text-primary hover:border-primary transition-colors"
+        aria-label="Playlist actions"
+      >
+        <MoreHorizontal className="w-5 h-5" />
+      </button>
+
+      {typeof window !== 'undefined' && menu && createPortal(menu, document.body)}
     </div>
   );
 }
