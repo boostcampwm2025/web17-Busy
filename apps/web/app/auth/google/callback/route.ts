@@ -3,7 +3,7 @@ import { GOOGLE_AUTH_QUERY_KEYS, GOOGLE_COOKIE_KEYS } from '@/hooks/auth/config/
 import { APP_ACCESS_TOKEN_HASH_KEY } from '@/constants/auth';
 import { googleExchange } from '@/api';
 
-const JWT_COOKIE_NAME = 'jwt';
+const APP_ORIGIN = process.env.NEXT_PUBLIC_APP_ORIGIN;
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -27,33 +27,29 @@ export async function GET(request: NextRequest) {
   const result = await googleExchange({ code, verifier });
   if (!result.ok) return redirectAuthFail(request, 'token_exchange_failed');
 
-  const url = new URL('/', process.env.API_BASE_URL);
+  const origin = APP_ORIGIN ?? request.nextUrl.origin;
+
+  const url = new URL('/', origin);
   url.hash = `${APP_ACCESS_TOKEN_HASH_KEY}=${encodeURIComponent(result.appJwt)}`;
 
   const res = NextResponse.redirect(url);
   deleteTmpCookies(res);
-
   return res;
 }
 
 function redirectAuthFail(request: NextRequest, reason: string) {
-  const url = new URL('/', request.url);
+  const origin = APP_ORIGIN ?? request.nextUrl.origin;
+
+  const url = new URL('/', origin);
   url.searchParams.set(GOOGLE_AUTH_QUERY_KEYS.LOGIN, '1');
   url.searchParams.set(GOOGLE_AUTH_QUERY_KEYS.AUTH_ERROR, reason);
 
   const res = NextResponse.redirect(url);
   deleteTmpCookies(res);
-
   return res;
 }
 
 function deleteTmpCookies(res: NextResponse) {
-  res.cookies.set(GOOGLE_COOKIE_KEYS.PKCE_VERIFIER, '', {
-    path: '/auth/google',
-    maxAge: 0,
-  });
-  res.cookies.set(GOOGLE_COOKIE_KEYS.OAUTH_STATE, '', {
-    path: '/auth/google',
-    maxAge: 0,
-  });
+  res.cookies.set(GOOGLE_COOKIE_KEYS.PKCE_VERIFIER, '', { path: '/auth/google', maxAge: 0 });
+  res.cookies.set(GOOGLE_COOKIE_KEYS.OAUTH_STATE, '', { path: '/auth/google', maxAge: 0 });
 }
