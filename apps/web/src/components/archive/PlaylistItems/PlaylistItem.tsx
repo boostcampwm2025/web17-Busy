@@ -24,8 +24,12 @@ export default function PlaylistItem(playlist: Props) {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [draftTitle, setDraftTitle] = useState(playlist.title);
+
   // 플리 상세 모달 열기
   const handlePlaylistClick = () => {
+    if (isEditingTitle) return;
     openModal(MODAL_TYPES.PLAYLIST_DETAIL, { playlistId: playlist.id });
   };
 
@@ -44,10 +48,8 @@ export default function PlaylistItem(playlist: Props) {
     e.stopPropagation();
     playlist.setOpenMenuId(null);
 
-    const nextTitle = window.prompt('새 플레이리스트 이름', playlist.title);
-    if (!nextTitle || nextTitle.trim() === playlist.title) return;
-
-    await playlist.onRename(playlist.id, nextTitle.trim());
+    setDraftTitle(playlist.title);
+    setIsEditingTitle(true);
   };
 
   const onDelete: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
@@ -55,6 +57,22 @@ export default function PlaylistItem(playlist: Props) {
     playlist.setOpenMenuId(null);
 
     setConfirmOpen(true);
+  };
+
+  const commitRename = async () => {
+    const nextTitle = draftTitle.trim();
+    if (!nextTitle || nextTitle === playlist.title) {
+      setIsEditingTitle(false);
+      setDraftTitle(playlist.title);
+      return;
+    }
+    await playlist.onRename(playlist.id, nextTitle);
+    setIsEditingTitle(false);
+  };
+
+  const cancelRename = () => {
+    setIsEditingTitle(false);
+    setDraftTitle(playlist.title);
   };
 
   useEffect(() => {
@@ -111,7 +129,26 @@ export default function PlaylistItem(playlist: Props) {
 
       {/* 플리 정보 */}
       <div className="flex-1 min-w-0">
-        <h3 className="text-xl font-black text-primary truncate group-hover:text-accent-pink transition-colors">{playlist.title}</h3>
+        {isEditingTitle ? (
+          <input
+            autoFocus
+            className="w-full text-xl font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
+            value={draftTitle}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => setDraftTitle(e.target.value)}
+            onBlur={commitRename}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                commitRename();
+              }
+              if (e.key === 'Escape') {
+                cancelRename();
+              }
+            }}
+          />
+        ) : (
+          <h3 className="text-xl font-black text-primary truncate group-hover:text-accent-pink transition-colors">{playlist.title}</h3>
+        )}
         <p className="text-sm font-bold text-gray-400 mt-1 flex items-center">
           <Library className="w-4 h-4 mr-1" />
           {playlist.tracksCount}곡 저장됨
