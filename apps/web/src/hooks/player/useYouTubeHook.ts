@@ -2,7 +2,7 @@
 
 import { usePlayerStore } from '@/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Playback, PlayerProgress } from './types';
+import { PlayerProgress } from './types';
 import { MusicProvider } from '@repo/dto/values';
 import { clamp01, clampMs } from './utils';
 import { DEFAULT_VOLUME } from './constants';
@@ -26,7 +26,7 @@ function usePlayerTick(enabled: boolean, getTimeSec: () => number, onTickMs: (ms
   }, [enabled, getTimeSec, onTickMs, intervalMs]);
 }
 
-export function useYouTubePlayer() {
+export function useYouTubeHook() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YT.Player | null>(null);
 
