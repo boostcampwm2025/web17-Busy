@@ -3,12 +3,15 @@
 import { LikeMusicsPlaylistItem, PlaylistItem } from './PlaylistItems';
 import ArchiveViewHeader from './ArchiveViewHeader';
 import { deletePlaylist, editTitleOfPlaylist, getAllPlaylists } from '@/api';
+import { usePlaylistRefreshStore } from '@/stores';
 import { useEffect, useState } from 'react';
 import type { PlaylistBriefResDto } from '@repo/dto';
 
 export default function ArchiveView() {
   const [playlists, setPlaylists] = useState<PlaylistBriefResDto[]>([]);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const playlistNonce = usePlaylistRefreshStore((s) => s.nonce);
+  const bumpPlaylistRefresh = usePlaylistRefreshStore((s) => s.bump);
 
   const fetchInitialPlaylists = async () => {
     setPlaylists(await getAllPlaylists());
@@ -16,23 +19,23 @@ export default function ArchiveView() {
 
   useEffect(() => {
     fetchInitialPlaylists();
-  }, []);
+  }, [playlistNonce]);
 
   const handleRename = async (id: string, title: string) => {
     await editTitleOfPlaylist(id, title);
-    setPlaylists((prev) => prev.map((p) => (p.id === id ? { ...p, title } : p)));
+    bumpPlaylistRefresh();
   };
 
   const handleDelete = async (id: string) => {
     await deletePlaylist(id);
-    setPlaylists((prev) => prev.filter((p) => p.id !== id));
+    bumpPlaylistRefresh();
   };
 
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
       <div className="max-w-4xl mx-auto">
         {/* 페이지 헤더 */}
-        <ArchiveViewHeader setPlaylists={setPlaylists} />
+        <ArchiveViewHeader />
 
         {/* 플리 목록 */}
         <div className="flex flex-col space-y-4">

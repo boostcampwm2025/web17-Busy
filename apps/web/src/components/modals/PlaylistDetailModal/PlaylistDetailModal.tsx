@@ -1,5 +1,5 @@
 import { ConfirmOverlay } from '@/components';
-import { useModalStore, usePlayerStore } from '@/stores';
+import { useModalStore, usePlayerStore, usePlaylistRefreshStore } from '@/stores';
 import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic, GetPlaylistDetailResDto } from '@repo/dto';
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES } from '@/constants';
@@ -12,6 +12,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
 
   const addToQueue = usePlayerStore((s) => s.addToQueue);
   const playMusic = usePlayerStore((s) => s.playMusic);
+  const bumpPlaylistRefresh = usePlaylistRefreshStore((s) => s.bump);
 
   const [playlist, setPlaylist] = useState<GetPlaylistDetailResDto | null>(null);
   const [songs, setSongs] = useState<SavedMusic[]>([]);
@@ -51,6 +52,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     try {
       const songIds = songs.map((s) => s.id);
       await changeMusicOrderOfPlaylist(playlistId, songIds); // playlist.id?
+      bumpPlaylistRefresh();
     } catch (e) {
       // 에러 처리
       throw e;
@@ -76,6 +78,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     // 낙관적 업데이트 x - song id가 필요해서 안 됨
     const { addedMusics } = await addMusicsToPlaylist(playlistId, [song]);
     setSongs([...songs, ...addedMusics]);
+    bumpPlaylistRefresh();
   };
 
   const startRename = () => {
@@ -95,6 +98,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     await editTitleOfPlaylist(playlistId, nextTitle);
     setPlaylist({ ...playlist, title: nextTitle });
     setIsEditingTitle(false);
+    bumpPlaylistRefresh();
   };
 
   const cancelRename = () => {
@@ -152,6 +156,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
           onConfirm={async () => {
             setConfirmOpen(false);
             await deletePlaylist(playlistId);
+            bumpPlaylistRefresh();
             closeModal();
           }}
         />

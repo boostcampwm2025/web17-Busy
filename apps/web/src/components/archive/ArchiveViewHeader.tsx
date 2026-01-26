@@ -1,21 +1,13 @@
 import { createNewPlaylist } from '@/api';
-import { DEFAULT_IMAGES } from '@/constants';
-import type { PlaylistBriefResDto } from '@repo/dto';
+import { usePlaylistRefreshStore } from '@/stores';
 import { PlusCircle } from 'lucide-react';
-import { Dispatch, SetStateAction } from 'react';
 
-export default function ArchiveViewHeader({ setPlaylists }: { setPlaylists: Dispatch<SetStateAction<PlaylistBriefResDto[]>> }) {
+export default function ArchiveViewHeader() {
+  const bumpPlaylistRefresh = usePlaylistRefreshStore((s) => s.bump);
+
   const onCreateNewPlaylist = async () => {
-    const { id, title } = await createNewPlaylist();
-    setPlaylists((prev) => [
-      ...prev,
-      {
-        id,
-        title,
-        tracksCount: 0,
-        firstAlbumCoverUrl: DEFAULT_IMAGES.ALBUM,
-      },
-    ]);
+    await createNewPlaylist();
+    bumpPlaylistRefresh();
   };
 
   return (
