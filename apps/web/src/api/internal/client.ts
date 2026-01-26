@@ -63,7 +63,13 @@ internalClient.interceptors.response.use(
     handling401 = true;
 
     clearAuthState();
-    useModalStore.getState().openModal(MODAL_TYPES.LOGIN, { authError: 'session_expired' });
+    // 이미 로그인 모달이 열려 있으면 중복 오픈 방지
+    const modalState = useModalStore.getState();
+    const isLoginModalOpen = modalState.isOpen && modalState.modalType === MODAL_TYPES.LOGIN;
+
+    if (!isLoginModalOpen) {
+      modalState.openModal(MODAL_TYPES.LOGIN, { authError: 'session_expired' });
+    }
 
     window.setTimeout(() => {
       handling401 = false;
