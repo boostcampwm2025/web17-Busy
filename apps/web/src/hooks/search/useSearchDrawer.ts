@@ -5,8 +5,6 @@ import { useItunesSearch, useUserSearch } from '@/hooks';
 
 type Mode = 'music' | 'user' | 'video';
 
-const stripAt = (q: string) => q.trim().replace(/^@+/, '');
-
 export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
   const [query, setQuery] = useState('');
 
@@ -18,7 +16,7 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
   const [followOverrides, setFollowOverrides] = useState<Map<string, boolean>>(new Map());
   const [mode, setMode] = useState<Mode>('music');
 
-  const keyword = useMemo(() => (mode === 'user' ? stripAt(query) : query), [mode, query]);
+  const keyword = useMemo(() => query.trim(), [query]);
 
   const itunes = useItunesSearch({ query: keyword, enabled: enabled && mode === 'music' });
   const users = useUserSearch({ query: keyword, enabled: enabled && mode === 'user' });
