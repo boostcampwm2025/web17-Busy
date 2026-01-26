@@ -15,6 +15,7 @@ import { updateProfile } from '@/api';
 export default function ProfileInfo({ profile }: { profile: Profile }) {
   const { userId: loggedInUserId } = useAuthMe();
   const toggleFollow = useProfileStore((s) => s.toggleFollow);
+  const [displayProfile, setDisplayProfile] = useState(profile);
 
   const isOwner = loggedInUserId === profile.id;
   const [isEditing, setIsEditing] = useState(false);
@@ -25,16 +26,19 @@ export default function ProfileInfo({ profile }: { profile: Profile }) {
 
   useEffect(() => {
     setEditForm({
-      nickname: profile.nickname || '',
-      bio: profile.bio || '',
+      nickname: displayProfile.nickname || '',
+      bio: displayProfile.bio || '',
     });
-  }, [profile]);
+  }, [displayProfile]);
 
   const handleSave = async () => {
     await updateProfile({
       nickname: editForm.nickname,
       bio: editForm.bio,
     });
+    const optimisticData = { ...displayProfile, ...editForm };
+    setDisplayProfile(optimisticData);
+
     setIsEditing(false);
   };
 
@@ -42,7 +46,7 @@ export default function ProfileInfo({ profile }: { profile: Profile }) {
     setIsEditing(false);
   };
 
-  const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
+  const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = displayProfile;
 
   return (
     <section className="max-w-4xl">
