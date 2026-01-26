@@ -14,3 +14,15 @@ export const searchUsers = async (q: string, cursor?: string, limit?: number): P
   });
   return data;
 };
+
+/** [PATCH] 닉네임 수정 */
+export const updateNickname = async (userId: string, nickname: string): Promise<Profile> => {
+  const { data } = await internalClient.patch<Profile>(`/user/${userId}`, { nickname });
+  return data;
+};
+
+/** [PATCH] Bio(설명) 수정 */
+export const updateBio = async (userId: string, bio: string): Promise<Profile> => {
+  const { data } = await internalClient.patch<Profile>(`/user/${userId}`, { bio });
+  return data;
+};
