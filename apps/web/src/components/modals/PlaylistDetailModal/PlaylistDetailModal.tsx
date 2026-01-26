@@ -48,9 +48,9 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     setSelectedSongIds(newSelected);
   };
 
-  const requestChangeOrder = async () => {
+  const requestChangeOrder = async (nextSongs: SavedMusic[]) => {
     try {
-      const songIds = songs.map((s) => s.id);
+      const songIds = nextSongs.map((s) => s.id);
       await changeMusicOrderOfPlaylist(playlistId, songIds); // playlist.id?
       bumpPlaylistRefresh();
     } catch (e) {
@@ -61,17 +61,19 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
 
   const deleteSelectedSongs = async () => {
     // 낙관적 업데이트
-    setSongs(songs.filter((s) => !selectedSongIds.has(s.id)));
+    const nextSongs = songs.filter((s) => !selectedSongIds.has(s.id));
+    setSongs(nextSongs);
     setSelectedSongIds(new Set());
 
-    await requestChangeOrder();
+    await requestChangeOrder(nextSongs);
   };
 
   const moveSong = async (index: number, direction: 'up' | 'down') => {
     // 낙관적 업데이트
-    setSongs((prev) => reorder(prev, index, direction));
+    const nextSongs = reorder(songs, index, direction);
+    setSongs(nextSongs);
 
-    await requestChangeOrder();
+    await requestChangeOrder(nextSongs);
   };
 
   const handleAddSong = async (song: UnsavedMusic) => {
