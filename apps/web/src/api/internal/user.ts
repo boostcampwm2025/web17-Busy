@@ -17,6 +17,6 @@ export const searchUsers = async (q: string, cursor?: string, limit?: number): P
 
 /** [PATCH] 프로필 수정 */
 export const updateProfile = async (profile: UpdateProfileDto): Promise<Profile> => {
-  const { data } = await internalClient.patch<Profile>(`/user`, { profile });
+  const { data } = await internalClient.patch<Profile>('/user', profile);
   return data;
 };
