@@ -10,6 +10,19 @@ declare global {
   }
 }
 
+function usePlayerTick(enabled: boolean, getTimeSec: () => number, onTickMs: (ms: number) => void, intervalMs = 250) {
+  useEffect(() => {
+    if (!enabled) return;
+
+    const id = window.setInterval(() => {
+      const t = getTimeSec();
+      if (t >= 0) onTickMs(Math.floor(t * 1000));
+    }, intervalMs);
+
+    return () => window.clearInterval(id);
+  }, [enabled, getTimeSec, onTickMs, intervalMs]);
+}
+
 export function useYouTubePlayer() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YT.Player>(null);
@@ -29,6 +42,8 @@ export function useYouTubePlayer() {
   const setPlayError = usePlayerStore((s) => s.setPlayError);
 
   const [progress, setProgress] = useState<PlayerProgress>({ positionMs: 0, durationMs: 0 });
+
+  const [isTicking, setIsTicking] = useState(false);
 
   // Player 생성은 1회만
   useEffect(() => {
@@ -109,13 +124,20 @@ export function useYouTubePlayer() {
     else player.pauseVideo();
   }, [isPlaying, currentMusic?.id, currentMusic, togglePlay, setPlayError]);
 
-  // player 이벤트 핸들러 등록
   // durationMs, positionMs 동기화
+  usePlayerTick(
+    isTicking,
+    () => playerRef.current?.getCurrentTime() ?? -1,
+    (ms) => setProgress((prev) => ({ ...prev, positionMs: ms })),
+    250,
+  );
+
+  // player 이벤트 핸들러 등록
   useEffect(() => {
     const player = playerRef.current;
     if (!player) return;
 
-    let timer: number | null = null;
+    const timer: number | null = null;
 
     const syncDuration = () => {
       const d = player.getDuration(); // 현재 위치 (seconds)
@@ -125,53 +147,37 @@ export function useYouTubePlayer() {
       }
     };
 
-    // player의 currentTime과 progress의 positionMs를 동기화 250ms 마다
-    const startTick = () => {
-      if (timer != null) return; // timer: undefined 인 경우까지 고려
-      timer = window.setInterval(() => {
-        const t = player.getCurrentTime();
-        if (t >= 0) {
-          setProgress((prev) => ({ ...prev, positionMs: Math.floor(t * 1000) }));
-        }
-      }, 250);
-    };
-
-    const stopTick = () => {
-      if (timer == null) return;
-      window.clearInterval(timer);
-      timer = null;
-    };
-
-    // player의 duration과 progress의 duration을 동기화
-    syncDuration();
-
     const handleStateChange = (e: any) => {
       switch (e.data) {
         case YT.PlayerState.PLAYING:
           syncDuration();
-          startTick();
+          setIsTicking(true);
           break;
+
         case YT.PlayerState.PAUSED:
         case YT.PlayerState.BUFFERING:
         case YT.PlayerState.CUED:
           syncDuration();
-          stopTick();
+          setIsTicking(false);
           break;
+
         case YT.PlayerState.ENDED:
-          stopTick();
+          setIsTicking(false);
           if (queueLength <= 1) return; // 이건 왜?
           playNext();
           break;
+
         default: // UNSTARTED 등
-          stopTick();
+          setIsTicking(false);
           break;
       }
     };
 
-    player.addEventListener('onStateChange', handleStateChange);
+    syncDuration();
 
+    player.addEventListener('onStateChange', handleStateChange);
     return () => {
-      stopTick();
+      setIsTicking(false);
       player.removeEventListener('onStateChange', handleStateChange);
     };
   }, [playNext, queueLength]);
