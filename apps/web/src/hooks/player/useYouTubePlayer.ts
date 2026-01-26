@@ -1,3 +1,5 @@
+'use client';
+
 import { usePlayerStore } from '@/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Playback, PlayerProgress } from './types';
@@ -26,7 +28,7 @@ function usePlayerTick(enabled: boolean, getTimeSec: () => number, onTickMs: (ms
 
 export function useYouTubePlayer() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const playerRef = useRef<YT.Player>(null);
+  const playerRef = useRef<YT.Player | null>(null);
 
   const currentMusic = usePlayerStore((s) => s.currentMusic);
   const videoId = currentMusic?.trackUri;
@@ -77,15 +79,7 @@ export function useYouTubePlayer() {
       if (!mounted || !containerRef.current || playerRef.current) return;
 
       playerRef.current = new window.YT.Player(containerRef.current, {
-        videoId: currentMusic?.provider === MusicProvider.YOUTUBE ? currentMusic.trackUri : undefined,
         playerVars: { autoplay: 0, controls: 1 },
-        events: {
-          onStateChange: (e: any) => {
-            if (e.data === window.YT.PlayerState.ENDED) {
-              playNext();
-            }
-          },
-        },
       });
     };
 
@@ -116,43 +110,50 @@ export function useYouTubePlayer() {
     }
   }, [volume]);
 
-  // videoId 바뀔 때는 destroy 없이 교체
+  // videoId 교체
   useEffect(() => {
     const player = playerRef.current;
-    if (!player || !videoId) return;
+    if (!player) return;
 
-    setPlayError(null);
+    if (!currentMusic || !isYoutube) {
+      player.stopVideo();
+      setProgress({ positionMs: 0, durationMs: 0 });
+      return;
+    }
 
     if (!videoId) {
       player.stopVideo();
       setProgress({ positionMs: 0, durationMs: 0 });
-
+      // youtube play error로 분리 후 사용
+      // setPlayError('재생할 수 있는 YouTube videoId가 없습니다.');
       return;
     }
 
-    setProgress((prev) => ({ ...prev, positionMs: 0 }));
+    setProgress({ durationMs: 0, positionMs: 0 });
 
     // isPlaying에 따른 분기 필요? itunes는 분기 안 함
     if (isPlaying) player.loadVideoById(videoId);
     else player.cueVideoById(videoId);
-  }, [videoId, isPlaying, setPlayError]);
+  }, [currentMusic?.id, videoId, isYoutube, isPlaying]);
+
+  // 에러메시지 초기화
+  useEffect(() => {
+    setPlayError(null);
+  }, [currentMusic?.id, setPlayError]);
 
   // 재생/일시정지 제어
   useEffect(() => {
     const player = playerRef.current;
-    if (!player || !currentMusic) return;
-
-    const state = player.getPlayerState();
-    if (state === YT.PlayerState.UNSTARTED) return;
+    if (!player || !currentMusic || !isYoutube) return;
 
     if (isPlaying) player.playVideo();
     else player.pauseVideo();
-  }, [isPlaying, currentMusic?.id]);
+  }, [isYoutube, isPlaying, currentMusic?.id]);
 
   // 에러 처리
   useEffect(() => {
     const player = playerRef.current;
-    if (!player || !currentMusic) return;
+    if (!player || !currentMusic || !isYoutube) return;
 
     const handleError = (e: any) => {
       setPlayError(`Youtube error: ${e.data}`);
@@ -161,15 +162,15 @@ export function useYouTubePlayer() {
 
     player.addEventListener('onError', handleError);
     return () => player.removeEventListener('onError', handleError);
-  }, [setPlayError, togglePlay]);
+  }, [isYoutube, setPlayError, togglePlay]);
 
   // durationMs, positionMs 동기화
-  usePlayerTick(
-    isTicking,
-    () => playerRef.current?.getCurrentTime() ?? -1,
-    (ms) => setProgress((prev) => ({ ...prev, positionMs: ms })),
-    250,
-  );
+  const getTimeSec = useCallback(() => playerRef.current?.getCurrentTime() ?? -1, []);
+  const onTickMs = useCallback((ms: number) => {
+    setProgress((prev) => ({ ...prev, positionMs: ms }));
+  }, []);
+
+  usePlayerTick(isTicking, getTimeSec, onTickMs, 250);
 
   // player 이벤트 핸들러 등록
   useEffect(() => {
@@ -235,9 +236,6 @@ export function useYouTubePlayer() {
       const maxMs = metaMs > 0 ? metaMs : progress.durationMs;
 
       if (maxMs <= 0) return;
-
-      const state = player.getPlayerState();
-      if (state === YT.PlayerState.UNSTARTED) return;
 
       const nextMs = clampMs(ms, maxMs);
       player.seekTo(nextMs / 1000, true);
