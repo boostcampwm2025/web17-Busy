@@ -116,11 +116,6 @@ export function useYouTubePlayer() {
     }
   }, [volume]);
 
-  // loop = true -> 필요 없을 듯
-  // useEffect(() => {
-
-  // }, [queueLength]);
-
   // videoId 바뀔 때는 destroy 없이 교체
   useEffect(() => {
     const player = playerRef.current;
@@ -181,8 +176,6 @@ export function useYouTubePlayer() {
     const player = playerRef.current;
     if (!player) return;
 
-    const timer: number | null = null;
-
     const syncDuration = () => {
       const d = player.getDuration(); // 현재 위치 (seconds)
       const durationMs = d > 0 ? Math.floor(d * 1000) : 0;
@@ -207,7 +200,13 @@ export function useYouTubePlayer() {
 
         case YT.PlayerState.ENDED:
           setIsTicking(false);
-          if (queueLength <= 1) return; // 이건 왜?
+
+          if (queueLength <= 1) {
+            player.seekTo(0, true);
+            player.playVideo();
+            return;
+          }
+
           playNext();
           break;
 
