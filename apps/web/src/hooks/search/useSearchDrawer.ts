@@ -3,9 +3,8 @@
 import { useMemo, useState } from 'react';
 import { useItunesSearch, useUserSearch } from '@/hooks';
 
-type Mode = 'music' | 'user';
+type Mode = 'music' | 'user' | 'video';
 
-const isUserMode = (q: string) => q.trim().startsWith('@');
 const stripAt = (q: string) => q.trim().replace(/^@+/, '');
 
 export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
@@ -17,8 +16,8 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
    * - 스크롤로 아이템이 unmount/mount 되어도 상태 유지
    */
   const [followOverrides, setFollowOverrides] = useState<Map<string, boolean>>(new Map());
+  const [mode, setMode] = useState<Mode>('music');
 
-  const mode: Mode = useMemo(() => (isUserMode(query) ? 'user' : 'music'), [query]);
   const keyword = useMemo(() => (mode === 'user' ? stripAt(query) : query), [mode, query]);
 
   const itunes = useItunesSearch({ query: keyword, enabled: enabled && mode === 'music' });
@@ -36,12 +35,18 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
     });
   };
 
+  const handleChangeMode = (newMode: Mode) => {
+    if (mode === newMode) return;
+    setMode(newMode);
+  };
+
   return {
     query,
     setQuery,
     clearQuery,
 
     mode,
+    handleChangeMode,
     keyword,
 
     itunes,

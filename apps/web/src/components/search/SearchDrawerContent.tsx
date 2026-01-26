@@ -13,7 +13,9 @@ type Props = { enabled?: boolean };
 
 function SearchDrawerInner({ enabled = true }: Props) {
   const { userId, isAuthenticated } = useAuthMe();
-  const { query, setQuery, clearQuery, mode, itunes, users, active, followOverrides, setFollowState } = useSearchDrawer({ enabled });
+  const { query, setQuery, clearQuery, mode, handleChangeMode, itunes, users, active, followOverrides, setFollowState } = useSearchDrawer({
+    enabled,
+  });
 
   const hintMessage = useMemo(() => getHintMessage(active.trimmedQuery), [active.trimmedQuery]);
 
@@ -47,17 +49,29 @@ function SearchDrawerInner({ enabled = true }: Props) {
     <div className="flex flex-col h-full">
       <div className="p-6">
         <h2 className="text-3xl font-black text-primary mb-6">검색</h2>
-        <SearchInput value={query} onChange={setQuery} onClear={clearQuery} placeholder="음악 검색, @사용자 검색" />
+        <SearchInput value={query} onChange={setQuery} onClear={clearQuery} placeholder="음악 검색, 사용자 검색" />
       </div>
 
       <div className="flex text-center transition-all">
-        <button title="음원 검색 탭" className="flex-1 p-2">
+        <button
+          title="음원 검색 탭"
+          onClick={() => handleChangeMode('music')}
+          className={`flex-1 p-2 ${mode === 'music' ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
+        >
           음원
         </button>
-        <button title="사용자 검색 탭" className="flex-1 p-2">
+        <button
+          title="사용자 검색 탭"
+          onClick={() => handleChangeMode('user')}
+          className={`flex-1 p-2 ${mode === 'user' ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
+        >
           사용자
         </button>
-        <button title="영상 검색 탭" className="flex-1 p-2">
+        <button
+          title="영상 검색 탭"
+          onClick={() => handleChangeMode('video')}
+          className={`flex-1 p-2 ${mode === 'video' ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
+        >
           영상
         </button>
       </div>
