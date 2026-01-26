@@ -9,6 +9,16 @@ import { getHintMessage } from '@/utils';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useSearchDrawer } from '@/hooks';
 
+type Mode = 'music' | 'user' | 'video';
+
+const SEARCH_TAB_TITLES = {
+  music: '음원',
+  user: '사용자',
+  video: '영상',
+} as const satisfies Record<Mode, string>;
+
+const SEARCH_TAB_ENTRIES = Object.entries(SEARCH_TAB_TITLES) as [Mode, string][];
+
 type Props = { enabled?: boolean };
 
 function SearchDrawerInner({ enabled = true }: Props) {
@@ -53,27 +63,15 @@ function SearchDrawerInner({ enabled = true }: Props) {
       </div>
 
       <div className="flex text-center">
-        <button
-          title="음원 검색 탭"
-          onClick={() => handleChangeMode('music')}
-          className={`flex-1 p-2 ${mode === 'music' ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
-        >
-          음원
-        </button>
-        <button
-          title="사용자 검색 탭"
-          onClick={() => handleChangeMode('user')}
-          className={`flex-1 p-2 ${mode === 'user' ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
-        >
-          사용자
-        </button>
-        <button
-          title="영상 검색 탭"
-          onClick={() => handleChangeMode('video')}
-          className={`flex-1 p-2 ${mode === 'video' ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
-        >
-          영상
-        </button>
+        {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => (
+          <button
+            title={`${tabTitle} 검색 탭`}
+            onClick={() => handleChangeMode(tabMode)}
+            className={`flex-1 p-2 ${mode === tabMode ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
+          >
+            {tabTitle}
+          </button>
+        ))}
       </div>
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2 border-t-2 border-primary/10">{renderBody()}</div>
     </div>
