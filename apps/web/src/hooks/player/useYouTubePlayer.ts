@@ -112,8 +112,21 @@ export function useYouTubePlayer() {
     const player = playerRef.current;
     if (!player || !videoId) return;
 
-    player.cueVideoById(videoId);
-  }, [videoId, setPlayError]);
+    setPlayError(null);
+
+    if (!videoId) {
+      player.stopVideo();
+      setProgress({ positionMs: 0, durationMs: 0 });
+
+      return;
+    }
+
+    setProgress((prev) => ({ ...prev, positionMs: 0 }));
+
+    // isPlaying에 따른 분기 필요? itunes는 분기 안 함
+    if (isPlaying) player.loadVideoById(videoId);
+    else player.cueVideoById(videoId);
+  }, [videoId, isPlaying, setPlayError]);
 
   // 재생/일시정지 제어
   useEffect(() => {
