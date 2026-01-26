@@ -8,16 +8,15 @@ import { SearchInput, SearchStateMessage, MusicSearchResults, UserSearchResults 
 import { getHintMessage } from '@/utils';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useSearchDrawer } from '@/hooks';
-
-type Mode = 'music' | 'user' | 'video';
+import { SearchMode } from '@/types';
 
 const SEARCH_TAB_TITLES = {
   music: '음원',
   user: '사용자',
   video: '영상',
-} as const satisfies Record<Mode, string>;
+} as const satisfies Record<SearchMode, string>;
 
-const SEARCH_TAB_ENTRIES = Object.entries(SEARCH_TAB_TITLES) as [Mode, string][];
+const SEARCH_TAB_ENTRIES = Object.entries(SEARCH_TAB_TITLES) as [SearchMode, string][];
 
 type Props = { enabled?: boolean };
 
@@ -65,6 +64,7 @@ function SearchDrawerInner({ enabled = true }: Props) {
       <div className="flex text-center">
         {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => (
           <button
+            id={tabMode}
             title={`${tabTitle} 검색 탭`}
             onClick={() => handleChangeMode(tabMode)}
             className={`flex-1 p-2 ${mode === tabMode ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}

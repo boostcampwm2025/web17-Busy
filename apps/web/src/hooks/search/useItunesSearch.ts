@@ -6,9 +6,8 @@ import { searchItunesSongs } from '@/api';
 import { itunesSongToMusic } from '@/mappers';
 import { useDebouncedValue } from '@/hooks';
 import { ITUNES_SEARCH } from '@/constants';
+import { SearchStatus } from '@/types';
 import type { MusicResponseDto as Music } from '@repo/dto';
-
-export type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
 type Options = {
   query: string;

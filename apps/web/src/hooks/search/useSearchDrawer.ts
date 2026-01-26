@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useItunesSearch, useUserSearch } from '@/hooks';
-
-type Mode = 'music' | 'user' | 'video';
+import { SearchMode } from '@/types';
 
 export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
   const [query, setQuery] = useState('');
@@ -14,7 +13,7 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
    * - 스크롤로 아이템이 unmount/mount 되어도 상태 유지
    */
   const [followOverrides, setFollowOverrides] = useState<Map<string, boolean>>(new Map());
-  const [mode, setMode] = useState<Mode>('music');
+  const [mode, setMode] = useState<SearchMode>('music');
 
   const keyword = useMemo(() => query.trim(), [query]);
 
@@ -33,7 +32,7 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
     });
   };
 
-  const handleChangeMode = (newMode: Mode) => {
+  const handleChangeMode = (newMode: SearchMode) => {
     if (mode === newMode) return;
     setMode(newMode);
   };
