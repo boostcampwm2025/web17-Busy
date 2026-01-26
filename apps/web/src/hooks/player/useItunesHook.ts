@@ -4,8 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePlayerStore } from '@/stores';
 import { Playback, PlayerProgress } from './types';
 import { clamp01, clampMs } from './utils';
-
-const DEFAULT_VOLUME = 0.5;
+import { DEFAULT_VOLUME } from './constants';
 
 const toPlaybackErrorMessage = (e: unknown): string => {
   if (e instanceof DOMException) {

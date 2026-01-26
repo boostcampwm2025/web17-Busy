@@ -2,7 +2,8 @@ import { usePlayerStore } from '@/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Playback, PlayerProgress } from './types';
 import { MusicProvider } from '@repo/dto/values';
-import { clampMs } from './utils';
+import { clamp01, clampMs } from './utils';
+import { DEFAULT_VOLUME } from './constants';
 
 declare global {
   interface Window {
@@ -99,7 +100,20 @@ export function useYouTubePlayer() {
 
   // volume 동기화
   useEffect(() => {
-    // todo
+    const player = playerRef.current;
+    if (!player) return;
+
+    const v01 = Number.isFinite(volume) ? clamp01(volume) : DEFAULT_VOLUME;
+
+    const v100 = Math.round(v01 * 100);
+
+    if (v100 <= 0) {
+      player.mute();
+      player.setVolume(0);
+    } else {
+      if (player.isMuted()) player.unMute();
+      player.setVolume(v100);
+    }
   }, [volume]);
 
   // loop = true -> 필요 없을 듯
