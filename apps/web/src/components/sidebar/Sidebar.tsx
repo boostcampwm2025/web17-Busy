@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState, lazy, useEffect } from 'react';
+import { useMemo, useState, lazy, useEffect, useRef } from 'react';
 import { LogIn, LogOut, Menu, PlusCircle } from 'lucide-react';
 
 import { menuItems } from '@/constants';
@@ -42,21 +42,17 @@ export default function Sidebar() {
   const [activeItem, setActiveItem] = useState<SidebarItemTypeValues>(initialActiveItem);
   const [activeDrawer, setActiveDrawer] = useState<SidebarItemTypeValues | null>(null);
 
-  useEffect(() => {
-    setActiveItem(initialActiveItem);
-  }, [pathname]);
+  // 사이드바 영역 클릭 여부 관리
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    !activeDrawer && setActiveItem(initialActiveItem);
-  }, [activeDrawer]);
+  // 드로어별 open/close 여부 상태 관리
+  const isSearchOpen = activeDrawer === SidebarItemType.SEARCH;
+  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION;
+  const isSyncOpen = activeDrawer === SidebarItemType.SYNC;
 
-  const handleToggleSidebar = () => {
-    setIsExpanded((prev) => !prev);
-  };
+  const handleToggleSidebar = () => setIsExpanded((prev) => !prev);
 
-  const handleCloseDrawer = () => {
-    setActiveDrawer(null);
-  };
+  const handleCloseDrawer = () => setActiveDrawer(null);
 
   const handleOpenDrawer = (type: SidebarItemTypeValues) => {
     if (activeDrawer === type) {
@@ -80,19 +76,23 @@ export default function Sidebar() {
   };
 
   const handleItemClick = (type: SidebarItemTypeValues) => {
+    // 열려 있는 드로어가 있다면 정리
     handleCloseDrawer();
 
+    // 드로어 아이콘 클릭 시 새 드로어 오픈
     if (isDrawerItem(type)) {
       setActiveItem(type);
       handleOpenDrawer(type);
       return;
     }
 
+    // 비로그인 상태에서 로그인이 필요한 기능 접근 시 로그인 모달 오픈
     if (needLogin(type) && !isAuthenticated) {
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
 
+    // 프로필 아이콘 클릭 시 내 프로필 페이지 경로로 이동 / 그 외 페이지 경로 그대로 이동
     type === SidebarItemType.PROFILE ? handleMyProfileNavigate() : handleNavigate(type);
   };
 
@@ -104,7 +104,7 @@ export default function Sidebar() {
     openModal(MODAL_TYPES.WRITE);
   };
 
-  const handlerOpenLoginModal = async () => {
+  const handleOpenLoginModal = async () => {
     if (isLoading) return;
 
     if (!isAuthenticated) {
@@ -115,12 +115,33 @@ export default function Sidebar() {
     await performLogout();
   };
 
-  const isSearchOpen = activeDrawer === SidebarItemType.SEARCH && activeItem === SidebarItemType.SEARCH;
-  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION && activeItem === SidebarItemType.NOTIFICATION;
-  const isSyncOpen = activeDrawer === SidebarItemType.SYNC && activeItem === SidebarItemType.SYNC;
+  useEffect(() => {
+    // 페이지 url 경로가 바뀔 때마다 사이드바 활성화 아이콘을 현재 pathname 기반으로 업데이트
+    setActiveItem(initialActiveItem);
+  }, [pathname]);
+
+  useEffect(() => {
+    // 드로어가 닫힐 때마다 사이드바 활성화 아이콘을 현재 pathname 기반으로 업데이트
+    !activeDrawer && setActiveItem(initialActiveItem);
+  }, [activeDrawer]);
+
+  useEffect(() => {
+    // 외부 영역 클릭 여부 판단 후 열린 드로어가 있다면 닫기
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && activeDrawer) {
+        handleCloseDrawer();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // 언마운트 시 이벤트 리스너 정리
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeDrawer, handleCloseDrawer]);
 
   return (
-    <div className="flex h-full relative z-30">
+    <div className="flex h-full relative z-30" ref={sidebarRef}>
       {/* 메뉴 버튼 영역 */}
       <nav
         className={`
@@ -182,7 +203,7 @@ export default function Sidebar() {
         {/* 로그인/로그아웃 토글 버튼 */}
         <button
           type="button"
-          onClick={handlerOpenLoginModal}
+          onClick={handleOpenLoginModal}
           disabled={isLoading}
           className="flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed"
           title={isAuthenticated ? '로그아웃' : '로그인'}
