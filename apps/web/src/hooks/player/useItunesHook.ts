@@ -2,25 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePlayerStore } from '@/stores';
-
-type PlayerProgress = {
-  positionMs: number;
-  durationMs: number;
-};
-
-export type ItunesPlayback = PlayerProgress & {
-  /** ms 단위로 스크럽(Seek) */
-  seekToMs: (ms: number) => void;
-};
+import { Playback, PlayerProgress } from './types';
+import { clamp01, clampMs } from './utils';
 
 const DEFAULT_VOLUME = 0.5;
-
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-
-const clampMs = (ms: number, maxMs: number) => {
-  const safe = Number.isFinite(ms) ? ms : 0;
-  return Math.min(Math.max(0, safe), Math.max(0, maxMs));
-};
 
 const toPlaybackErrorMessage = (e: unknown): string => {
   if (e instanceof DOMException) {
@@ -30,7 +15,7 @@ const toPlaybackErrorMessage = (e: unknown): string => {
   return '재생에 실패했습니다. 잠시 후 다시 시도해주세요.';
 };
 
-export const useItunesHook = (): ItunesPlayback => {
+export const useItunesHook = (): Playback => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentMusic = usePlayerStore((s) => s.currentMusic);
