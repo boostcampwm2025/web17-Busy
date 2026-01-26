@@ -41,36 +41,30 @@ const clearAuthState = () => {
 const isAuthMeRequest = (error: unknown): boolean => {
   const url = (error as any)?.config?.url as string | undefined;
   if (!url) return false;
-
-  // authMe()는 internalClient.get('/user/me')를 호출함
-  // baseURL이 '/api'라 config.url은 '/user/me' 형태
   return url === '/user/me' || url.endsWith('/user/me');
 };
 
 internalClient.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const status = error?.response?.status;
-
     if (typeof window === 'undefined') return Promise.reject(error);
+
+    const status = (error as any)?.response?.status;
     if (status !== 401) return Promise.reject(error);
 
-    // 토큰 없으면: "비로그인"으로 간주하고 전역 처리는 하지 않는다
-    const hasToken = Boolean(sessionStorage.getItem(APP_ACCESS_TOKEN_STORAGE_KEY));
-    if (!hasToken) return Promise.reject(error);
+    //  "요청 당시" Authorization을 붙였던 요청만 세션만료로 처리
+    const hadAuth = Boolean((error as any)?.config?.__hadAuth);
+    if (!hadAuth) return Promise.reject(error);
 
-    // authMe(/user/me)에서만 "세션 만료"로 판단하고 정리
+    // authMe(/user/me)에서만 처리
     if (!isAuthMeRequest(error)) return Promise.reject(error);
 
     if (handling401) return Promise.reject(error);
     handling401 = true;
 
     clearAuthState();
-
-    // UX: 로그인 모달 오픈
     useModalStore.getState().openModal(MODAL_TYPES.LOGIN, { authError: 'session_expired' });
 
-    // 중복 오픈 방지로 1초 여유
     window.setTimeout(() => {
       handling401 = false;
     }, 1000);
