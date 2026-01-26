@@ -1,3 +1,4 @@
+import { MOCK_QUEUE } from '@/constants/mock';
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { create } from 'zustand';
 
@@ -104,6 +105,7 @@ const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
   currentMusic: null,
   isPlaying: false,
+
   queue: [],
 
   volume: DEFAULT_VOLUME,
@@ -124,7 +126,10 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
    */
   initializeQueue: (queue) => {
     // 서버에서 가져온 데이터로 큐 교체
-    set({ queue: dedupeQueue(queue) });
+    // set({ queue: dedupeQueue(queue) });
+
+    // 유튜브 확장 테스트를 위한 MOCK_QUEUE 초기화
+    set({ queue: MOCK_QUEUE });
   },
 
   playMusic: (music) => {
