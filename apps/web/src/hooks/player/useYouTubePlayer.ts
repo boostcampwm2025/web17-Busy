@@ -118,11 +118,28 @@ export function useYouTubePlayer() {
   // 재생/일시정지 제어
   useEffect(() => {
     const player = playerRef.current;
-    if (!player) return;
+    if (!player || !currentMusic) return;
+
+    const state = player.getPlayerState();
+    if (state === YT.PlayerState.UNSTARTED) return;
 
     if (isPlaying) player.playVideo();
     else player.pauseVideo();
-  }, [isPlaying, currentMusic?.id, currentMusic, togglePlay, setPlayError]);
+  }, [isPlaying, currentMusic?.id]);
+
+  // 에러 처리
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !currentMusic) return;
+
+    const handleError = (e: any) => {
+      setPlayError(`Youtube error: ${e.data}`);
+      togglePlay();
+    };
+
+    player.addEventListener('onError', handleError);
+    return () => player.removeEventListener('onError', handleError);
+  }, [setPlayError, togglePlay]);
 
   // durationMs, positionMs 동기화
   usePlayerTick(
