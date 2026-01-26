@@ -45,12 +45,23 @@ function SearchDrawerInner({ enabled = true }: Props) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-6 border-b-2 border-primary/10">
+      <div className="p-6">
         <h2 className="text-3xl font-black text-primary mb-6">검색</h2>
         <SearchInput value={query} onChange={setQuery} onClear={clearQuery} placeholder="음악 검색, @사용자 검색" />
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-2">{renderBody()}</div>
+      <div className="flex text-center transition-all">
+        <button title="음원 검색 탭" className="flex-1 p-2">
+          음원
+        </button>
+        <button title="사용자 검색 탭" className="flex-1 p-2">
+          사용자
+        </button>
+        <button title="영상 검색 탭" className="flex-1 p-2">
+          영상
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-2 border-t-2 border-primary/10">{renderBody()}</div>
     </div>
   );
 }
