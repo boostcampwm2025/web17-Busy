@@ -31,7 +31,10 @@ export default function ProfileInfo({ profile }: { profile: Profile }) {
   }, [profile]);
 
   const handleSave = async () => {
-    await updateProfile(editForm.nickname, editForm.bio);
+    await updateProfile({
+      nickname: editForm.nickname,
+      bio: editForm.bio,
+    });
     setIsEditing(false);
   };
 

@@ -1,5 +1,5 @@
 import { internalClient } from './client';
-import type { GetUserDto as Profile, SearchUsersResDto } from '@repo/dto';
+import type { GetUserDto as Profile, SearchUsersResDto, UpdateProfileDto } from '@repo/dto';
 
 /** [GET] 사용자 프로필 정보 요청 */
 export const getUser = async (userId: string): Promise<Profile> => {
@@ -16,7 +16,7 @@ export const searchUsers = async (q: string, cursor?: string, limit?: number): P
 };
 
 /** [PATCH] 프로필 수정 */
-export const updateProfile = async (nickname: string, bio: string): Promise<Profile> => {
-  const { data } = await internalClient.patch<Profile>(`/user`, { nickname, bio });
+export const updateProfile = async (profile: UpdateProfileDto): Promise<Profile> => {
+  const { data } = await internalClient.patch<Profile>(`/user`, { profile });
   return data;
 };
