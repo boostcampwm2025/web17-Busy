@@ -15,6 +15,7 @@ export default function ProfileView({ userId }: { userId: string }) {
   const { profile, setProfile } = useProfileStore();
 
   const nonce = useFeedRefreshStore((s) => s.nonce);
+  const isMyProfile = loggedInUserId === userId;
 
   /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
   const fetchProfilePosts = useCallback(
@@ -25,7 +26,10 @@ export default function ProfileView({ userId }: { userId: string }) {
     [userId],
   );
 
-  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchProfilePosts, resetKey: String(nonce) });
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
+    fetchFn: fetchProfilePosts,
+    resetKey: isMyProfile ? String(nonce) : undefined,
+  });
   const [renderError, setRenderError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -55,7 +59,7 @@ export default function ProfileView({ userId }: { userId: string }) {
   return (
     <div className="h-full flex flex-col mx-auto p-6 md:p-10 gap-y-4">
       <ProfileInfo profile={profile} loggedInUserId={loggedInUserId} />
-      <ProfilePosts posts={items} isMyProfile={loggedInUserId === userId} />
+      <ProfilePosts posts={items} isMyProfile={isMyProfile} />
       {errorMsg && (
         <div className="text-center">
           <p>{errorMsg}</p>
