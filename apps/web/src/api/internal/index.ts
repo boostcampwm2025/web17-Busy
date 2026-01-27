@@ -10,3 +10,4 @@ export * from './noti';
 export * from './like';
 export * from './comment';
 export * from './music';
+export * from './logsClient';
