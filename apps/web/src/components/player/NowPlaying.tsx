@@ -126,7 +126,9 @@ export default function NowPlaying({
       {/* 기존 앨범커버 영역 */}
       <div className="mx-auto w-full max-w-55 aspect-square rounded-2xl border-2 border-primary overflow-hidden bg-gray-4 mb-2 flex items-center justify-center">
         {/* youtube 음악이 재생될 때 */}
-        <div ref={youtubeContainerRef ?? undefined} className={`w-full h-full ${isYouTube ? '' : 'hidden'}`} />
+        <div className={`w-full h-full ${isYouTube ? '' : 'hidden'}`}>
+          <div ref={youtubeContainerRef ?? undefined} className="w-full h-full" />
+        </div>
 
         {/* itunes 음악이 재생될 때 */}
         <img
