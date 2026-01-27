@@ -5,10 +5,8 @@ import { useCallback, useMemo } from 'react';
 import { useInfiniteScroll, useDebouncedValue } from '@/hooks';
 import { ITUNES_SEARCH } from '@/constants';
 import { searchUsers } from '@/api';
-
+import { SearchStatus } from '@/types';
 import type { SearchUsersResDto } from '@repo/dto';
-
-export type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
 
 type SearchUser = SearchUsersResDto['users'][number];
 
