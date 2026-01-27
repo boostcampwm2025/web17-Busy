@@ -8,12 +8,12 @@ function decodeHtmlEntities(text: string) {
   return doc.documentElement.textContent ?? '';
 }
 
-export const youtubeVideoToMusic = (m: YoutubeVideoResult): Music => ({
-  id: m.id.videoId,
-  trackUri: m.id.videoId,
+export const youtubeVideoToMusic = (video: YoutubeVideoResult): Music => ({
+  id: video.id.videoId,
+  trackUri: video.id.videoId,
   provider: MusicProvider.YOUTUBE,
-  albumCoverUrl: m.snippet.thumbnails.high.url,
-  title: decodeHtmlEntities(m.snippet.title),
-  artistName: m.snippet.channelTitle,
+  albumCoverUrl: video.snippet.thumbnails.high.url,
+  title: decodeHtmlEntities(video.snippet.title),
+  artistName: video.snippet.channelTitle,
   durationMs: 0,
 });
