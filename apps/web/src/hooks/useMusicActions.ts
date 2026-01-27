@@ -1,8 +1,9 @@
 'use client';
 
 import { MODAL_TYPES, useModalStore, usePlayerStore } from '@/stores';
-import type { CreateMusicReqDto, MusicResponseDto as Music } from '@repo/dto';
+import type { CreateMusicReqDto, MusicResponseDto as Music, YoutubeMusicDto } from '@repo/dto';
 import { createMusic } from '@/api/internal/music';
+import { MusicProvider } from '@repo/dto';
 
 const isUuid = (v: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 
@@ -15,7 +16,35 @@ const toCreateMusicReqDto = (m: Music): CreateMusicReqDto => ({
   durationMs: m.durationMs,
 });
 
+const toMusicDto = (m: YoutubeMusicDto): Music => ({
+  id: m.id.videoId,
+  trackUri: m.id.videoId,
+  provider: MusicProvider.YOUTUBE,
+  albumCoverUrl: m.snippet.thumbnails.high.url,
+  title: m.snippet.title,
+  artistName: m.snippet.channelTitle,
+  // api 요청하여 결과를 PT4M13S 매핑
+  durationMs: parseYoutubeDuration(m.contentDetails?.duration),
+});
+
 const normalizeToArray = (v: Music | Music[]): Music[] => (Array.isArray(v) ? v : [v]);
+
+const isYoutubeDto = (item: any): item is YoutubeMusicDto => {
+  return 'snippet' in item;
+};
+
+const parseYoutubeDuration = (duration: string | undefined): number => {
+  if (!duration) return 0;
+  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+
+  if (!match) return 0;
+
+  const hours = parseInt(match[1] || '0', 10);
+  const minutes = parseInt(match[2] || '0', 10);
+  const seconds = parseInt(match[3] || '0', 10);
+
+  return (hours * 3600 + minutes * 60 + seconds) * 1000;
+};
 
 /**
  * NOTE:
@@ -35,8 +64,16 @@ export default function useMusicActions() {
     return saved;
   };
 
-  const ensureMusicsInDb = async (tracks: Music[]): Promise<Music[]> => {
-    // 중복(동일 id) 최소화 + 순서 유지
+  const ensureMusicsInDb = async (rawTracks: (Music | YoutubeMusicDto)[]): Promise<Music[]> => {
+    // 전처리: 입력받은 배열을 모두 'Music' 타입으로
+    const tracks: Music[] = rawTracks.map((t) => {
+      if (isYoutubeDto(t)) {
+        return toMusicDto(t);
+      }
+      return t;
+    });
+
+    // 중복 제거
     const seen = new Set<string>();
     const unique = tracks.filter((t) => {
       const key = t.id ?? `${t.provider}:${t.trackUri}`;
