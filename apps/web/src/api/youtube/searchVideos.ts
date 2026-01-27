@@ -1,6 +1,5 @@
 import { toErrorMessage } from '@/utils';
 
-// dto 또는 type 폴더로 이동 고려
 export interface YoutubeVideoResult {
   kind: string;
   etag: string;
