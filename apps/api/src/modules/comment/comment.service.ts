@@ -11,6 +11,7 @@ import { Comment } from './entities/comment.entity';
 
 import { CreateCommentDto, GetCommentsResDto, NotiType } from '@repo/dto';
 import { NotiService } from '../noti/noti.service';
+import { TrendingService } from '../trending/trending.service';
 
 @Injectable()
 export class CommentService {
@@ -19,6 +20,7 @@ export class CommentService {
     private readonly postRepository: PostRepository,
     private readonly dataSource: DataSource,
     private readonly notiService: NotiService,
+    private readonly trendingService: TrendingService,
   ) {}
 
   // 댓글 생성
@@ -47,6 +49,10 @@ export class CommentService {
 
       return comment;
     });
+
+    if (txResult) {
+      this.trendingService.addInteraction(postId, 'comment');
+    }
 
     // 알림 생성은 await 안 함
     void this.notiService
