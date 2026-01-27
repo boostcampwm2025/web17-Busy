@@ -13,7 +13,7 @@ import { SearchMode } from '@/types';
 const SEARCH_TAB_TITLES = {
   music: '음원',
   user: '사용자',
-  video: '영상',
+  video: '유튜브',
 } as const satisfies Record<SearchMode, string>;
 
 const SEARCH_TAB_ENTRIES = Object.entries(SEARCH_TAB_TITLES) as [SearchMode, string][];
