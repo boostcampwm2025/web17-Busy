@@ -7,11 +7,10 @@ import { useMusicActions } from '@/hooks';
 import type { MusicResponseDto as Music } from '@repo/dto';
 interface TrackItemProps {
   music: Music;
-  meId: string | null;
   isAuthenticated: boolean;
 }
 
-export default function TrackItem({ music, meId, isAuthenticated }: TrackItemProps) {
+export default function TrackItem({ music, isAuthenticated }: TrackItemProps) {
   const { openModal } = useModalStore();
 
   /** 재생 / 작성 모달 / 보관함 선택  */

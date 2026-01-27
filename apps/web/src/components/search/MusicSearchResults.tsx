@@ -5,15 +5,14 @@ import { TrackItem } from './index';
 
 type Props = {
   musics: Music[];
-  meId: string | null;
   isAuthenticated: boolean;
 };
 
-export default function MusicSearchResults({ musics, meId, isAuthenticated }: Props) {
+export default function MusicSearchResults({ musics, isAuthenticated }: Props) {
   return (
     <div className="space-y-1">
       {musics.map((music) => (
-        <TrackItem key={music.id} music={music} meId={meId} isAuthenticated={isAuthenticated} />
+        <TrackItem key={music.id} music={music} isAuthenticated={isAuthenticated} />
       ))}
     </div>
   );
