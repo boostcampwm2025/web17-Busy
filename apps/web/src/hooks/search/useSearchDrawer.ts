@@ -15,10 +15,8 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
   const [followOverrides, setFollowOverrides] = useState<Map<string, boolean>>(new Map());
   const [mode, setMode] = useState<SearchMode>('music');
 
-  const keyword = useMemo(() => query.trim(), [query]);
-
-  const itunes = useItunesSearch({ query: keyword, enabled: enabled && mode === 'music' });
-  const users = useUserSearch({ query: keyword, enabled: enabled && mode === 'user' });
+  const itunes = useItunesSearch({ query, enabled: enabled && mode === 'music' });
+  const users = useUserSearch({ query, enabled: enabled && mode === 'user' });
 
   const active = useMemo(() => (mode === 'user' ? users : itunes), [mode, users, itunes]);
 
@@ -44,7 +42,6 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
 
     mode,
     handleChangeMode,
-    keyword,
 
     itunes,
     users,
