@@ -64,7 +64,7 @@ function SearchDrawerInner({ enabled = true }: Props) {
       <div className="flex text-center">
         {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => (
           <button
-            id={tabMode}
+            key={tabMode}
             title={`${tabTitle} 검색 탭`}
             onClick={() => handleChangeMode(tabMode)}
             className={`flex-1 p-2 ${mode === tabMode ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
