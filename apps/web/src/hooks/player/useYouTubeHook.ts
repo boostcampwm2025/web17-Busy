@@ -39,14 +39,19 @@ export function useYouTubeHook() {
   const playNext = usePlayerStore((s) => s.playNext);
   const togglePlay = usePlayerStore((s) => s.togglePlay);
 
-  const setVolume = usePlayerStore((s) => s.setVolume);
   const volume = usePlayerStore((s) => s.volume);
 
   const setPlayError = usePlayerStore((s) => s.setPlayError);
 
   const [progress, setProgress] = useState<PlayerProgress>({ positionMs: 0, durationMs: 0 });
-
   const [isTicking, setIsTicking] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  const queueLengthRef = useRef(queueLength);
+
+  useEffect(() => {
+    queueLengthRef.current = queueLength;
+  }, [queueLength]);
 
   // Player 생성은 1회만
   useEffect(() => {
@@ -74,16 +79,79 @@ export function useYouTubeHook() {
         document.body.appendChild(tag);
       });
 
-    const createPlayer = async () => {
-      await loadScript();
-      if (!mounted || !containerRef.current || playerRef.current) return;
+    const waitForContainer = () =>
+      new Promise<HTMLDivElement>((resolve) => {
+        const tick = () => {
+          if (!mounted) return;
+          const el = containerRef.current;
+          if (el) return resolve(el);
+          requestAnimationFrame(tick);
+        };
+        tick();
+      });
 
-      playerRef.current = new window.YT.Player(containerRef.current, {
+    const init = async () => {
+      await loadScript();
+      const el = await waitForContainer();
+      if (!mounted || playerRef.current) return;
+
+      playerRef.current = new window.YT.Player(el, {
         playerVars: { autoplay: 0, controls: 1 },
+        events: {
+          onReady: (e) => {
+            playerRef.current = e.target;
+            setReady(true);
+          },
+          // onError: (e) => setPlayError(`YouTube error: ${e.data}`),
+          onStateChange: (e) => {
+            const player = playerRef.current;
+            if (!player) return;
+
+            const syncDuration = () => {
+              const d = player.getDuration(); // 현재 위치 (seconds)
+              const durationMs = d > 0 ? Math.floor(d * 1000) : 0;
+              if (durationMs > 0) {
+                setProgress((prev) => ({ ...prev, durationMs: durationMs || prev.durationMs }));
+              }
+            };
+
+            switch (e.data) {
+              case YT.PlayerState.PLAYING:
+                syncDuration();
+                setIsTicking(true);
+                break;
+
+              case YT.PlayerState.PAUSED:
+              case YT.PlayerState.BUFFERING:
+              case YT.PlayerState.CUED:
+                syncDuration();
+                setIsTicking(false);
+                break;
+
+              case YT.PlayerState.ENDED:
+                setIsTicking(false);
+
+                const qLen = queueLengthRef.current;
+
+                if (qLen <= 1) {
+                  player.seekTo(0, true);
+                  player.playVideo();
+                  return;
+                }
+
+                playNext();
+                break;
+
+              default: // UNSTARTED 등
+                setIsTicking(false);
+                break;
+            }
+          },
+        },
       });
     };
 
-    createPlayer();
+    init();
 
     return () => {
       mounted = false;
@@ -112,6 +180,8 @@ export function useYouTubeHook() {
 
   // videoId 교체
   useEffect(() => {
+    if (!ready) return;
+
     const player = playerRef.current;
     if (!player) return;
 
@@ -134,7 +204,7 @@ export function useYouTubeHook() {
     // isPlaying에 따른 분기 필요? itunes는 분기 안 함
     if (isPlaying) player.loadVideoById(videoId);
     else player.cueVideoById(videoId);
-  }, [currentMusic?.id, videoId, isYoutube, isPlaying]);
+  }, [ready, currentMusic?.id, videoId, isYoutube, isPlaying]);
 
   // 에러메시지 초기화
   useEffect(() => {
@@ -171,60 +241,6 @@ export function useYouTubeHook() {
   }, []);
 
   usePlayerTick(isTicking, getTimeSec, onTickMs, 250);
-
-  // player 이벤트 핸들러 등록
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player) return;
-
-    const syncDuration = () => {
-      const d = player.getDuration(); // 현재 위치 (seconds)
-      const durationMs = d > 0 ? Math.floor(d * 1000) : 0;
-      if (durationMs > 0) {
-        setProgress((prev) => ({ ...prev, durationMs: durationMs || prev.durationMs }));
-      }
-    };
-
-    const handleStateChange = (e: any) => {
-      switch (e.data) {
-        case YT.PlayerState.PLAYING:
-          syncDuration();
-          setIsTicking(true);
-          break;
-
-        case YT.PlayerState.PAUSED:
-        case YT.PlayerState.BUFFERING:
-        case YT.PlayerState.CUED:
-          syncDuration();
-          setIsTicking(false);
-          break;
-
-        case YT.PlayerState.ENDED:
-          setIsTicking(false);
-
-          if (queueLength <= 1) {
-            player.seekTo(0, true);
-            player.playVideo();
-            return;
-          }
-
-          playNext();
-          break;
-
-        default: // UNSTARTED 등
-          setIsTicking(false);
-          break;
-      }
-    };
-
-    syncDuration();
-
-    player.addEventListener('onStateChange', handleStateChange);
-    return () => {
-      setIsTicking(false);
-      player.removeEventListener('onStateChange', handleStateChange);
-    };
-  }, [playNext, queueLength]);
 
   const seekToMs = useCallback(
     (ms: number) => {
