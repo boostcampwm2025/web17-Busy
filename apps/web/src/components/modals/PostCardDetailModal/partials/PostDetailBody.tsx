@@ -10,13 +10,12 @@ type CommentItem = GetCommentsResDto['comments'][number];
 type Props = {
   profileImg: string;
   nickname: string;
-  createdAtText: string;
   content: string;
   comments: CommentItem[];
   commentsLoading: boolean;
 };
 
-export default function PostDetailBody({ profileImg, nickname, createdAtText, content, comments, commentsLoading }: Props) {
+export default function PostDetailBody({ profileImg, nickname, content, comments, commentsLoading }: Props) {
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
       <div className="flex space-x-3">
@@ -24,7 +23,6 @@ export default function PostDetailBody({ profileImg, nickname, createdAtText, co
         <div className="text-sm min-w-0">
           <p className="font-bold text-primary mb-1">{nickname}</p>
           <p className="text-primary/80 leading-relaxed font-medium whitespace-pre-wrap">{content}</p>
-          <span className="text-[10px] text-gray-400 font-bold block mt-2">{createdAtText}</span>
         </div>
       </div>
 

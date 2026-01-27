@@ -7,20 +7,11 @@ type Props = {
   isSubmitting: boolean;
   isLiked: boolean;
   likeCount: number;
-  createdAtText: string;
   onToggleLike: () => Promise<void> | void;
   onOpenLikedUsers: () => void;
 };
 
-export default function PostDetailActions({
-  isAuthenticated,
-  isSubmitting,
-  isLiked,
-  likeCount,
-  createdAtText,
-  onToggleLike,
-  onOpenLikedUsers,
-}: Props) {
+export default function PostDetailActions({ isAuthenticated, isSubmitting, isLiked, likeCount, onToggleLike, onOpenLikedUsers }: Props) {
   return (
     <div className="p-4 border-t-2 border-primary/10 bg-gray-4/30">
       <div className="flex items-center space-x-4">
@@ -46,8 +37,6 @@ export default function PostDetailActions({
           좋아요 {likeCount}개
         </button>
       </div>
-
-      <p className="mt-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider">{createdAtText}</p>
     </div>
   );
 }

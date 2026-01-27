@@ -14,7 +14,7 @@ import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { LoadingSpinner, PostMedia } from '@/components';
 import { coalesceImageSrc, formatRelativeTime } from '@/utils';
 
-import { PostDetailHeader, PostDetailBody, PostDetailActions, PostDetailCommentComposer, LikedUsersOverlay } from './index';
+import { PostDetailBody, PostDetailActions, PostDetailCommentComposer, LikedUsersOverlay } from './index';
 
 export const PostCardDetailModal = () => {
   const { userId } = useAuthMe();
@@ -69,13 +69,6 @@ export const PostCardDetailModal = () => {
 
   if (!enabled || !postId) return null;
 
-  const handleBackdropClick = () => closeModal();
-  const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation();
-
-  const handlePlay = (music: Music) => {
-    playMusic(music);
-  };
-
   const handleUserClick = (userId: string) => {
     router.push(`/profile/${userId}`);
   };
@@ -109,7 +102,6 @@ export const PostCardDetailModal = () => {
           )}
 
           <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary">
-            {/* Header */}
             <div className="p-4 border-b-2 border-primary/10">
               <PostHeader
                 post={safePost}
@@ -119,12 +111,10 @@ export const PostCardDetailModal = () => {
                 }}
               />
             </div>
-            <PostDetailHeader profileImg={profileImg} nickname={safePost.author.nickname} />
 
             <PostDetailBody
               profileImg={profileImg}
               nickname={safePost.author.nickname}
-              createdAtText={createdAtText}
               content={safePost.content}
               comments={reactions.comments}
               commentsLoading={reactions.commentsLoading}
@@ -135,7 +125,6 @@ export const PostCardDetailModal = () => {
               isSubmitting={reactions.isSubmittingLike}
               isLiked={reactions.isLiked}
               likeCount={reactions.likeCount}
-              createdAtText={createdAtText}
               onToggleLike={reactions.toggleLike}
               onOpenLikedUsers={() => setLikedUsersOpen(true)}
             />
