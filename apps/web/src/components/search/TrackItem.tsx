@@ -45,7 +45,7 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
   return (
     <div className="w-full flex items-center p-3 rounded-xl hover:bg-gray-4 transition-colors">
       <div
-        className={`h-12 ${mode === 'video' ? 'aspect-video' : 'aspect-square'} mr-4 shrink-0 rounded-lg overflow-hidden border border-gray-3 bg-gray-4`}
+        className={`${mode === 'video' ? 'h-14 aspect-video' : 'h-12 aspect-square'} mr-4 shrink-0 rounded-lg overflow-hidden border border-gray-3 bg-gray-4`}
       >
         <img src={item.albumCoverUrl} alt={item.title} className="w-full h-full object-cover" />
       </div>
