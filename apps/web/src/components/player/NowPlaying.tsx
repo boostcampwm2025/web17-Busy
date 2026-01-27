@@ -3,14 +3,13 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { MusicProvider } from '@repo/dto/values';
 import { Pause, Play, Shuffle, SkipBack, SkipForward, PlusCircle, FolderPlus } from 'lucide-react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { usePlayerStore } from '@/stores';
 import { VolumeControl, SeekBar } from './index';
 import { useMusicActions, useSearchDrawer } from '@/hooks';
 import { useModalStore, MODAL_TYPES } from '@/stores';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { formatMs } from '@/utils';
-import { useYouTubePlayer } from '@/hooks/youtube/useYouTubePlayer';
 
 interface NowPlayingProps {
   currentMusic: Music | null;
@@ -28,12 +27,26 @@ interface NowPlayingProps {
 
   onShuffle: () => void;
   onSeek: (ms: number) => void;
+
+  youtubeContainerRef: React.RefObject<HTMLDivElement | null> | null;
 }
 
-export default function NowPlaying(props: NowPlayingProps) {
-  const { currentMusic, isPlaying, canPrev, canNext, positionMs, durationMs, onTogglePlay, onPrev, onNext, onShuffle } = props;
-
+export default function NowPlaying({
+  currentMusic,
+  isPlaying,
+  canPrev,
+  canNext,
+  positionMs,
+  durationMs,
+  onTogglePlay,
+  onPrev,
+  onNext,
+  onShuffle,
+  onSeek,
+  youtubeContainerRef,
+}: NowPlayingProps) {
   const isPlayable = Boolean(currentMusic);
+  const isYouTube = currentMusic?.provider === MusicProvider.YOUTUBE;
 
   const volume = usePlayerStore((s) => s.volume);
   const setVolume = usePlayerStore((s) => s.setVolume);
@@ -110,12 +123,20 @@ export default function NowPlaying(props: NowPlayingProps) {
     <div className="p-4 border-b-2 border-primary">
       <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-2 text-center">Now Playing</h2>
 
+      {/* 기존 앨범커버 영역 */}
       <div className="mx-auto w-full max-w-55 aspect-square rounded-2xl border-2 border-primary overflow-hidden bg-gray-4 mb-2 flex items-center justify-center">
-        {currentMusic ? (
-          <img src={currentMusic.albumCoverUrl} alt={currentMusic.title} className="w-full h-full object-cover" />
-        ) : (
-          <span className="text-sm font-bold text-gray-2">No Music</span>
-        )}
+        {/* youtube 음악이 재생될 때 */}
+        <div ref={youtubeContainerRef ?? undefined} className={`w-full h-full ${isYouTube ? '' : 'hidden'}`} />
+
+        {/* itunes 음악이 재생될 때 */}
+        <img
+          src={currentMusic?.albumCoverUrl ?? ''}
+          alt={currentMusic?.title ?? ''}
+          className={`w-full h-full object-cover ${!currentMusic || isYouTube ? 'hidden' : ''}`}
+        />
+
+        {/* 재생중인 음악이 없을 때 */}
+        {!currentMusic && <span className="text-sm font-bold text-gray-2">No Music</span>}
       </div>
 
       <div className="text-center mb-2">
@@ -163,7 +184,7 @@ export default function NowPlaying(props: NowPlayingProps) {
 
       <div className={`mb-3${currentMusic ? '' : ' opacity-50'}`}>
         {/* 진행바 + seek */}
-        <SeekBar positionMs={positionMs} durationMs={shownDurationMs} disabled={!currentMusic || shownDurationMs <= 0} onSeek={props.onSeek} />
+        <SeekBar positionMs={positionMs} durationMs={shownDurationMs} disabled={!currentMusic || shownDurationMs <= 0} onSeek={onSeek} />
         <div className="flex justify-between text-[11px] font-bold text-gray-2 mt-2">
           <span>{currentMusic ? currentText : '0:00'}</span>
           <span>{currentMusic ? durationText : '0:00'}</span>
