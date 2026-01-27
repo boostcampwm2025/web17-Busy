@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PlayerProgress } from '@/types';
 import { MusicProvider } from '@repo/dto/values';
 import { clamp01, clampMs } from '@/utils';
-import { DEFAULT_VOLUME } from '@/constants';
+import { DEFAULT_VOLUME, YOUTUBE_IFRAME_ID, YOUTUBE_IFRAME_SCRIPT_SRC } from '@/constants';
 
 declare global {
   interface Window {
@@ -53,7 +53,7 @@ export function useYouTubeHook() {
     queueLengthRef.current = queueLength;
   }, [queueLength]);
 
-  // Player 생성은 1회만
+  // Player 생성 - 처음 1회만
   useEffect(() => {
     let mounted = true;
 
@@ -61,7 +61,7 @@ export function useYouTubeHook() {
       new Promise<void>((resolve) => {
         if (window.YT?.Player) return resolve();
 
-        const existing = document.getElementById('yt-iframe-api');
+        const existing = document.getElementById(YOUTUBE_IFRAME_ID);
         if (existing) {
           const check = setInterval(() => {
             if (window.YT?.Player) {
@@ -73,8 +73,8 @@ export function useYouTubeHook() {
         }
 
         const tag = document.createElement('script');
-        tag.id = 'yt-iframe-api';
-        tag.src = 'https://www.youtube.com/iframe_api';
+        tag.id = YOUTUBE_IFRAME_ID;
+        tag.src = YOUTUBE_IFRAME_SCRIPT_SRC;
         window.onYouTubeIframeAPIReady = () => resolve();
         document.body.appendChild(tag);
       });
