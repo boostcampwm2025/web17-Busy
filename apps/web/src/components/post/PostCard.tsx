@@ -21,7 +21,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onUserClick, onOpenDetail }: PostCardProps) {
-  const { isAuthenticated } = useAuthMe();
+  const { isAuthenticated, userId } = useAuthMe();
 
   const override = usePostReactionOverridesStore((s) => s.likesByPostId[post.id]);
   const setLikeOverride = usePostReactionOverridesStore((s) => s.setLikeOverride);
@@ -32,6 +32,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
   const [optimisticLiked, setOptimisticLiked] = useState(baseLiked);
   const [optimisticLikeCount, setOptimisticLikeCount] = useState(baseLikeCount);
   const [likeSubmitting, setLikeSubmitting] = useState(false);
+  const isOwner = post.author.id === userId;
 
   const postForActions: Post = useMemo(
     () => ({
@@ -92,7 +93,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
       className="bg-white border-2 border-primary rounded-2xl p-6 mb-8 shadow-[3px_3px_0px_0px_#00214D]
                  hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_#00EBC7] transition-all duration-300 cursor-pointer"
     >
-      <PostHeader post={post} onUserClick={onUserClick} />
+      <PostHeader post={post} isOwner={isOwner} onUserClick={onUserClick} />
 
       <PostMedia
         post={post}

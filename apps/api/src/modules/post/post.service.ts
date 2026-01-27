@@ -217,21 +217,18 @@ export class PostService {
   }
 
   private decodeCursor(cursor?: string) {
-    if (!cursor) {
-      return { date: null, id: null };
-    }
+    if (!cursor)
+      return { date: null as Date | null, id: null as string | null };
 
     const separatorIndex = cursor.lastIndexOf('_');
-    if (separatorIndex === -1) {
-      return { date: null, id: null };
-    }
+    if (separatorIndex === -1) return { date: null, id: null };
 
     const dateString = cursor.substring(0, separatorIndex);
     const idString = cursor.substring(separatorIndex + 1);
 
-    return {
-      date: new Date(dateString),
-      id: idString,
-    };
+    const ms = Date.parse(dateString);
+    if (!Number.isFinite(ms)) return { date: null, id: null };
+
+    return { date: new Date(ms), id: idString };
   }
 }
