@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { usePlayerStore } from '@/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -102,7 +102,10 @@ export function useYouTubeHook() {
             playerRef.current = e.target;
             setReady(true);
           },
-          // onError: (e) => setPlayError(`YouTube error: ${e.data}`),
+          onError: (e) => {
+            setPlayError(`Youtube error: ${e.data}`);
+            togglePlay();
+          },
           onStateChange: (e) => {
             const player = playerRef.current;
             if (!player) return;
@@ -219,20 +222,6 @@ export function useYouTubeHook() {
     if (isPlaying) player.playVideo();
     else player.pauseVideo();
   }, [isYoutube, isPlaying, currentMusic?.id]);
-
-  // 에러 처리
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player || !currentMusic || !isYoutube) return;
-
-    const handleError = (e: any) => {
-      setPlayError(`Youtube error: ${e.data}`);
-      togglePlay();
-    };
-
-    player.addEventListener('onError', handleError);
-    return () => player.removeEventListener('onError', handleError);
-  }, [isYoutube, setPlayError, togglePlay]);
 
   // durationMs, positionMs 동기화
   const getTimeSec = useCallback(() => playerRef.current?.getCurrentTime() ?? -1, []);
