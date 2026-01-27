@@ -1,12 +1,9 @@
 ﻿'use client';
 
-import { usePlayerStore } from '@/stores';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useState } from 'react';
 import { PlayerProgress } from '@/types';
-import { MusicProvider } from '@repo/dto/values';
-import { clamp01, clampMs } from '@/utils';
-import { DEFAULT_VOLUME, YOUTUBE_PLAYER_TICK_INTERVAL_MS } from '@/constants';
-import { usePlayerTick, useYouTubePlayer, useYouTubeSync } from './youtube';
+import { YOUTUBE_PLAYER_TICK_INTERVAL_MS } from '@/constants';
+import { usePlayerTick, useYouTubePlayer, useYouTubeProgress, useYouTubeSync } from './youtube';
 
 declare global {
   interface Window {
@@ -25,39 +22,25 @@ export function useYouTubeHook() {
   const { containerRef, playerRef, ready } = useYouTubePlayer({ setProgress, setIsTicking });
 
   /**
+   * progress 관련 함수 정의
+   * getTimeSec: 현재 재생위치 반환 함수
+   * onTickMs: setProgress로 positionMs 설정
+   * seekToMs: player의 재생 시점 조정 함수 (SeekBar onClick 함수)
+   */
+  const { getTimeSec, onTickMs, seekToMs } = useYouTubeProgress({ progress, playerRef, setProgress });
+
+  /**
    * volume 동기화
    * video 교체
    * 에러메시지 초기화
    * 재생/일시정지 제어
    */
-  useYouTubeSync({ playerRef, ready, setProgress });
+  useYouTubeSync({ ready, playerRef, setProgress });
 
-  // durationMs, positionMs 동기화
-  const getTimeSec = useCallback(() => playerRef.current?.getCurrentTime() ?? -1, []);
-  const onTickMs = useCallback((ms: number) => {
-    setProgress((prev) => ({ ...prev, positionMs: ms }));
-  }, []);
-
+  /**
+   * YOUTUBE_PLAYER_TICK_INTERVAL_MS 마다 player의 재생 위치와 progress 동기화
+   */
   usePlayerTick(isTicking, getTimeSec, onTickMs, YOUTUBE_PLAYER_TICK_INTERVAL_MS);
-
-  const seekToMs = useCallback(
-    (ms: number) => {
-      const player = playerRef.current;
-      if (!player) return;
-
-      const rawDuration = player.getDuration();
-      const metaMs = rawDuration > 0 ? Math.floor(rawDuration * 1000) : 0;
-      const maxMs = metaMs > 0 ? metaMs : progress.durationMs;
-
-      if (maxMs <= 0) return;
-
-      const nextMs = clampMs(ms, maxMs);
-      player.seekTo(nextMs / 1000, true);
-
-      setProgress((prev) => ({ ...prev, positionMs: nextMs, durationMs: maxMs || prev.durationMs }));
-    },
-    [progress.durationMs],
-  );
 
   return {
     containerRef,
