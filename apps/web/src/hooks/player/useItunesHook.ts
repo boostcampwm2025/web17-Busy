@@ -5,6 +5,7 @@ import { usePlayerStore } from '@/stores';
 import { Playback, PlayerProgress } from './types';
 import { clamp01, clampMs } from './utils';
 import { DEFAULT_VOLUME } from './constants';
+import { MusicProvider } from '@repo/dto/values';
 
 const toPlaybackErrorMessage = (e: unknown): string => {
   if (e instanceof DOMException) {
@@ -19,6 +20,7 @@ export const useItunesHook = (): Playback => {
 
   const currentMusic = usePlayerStore((s) => s.currentMusic);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const isItunes = currentMusic?.provider === MusicProvider.ITUNES;
 
   const queueLength = usePlayerStore((s) => s.queue.length);
   const playNext = usePlayerStore((s) => s.playNext);
@@ -73,7 +75,7 @@ export const useItunesHook = (): Playback => {
     // 재생 실패 메시지는 트랙 변경 시 초기화
     setPlayError(null);
 
-    if (!currentMusic) {
+    if (!currentMusic || !isItunes) {
       audio.pause();
       audio.src = '';
       setProgress({ positionMs: 0, durationMs: 0 });
@@ -96,14 +98,14 @@ export const useItunesHook = (): Playback => {
     audio.load();
 
     setProgress({ positionMs: 0, durationMs: currentMusic.durationMs ?? 0 });
-  }, [currentMusic, setPlayError]);
+  }, [currentMusic, isItunes, setPlayError]);
 
   // 재생/일시정지 제어: 여기서만 play/pause 수행
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (!currentMusic) return;
+    if (!currentMusic || !isItunes) return;
 
     if (!isPlaying) {
       audio.pause();
@@ -114,7 +116,7 @@ export const useItunesHook = (): Playback => {
       setPlayError(toPlaybackErrorMessage(e));
       togglePlay();
     });
-  }, [isPlaying, currentMusic?.id, currentMusic, togglePlay, setPlayError]);
+  }, [isPlaying, currentMusic?.id, currentMusic, isItunes, togglePlay, setPlayError]);
 
   // timeupdate/loadedmetadata/ended 이벤트로 progress 동기화
   useEffect(() => {
