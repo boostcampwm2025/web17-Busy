@@ -6,6 +6,7 @@ import { CoverImgUploader, MusicSearch, SelectedMusicList } from './index';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { useContentWrite } from '@/hooks';
+import { toast } from 'react-toastify';
 
 type Props = {
   /** legacy: 단일 곡 */
@@ -17,6 +18,11 @@ type Props = {
 
 export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
   const { closeModal } = useModalStore();
+
+  const handleWriteSuccess = () => {
+    toast.success('새 글이 등록되었습니다.');
+    closeModal();
+  };
 
   const {
     selectedMusics,
@@ -37,7 +43,7 @@ export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
   } = useContentWrite({
     initialMusic,
     initialMusics,
-    onSuccess: closeModal,
+    onSuccess: handleWriteSuccess,
   });
 
   return (
