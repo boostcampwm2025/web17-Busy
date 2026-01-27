@@ -14,3 +14,13 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+  neo4j:
+    image: neo4j:5.15
+    container_name: vibr-neo4j
+    ports:
+      - "7474:7474" # HTTP (브라우저 콘솔용)
+      - "7687:7687" # Bolt (애플리케이션 연결용)
+    environment:
+      NEO4J_AUTH: neo4j/1234
+    volumes:
+      - ./neo4j/data:/data
