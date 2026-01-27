@@ -10,6 +10,7 @@ import { LikeRepository } from './like.repository';
 import { PostRepository } from '../post/post.repository';
 import { CreateLikeDto, LikedUserDto, NotiType } from '@repo/dto';
 import { NotiService } from '../noti/noti.service';
+import { TrendingService } from '../trending/trending.service';
 
 @Injectable()
 export class LikeService {
@@ -18,6 +19,7 @@ export class LikeService {
     private readonly likeRepository: LikeRepository,
     private readonly postRepository: PostRepository,
     private readonly notiService: NotiService,
+    private readonly trendingService: TrendingService,
   ) {}
 
   // 좋아요 생성
@@ -44,8 +46,14 @@ export class LikeService {
       return { message: '좋아요 성공', postId };
     });
 
+    // 무조건 tsResult가 반환되면 좋아요 성공하는 거라서 분기 안 해도 되긴 함
+    if (txResult.message === '좋아요 성공') {
+      // await X
+      this.trendingService.addInteraction(txResult.postId, 'like');
+    }
+
     // 알림 생성은 await 안 함 (실패해도 좋아요 기능은 성공해야 함)
-    void this.notiService
+    this.notiService
       .create({
         type: NotiType.LIKE,
         actorId: userId,
@@ -58,7 +66,7 @@ export class LikeService {
 
   // 좋아요 취소
   async removeLike(userId: string, postId: string) {
-    return this.dataSource.transaction(async (manager) => {
+    const txResult = await this.dataSource.transaction(async (manager) => {
       const isDeleted = await this.likeRepository.deleteLike(
         manager,
         userId,
@@ -75,6 +83,12 @@ export class LikeService {
 
       return { message: '좋아요 취소 성공', postId };
     });
+
+    if (txResult.message === '좋아요 취소 성공') {
+      this.trendingService.addInteraction(txResult.postId, 'unlike');
+    }
+
+    return txResult;
   }
 
   // 좋아요 누른 유저 목록 조회

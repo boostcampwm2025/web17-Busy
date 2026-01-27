@@ -6,6 +6,6 @@ import { TrendingService } from './trending.service';
 @Module({
   providers: [RedisHealthService, TrendingService],
   controllers: [TrendingController],
-  exports: [RedisHealthService],
+  exports: [TrendingService],
 })
 export class TrendingModule {}
