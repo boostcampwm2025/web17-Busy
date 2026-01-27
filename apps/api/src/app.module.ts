@@ -21,7 +21,7 @@ import { MusicModule } from './modules/music/music.module';
 import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
 import { PlaylistModule } from './modules/playlist/playlist.module';
 import { UploadModule } from './modules/upload/upload.module';
-import { FeedModule } from './modules/feed/feed.module';
+import { TrendingModule } from './modules/trending/trending.module';
 
 @Module({
   imports: [
@@ -37,7 +37,7 @@ import { FeedModule } from './modules/feed/feed.module';
     SeedModule,
     UploadModule,
     UserModule,
-    FeedModule,
+    TrendingModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
