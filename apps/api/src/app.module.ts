@@ -68,7 +68,7 @@ import { LogsModule } from './modules/log/logs.module';
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
         entities: [join(__dirname, '**/*.entity.{ts,js}')],
-        synchronize: process.env.NODE_ENV !== 'production',
+        synchronize: true, //process.env.NODE_ENV !== 'production',
         timezone: 'Z',
       }),
       inject: [ConfigService],
