@@ -1,3 +1,5 @@
+import { MOCK_YOUTUBE_SEARCH_RESULT } from '@/constants';
+
 interface YoutubeSearchResponse {
   kind: string;
   etag: string;
@@ -61,6 +63,7 @@ const buildYoutubeSearchUrl = (keyword: string, limit: number, country: string):
     q: keyword,
     part: 'snippet',
     type: 'video',
+    topicId: '/m/04rlf',
     videoCategoryId: '10',
     maxResults: String(limit),
     regionCode: country,
@@ -85,6 +88,7 @@ export const searchYoutubeVideos = async ({
   signal,
 }: SearchYoutubeParams): Promise<YoutubeVideoResult[]> => {
   if (!keyword) return [];
+  return MOCK_YOUTUBE_SEARCH_RESULT.items;
 
   const url = buildYoutubeSearchUrl(keyword, limit, country);
 
