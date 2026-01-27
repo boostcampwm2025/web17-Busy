@@ -51,7 +51,7 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-primary truncate">{item.title}</p>
+        <p className={`font-bold text-primary ${mode === 'video' ? 'line-clamp-2' : 'truncate'}`}>{item.title}</p>
         <p className="text-xs text-gray-1 truncate">{item.artistName}</p>
       </div>
 
