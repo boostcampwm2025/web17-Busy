@@ -2,10 +2,10 @@
 
 import { usePlayerStore } from '@/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { PlayerProgress } from './types';
+import { PlayerProgress } from '@/types';
 import { MusicProvider } from '@repo/dto/values';
-import { clamp01, clampMs } from './utils';
-import { DEFAULT_VOLUME } from './constants';
+import { clamp01, clampMs } from '@/utils';
+import { DEFAULT_VOLUME } from '@/constants';
 
 declare global {
   interface Window {
