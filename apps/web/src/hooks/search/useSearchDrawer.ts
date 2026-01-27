@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useItunesSearch, useUserSearch } from '@/hooks';
+import { useItunesSearch, useUserSearch, useYoutubeSearch } from '@/hooks';
 import { SearchMode } from '@/types';
 
 export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
@@ -17,8 +17,9 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
 
   const itunes = useItunesSearch({ query, enabled: enabled && mode === 'music' });
   const users = useUserSearch({ query, enabled: enabled && mode === 'user' });
+  const videos = useYoutubeSearch({ query, enabled: enabled && mode === 'video' });
 
-  const active = useMemo(() => (mode === 'user' ? users : itunes), [mode, users, itunes]);
+  const active = useMemo(() => (mode === 'user' ? users : mode === 'video' ? videos : itunes), [mode, users, itunes, videos]);
 
   const clearQuery = () => setQuery('');
 
@@ -45,6 +46,7 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
 
     itunes,
     users,
+    videos,
     active,
 
     followOverrides,

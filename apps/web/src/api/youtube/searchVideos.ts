@@ -1,5 +1,6 @@
 import { MOCK_YOUTUBE_SEARCH_RESULT } from '@/constants';
 import { toErrorMessage } from '@/utils';
+import { YOUTUBE_SEARCH } from '@/constants';
 
 interface YoutubeSearchResponse {
   kind: string;
@@ -57,8 +58,6 @@ type SearchYoutubeParams = {
 };
 
 const YOUTUBE_SEARCH_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search';
-const DEFAULT_LIMIT = 10;
-const DEFAULT_COUNTRY: 'KR' = 'KR';
 
 const buildYoutubeSearchUrl = (keyword: string, limit: number, country: string): string => {
   const params = new URLSearchParams({
@@ -78,8 +77,8 @@ const buildYoutubeSearchUrl = (keyword: string, limit: number, country: string):
 
 export const searchYoutubeVideos = async ({
   keyword,
-  limit = DEFAULT_LIMIT,
-  country = DEFAULT_COUNTRY,
+  limit = YOUTUBE_SEARCH.DEFAULT_LIMIT,
+  country = YOUTUBE_SEARCH.COUNTRY,
   signal,
 }: SearchYoutubeParams): Promise<YoutubeVideoResult[]> => {
   if (!keyword) return [];
