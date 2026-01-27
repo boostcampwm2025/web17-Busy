@@ -69,7 +69,7 @@ const buildYoutubeSearchUrl = (keyword: string, limit: number, country: string):
     maxResults: String(limit),
     regionCode: country,
     videoEmbeddable: 'true',
-    key: process.env.YOUTUBE_API_KEY!,
+    key: process.env.YOUTUBE_SEARCH!,
   });
 
   return `${YOUTUBE_SEARCH_ENDPOINT}?${params.toString()}`;

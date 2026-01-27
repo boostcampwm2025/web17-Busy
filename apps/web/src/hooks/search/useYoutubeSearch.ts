@@ -40,6 +40,7 @@ export default function useYoutubeSearch({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
+  const cache = useRef(new Map<string, Music[]>());
 
   useEffect(() => {
     abortRef.current?.abort();
@@ -61,6 +62,13 @@ export default function useYoutubeSearch({
     let alive = true;
 
     const run = async () => {
+      if (cache.current.has(query)) {
+        const cachedItems = cache.current.get(query) ?? [];
+        setResults(cachedItems);
+        setStatus(cachedItems.length > 0 ? 'success' : 'empty');
+        return;
+      }
+
       try {
         const items = await searchYoutubeVideos({
           keyword: trimmedQuery,
@@ -73,6 +81,10 @@ export default function useYoutubeSearch({
 
         if (!alive) return;
 
+        // 캐시 업데이트
+        cache.current.set(query, mapped);
+
+        // 상태 업데이트
         setResults(mapped);
         setStatus(mapped.length > 0 ? 'success' : 'empty');
       } catch (e) {
