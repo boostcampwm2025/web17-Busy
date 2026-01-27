@@ -1,4 +1,5 @@
 import { MOCK_YOUTUBE_SEARCH_RESULT } from '@/constants';
+import { toErrorMessage } from '@/utils';
 
 interface YoutubeSearchResponse {
   kind: string;
@@ -12,6 +13,7 @@ interface YoutubeSearchResponse {
   items: YoutubeVideoResult[];
 }
 
+// dto 또는 type 폴더로 이동 고려
 export interface YoutubeVideoResult {
   kind: string;
   etag: string;
@@ -72,13 +74,6 @@ const buildYoutubeSearchUrl = (keyword: string, limit: number, country: string):
   });
 
   return `${YOUTUBE_SEARCH_ENDPOINT}?${params.toString()}`;
-};
-
-const toErrorMessage = (status: number): string => {
-  if (status >= 500) return '서버 오류가 발생했습니다.';
-  if (status === 429) return '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
-  if (status === 400) return '검색 요청 형식이 올바르지 않습니다.';
-  return '검색 요청에 실패했습니다.';
 };
 
 export const searchYoutubeVideos = async ({
