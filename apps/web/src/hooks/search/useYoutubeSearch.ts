@@ -13,8 +13,6 @@ type Options = {
   enabled?: boolean;
   debounceMs?: number;
   minQueryLength?: number;
-  limit?: number;
-  country?: typeof YOUTUBE_SEARCH.COUNTRY;
 };
 
 type Result = {
@@ -29,8 +27,6 @@ export default function useYoutubeSearch({
   enabled = true,
   debounceMs = YOUTUBE_SEARCH.DEBOUNCE_MS,
   minQueryLength = YOUTUBE_SEARCH.MIN_QUERY_LENGTH,
-  limit = YOUTUBE_SEARCH.DEFAULT_LIMIT,
-  country = YOUTUBE_SEARCH.COUNTRY,
 }: Options): Result {
   const debounced = useDebouncedValue(query, debounceMs);
   const trimmedQuery = useMemo(() => debounced.trim(), [debounced]);
@@ -62,6 +58,7 @@ export default function useYoutubeSearch({
     let alive = true;
 
     const run = async () => {
+      // 캐시에 데이터 있으면 추가 요청 없이 사용
       if (cache.current.has(query)) {
         const cachedItems = cache.current.get(query) ?? [];
         setResults(cachedItems);
@@ -72,8 +69,6 @@ export default function useYoutubeSearch({
       try {
         const items = await searchYoutubeVideos({
           keyword: trimmedQuery,
-          limit,
-          country,
           signal: controller.signal,
         });
 
@@ -105,7 +100,7 @@ export default function useYoutubeSearch({
       alive = false;
       controller.abort();
     };
-  }, [enabled, trimmedQuery, minQueryLength, limit, country]);
+  }, [enabled, trimmedQuery, minQueryLength]);
 
   return { status, results, errorMessage, trimmedQuery };
 }
