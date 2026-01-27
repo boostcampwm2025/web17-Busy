@@ -15,8 +15,13 @@ import { PostMedia, LoadingSpinner } from '@/components';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
+import { useRouter } from 'next/navigation';
+import { PostHeader } from '../../post';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 export const PostCardDetailModal = () => {
+  const { userId } = useAuthMe();
+  const router = useRouter();
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
 
   const enabled = isOpen && modalType === MODAL_TYPES.POST_DETAIL;
@@ -40,6 +45,8 @@ export const PostCardDetailModal = () => {
     postId,
     passedPost,
   });
+
+  const isOwner = userId === post?.author.id;
 
   // post가 로딩 중이면 EMPTY_POST로 UI가 흔들릴 수 있으니, 렌더용만 fallback 처리
   const safePost = post ?? passedPost ?? EMPTY_POST;
@@ -78,6 +85,10 @@ export const PostCardDetailModal = () => {
     playMusic(music);
   };
 
+  const handleUserClick = (userId: string) => {
+    router.push(`/profile/${userId}`);
+  };
+
   return (
     <>
       <div
@@ -104,13 +115,14 @@ export const PostCardDetailModal = () => {
           {/* Right */}
           <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary">
             {/* Header */}
-            <div className="p-4 border-b-2 border-primary/10 flex items-center justify-between">
-              <div className="flex items-center space-x-3 min-w-0">
-                <img src={profileImg} alt={safePost.author.nickname} className="w-9 h-9 rounded-full border border-primary object-cover" />
-                <span className="font-bold text-primary truncate">{safePost.author.nickname}</span>
-                {/* <span className="text-xs text-accent-pink font-black shrink-0">• 팔로우</span> */}
-              </div>
-              <MoreHorizontal className="w-5 h-5 text-gray-400 cursor-pointer hover:text-primary" />
+            <div className="p-4 border-b-2 border-primary/10">
+              <PostHeader
+                post={safePost}
+                isOwner={isOwner}
+                onUserClick={() => {
+                  handleUserClick;
+                }}
+              />
             </div>
 
             {/* Content + Comments */}
