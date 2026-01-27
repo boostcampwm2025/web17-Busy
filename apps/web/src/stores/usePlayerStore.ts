@@ -126,10 +126,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
    */
   initializeQueue: (queue) => {
     // 서버에서 가져온 데이터로 큐 교체
-    // set({ queue: dedupeQueue(queue) });
-
-    // 유튜브 확장 테스트를 위한 MOCK_QUEUE 초기화
-    set({ queue: MOCK_QUEUE });
+    set({ queue: dedupeQueue(queue) });
   },
 
   playMusic: (music) => {
