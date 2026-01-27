@@ -14,12 +14,12 @@ export const MOCK_QUEUE: Music[] = [
   },
   {
     id: '임시 아이디 11111',
-    albumCoverUrl: 'https://i.ytimg.com/vi/soBpT8uzXEI/hqdefault.jpg',
-    artistName: 'Billi Records 빌리 레코즈',
+    albumCoverUrl: 'https://i.ytimg.com/vi/05BWsYqMiYE/hqdefault.jpg',
+    artistName: 'Sultan Of The Disco',
     durationMs: 30000,
     provider: MusicProvider.YOUTUBE,
-    title: '🍕Playlist🍕 피자&콜라와 같이 먹는 아 듣는 두둠칫 모음. 클랩피자 폼 미쳤다! I HIPHOP R&B SOUL R&B',
-    trackUri: 'soBpT8uzXEI',
+    title: '술탄오브더디스코 - Shining Road (official M/V)',
+    trackUri: '05BWsYqMiYE',
   },
   {
     id: '019bf9b0-4cd3-7544-aef7-8deec62beac2',
@@ -34,11 +34,11 @@ export const MOCK_QUEUE: Music[] = [
   },
   {
     id: '임시 아이디 22222',
-    albumCoverUrl: 'https://i.ytimg.com/vi/9sm3LB05ATw/hqdefault.jpg',
-    artistName: '무디MUDI',
+    albumCoverUrl: 'https://i.ytimg.com/vi/5tTbEXp6eWs/hqdefault.jpg',
+    artistName: 'Guitarnet',
     durationMs: 30000,
     provider: MusicProvider.YOUTUBE,
-    title: '아가리 좀 합시다. 집중하고 있는데',
-    trackUri: '9sm3LB05ATw',
+    title: 'Su-Young Kim (김수영) | Wave | Fender American Original 60s Jazzmaster® | Guitarnet Live Lounge | 기타네트',
+    trackUri: '5tTbEXp6eWs',
   },
 ];
