@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePlayerStore } from '@/stores';
-import { Playback, PlayerProgress } from './types';
-import { clamp01, clampMs } from './utils';
-import { DEFAULT_VOLUME } from './constants';
+import { Playback, PlayerProgress } from '@/types';
+import { clamp01, clampMs } from '@/utils';
+import { DEFAULT_VOLUME } from '@/constants';
 import { MusicProvider } from '@repo/dto/values';
 
 const toPlaybackErrorMessage = (e: unknown): string => {

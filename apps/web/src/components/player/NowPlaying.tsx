@@ -3,13 +3,14 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { MusicProvider } from '@repo/dto/values';
 import { Pause, Play, Shuffle, SkipBack, SkipForward, PlusCircle, FolderPlus } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { usePlayerStore } from '@/stores';
 import { VolumeControl, SeekBar } from './index';
 import { useMusicActions, useSearchDrawer } from '@/hooks';
 import { useModalStore, MODAL_TYPES } from '@/stores';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { formatMs } from '@/utils';
+import { DEFAULT_IMAGES } from '@/constants';
 
 interface NowPlayingProps {
   currentMusic: Music | null;
@@ -132,8 +133,8 @@ export default function NowPlaying({
 
         {/* itunes 음악이 재생될 때 */}
         <img
-          src={currentMusic?.albumCoverUrl ?? ''}
-          alt={currentMusic?.title ?? ''}
+          src={currentMusic?.albumCoverUrl || DEFAULT_IMAGES.ALBUM}
+          alt={currentMusic?.title ?? '현재 재생 음악 없음'}
           className={`w-full h-full object-cover ${!currentMusic || isYouTube ? 'hidden' : ''}`}
         />
 
