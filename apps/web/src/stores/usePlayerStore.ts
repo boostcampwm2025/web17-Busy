@@ -1,4 +1,3 @@
-import { MOCK_QUEUE } from '@/constants/mock';
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { create } from 'zustand';
 
@@ -105,7 +104,6 @@ const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
   currentMusic: null,
   isPlaying: false,
-
   queue: [],
 
   volume: DEFAULT_VOLUME,
