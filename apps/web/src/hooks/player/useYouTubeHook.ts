@@ -5,26 +5,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PlayerProgress } from '@/types';
 import { MusicProvider } from '@repo/dto/values';
 import { clamp01, clampMs } from '@/utils';
-import { DEFAULT_VOLUME, YOUTUBE_IFRAME_ID, YOUTUBE_IFRAME_SCRIPT_SRC } from '@/constants';
-import { useYouTubePlayer } from './youtube/useYouTubePlayer';
+import { DEFAULT_VOLUME, YOUTUBE_PLAYER_TICK_INTERVAL_MS } from '@/constants';
+import { usePlayerTick, useYouTubePlayer } from './youtube';
 
 declare global {
   interface Window {
     onYouTubeIframeAPIReady?: () => void;
   }
-}
-
-function usePlayerTick(enabled: boolean, getTimeSec: () => number, onTickMs: (ms: number) => void, intervalMs = 250) {
-  useEffect(() => {
-    if (!enabled) return;
-
-    const id = window.setInterval(() => {
-      const t = getTimeSec();
-      if (t >= 0) onTickMs(Math.floor(t * 1000));
-    }, intervalMs);
-
-    return () => window.clearInterval(id);
-  }, [enabled, getTimeSec, onTickMs, intervalMs]);
 }
 
 export function useYouTubeHook() {
@@ -109,7 +96,7 @@ export function useYouTubeHook() {
     setProgress((prev) => ({ ...prev, positionMs: ms }));
   }, []);
 
-  usePlayerTick(isTicking, getTimeSec, onTickMs, 250);
+  usePlayerTick(isTicking, getTimeSec, onTickMs, YOUTUBE_PLAYER_TICK_INTERVAL_MS);
 
   const seekToMs = useCallback(
     (ms: number) => {
