@@ -12,7 +12,7 @@ interface YoutubeSearchResponse {
   items: YoutubeVideoResult[];
 }
 
-interface YoutubeVideoResult {
+export interface YoutubeVideoResult {
   kind: string;
   etag: string;
   id: {
