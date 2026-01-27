@@ -38,7 +38,7 @@ export const addMusicsToPlaylist = async (playlistId: string, musics: MusicReque
 };
 
 // 플리 음악 순서 변경
-export const changeMusicOrderOfPlaylsit = async (playlistId: string, musicIds: string[]): Promise<{ ok: true }> => {
+export const changeMusicOrderOfPlaylist = async (playlistId: string, musicIds: string[]): Promise<{ ok: true }> => {
   const { data } = await internalClient.put<{ ok: true }>(`/playlist/${playlistId}/music`, { musicIds });
   return data;
 };
