@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { privacyConsent } from '@/api';
 import { usePrivacyAgreements } from './usePrivacyAgreements';
 import { AgreementItem } from './AgreeItem';
+import { ConsentType, UpdateConsentListDto } from '@repo/dto';
 
 interface PrivacyConsentFormProps {
   onSuccess?: () => void;
@@ -19,7 +20,20 @@ export const PrivacyConsentForm = ({ onSuccess, submitButtonText = '동의하고
     if (!isRequiredChecked || isLoading) return;
     try {
       setIsLoading(true);
-      await privacyConsent();
+
+      const payload: UpdateConsentListDto = {
+        items: [
+          {
+            type: ConsentType.TERMS_OF_SERVICE, // 'TERMS'
+            agreed: agreements.terms,
+          },
+          {
+            type: ConsentType.PRIVACY_POLICY, // 'PRIVACY'
+            agreed: agreements.privacy,
+          },
+        ],
+      };
+      await privacyConsent(payload);
       if (onSuccess) onSuccess();
     } catch (error) {
       toast.error('동의 실패, 다시 시도해주세요');
