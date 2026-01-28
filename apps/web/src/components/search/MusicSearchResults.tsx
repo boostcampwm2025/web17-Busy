@@ -2,18 +2,19 @@
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { TrackItem } from './index';
+import { ContentSearchMode } from '@/types';
 
 type Props = {
-  musics: Music[];
-  meId: string | null;
+  mode: ContentSearchMode;
+  items: Music[];
   isAuthenticated: boolean;
 };
 
-export default function MusicSearchResults({ musics, meId, isAuthenticated }: Props) {
+export default function MusicSearchResults({ mode, items, isAuthenticated }: Props) {
   return (
     <div className="space-y-1">
-      {musics.map((music) => (
-        <TrackItem key={music.id} music={music} meId={meId} isAuthenticated={isAuthenticated} />
+      {items.map((item) => (
+        <TrackItem key={`${mode}-${item.id}`} mode={mode} item={item} isAuthenticated={isAuthenticated} />
       ))}
     </div>
   );

@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-
-import { searchItunesSongs } from '@/api';
-import { itunesSongToMusic } from '@/mappers';
+import { searchYoutubeVideos } from '@/api';
+import { youtubeVideoToMusic } from '@/mappers';
 import { useDebouncedValue } from '@/hooks';
-import { ITUNES_SEARCH } from '@/constants';
+import { YOUTUBE_SEARCH } from '@/constants';
 import { SearchStatus } from '@/types';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
@@ -14,8 +13,6 @@ type Options = {
   enabled?: boolean;
   debounceMs?: number;
   minQueryLength?: number;
-  limit?: number;
-  country?: typeof ITUNES_SEARCH.COUNTRY;
 };
 
 type Result = {
@@ -25,15 +22,11 @@ type Result = {
   trimmedQuery: string;
 };
 
-const filterPlayable = (musics: Music[]): Music[] => musics.filter((m) => m.trackUri.trim().length > 0);
-
-export default function useItunesSearch({
+export default function useYoutubeSearch({
   query,
   enabled = true,
-  debounceMs = ITUNES_SEARCH.DEBOUNCE_MS,
-  minQueryLength = ITUNES_SEARCH.MIN_QUERY_LENGTH,
-  limit = ITUNES_SEARCH.DEFAULT_LIMIT,
-  country = ITUNES_SEARCH.COUNTRY,
+  debounceMs = YOUTUBE_SEARCH.DEBOUNCE_MS,
+  minQueryLength = YOUTUBE_SEARCH.MIN_QUERY_LENGTH,
 }: Options): Result {
   const debounced = useDebouncedValue(query, debounceMs);
   const trimmedQuery = useMemo(() => debounced.trim(), [debounced]);
@@ -43,6 +36,7 @@ export default function useItunesSearch({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
+  const cache = useRef(new Map<string, Music[]>());
 
   useEffect(() => {
     abortRef.current?.abort();
@@ -64,18 +58,28 @@ export default function useItunesSearch({
     let alive = true;
 
     const run = async () => {
+      // 캐시에 데이터 있으면 추가 요청 없이 사용
+      if (cache.current.has(query)) {
+        const cachedItems = cache.current.get(query) ?? [];
+        setResults(cachedItems);
+        setStatus(cachedItems.length > 0 ? 'success' : 'empty');
+        return;
+      }
+
       try {
-        const data = await searchItunesSongs({
+        const items = await searchYoutubeVideos({
           keyword: trimmedQuery,
-          limit,
-          country,
           signal: controller.signal,
         });
 
-        const mapped = filterPlayable(data.results.map(itunesSongToMusic));
+        const mapped = items.map(youtubeVideoToMusic);
 
         if (!alive) return;
 
+        // 캐시 업데이트
+        cache.current.set(query, mapped);
+
+        // 상태 업데이트
         setResults(mapped);
         setStatus(mapped.length > 0 ? 'success' : 'empty');
       } catch (e) {
@@ -90,13 +94,13 @@ export default function useItunesSearch({
       }
     };
 
-    void run();
+    run();
 
     return () => {
       alive = false;
       controller.abort();
     };
-  }, [enabled, trimmedQuery, minQueryLength, limit, country]);
+  }, [enabled, trimmedQuery, minQueryLength]);
 
   return { status, results, errorMessage, trimmedQuery };
 }
