@@ -7,3 +7,5 @@ export const TRENDING_WEIGHTS = {
 } as const;
 
 export type TrendingInteractionType = keyof typeof TRENDING_WEIGHTS;
+
+export const TRENDING_CONSUMER_GROUP_NAME = 'cg:trending';
