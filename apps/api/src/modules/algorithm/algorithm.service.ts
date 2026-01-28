@@ -57,19 +57,29 @@ export class AlgorithmService {
           `
           UNWIND $batch AS log
           MERGE (u:User {id: log.userId})
-          
-          FOREACH (ignore IN CASE WHEN log.actionType = 'FOLLOW' THEN [1] ELSE [] END |
+
+          FOREACH (ignore IN CASE WHEN log.targetLabel = 'User' THEN [1] ELSE [] END |
             MERGE (t:User {id: log.targetId})
-            MERGE (u)-[r:INTERACTED {type: 'FOLLOW'}]->(t)
-            ON CREATE SET r.created_at = datetime(), r.expired_at = datetime() + duration('P30D'), r.weight = 1
-            ON MATCH SET r.last_interacted_at = datetime(), r.expired_at = datetime() + duration('P30D'), r.weight = r.weight + 1
+            MERGE (u)-[r:INTERACTED {type: log.relationType}]->(t)
+            ON CREATE SET r.weight = 1, r.created_at = datetime()
+            ON MATCH SET r.weight = r.weight + 1
+            SET r.expired_at = datetime() + duration('P30D')
           )
-          
-          FOREACH (ignore IN CASE WHEN log.actionType <> 'FOLLOW' THEN [1] ELSE [] END |
+
+          FOREACH (ignore IN CASE WHEN log.targetLabel = 'Content' THEN [1] ELSE [] END |
             MERGE (t:Content {id: log.targetId})
-            MERGE (u)-[r:INTERACTED {type: log.actionType}]->(t)
-            ON CREATE SET r.created_at = datetime(), r.expired_at = datetime() + duration('P30D'), r.weight = 1
-            ON MATCH SET r.last_interacted_at = datetime(), r.expired_at = datetime() + duration('P30D'), r.weight = r.weight + 1
+            MERGE (u)-[r:INTERACTED {type: log.relationType}]->(t)
+            ON CREATE SET r.weight = 1, r.created_at = datetime()
+            ON MATCH SET r.weight = r.weight + 1
+            SET r += log.props, r.expired_at = datetime() + duration('P30D')
+          )
+
+          FOREACH (ignore IN CASE WHEN log.targetLabel = 'Music' THEN [1] ELSE [] END |
+            MERGE (t:Music {id: log.targetId})
+            MERGE (u)-[r:INTERACTED {type: log.relationType}]->(t)
+            ON CREATE SET r.weight = 1
+            ON MATCH SET r.weight = r.weight + 1
+            SET r += log.props, r.expired_at = datetime() + duration('P30D')
           )
           `,
           { batch },
@@ -124,5 +134,24 @@ export class AlgorithmService {
     } finally {
       await session.close();
     }
+  }
+
+  // 인터셉터나 서비스에서 로그를 정제하는 로직
+  rawLogMapping(rawLogs) {
+    const mappedLogs = rawLogs.map((log) => {
+      return {
+        userId: log.userId,
+        targetId: log.targetId,
+        // FOLLOW만 User 노드로, 나머지는 Content/Music 노드로 타겟 레이블 지정
+        targetLabel:
+          log.type === 'FOLLOW' ? 'User' : log.isMusic ? 'Music' : 'Content',
+        relationType: log.type, // 'FOLLOW', 'VIEW_DETAIL', 'LISTEN', 'LIKE', 'ADD_PLAYLIST' 등
+        props: {
+          duration: log.duration || 0, // 청취 시간 등
+          count: log.count || 1, // 음악 개수 등
+          timestamp: new Date().toISOString(),
+        },
+      };
+    });
   }
 }
