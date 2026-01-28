@@ -1,10 +1,6 @@
 import { IsBoolean, IsEnum, IsNotEmpty, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-
-export enum ConsentType {
-  TERMS_OF_SERVICE = 'TERMS',
-  PRIVACY_POLICY = 'PRIVACY',
-}
+import { ConsentType } from '../consent-type.enum';
 
 export class ConsentItemDto {
   @IsNotEmpty()
