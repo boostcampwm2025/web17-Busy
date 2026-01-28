@@ -5,4 +5,4 @@ import { RedisHealthService } from './redis-health.service';
   providers: [RedisHealthService],
   exports: [RedisHealthService],
 })
-export class FeedModule {}
+export class TrendingModule {}
