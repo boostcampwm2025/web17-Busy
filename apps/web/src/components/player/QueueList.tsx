@@ -90,8 +90,7 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
             onClick={handleClearClick}
             disabled={isEmpty}
             title={isEmpty ? '큐가 비어있습니다' : '전체 비우기'}
-            className="flex items-center gap-1 px-3 py-2 rounded-md border-2 border-primary text-primary font-bold text-sm
-                       hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1 px-3 py-2 rounded-md border-2 border-primary text-primary font-bold text-sm hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <XCircle className="w-4 h-4" />
             Clear
