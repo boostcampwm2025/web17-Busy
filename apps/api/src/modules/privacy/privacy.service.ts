@@ -58,4 +58,17 @@ export class PrivacyService {
       throw error;
     }
   }
+
+  async getRecentConsents(userId: string) {
+    return await Promise.all([
+      this.privacyRepository.findLatestConsent(
+        userId,
+        ConsentType.PRIVACY_POLICY,
+      ),
+      this.privacyRepository.findLatestConsent(
+        userId,
+        ConsentType.TERMS_OF_SERVICE,
+      ),
+    ]);
+  }
 }

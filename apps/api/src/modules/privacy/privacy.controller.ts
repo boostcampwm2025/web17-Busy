@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Ip } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Ip, Get } from '@nestjs/common';
 import { PrivacyService } from './privacy.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
@@ -26,5 +26,10 @@ export class PrivacyController {
     return {
       success: true,
     };
+  }
+
+  @Get()
+  async getRecentConsents(@UserId() userId: string) {
+    return await this.privacyService.getRecentConsents(userId);
   }
 }
