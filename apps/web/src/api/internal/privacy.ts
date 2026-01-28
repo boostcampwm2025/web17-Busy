@@ -1,11 +1,7 @@
 import { internalClient } from './client';
+import { UpdateConsentListDto } from '@repo/dto';
 
-export const privacyConsent = async () => {
-  await internalClient.post('/privacy');
-  return;
-};
-
-export const privacyConsentDelete = async () => {
-  await internalClient.delete('/privacy');
+export const privacyConsent = async (dto: UpdateConsentListDto) => {
+  await internalClient.post('/privacy', dto);
   return;
 };
