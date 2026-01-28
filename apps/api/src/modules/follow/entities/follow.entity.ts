@@ -24,6 +24,12 @@ export class Follow {
   @JoinColumn({ name: 'followed_user_id' })
   followedUser: User;
 
-  @CreateDateColumn({ name: 'create_at' })
+  // 생성: INSERT 시각만
+  @CreateDateColumn({
+    name: 'create_at',
+    type: 'datetime',
+    precision: 6,
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   createdAt: Date;
 }

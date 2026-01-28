@@ -35,12 +35,30 @@ export class Comment {
   @Column('varchar', { length: 2300, nullable: false })
   content: string;
 
-  @CreateDateColumn({ name: 'create_at' })
+  // 생성: INSERT 시각만
+  @CreateDateColumn({
+    name: 'create_at',
+    precision: 6,
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  // 수정: UPDATE마다 자동 갱신 필요 (ON UPDATE)
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'datetime',
+    precision: 6,
+    default: () => 'CURRENT_TIMESTAMP(6)',
+    onUpdate: 'CURRENT_TIMESTAMP(6)',
+  })
   updatedAt: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at' })
-  deletedAt: Date;
+  // 삭제(soft delete): 기본값 두지 말 것 (NULL이어야 정상)
+  @DeleteDateColumn({
+    name: 'deleted_at',
+    type: 'datetime',
+    precision: 6,
+    nullable: true,
+  })
+  deletedAt: Date | null;
 }

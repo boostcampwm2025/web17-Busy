@@ -4,7 +4,12 @@ import { createPkcePair } from '@/hooks/auth/server/pkce';
 import { buildGoogleAuthorizeUrl } from '@/hooks/auth/server/googleAuth';
 import { GOOGLE_COOKIE_KEYS, GOOGLE_OAUTH_TMP_COOKIE_OPTIONS } from '@/hooks/auth/config/google';
 
-export async function GET() {
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  /** 'consent' | 'select_account' | undefined */
+  const raw = url.searchParams.get('prompt');
+  const prompt = raw === 'consent' || raw === 'select_account' ? raw : undefined;
+
   const { verifier, challenge } = createPkcePair();
   const state = crypto.randomUUID();
 
@@ -13,6 +18,7 @@ export async function GET() {
     redirectUri: process.env.GOOGLE_REDIRECT_URI!,
     codeChallenge: challenge,
     state,
+    prompt,
   });
 
   const res = NextResponse.redirect(authorizeUrl);

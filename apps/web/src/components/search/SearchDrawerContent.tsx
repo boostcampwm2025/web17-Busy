@@ -22,7 +22,7 @@ type Props = { enabled?: boolean };
 
 function SearchDrawerInner({ enabled = true }: Props) {
   const { userId, isAuthenticated } = useAuthMe();
-  const { query, setQuery, clearQuery, mode, handleChangeMode, itunes, users, active, followOverrides, setFollowState } = useSearchDrawer({
+  const { query, setQuery, clearQuery, mode, handleChangeMode, itunes, users, videos, active, followOverrides, setFollowState } = useSearchDrawer({
     enabled,
   });
 
@@ -37,7 +37,11 @@ function SearchDrawerInner({ enabled = true }: Props) {
     if (active.status === 'empty') return <SearchStateMessage variant="empty" />;
 
     if (mode === 'music') {
-      return <MusicSearchResults musics={itunes.results} meId={userId} isAuthenticated={isAuthenticated} />;
+      return <MusicSearchResults mode={mode} items={itunes.results} isAuthenticated={isAuthenticated} />;
+    }
+
+    if (mode === 'video') {
+      return <MusicSearchResults mode={mode} items={videos.results} isAuthenticated={isAuthenticated} />;
     }
 
     return (
