@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrivacyRepository } from './privacy.repository';
-import { ConsentType } from './privacy.entity';
-import { ConsentItemDto } from '@repo/dto';
+import { ConsentHistory, ConsentType } from './privacy.entity';
+import { ConsentItemDto, GetRecentConsentListDto } from '@repo/dto';
 
 @Injectable()
 export class PrivacyService {
@@ -59,8 +59,8 @@ export class PrivacyService {
     }
   }
 
-  async getRecentConsents(userId: string) {
-    return await Promise.all([
+  async getRecentConsents(userId: string): Promise<GetRecentConsentListDto> {
+    const consents = await Promise.all([
       this.privacyRepository.findLatestConsent(
         userId,
         ConsentType.PRIVACY_POLICY,
@@ -70,5 +70,17 @@ export class PrivacyService {
         ConsentType.TERMS_OF_SERVICE,
       ),
     ]);
+
+    return {
+      items: consents.map((c) => this.toConsentItemDto(c)),
+    };
+  }
+
+  private toConsentItemDto(c: ConsentHistory | null) {
+    if (!c) return null;
+    return {
+      type: c.type,
+      agreed: c.agreed,
+    };
   }
 }
