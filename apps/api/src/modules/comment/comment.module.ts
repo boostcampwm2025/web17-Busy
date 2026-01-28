@@ -7,7 +7,7 @@ import { Comment } from './entities/comment.entity';
 import { PostModule } from '../post/post.module';
 import { NotiModule } from '../noti/noti.module';
 import { LogsModule } from '../log/logs.module';
-
+import { CommentStreamLogInterceptor } from 'src/common/interceptors/comment-stream-log.interceptor';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Comment]),
@@ -16,7 +16,7 @@ import { LogsModule } from '../log/logs.module';
     LogsModule,
   ],
   controllers: [CommentController],
-  providers: [CommentService, CommentRepository],
+  providers: [CommentService, CommentRepository, CommentStreamLogInterceptor],
   exports: [],
 })
 export class CommentModule {}
