@@ -71,16 +71,10 @@ export class PrivacyService {
       ),
     ]);
 
-    return {
-      items: consents.map((c) => this.toConsentItemDto(c)),
-    };
-  }
+    const items = consents
+      .filter((c) => c !== null)
+      .map(({ type, agreed }) => ({ type, agreed }));
 
-  private toConsentItemDto(c: ConsentHistory | null) {
-    if (!c) return null;
-    return {
-      type: c.type,
-      agreed: c.agreed,
-    };
+    return { items };
   }
 }
