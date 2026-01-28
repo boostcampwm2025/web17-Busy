@@ -7,11 +7,21 @@ interface ProfileState {
   toggleFollow: () => void;
   decrementFollowingCount: () => void;
   incrementFollowingCount: () => void;
+  updateProfileInfo: (updates: Partial<Profile>) => void;
 }
 
 export const useProfileStore = create<ProfileState>((set) => ({
   profile: null,
   setProfile: (profile) => set({ profile }),
+
+  /** 프로필 수정 */
+  updateProfileInfo: (updates) =>
+    set((state) => {
+      if (!state.profile) return {};
+      return {
+        profile: { ...state.profile, ...updates },
+      };
+    }),
 
   /** 현재 보고 있는 프로필 유저에 대한 팔로우/언팔로우 처리 */
   toggleFollow: () =>

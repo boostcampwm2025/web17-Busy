@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Pencil, Check, X } from 'lucide-react';
-import Image from 'next/image';
 import ProfileActionButton from './ProfileActionButton';
 import FollowStats from './FollowStats';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
@@ -13,7 +12,7 @@ import { updateProfile } from '@/api';
 
 export default function ProfileInfo({ profile, loggedInUserId }: { profile: Profile; loggedInUserId: string | null }) {
   const toggleFollow = useProfileStore((s) => s.toggleFollow);
-  const [displayProfile, setDisplayProfile] = useState(profile);
+  const updateProfileInfo = useProfileStore((s) => s.updateProfileInfo);
 
   const isOwner = loggedInUserId === profile.id;
   const [isEditing, setIsEditing] = useState(false);
@@ -22,21 +21,15 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
     bio: profile.bio || '',
   });
 
-  useEffect(() => {
-    setEditForm({
-      nickname: displayProfile.nickname || '',
-      bio: displayProfile.bio || '',
-    });
-  }, [displayProfile]);
-
   const handleSave = async () => {
     await updateProfile({
       nickname: editForm.nickname,
       bio: editForm.bio,
     });
-    const optimisticData = { ...displayProfile, ...editForm };
-    setDisplayProfile(optimisticData);
-
+    updateProfileInfo({
+      nickname: editForm.nickname,
+      bio: editForm.bio,
+    });
     setIsEditing(false);
   };
 
@@ -44,7 +37,7 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
     setIsEditing(false);
   };
 
-  const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = displayProfile;
+  const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
 
   return (
     <section className="max-w-4xl">
