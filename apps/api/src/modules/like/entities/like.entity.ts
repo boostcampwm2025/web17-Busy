@@ -24,6 +24,12 @@ export class Like {
   @JoinColumn({ name: 'post_id' })
   post: Post;
 
-  @CreateDateColumn({ name: 'create_at' })
+  // 생성: INSERT 시각만
+  @CreateDateColumn({
+    name: 'create_at',
+    type: 'datetime',
+    precision: 6,
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   createdAt: Date;
 }

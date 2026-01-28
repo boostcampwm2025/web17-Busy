@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
@@ -21,6 +22,7 @@ import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
 import { PlaylistModule } from './modules/playlist/playlist.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { AlgorithmModule } from './modules/algorithm/algorithm.module';
+import { TrendingModule } from './modules/trending/trending.module';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { AlgorithmModule } from './modules/algorithm/algorithm.module';
     UploadModule,
     UserModule,
     AlgorithmModule,
+    TrendingModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
@@ -44,6 +47,14 @@ import { AlgorithmModule } from './modules/algorithm/algorithm.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (config: ConfigService) => ({
+        type: 'single',
+        url: `redis://:${config.get<string>('REDIS_PASSWORD')}@${config.get<string>('REDIS_HOST')}:${config.get<string>('REDIS_PORT')}`,
+      }),
+      inject: [ConfigService],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -56,6 +67,7 @@ import { AlgorithmModule } from './modules/algorithm/algorithm.module';
         database: config.get<string>('DB_DATABASE'),
         entities: [join(__dirname, '**/*.entity.{ts,js}')],
         synchronize: process.env.NODE_ENV !== 'production',
+        timezone: 'Z',
       }),
       inject: [ConfigService],
     }),

@@ -1,16 +1,13 @@
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: vibr-mysql
+  redis:
+    image: redis:8.4-alpine
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}" ]
     ports:
-      - "127.0.0.1:3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: "1234"
-      MYSQL_DATABASE: "vibr"
-      TZ: "Asia/Seoul"
-    command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci" ]
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p1234" ]
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -24,3 +21,7 @@ services:
       NEO4J_AUTH: neo4j/1234
     volumes:
       - ./neo4j/data:/data
+      retries: 10
+
+volumes:
+  redis-data:
