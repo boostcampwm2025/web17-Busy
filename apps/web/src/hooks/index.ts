@@ -4,7 +4,6 @@ export { default as useScrollLock } from './useScrollLock';
 export { default as useInfiniteScroll } from './useInfiniteScroll';
 export * from './player';
 export * from './post/usePostMedia';
-export * from './useRelativeTime';
 export * from './queue/useQueueSync';
 export * from './queue/useGuestQueueSession';
 export * from './post/usePostDetail';

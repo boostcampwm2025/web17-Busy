@@ -5,6 +5,7 @@ type BuildGoogleAuthorizeUrlParams = {
   redirectUri: string;
   codeChallenge: string;
   state: string;
+  prompt?: 'consent' | 'select_account';
 };
 
 export function buildGoogleAuthorizeUrl(params: BuildGoogleAuthorizeUrlParams) {
@@ -19,9 +20,13 @@ export function buildGoogleAuthorizeUrl(params: BuildGoogleAuthorizeUrlParams) {
   url.searchParams.set('code_challenge', params.codeChallenge);
   url.searchParams.set('code_challenge_method', 'S256');
 
-  // refresh_token 발급을 위해(필요 시)
+  /** refresh_token 필요 시만 offline 유지 */
   url.searchParams.set('access_type', 'offline');
-  url.searchParams.set('prompt', 'consent');
+
+  /** 기본은 prompt를 아예 넣지 않고 진행 */
+  if (params.prompt) {
+    url.searchParams.set('prompt', params.prompt);
+  }
 
   return url.toString();
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { User } from './entities/user.entity';
 import { AuthProvider } from '../auth/types';
-import { GetUserDto, SearchUsersResDto } from '@repo/dto';
+import { GetUserDto, SearchUsersResDto, UpdateProfileDto } from '@repo/dto';
 import { FollowService } from '../follow/follow.service';
 
 type ProviderProfile = {
@@ -172,5 +172,14 @@ export class UserService {
       hasNext,
       nextCursor,
     };
+  }
+
+  async updateUser(userId: string, dto: UpdateProfileDto) {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      return;
+    }
+    await this.userRepository.updateUser(user, dto);
+    return { success: true };
   }
 }

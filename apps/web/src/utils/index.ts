@@ -4,3 +4,5 @@ export * from './followCount';
 export * from './reorder';
 export * from './hintMessage';
 export * from './clamp';
+export * from './errorMessage';
+export * from './keyboard';

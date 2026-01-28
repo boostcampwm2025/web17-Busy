@@ -1,4 +1,4 @@
-import { Play, Search, X } from 'lucide-react';
+import { Check, Pencil, Play, Search, Trash2, X } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 
 type Props = {
@@ -9,15 +9,33 @@ type Props = {
   setIsSearchOpen: Dispatch<SetStateAction<boolean>>;
   onClose: () => void;
   onPlayTotalSongs: () => void;
+  isEditingTitle: boolean;
+  draftTitle: string;
+  onStartRename: () => void;
+  onChangeTitle: (value: string) => void;
+  onCommitRename: () => void;
+  onCancelRename: () => void;
+  onDelete: () => void;
 };
 
-export function Header({ title, tracksCount, coverImgUrl, isSearchOpen, setIsSearchOpen, onClose, onPlayTotalSongs }: Props) {
+export function Header({
+  title,
+  tracksCount,
+  coverImgUrl,
+  isSearchOpen,
+  setIsSearchOpen,
+  onClose,
+  onPlayTotalSongs,
+  isEditingTitle,
+  draftTitle,
+  onStartRename,
+  onChangeTitle,
+  onCommitRename,
+  onCancelRename,
+  onDelete,
+}: Props) {
   return (
     <div className="relative bg-grayish border-b-2 border-primary p-6">
-      <button onClick={onClose} className="absolute top-4 right-4 p-1 hover:bg-white rounded-full transition-colors z-10">
-        <X className="w-6 h-6 text-primary" />
-      </button>
-
       <div className="flex items-center space-x-6">
         {/* Cover */}
         <div className="relative w-28 h-28 flex-shrink-0">
@@ -30,7 +48,64 @@ export function Header({ title, tracksCount, coverImgUrl, isSearchOpen, setIsSea
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-black text-primary leading-tight mb-1">{title}</h2>
+          <div className="flex items-start justify-between gap-2 mb-1">
+            {isEditingTitle ? (
+              <div className="flex items-center gap-2 w-full">
+                <input
+                  autoFocus
+                  className="w-full text-2xl font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
+                  value={draftTitle}
+                  onChange={(e) => onChangeTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onCommitRename();
+                    }
+                    if (e.key === 'Escape') {
+                      onCancelRename();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className="p-1 rounded-md border-2 border-primary text-primary hover:bg-gray-50"
+                  onClick={onCommitRename}
+                  aria-label="Confirm rename"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  className="p-1 rounded-md border-2 border-primary text-primary hover:bg-gray-50"
+                  onClick={onCancelRename}
+                  aria-label="Cancel rename"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-black text-primary leading-tight">{title}</h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="p-1 rounded-md border-2 border-primary text-primary hover:bg-gray-50"
+                    onClick={onStartRename}
+                    aria-label="Edit title"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    className="p-1 rounded-md border-2 border-primary text-[var(--color-accent-pink)] hover:bg-gray-50"
+                    onClick={onDelete}
+                    aria-label="Delete playlist"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
           <p className="text-sm font-bold text-gray-500 mb-3">Created by Me</p>
 
           <div className="flex items-center space-x-2">

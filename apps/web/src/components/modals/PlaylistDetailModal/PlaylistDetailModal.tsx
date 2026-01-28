@@ -1,9 +1,10 @@
-import { useModalStore, usePlayerStore } from '@/stores';
+import { ConfirmOverlay } from '@/components';
+import { useModalStore, usePlayerStore, usePlaylistRefreshStore } from '@/stores';
 import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic, GetPlaylistDetailResDto } from '@repo/dto';
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
-import { addMusicsToPlaylist, changeMusicOrderOfPlaylsit as changeMusicOrderOfPlaylist, getPlaylistDetail } from '@/api';
+import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist, getPlaylistDetail } from '@/api';
 import { reorder } from '@/utils';
 
 export default function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
@@ -11,11 +12,15 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
 
   const addToQueue = usePlayerStore((s) => s.addToQueue);
   const playMusic = usePlayerStore((s) => s.playMusic);
+  const bumpPlaylistRefresh = usePlaylistRefreshStore((s) => s.bump);
 
   const [playlist, setPlaylist] = useState<GetPlaylistDetailResDto | null>(null);
   const [songs, setSongs] = useState<SavedMusic[]>([]);
   const [selectedSongIds, setSelectedSongIds] = useState<Set<string>>(new Set());
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [draftTitle, setDraftTitle] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const initialFetchPlaylist = async () => {
     const fetched = await getPlaylistDetail(playlistId);
@@ -43,10 +48,11 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     setSelectedSongIds(newSelected);
   };
 
-  const requestChangeOrder = async () => {
+  const requestChangeOrder = async (nextSongs: SavedMusic[]) => {
     try {
-      const songIds = songs.map((s) => s.id);
+      const songIds = nextSongs.map((s) => s.id);
       await changeMusicOrderOfPlaylist(playlistId, songIds); // playlist.id?
+      bumpPlaylistRefresh();
     } catch (e) {
       // 에러 처리
       throw e;
@@ -55,23 +61,55 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
 
   const deleteSelectedSongs = async () => {
     // 낙관적 업데이트
-    setSongs(songs.filter((s) => !selectedSongIds.has(s.id)));
+    const nextSongs = songs.filter((s) => !selectedSongIds.has(s.id));
+    setSongs(nextSongs);
     setSelectedSongIds(new Set());
 
-    await requestChangeOrder();
+    await requestChangeOrder(nextSongs);
   };
 
   const moveSong = async (index: number, direction: 'up' | 'down') => {
     // 낙관적 업데이트
-    setSongs((prev) => reorder(prev, index, direction));
+    const nextSongs = reorder(songs, index, direction);
+    setSongs(nextSongs);
 
-    await requestChangeOrder();
+    await requestChangeOrder(nextSongs);
   };
 
   const handleAddSong = async (song: UnsavedMusic) => {
     // 낙관적 업데이트 x - song id가 필요해서 안 됨
     const { addedMusics } = await addMusicsToPlaylist(playlistId, [song]);
     setSongs([...songs, ...addedMusics]);
+    bumpPlaylistRefresh();
+  };
+
+  const startRename = () => {
+    if (!playlist) return;
+    setDraftTitle(playlist.title);
+    setIsEditingTitle(true);
+  };
+
+  const commitRename = async () => {
+    if (!playlist) return;
+    const nextTitle = draftTitle.trim();
+    if (!nextTitle || nextTitle === playlist.title) {
+      setIsEditingTitle(false);
+      setDraftTitle(playlist.title);
+      return;
+    }
+    await editTitleOfPlaylist(playlistId, nextTitle);
+    setPlaylist({ ...playlist, title: nextTitle });
+    setIsEditingTitle(false);
+    bumpPlaylistRefresh();
+  };
+
+  const cancelRename = () => {
+    if (playlist) setDraftTitle(playlist.title);
+    setIsEditingTitle(false);
+  };
+
+  const requestDeletePlaylist = () => {
+    setConfirmOpen(true);
   };
 
   return (
@@ -92,6 +130,13 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
             isSearchOpen={isSearchOpen}
             setIsSearchOpen={setIsSearchOpen}
             onPlayTotalSongs={onPlayTotalSongs}
+            isEditingTitle={isEditingTitle}
+            draftTitle={draftTitle}
+            onStartRename={startRename}
+            onChangeTitle={setDraftTitle}
+            onCommitRename={commitRename}
+            onCancelRename={cancelRename}
+            onDelete={requestDeletePlaylist}
           />
 
           {/* Search Dropdown Area */}
@@ -103,6 +148,20 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
           {/* Song List */}
           <SongList songs={songs} selectedSongIds={selectedSongIds} toggleSelectSong={toggleSelectSong} moveSong={moveSong} />
         </div>
+
+        <ConfirmOverlay
+          open={confirmOpen}
+          title="플레이리스트를 삭제할까요?"
+          confirmLabel="삭제"
+          cancelLabel="취소"
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={async () => {
+            setConfirmOpen(false);
+            await deletePlaylist(playlistId);
+            bumpPlaylistRefresh();
+            closeModal();
+          }}
+        />
       </div>
     )
   );

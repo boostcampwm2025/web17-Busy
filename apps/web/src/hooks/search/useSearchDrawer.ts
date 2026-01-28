@@ -1,12 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useItunesSearch, useUserSearch } from '@/hooks';
-
-type Mode = 'music' | 'user';
-
-const isUserMode = (q: string) => q.trim().startsWith('@');
-const stripAt = (q: string) => q.trim().replace(/^@+/, '');
+import { useItunesSearch, useUserSearch, useYoutubeSearch } from '@/hooks';
+import { SearchMode } from '@/types';
 
 export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
   const [query, setQuery] = useState('');
@@ -17,14 +13,13 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
    * - 스크롤로 아이템이 unmount/mount 되어도 상태 유지
    */
   const [followOverrides, setFollowOverrides] = useState<Map<string, boolean>>(new Map());
+  const [mode, setMode] = useState<SearchMode>('music');
 
-  const mode: Mode = useMemo(() => (isUserMode(query) ? 'user' : 'music'), [query]);
-  const keyword = useMemo(() => (mode === 'user' ? stripAt(query) : query), [mode, query]);
+  const itunes = useItunesSearch({ query, enabled: enabled && mode === 'music' });
+  const users = useUserSearch({ query, enabled: enabled && mode === 'user' });
+  const videos = useYoutubeSearch({ query, enabled: enabled && mode === 'video' });
 
-  const itunes = useItunesSearch({ query: keyword, enabled: enabled && mode === 'music' });
-  const users = useUserSearch({ query: keyword, enabled: enabled && mode === 'user' });
-
-  const active = useMemo(() => (mode === 'user' ? users : itunes), [mode, users, itunes]);
+  const active = useMemo(() => (mode === 'user' ? users : mode === 'video' ? videos : itunes), [mode, users, itunes, videos]);
 
   const clearQuery = () => setQuery('');
 
@@ -36,16 +31,22 @@ export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
     });
   };
 
+  const handleChangeMode = (newMode: SearchMode) => {
+    if (mode === newMode) return;
+    setMode(newMode);
+  };
+
   return {
     query,
     setQuery,
     clearQuery,
 
     mode,
-    keyword,
+    handleChangeMode,
 
     itunes,
     users,
+    videos,
     active,
 
     followOverrides,

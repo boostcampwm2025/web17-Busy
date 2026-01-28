@@ -7,12 +7,21 @@ import {
   UseGuards,
   DefaultValuePipe,
   ParseIntPipe,
+  Patch,
+  Body,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { AuthOptionalGuard } from 'src/common/guards/auth.optional-guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
-import { UserDto, GetUserDto, SearchUsersResDto } from '@repo/dto';
+import {
+  UserDto,
+  GetUserDto,
+  SearchUsersResDto,
+  UpdateProfileDto,
+} from '@repo/dto';
 
 @Controller('user')
 export class UserController {
@@ -55,5 +64,15 @@ export class UserController {
     const user = await this.userService.getUserProfile(targetUserId, userId);
 
     return user;
+  }
+
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch()
+  async profileUpdate(
+    @UserId() userId: string,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return await this.userService.updateUser(userId, updateProfileDto);
   }
 }
