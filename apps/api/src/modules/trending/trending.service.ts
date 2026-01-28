@@ -2,16 +2,21 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import Redis from 'ioredis';
 import {
+  TRENDING_AGGREGATION_INTERVAL,
   TRENDING_CONSUMER_GROUP_NAME,
+  TRENDING_STREAM_BATCH_SIZE,
   TRENDING_WEIGHTS,
   TrendingInteractionType,
 } from './trending.constants';
 import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
 import { XReadGroupReply } from 'src/infra/redis/redis-steam.type';
 import { kvToObj } from 'src/infra/redis/redis-stream.util';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class TrendingService implements OnModuleInit {
+  private readonly consumerName = `trending-${process.pid}`;
+
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
   async onModuleInit() {
@@ -32,13 +37,14 @@ export class TrendingService implements OnModuleInit {
     }
   }
 
-  private async updateTrendingPostsFromStream() {
+  @Cron(TRENDING_AGGREGATION_INTERVAL, { waitForCompletion: true })
+  async updateTrendingPostsFromStream() {
     const res = (await this.redis.xreadgroup(
       'GROUP',
       TRENDING_CONSUMER_GROUP_NAME,
-      'worker-1',
+      this.consumerName,
       'COUNT',
-      500,
+      TRENDING_STREAM_BATCH_SIZE,
       'STREAMS',
       REDIS_KEYS.LOG_EVENTS_STREAM,
       '>',
@@ -53,34 +59,32 @@ export class TrendingService implements OnModuleInit {
     const ackIds: string[] = [];
     const cmdEntryIds: string[] = [];
 
-    entries
-      .map(([id, kv]) => ({
-        id: id,
-        event: kvToObj(kv),
-      }))
-      .forEach(({ id, event }) => {
-        const eventType = event.eventType as
-          | TrendingInteractionType
-          | undefined;
-        const targetPostId = event.targetPostId;
-        const weight = eventType ? TRENDING_WEIGHTS[eventType] : undefined;
+    for (const [id, kv] of entries) {
+      const event = kvToObj(kv);
 
-        if (!eventType || !targetPostId?.trim() || weight === undefined) {
-          ackIds.push(id);
-          return;
-        }
+      const eventType = event.eventType as TrendingInteractionType | undefined;
+      const targetPostId = event.targetPostId;
+      const weight = eventType ? TRENDING_WEIGHTS[eventType] : undefined;
 
-        pipeline.zincrby(REDIS_KEYS.TRENDING_POSTS, weight, targetPostId);
-        cmdEntryIds.push(id);
+      if (!eventType || !targetPostId?.trim() || weight === undefined) {
+        ackIds.push(id);
+        continue;
+      }
+
+      pipeline.zincrby(REDIS_KEYS.TRENDING_POSTS, weight, targetPostId);
+      cmdEntryIds.push(id);
+    }
+
+    const hasCmd = cmdEntryIds.length > 0;
+    if (hasCmd) {
+      const pipelineResult = await pipeline.exec();
+      if (!pipelineResult) return;
+
+      pipelineResult.forEach(([err], i) => {
+        const id = cmdEntryIds[i];
+        if (!err) ackIds.push(id);
       });
-
-    const pipelineResult = await pipeline.exec();
-    if (!pipelineResult) return;
-
-    pipelineResult.forEach(([err], i) => {
-      const id = cmdEntryIds[i];
-      if (!err) ackIds.push(id);
-    });
+    }
 
     if (ackIds.length === 0) return;
 
