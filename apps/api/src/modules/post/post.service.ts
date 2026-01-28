@@ -18,7 +18,6 @@ import {
 import { PostMusicRepository } from './post-music.repository';
 import { MusicService } from '../music/music.service';
 import { Like } from '../like/entities/like.entity';
-import { TrendingService } from '../trending/trending.service';
 
 @Injectable()
 export class PostService {
@@ -37,7 +36,6 @@ export class PostService {
     private readonly postMusicRepo: PostMusicRepository,
 
     private readonly musicService: MusicService,
-    private readonly trendingService: TrendingService,
   ) {}
 
   async create(
@@ -106,8 +104,6 @@ export class PostService {
           },
         })
       : false;
-
-    this.trendingService.addInteraction(postId, 'view');
 
     return this.toGetPostDetailResponseDto({
       post,

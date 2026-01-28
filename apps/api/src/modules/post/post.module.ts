@@ -14,13 +14,11 @@ import { PostMusicRepository } from './post-music.repository';
 
 import { MusicModule } from '../music/music.module';
 import { UploadModule } from '../upload/upload.module';
-import { TrendingModule } from '../trending/trending.module';
 
 @Module({
   imports: [
     MusicModule,
     UploadModule,
-    TrendingModule,
     TypeOrmModule.forFeature([Post, PostMusic, Like]),
 
     MulterModule.register({
