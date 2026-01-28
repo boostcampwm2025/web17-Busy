@@ -6,9 +6,15 @@ import { CommentRepository } from './comment.repository';
 import { Comment } from './entities/comment.entity';
 import { PostModule } from '../post/post.module';
 import { NotiModule } from '../noti/noti.module';
+import { LogsModule } from '../log/logs.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment]), PostModule, NotiModule],
+  imports: [
+    TypeOrmModule.forFeature([Comment]),
+    PostModule,
+    NotiModule,
+    LogsModule,
+  ],
   controllers: [CommentController],
   providers: [CommentService, CommentRepository],
   exports: [],

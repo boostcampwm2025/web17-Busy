@@ -11,12 +11,14 @@ import {
   Query,
   DefaultValuePipe,
   ParseIntPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FollowService } from './follow.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 import { CreateFollowDto, DeleteFollowDto, GetUserFollowDto } from '@repo/dto';
 import { AuthOptionalGuard } from 'src/common/guards/auth.optional-guard';
+import { FollowStreamLogInterceptor } from 'src/common/interceptors/follow-stream-log.interceptor';
 
 @Controller('follow')
 export class FollowController {
@@ -25,6 +27,7 @@ export class FollowController {
   @Post()
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FollowStreamLogInterceptor)
   async createFollow(
     @UserId() userId: string,
     @Body() createFollowDto: CreateFollowDto,
@@ -35,6 +38,7 @@ export class FollowController {
   @Delete()
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(FollowStreamLogInterceptor)
   async deleteFollow(
     @UserId() userId: string,
     @Body() deleteFollowDto: DeleteFollowDto,
