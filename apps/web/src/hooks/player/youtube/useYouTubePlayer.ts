@@ -5,6 +5,12 @@ import { usePlayerStore } from '@/stores';
 import { PlayerProgress } from '@/types';
 import { useEffect, useRef, useState } from 'react';
 
+declare global {
+  interface Window {
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
 type Props = {
   setProgress: React.Dispatch<React.SetStateAction<PlayerProgress>>;
   setIsTicking: React.Dispatch<React.SetStateAction<boolean>>;
