@@ -46,7 +46,13 @@ export class AlgorithmService {
 
   // 관계를 배치로 추가
   async addRelationshipsBatch(
-    batch: { userId: string; targetId: string; actionType: string }[],
+    batch: {
+      userId: string;
+      targetId: string;
+      targetLabel: string; // 'User', 'Content', 'Music' 중 하나
+      relationType: string;
+      props: Record<string, any>;
+    }[],
   ) {
     if (batch.length === 0) return;
 
