@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import type { SearchUsersResDto } from '@repo/dto';
 import { LoadingSpinner } from '@/components';
 import { UserItem } from './index';
@@ -20,16 +21,7 @@ type Props = {
   onFollowChange: (userId: string, next: boolean) => void;
 };
 
-export default function UserSearchResults({
-  users,
-  hasNext,
-  isLoadingMore,
-  loadMoreRef,
-  meId,
-  isAuthenticated,
-  followOverrides,
-  onFollowChange,
-}: Props) {
+function UserSearchResults({ users, hasNext, isLoadingMore, loadMoreRef, meId, isAuthenticated, followOverrides, onFollowChange }: Props) {
   return (
     <div className="space-y-1">
       {users.map((u) => {
@@ -51,3 +43,5 @@ export default function UserSearchResults({
     </div>
   );
 }
+
+export default memo(UserSearchResults);
