@@ -5,6 +5,8 @@ import { FolderPlus, Pause, Play, PlusCircle, SkipBack, SkipForward, ListPlus } 
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useMusicActions } from '@/hooks';
+import { enqueueLog } from '@/utils';
+import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api';
 
 interface MiniPlayerBarProps {
   currentMusic: Music | null;
@@ -78,6 +80,9 @@ export default function MiniPlayerBar({
       return;
     }
     if (!currentMusic) return;
+
+    enqueueLog(makePostAddMusicLog({ musicIds: [currentMusic.id] }));
+
     // DB upsert 포함(내부 ensureMusicInDb)
     await openWriteModalWithMusic(currentMusic);
   };
@@ -88,6 +93,8 @@ export default function MiniPlayerBar({
       return;
     }
     if (!currentMusic) return;
+
+    enqueueLog(makeArchiveAddMusicLog({ musicIds: [currentMusic.id] }));
     // DB upsert 포함(내부 ensureMusicInDb)
     await addMusicToArchive(currentMusic);
   };

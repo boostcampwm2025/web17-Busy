@@ -41,14 +41,17 @@ export class LikeStreamLogInterceptor implements NestInterceptor {
               : (req.params as any)?.postId;
           if (!targetPostId) return;
 
+          // userId는 필수(로그인 전용 정책). 없으면 스킵(방어)
           const userId = getUserIdFromReq(req as any);
+          if (!userId) return;
           const sessionId = getSessionIdFromReq(req);
           const durationMs = Math.max(0, Date.now() - startedAt);
 
+          // sessionId는 있을 때만 포함(사실상 무시 정책 반영)
           const event: LogEventDto = {
             eventType,
             source: 'be',
-            sessionId,
+            ...(sessionId ? { sessionId } : {}),
             method,
             path,
             statusCode,

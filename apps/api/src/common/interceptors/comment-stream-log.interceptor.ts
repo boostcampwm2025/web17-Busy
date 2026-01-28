@@ -41,14 +41,17 @@ export class CommentStreamLogInterceptor implements NestInterceptor {
               ? { length: content.length }
               : undefined;
 
+          // userId는 필수(로그인 전용 정책). 없으면 스킵(방어)
           const userId = getUserIdFromReq(req as any);
-          const sessionId = getSessionIdFromReq(req);
+          if (!userId) return;
+          const sessionId = getSessionIdFromReq(req); // optional
           const durationMs = Math.max(0, Date.now() - startedAt);
 
+          // sessionId는 있을 때만 포함(사실상 무시 정책 반영)
           const event: LogEventDto = {
             eventType: 'COMMENT_CREATE',
             source: 'be',
-            sessionId,
+            ...(sessionId ? { sessionId } : {}),
             method: req.method.toUpperCase(),
             path: normalizePathFromReq(req),
             statusCode,

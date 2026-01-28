@@ -23,10 +23,10 @@ export class LogEventDto {
   @IsISO8601()
   occurredAt?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @MaxLength(64)
-  sessionId: string;
+  sessionId?: string;
 
   @IsOptional()
   @IsString()

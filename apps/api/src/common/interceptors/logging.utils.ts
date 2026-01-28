@@ -20,32 +20,28 @@ export const normalizePathFromReq = (req: Request): string => {
 };
 
 /**
- * AuthGuard/AuthOptionalGuard가 (req as any).user = payload 로 주입
- * UserId.decorator.ts 로직과 동일하게 sub 우선
+ * AuthGuard가 req.user(payload)를 주입하는 전제
+ * - 로그인 전용 정책이라 userId는 "반드시 있어야" 정상
+ * - 다만 런타임 안전성을 위해 없으면 빈 문자열 반환(로깅 스킵용)
  */
-export const getUserIdFromReq = (req: any): string | null => {
+export const getUserIdFromReq = (req: any): string => {
   const u = req.user;
-  return u?.sub ?? u?.id ?? null;
+  const id = u?.sub ?? u?.id;
+  return typeof id === 'string' && id.trim().length > 0 ? id : '';
 };
 
 /**
- * FE가 세션ID를 보내면 그걸 우선 사용(추적 정확도↑)
- * 없으면 서버에서 fallback 생성(분석용)
+ * sessionId는 optional(사실상 무시) 정책
+ * - FE가 헤더로 보내면 사용
+ * - 없으면 undefined 반환(서버에서 굳이 fallback 생성하지 않음)
  */
-export const getSessionIdFromReq = (req: Request): string => {
+export const getSessionIdFromReq = (req: Request): string | undefined => {
   const h =
     (req.headers['x-vibr-session-id'] as string | undefined) ||
     (req.headers['x-session-id'] as string | undefined);
 
-  if (h && h.trim().length > 0) return h.trim();
+  if (!h) return undefined;
 
-  const ua = String(req.headers['user-agent'] ?? '');
-  const ip =
-    (req.headers['x-forwarded-for'] as string | undefined)
-      ?.split(',')[0]
-      ?.trim() ??
-    req.ip ??
-    '';
-
-  return `be:${ip}:${ua.slice(0, 20) || 'ua'}:${Date.now()}`;
+  const v = h.trim();
+  return v.length > 0 ? v : undefined;
 };

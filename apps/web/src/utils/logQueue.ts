@@ -1,5 +1,6 @@
 import type { LogEventDto } from '@repo/dto';
 import { logsClient } from '@/api/internal/logsClient';
+import axios from 'axios';
 
 type Options = {
   flushSize?: number; // N=20
@@ -16,8 +17,8 @@ const DEFAULTS: Required<Options> = {
   flushIntervalMs: 3000,
   maxBufferSize: 200,
 
-  maxEventBytes: 8_000, // 이벤트 1개가 너무 커지면 drop (대략 8KB)
-  maxBatchSize: 50, // 한 번 flush에 최대 50개만 전송
+  maxEventBytes: 8_000,
+  maxBatchSize: 50,
 };
 
 let buffer: LogEventDto[] = [];
@@ -68,7 +69,6 @@ const canFlushNow = (): boolean => {
 };
 
 const setBackoff = () => {
-  // 0 -> 1s -> 2s -> 4s -> 8s -> 16s(상한)
   backoffMs = backoffMs === 0 ? 1000 : Math.min(backoffMs * 2, 16000);
   backoffUntil = now() + backoffMs;
 };
@@ -83,6 +83,22 @@ const popBatch = (): LogEventDto[] => {
   const batch = buffer.slice(0, n);
   buffer = buffer.slice(n);
   return batch;
+};
+
+/**
+ *  로그인 전용(/api/logs AuthGuard) 정책 최적화:
+ * - 토큰이 없거나 401이면 더 이상 버퍼링 의미 없음 → 즉시 drop
+ */
+const shouldDropOnError = (err: unknown): boolean => {
+  // logsClient에서 token 없을 때 reject(new Error('Missing appJwt...'))를 던지는 정책을 썼다면 여기서 drop
+  if (err instanceof Error && err.message.includes('Missing appJwt')) return true;
+
+  // axios 오류로 401이면(로그인 필요) 버퍼 유지 의미 없음
+  if (axios.isAxiosError(err)) {
+    const status = err.response?.status;
+    if (status === 401) return true;
+  }
+  return false;
 };
 
 /**
@@ -113,14 +129,15 @@ export const enqueueLog = (event: LogEventDto) => {
 
 /**
  * flush: 버퍼를 /api/logs 로 배치 전송
- * - 실패하면 되돌리고 backoff 적용
+ * - 실패하면
+ *   - 401 / token missing: 버퍼 drop (로그인 전용 정책)
+ *   - 그 외: 버퍼 복구 + backoff 재시도
  */
 export const flush = async () => {
   if (typeof window === 'undefined') return;
   if (flushing) return;
   if (buffer.length === 0) return;
 
-  // backoff 중이면 기다렸다가 시도
   if (!canFlushNow()) {
     scheduleFlush(Math.max(500, backoffUntil - now()));
     return;
@@ -128,21 +145,25 @@ export const flush = async () => {
 
   flushing = true;
 
-  // 청크 단위로 보냄 (너무 큰 배치 방지)
   const batch = popBatch();
 
   try {
     await logsClient.post('/logs', { events: batch });
     clearBackoff();
-  } catch {
-    // 실패한 batch는 앞에 다시 붙이고 backoff
-    buffer = [...batch, ...buffer];
-    dropOldestIfOverflow();
-    setBackoff();
+  } catch (err) {
+    // 로그인 전용이므로 401/토큰없음은 버퍼 의미 없음 -> drop
+    if (shouldDropOnError(err)) {
+      // drop: batch는 버리고, 남은 buffer만 이어서 처리
+      clearBackoff();
+    } else {
+      // 네트워크/서버 오류면 되돌리고 backoff
+      buffer = [...batch, ...buffer];
+      dropOldestIfOverflow();
+      setBackoff();
+    }
   } finally {
     flushing = false;
 
-    // 남은 로그가 있으면 다시 예약/전송
     if (buffer.length > 0) {
       if (canFlushNow() && buffer.length >= config.flushSize) {
         void flush();
@@ -154,31 +175,13 @@ export const flush = async () => {
 };
 
 /**
- * unload/hidden 시 best-effort 전송
- * - 가능하면 sendBeacon 사용(axios보다 성공 확률이 높음)
- */
-const flushWithBeacon = () => {
-  if (buffer.length === 0) return;
-  if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function') return;
-
-  try {
-    const payload = JSON.stringify({ events: buffer });
-    const blob = new Blob([payload], { type: 'application/json' });
-
-    const ok = navigator.sendBeacon('/api/logs', blob);
-    if (ok) {
-      buffer = [];
-      clearFlushTimer();
-    }
-  } catch {
-    // ignore
-  }
-};
-
-/**
  * 앱 시작 시 1회 호출 권장:
  * - visibilitychange / beforeunload hook
- * - 중복 등록 방지 + cleanup 제공
+ *
+ * NOTE:
+ * - /api/logs는 AuthGuard(Authorization 필요)
+ * - sendBeacon은 Authorization 헤더를 붙이기 어렵기 때문에 여기서는 사용하지 않음
+ * - 대신 visibility hidden 시 flush 시도만 수행(best-effort)
  */
 export const initLogQueue = (opts?: Options) => {
   if (typeof window === 'undefined') return () => {};
@@ -189,24 +192,15 @@ export const initLogQueue = (opts?: Options) => {
 
   const onVisibility = () => {
     if (document.visibilityState === 'hidden') {
-      flushWithBeacon();
-      void flush(); // beacon 불가 환경 대비
+      void flush(); // best-effort
     }
   };
 
-  const onBeforeUnload = () => {
-    flushWithBeacon();
-    // async flush는 보장 안되지만 best-effort
-    void flush();
-  };
-
   window.addEventListener('visibilitychange', onVisibility);
-  window.addEventListener('beforeunload', onBeforeUnload);
 
   return () => {
     initialized = false;
     window.removeEventListener('visibilitychange', onVisibility);
-    window.removeEventListener('beforeunload', onBeforeUnload);
     clearFlushTimer();
   };
 };

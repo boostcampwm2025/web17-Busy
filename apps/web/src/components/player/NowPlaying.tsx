@@ -6,11 +6,12 @@ import { Pause, Play, Shuffle, SkipBack, SkipForward, PlusCircle, FolderPlus } f
 import { useMemo } from 'react';
 import { usePlayerStore } from '@/stores';
 import { VolumeControl, SeekBar } from './index';
-import { useMusicActions, useSearchDrawer } from '@/hooks';
+import { useMusicActions } from '@/hooks';
 import { useModalStore, MODAL_TYPES } from '@/stores';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { formatMs } from '@/utils';
+import { formatMs, enqueueLog } from '@/utils';
 import { DEFAULT_IMAGES } from '@/constants';
+import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api';
 
 interface NowPlayingProps {
   currentMusic: Music | null;
@@ -104,6 +105,9 @@ export default function NowPlaying({
 
     if (!currentMusic) return;
 
+    // 로그(포스트로 추가한 music id)
+    enqueueLog(makePostAddMusicLog({ musicIds: [currentMusic.id] }));
+
     // DB upsert 포함(내부 ensureMusicInDb)
     await openWriteModalWithMusic(currentMusic);
   };
@@ -115,6 +119,9 @@ export default function NowPlaying({
     }
 
     if (!currentMusic) return;
+
+    // 로그(보관함에 추가한 music id)
+    enqueueLog(makeArchiveAddMusicLog({ musicIds: [currentMusic.id] }));
 
     // DB upsert 포함(내부 ensureMusicInDb)
     await addMusicToArchive(currentMusic);

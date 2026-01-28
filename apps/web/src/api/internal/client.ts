@@ -2,10 +2,6 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
 import { useModalStore, usePlayerStore, useSpotifyAuthStore, useSpotifyPlayerStore, MODAL_TYPES } from '@/stores';
-import { enqueueLog } from '@/utils/logQueue';
-import type { LogEventDto } from '@repo/dto';
-
-import { buildLogMeta, getOrCreateSessionId, normalizeMethod, normalizePath, nowMs, type LogMeta } from './logging';
 
 type AuthMeta = {
   hadAuth: boolean;
@@ -14,7 +10,6 @@ type AuthMeta = {
 
 type AuthedConfig = InternalAxiosRequestConfig & {
   __authMeta?: AuthMeta;
-  __logMeta?: LogMeta;
 };
 
 const AUTH_ME_PATH = '/user/me';
@@ -40,6 +35,9 @@ const clearAuthState = () => {
   useModalStore.getState().closeModal();
 };
 
+/**
+ * 토큰 원문을 config에 남기지 않기 위한 "서명"(동일 토큰 여부 체크용)
+ */
 const makeAuthSig = (token: string): string => {
   const t = token.trim();
   if (!t) return '';
@@ -69,16 +67,10 @@ export const internalClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-/** Request: logMeta 계산 + 토큰 주입 + authMeta 저장 */
+/** Request: 토큰 헤더 주입 + authMeta 저장 */
 internalClient.interceptors.request.use((config) => {
   const cfg = config as AuthedConfig;
 
-  // logging meta
-  if (typeof window !== 'undefined') {
-    cfg.__logMeta = buildLogMeta(cfg);
-  }
-
-  // auth meta
   if (typeof window === 'undefined') return cfg;
 
   const token = getSessionToken();
@@ -100,74 +92,45 @@ internalClient.interceptors.request.use((config) => {
 
 /**
  * Response:
- * - 2xx: eligible 요청이면 enqueueLog
- * - 401: authMe 세션 만료 처리
+ * - 401: authMe(/user/me)에서만 세션 만료 처리
+ * - 기타 API는 각 호출부에서 에러 처리(전역 강제 로그아웃 방지)
  */
 internalClient.interceptors.response.use(
-  (res) => {
-    const cfg = (res.config ?? {}) as AuthedConfig;
-
-    if (typeof window !== 'undefined' && cfg.__logMeta?.eligible) {
-      const meta = cfg.__logMeta;
-      const method = normalizeMethod(cfg.method);
-      const path = normalizePath(cfg.url);
-
-      const durationMs = Math.max(0, Math.round(nowMs() - meta.startAt));
-      const statusCode = res.status;
-
-      const sessionId = getOrCreateSessionId();
-
-      const event: LogEventDto = {
-        eventType: meta.eventType ?? 'API_MUTATION',
-        source: 'fe_api',
-        sessionId,
-        method,
-        path,
-        statusCode,
-        durationMs,
-        targetPostId: meta.targets?.postId,
-        targetUserId: meta.targets?.userId,
-        meta: meta.meta,
-      };
-
-      enqueueLog(event);
-    }
-
-    return res;
-  },
+  (res) => res,
   async (error: AxiosError) => {
     if (typeof window === 'undefined') return Promise.reject(error);
 
     const status = error.response?.status;
+    if (status !== 401) return Promise.reject(error);
 
-    if (status === 401) {
-      const cfg = (error.config ?? {}) as AuthedConfig;
+    const cfg = (error.config ?? {}) as AuthedConfig;
 
-      if (!cfg.__authMeta?.hadAuth) return Promise.reject(error);
-      if (!isAuthMeRequest(cfg)) return Promise.reject(error);
+    // 토큰을 붙였던 요청만 세션 만료 후보
+    if (!cfg.__authMeta?.hadAuth) return Promise.reject(error);
 
-      const currentToken = getSessionToken();
-      if (!currentToken) return Promise.reject(error);
+    // authMe에서만 세션 만료로 정리
+    if (!isAuthMeRequest(cfg)) return Promise.reject(error);
 
-      const currentSig = makeAuthSig(currentToken);
-      const requestSig = cfg.__authMeta.authSig ?? '';
-      if (!requestSig || currentSig !== requestSig) return Promise.reject(error);
+    // 요청 당시 토큰과 현재 토큰이 동일할 때만 처리(레이스 방지)
+    const currentToken = getSessionToken();
+    if (!currentToken) return Promise.reject(error);
 
-      if (handling401) return Promise.reject(error);
-      handling401 = true;
+    const currentSig = makeAuthSig(currentToken);
+    const requestSig = cfg.__authMeta.authSig ?? '';
+    if (!requestSig || currentSig !== requestSig) return Promise.reject(error);
 
-      clearAuthState();
+    if (handling401) return Promise.reject(error);
+    handling401 = true;
 
-      if (!isLoginModalOpen()) {
-        useModalStore.getState().openModal(MODAL_TYPES.LOGIN, { authError: SESSION_EXPIRED_CODE });
-      }
+    clearAuthState();
 
-      window.setTimeout(() => {
-        handling401 = false;
-      }, 1000);
-
-      return Promise.reject(error);
+    if (!isLoginModalOpen()) {
+      useModalStore.getState().openModal(MODAL_TYPES.LOGIN, { authError: SESSION_EXPIRED_CODE });
     }
+
+    window.setTimeout(() => {
+      handling401 = false;
+    }, 1000);
 
     return Promise.reject(error);
   },
