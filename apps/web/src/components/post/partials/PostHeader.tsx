@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
-import { useRelativeTime } from '@/hooks';
+import { coalesceImageSrc, formatRelativeTime } from '@/utils';
 import type { PostResponseDto } from '@repo/dto';
 import { DEFAULT_IMAGES } from '@/constants';
-import { coalesceImageSrc } from '@/utils';
 import { deletePost } from '@/api/internal/post';
 import { toast } from 'react-toastify';
-import { showConfirmToast } from '../ConfirmToast';
+import { showConfirmToast } from '@/components/ConfirmToast';
 
 type Props = {
   post: PostResponseDto;
@@ -18,7 +17,7 @@ type Props = {
 };
 
 export default function PostHeader({ post, isOwner, onUserClick, onMoreClick }: Props) {
-  const createdAtText = useRelativeTime(post.createdAt);
+  const createdAtText = formatRelativeTime(post.createdAt);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleUser = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -49,7 +48,6 @@ export default function PostHeader({ post, isOwner, onUserClick, onMoreClick }: 
     });
   };
 
-  //const profileImg = post.author.profileImgUrl?.trim() || DEFAULT_IMAGES.PROFILE;
   const profileImg = coalesceImageSrc(post.author.profileImgUrl, DEFAULT_IMAGES.PROFILE);
 
   return (
@@ -75,7 +73,7 @@ export default function PostHeader({ post, isOwner, onUserClick, onMoreClick }: 
           <MoreHorizontal className="w-6 h-6" />
         </button>
         {isMenuOpen && isOwner && (
-          <div className="absolute top-full right-0 mt-2 bg-white border-2 border-primary rounded-lg shadow-[3px_3px_0px_0px_#00214D] overflow-hidden min-w-[100px] z-30 animate-in fade-in zoom-in duration-200">
+          <div className="absolute top-full right-0 mt-2 bg-white border-2 border-primary rounded-lg shadow-[3px_3px_0px_0px_#00214D] overflow-hidden min-w-25 z-30 animate-in fade-in zoom-in duration-200">
             <button
               onClick={handleDelete}
               className="block w-full px-4 py-2 text-sm text-red-500 font-bold hover:bg-red-50 transition-colors text-left"

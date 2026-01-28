@@ -29,6 +29,10 @@ RUN npm install -g pm2
 
 WORKDIR /app
 
+# TZ 고정(UTC)
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # 빌드된 결과물과 node_modules 복사 (Monorepo 구조 유지)
 COPY --from=builder /app .
 

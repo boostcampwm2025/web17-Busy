@@ -36,10 +36,13 @@ RUN pnpm turbo run build --filter=web...
 FROM node:20-alpine AS runner
 WORKDIR /app
 
+RUN apk add --no-cache tzdata
+
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
 ENV NEXT_PUBLIC_APP_ORIGIN=https://vibr.site
+
 
 # TZ 고정(UTC)
 ENV TZ=UTC

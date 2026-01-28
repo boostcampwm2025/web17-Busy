@@ -48,21 +48,7 @@ export default function useItunesSearch({
     abortRef.current?.abort();
     abortRef.current = null;
 
-    if (!enabled) {
-      setStatus('idle');
-      setResults([]);
-      setErrorMessage(null);
-      return;
-    }
-
-    if (trimmedQuery.length === 0) {
-      setStatus('idle');
-      setResults([]);
-      setErrorMessage(null);
-      return;
-    }
-
-    if (trimmedQuery.length < minQueryLength) {
+    if (!enabled || trimmedQuery.length === 0 || trimmedQuery.length < minQueryLength) {
       setStatus('idle');
       setResults([]);
       setErrorMessage(null);
