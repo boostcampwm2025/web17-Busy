@@ -9,11 +9,13 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
 import { LikeService } from './like.service';
 import { CreateLikeDto, LikedUserDto } from '@repo/dto';
+import { LikeStreamLogInterceptor } from 'src/common/interceptors/like-stream-log.interceptor';
 
 @Controller('like')
 export class LikeController {
@@ -22,6 +24,7 @@ export class LikeController {
   @Post()
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(LikeStreamLogInterceptor)
   async addLike(
     @UserId() userId: string,
     @Body() createLikeDto: CreateLikeDto,
@@ -32,6 +35,7 @@ export class LikeController {
   @Delete(':postId')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @UseInterceptors(LikeStreamLogInterceptor)
   async removeLike(
     @UserId() userId: string,
     @Param('postId', ParseUUIDPipe) postId: string,

@@ -11,3 +11,5 @@ export * from './like';
 export * from './comment';
 export * from './music';
 export * from './privacy';
+export * from './logsClient';
+export * from './logging';

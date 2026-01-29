@@ -5,12 +5,6 @@ import { PlayerProgress } from '@/types';
 import { YOUTUBE_PLAYER_TICK_INTERVAL_MS } from '@/constants';
 import { usePlayerTick, useYouTubePlayer, useYouTubeProgress, useYouTubeSync } from './youtube';
 
-declare global {
-  interface Window {
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
-
 export function useYouTubeHook() {
   const [progress, setProgress] = useState<PlayerProgress>({ positionMs: 0, durationMs: 0 });
   const [isTicking, setIsTicking] = useState(false);
