@@ -1,10 +1,16 @@
 import { Injectable, Inject } from '@nestjs/common';
 import neo4j, { Driver } from 'neo4j-driver';
 import { GraphRelation } from './algorithm-stream.consumer';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
+import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
 
 @Injectable()
 export class AlgorithmService {
-  constructor(@Inject('NEO4J_DRIVER') private readonly driver: Driver) {}
+  constructor(
+    @Inject('NEO4J_DRIVER') private readonly driver: Driver,
+    @InjectRedis() private readonly redis: Redis,
+  ) {}
 
   // 유저 노드 추가
   async createUserNode(userId: string) {
@@ -194,5 +200,18 @@ export class AlgorithmService {
     } finally {
       await session.close();
     }
+  }
+
+  private async updateGroupInfoToRedis(
+    users: { id: string; groupId: string }[],
+    posts: { id: string; groupId: string }[],
+  ) {
+    const pipeline = this.redis.pipeline();
+
+    users.forEach((u) => pipeline.set(REDIS_KEYS.USER_GROUP(u.id), u.groupId));
+
+    posts.forEach((p) => pipeline.set(REDIS_KEYS.POST_GROUP(p.id), p.groupId));
+
+    await pipeline.exec();
   }
 }
