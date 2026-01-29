@@ -24,7 +24,7 @@ export class FeedService {
     cursor?: string,
   ): Promise<FeedResponseDto> {
     // 팔로잉 사용자들의 게시글
-    const followingPosts = await this.getPostsOrFollowings(
+    const followingPosts = await this.getPostsOfFollowings(
       requestUserId,
       limit,
       cursor,
@@ -74,31 +74,7 @@ export class FeedService {
     return Array.from(map.values());
   }
 
-  async getAllPosts(
-    requestUserId: string,
-    limit: number,
-    cursor?: string,
-  ): Promise<FeedResponseDto> {
-    // 데이터 조회 (hasNext 체크 위해서 limit + 1개 가져오기)
-    const qb = this.createFeedQueryBuilder(requestUserId, cursor);
-    const posts = await qb.take(limit + 1).getMany();
-
-    // 응답 데이터 생성
-    const hasNext = posts.length > limit;
-    const targetPosts = hasNext ? posts.slice(0, -1) : posts;
-    const nextCursor =
-      targetPosts.length > 0
-        ? targetPosts[targetPosts.length - 1].id
-        : undefined;
-
-    return {
-      hasNext,
-      nextCursor,
-      posts: this.mapToFeedResponseDto(targetPosts),
-    };
-  }
-
-  private async getPostsOrFollowings(
+  private async getPostsOfFollowings(
     userId: string | null,
     limit: number,
     cursor?: string,
@@ -185,7 +161,7 @@ export class FeedService {
 
     if (hasPostIds) {
       // postIds로만 필터 - 인기 게시글 조회 시 사용
-      query.andWhere('post.id IN (...:postIds)', { postIds });
+      query.andWhere('post.id IN (:...postIds)', { postIds });
     } else if (requestUserId) {
       // 팔로잉한 사용자의 게시글만 조회
       query.innerJoin(
