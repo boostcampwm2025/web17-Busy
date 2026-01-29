@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
@@ -20,6 +21,12 @@ import { MusicModule } from './modules/music/music.module';
 import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
 import { PlaylistModule } from './modules/playlist/playlist.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { AlgorithmModule } from './modules/algorithm/algorithm.module';
+import { TrendingModule } from './modules/trending/trending.module';
+import { PrivacyModule } from './modules/privacy/privacy.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { LogsModule } from './modules/log/logs.module';
+import { FeedModule } from './modules/feed/feed.module';
 
 @Module({
   imports: [
@@ -35,6 +42,12 @@ import { UploadModule } from './modules/upload/upload.module';
     SeedModule,
     UploadModule,
     UserModule,
+    AlgorithmModule,
+    TrendingModule,
+    FeedModule,
+    PrivacyModule,
+    ScheduleModule.forRoot(),
+    LogsModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
@@ -42,6 +55,14 @@ import { UploadModule } from './modules/upload/upload.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (config: ConfigService) => ({
+        type: 'single',
+        url: `redis://:${config.get<string>('REDIS_PASSWORD')}@${config.get<string>('REDIS_HOST')}:${config.get<string>('REDIS_PORT')}`,
+      }),
+      inject: [ConfigService],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

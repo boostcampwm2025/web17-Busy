@@ -3,3 +3,5 @@ export * from './mock';
 export * from './emptyPost';
 export * from './defaultImages';
 export * from './search';
+export * from './player';
+export * from './terms';

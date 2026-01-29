@@ -9,6 +9,7 @@ import {
   UserListModal,
   PlaylistDetailModal,
   PlaylistPickerModal,
+  PrivacyConsentModal,
 } from './index';
 import { getFollowerUsers, getFollowingUsers } from '@/api';
 
@@ -42,6 +43,9 @@ export default function ModalContainer() {
 
       {/* 8. 보관함 저장(플레이리스트 선택) 모달 */}
       {modalType === MODAL_TYPES.PLAYLIST_PICKER && <PlaylistPickerModal />}
+
+      {/* 9. 개인정보수집동의 모달 */}
+      {modalType === MODAL_TYPES.PRIVACY_CONCENT && <PrivacyConsentModal />}
     </>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { QueueList, MiniPlayerBar, NowPlaying } from './index';
-import { useItunesHook, useQueueSync, useGuestQueueSession } from '@/hooks';
+import { useQueueSync, useGuestQueueSession, usePlayback } from '@/hooks';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { usePlayerStore, useModalStore, MODAL_TYPES } from '@/stores';
 
@@ -21,7 +21,7 @@ export default function RightPanel() {
   // 비로그인 시에는 세션 스토리지로 현재 재생목록 상태를 새로고침 시에도 유지한다.
   useGuestQueueSession(enableGuestSession);
 
-  const { positionMs, durationMs, seekToMs } = useItunesHook();
+  const playback = usePlayback();
   const { openModal, closeModal, isOpen, modalType } = useModalStore();
   const isQueueOpen = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
 
@@ -90,13 +90,14 @@ export default function RightPanel() {
           isPlaying={isPlaying}
           canPrev={canPrev}
           canNext={canNext}
-          positionMs={positionMs}
-          durationMs={durationMs}
+          positionMs={playback.positionMs}
+          durationMs={playback.durationMs}
           onTogglePlay={handleTogglePlay}
           onPrev={handlePrev}
           onNext={handleNext}
           onShuffle={handleShuffle}
-          onSeek={seekToMs}
+          onSeek={playback.seekToMs}
+          youtubeContainerRef={playback.kind === 'youtube' ? playback.containerRef : null}
         />
 
         <QueueList

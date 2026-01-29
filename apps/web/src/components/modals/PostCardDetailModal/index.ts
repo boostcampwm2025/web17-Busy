@@ -1,6 +1,6 @@
 export { PostCardDetailModal } from './PostCardDetailModal';
-export { default as LikedUsersOverlay } from './LikedUsersOverlay';
-export { default as PostDetailActions } from './PostDetailActions';
-export { default as PostDetailBody } from './PostDetailBody';
-export { default as PostDetailCommentComposer } from './PostDetailCommentComposer';
 export { default as PostDetailHeader } from './PostDetailHeader';
+export { default as LikedUsersOverlay } from './partials/LikedUsersOverlay';
+export { default as PostDetailActions } from './partials/PostDetailActions';
+export { default as PostDetailBody } from './partials/PostDetailBody';
+export { default as PostDetailCommentComposer } from './partials/PostDetailCommentComposer';

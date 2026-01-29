@@ -25,8 +25,7 @@ export default function SearchInput({ value, placeholder = '음악 검색', onCh
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="w-full pl-10 pr-10 py-3 bg-gray-4 rounded-xl border-2 border-transparent
-                   focus:bg-white focus:border-primary focus:outline-none transition-all font-bold text-primary placeholder:text-gray-2"
+        className="w-full pl-10 pr-10 py-3 bg-gray-4 rounded-xl border-2 border-transparent focus:bg-white focus:border-primary focus:outline-none transition-all font-bold text-primary placeholder:text-gray-2"
       />
       <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-2" />
 

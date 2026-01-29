@@ -4,14 +4,16 @@ import { Box, Play, PlusCircle } from 'lucide-react';
 
 import { useModalStore, MODAL_TYPES } from '@/stores';
 import { useMusicActions } from '@/hooks';
+import { ContentSearchMode } from '@/types';
 import type { MusicResponseDto as Music } from '@repo/dto';
+
 interface TrackItemProps {
-  music: Music;
-  meId: string | null;
+  mode: ContentSearchMode;
+  item: Music;
   isAuthenticated: boolean;
 }
 
-export default function TrackItem({ music, meId, isAuthenticated }: TrackItemProps) {
+export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProps) {
   const { openModal } = useModalStore();
 
   /** 재생 / 작성 모달 / 보관함 선택  */
@@ -19,7 +21,7 @@ export default function TrackItem({ music, meId, isAuthenticated }: TrackItemPro
 
   const handlePlayClick = async () => {
     // DB upsert 포함(내부 ensureMusicInDb)
-    await addMusicToPlayer(music);
+    await addMusicToPlayer(item);
   };
 
   const handleWriteClick = async () => {
@@ -28,7 +30,7 @@ export default function TrackItem({ music, meId, isAuthenticated }: TrackItemPro
       return;
     }
     // DB upsert 포함(내부 ensureMusicInDb)
-    await openWriteModalWithMusic(music);
+    await openWriteModalWithMusic(item);
   };
 
   const handleArchiveClick = () => {
@@ -37,18 +39,20 @@ export default function TrackItem({ music, meId, isAuthenticated }: TrackItemPro
       return;
     }
     // DB upsert 포함(내부 ensureMusicInDb)
-    addMusicToArchive(music);
+    addMusicToArchive(item);
   };
 
   return (
     <div className="w-full flex items-center p-3 rounded-xl hover:bg-gray-4 transition-colors">
-      <div className="w-12 h-12 mr-4 shrink-0 rounded-lg overflow-hidden border border-gray-3 bg-gray-4">
-        <img src={music.albumCoverUrl} alt={music.title} className="w-full h-full object-cover" />
+      <div
+        className={`${mode === 'video' ? 'h-14 aspect-video' : 'h-12 aspect-square'} mr-4 shrink-0 rounded-lg overflow-hidden border border-gray-3 bg-gray-4`}
+      >
+        <img src={item.albumCoverUrl} alt={item.title} className="w-full h-full object-cover" />
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-primary truncate">{music.title}</p>
-        <p className="text-xs text-gray-1 truncate">{music.artistName}</p>
+        <p className={`font-bold text-primary ${mode === 'video' ? 'line-clamp-2' : 'truncate'}`}>{item.title}</p>
+        <p className="text-xs text-gray-1 truncate">{item.artistName}</p>
       </div>
 
       <div className="flex items-center gap-2 ml-3">

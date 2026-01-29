@@ -7,8 +7,10 @@ export * from './feed';
 export * from './profile';
 export * from './skeleton';
 export * from './playlist';
+export * from './setting';
 
 export { default as ErrorScreen } from './ErrorScreen';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as ModalContainer } from './modals/ModalContainer';
 export { default as LoginRequestScreen } from './LoginRequestScreen';
+export { default as ConfirmOverlay } from './ConfirmOverlay';
