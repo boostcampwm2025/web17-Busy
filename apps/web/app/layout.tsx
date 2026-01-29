@@ -6,6 +6,7 @@ import AuthLoginQueryHandler from '@/hooks/auth/client/AuthLoginQueryHandler';
 import { Suspense } from 'react';
 import NotiPollingGate from '@/components/noti/NotiPollingGate';
 import ToastProvider from '@/components/ToastContainer';
+import { PrivacyConsentGate } from '@/hooks';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -28,6 +29,7 @@ export default function RootLayout({
           <AuthLoginQueryHandler />
         </Suspense>
         <ModalContainer />
+        <PrivacyConsentGate />
         <NotiPollingGate />
 
         <ToastProvider>

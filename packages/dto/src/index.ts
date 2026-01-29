@@ -8,4 +8,6 @@ export * from './user';
 export * from './playlist';
 export * from './follow';
 export * from './playlist';
+export * from './privacy';
 export * from './log';
+export * from './privacy';
