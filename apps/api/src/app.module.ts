@@ -22,6 +22,8 @@ import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
 import { PlaylistModule } from './modules/playlist/playlist.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { TrendingModule } from './modules/trending/trending.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { LogsModule } from './modules/log/logs.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { TrendingModule } from './modules/trending/trending.module';
     UploadModule,
     UserModule,
     TrendingModule,
+    ScheduleModule.forRoot(),
+    LogsModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
