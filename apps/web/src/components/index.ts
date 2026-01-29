@@ -7,6 +7,7 @@ export * from './feed';
 export * from './profile';
 export * from './skeleton';
 export * from './playlist';
+export * from './setting';
 
 export { default as ErrorScreen } from './ErrorScreen';
 export { default as LoadingSpinner } from './LoadingSpinner';
