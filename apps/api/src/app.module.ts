@@ -21,6 +21,7 @@ import { MusicModule } from './modules/music/music.module';
 import { NowPlaylistModule } from './modules/now-playlist/now-playlist.module';
 import { PlaylistModule } from './modules/playlist/playlist.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { AlgorithmModule } from './modules/algorithm/algorithm.module';
 import { TrendingModule } from './modules/trending/trending.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LogsModule } from './modules/log/logs.module';
@@ -39,6 +40,7 @@ import { LogsModule } from './modules/log/logs.module';
     SeedModule,
     UploadModule,
     UserModule,
+    AlgorithmModule,
     TrendingModule,
     ScheduleModule.forRoot(),
     LogsModule,
