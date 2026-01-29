@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Driver } from 'neo4j-driver';
+import { GraphRelation } from './algorithm-stream.consumer';
 
 @Injectable()
 export class AlgorithmService {
@@ -45,15 +46,7 @@ export class AlgorithmService {
   }
 
   // 관계를 배치로 추가
-  async addRelationshipsBatch(
-    batch: {
-      userId: string;
-      targetId: string;
-      targetLabel: string; // 'User', 'Content', 'Music' 중 하나
-      relationType: string;
-      props: Record<string, any>;
-    }[],
-  ) {
+  async addRelationshipsBatch(batch: GraphRelation[]) {
     if (batch.length === 0) return;
 
     const session = this.driver.session();
@@ -64,29 +57,54 @@ export class AlgorithmService {
           UNWIND $batch AS log
           MERGE (u:User {id: log.userId})
 
-          FOREACH (ignore IN CASE WHEN log.targetLabel = 'User' THEN [1] ELSE [] END |
+          FOREACH (_ IN CASE WHEN log.targetLabel = 'User' THEN [1] ELSE [] END |
             MERGE (t:User {id: log.targetId})
             MERGE (u)-[r:INTERACTED {type: log.relationType}]->(t)
-            ON CREATE SET r.weight = 1, r.created_at = datetime()
-            ON MATCH SET r.weight = r.weight + 1
-            SET r.expired_at = datetime() + duration('P30D')
+            ON CREATE SET 
+              r.weight = log.weight, 
+              r.created_at = datetime(log.props.timestamp),
+              r.last_interacted_at = datetime()
+            ON MATCH SET 
+              r.weight = r.weight + log.weight,
+              r.last_interacted_at = datetime()
+            SET r += log.props
           )
 
-          FOREACH (ignore IN CASE WHEN log.targetLabel = 'Content' THEN [1] ELSE [] END |
+          FOREACH (_ IN CASE WHEN log.targetLabel = 'Content' THEN [1] ELSE [] END |
             MERGE (t:Content {id: log.targetId})
             MERGE (u)-[r:INTERACTED {type: log.relationType}]->(t)
-            ON CREATE SET r.weight = 1, r.created_at = datetime()
-            ON MATCH SET r.weight = r.weight + 1
-            SET r += log.props, r.expired_at = datetime() + duration('P30D')
+            ON CREATE SET 
+              r.weight = log.weight, 
+              r.created_at = datetime(log.props.timestamp),
+              r.last_interacted_at = datetime()
+            ON MATCH SET 
+              r.weight = r.weight + log.weight,
+              r.last_interacted_at = datetime()
+            SET r += log.props
           )
+          `,
+          { batch },
+        ),
+      );
+    } finally {
+      await session.close();
+    }
+  }
 
-          FOREACH (ignore IN CASE WHEN log.targetLabel = 'Music' THEN [1] ELSE [] END |
-            MERGE (t:Music {id: log.targetId})
-            MERGE (u)-[r:INTERACTED {type: log.relationType}]->(t)
-            ON CREATE SET r.weight = 1
-            ON MATCH SET r.weight = r.weight + 1
-            SET r += log.props, r.expired_at = datetime() + duration('P30D')
-          )
+  // 관계 삭제
+  async removeRelationshipsBatch(batch: GraphRelation[]) {
+    if (batch.length === 0) return;
+
+    const session = this.driver.session();
+    try {
+      await session.executeWrite((tx) =>
+        tx.run(
+          `
+          UNWIND $batch AS log
+          MATCH (u:User {id: log.userId})
+          MATCH (u)-[r:INTERACTED {type: log.relationType}]->(t)
+          WHERE t.id = log.targetId
+          DELETE r
           `,
           { batch },
         ),
@@ -140,24 +158,5 @@ export class AlgorithmService {
     } finally {
       await session.close();
     }
-  }
-
-  // 인터셉터나 서비스에서 로그를 정제하는 로직
-  rawLogMapping(rawLogs) {
-    const mappedLogs = rawLogs.map((log) => {
-      return {
-        userId: log.userId,
-        targetId: log.targetId,
-        // FOLLOW만 User 노드로, 나머지는 Content/Music 노드로 타겟 레이블 지정
-        targetLabel:
-          log.type === 'FOLLOW' ? 'User' : log.isMusic ? 'Music' : 'Content',
-        relationType: log.type, // 'FOLLOW', 'VIEW_DETAIL', 'LISTEN', 'LIKE', 'ADD_PLAYLIST' 등
-        props: {
-          duration: log.duration || 0, // 청취 시간 등
-          count: log.count || 1, // 음악 개수 등
-          timestamp: new Date().toISOString(),
-        },
-      };
-    });
   }
 }

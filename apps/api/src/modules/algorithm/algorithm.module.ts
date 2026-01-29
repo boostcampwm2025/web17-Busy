@@ -2,11 +2,13 @@ import { Module, OnModuleDestroy, Inject } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import neo4j, { Driver } from 'neo4j-driver';
 import { AlgorithmService } from './algorithm.service';
+import { AlgorithmStreamConsumer } from './algorithm-stream.consumer';
 
 @Module({
   imports: [ConfigModule],
   providers: [
     AlgorithmService,
+    AlgorithmStreamConsumer,
     {
       provide: 'NEO4J_DRIVER',
       useFactory: async (configService: ConfigService) => {
@@ -18,7 +20,7 @@ import { AlgorithmService } from './algorithm.service';
       inject: [ConfigService],
     },
   ],
-  exports: [AlgorithmService],
+  exports: [AlgorithmService, AlgorithmStreamConsumer],
 })
 export class AlgorithmModule implements OnModuleDestroy {
   constructor(@Inject('NEO4J_DRIVER') private readonly driver: Driver) {}
