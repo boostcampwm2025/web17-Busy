@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState, lazy, useEffect, useRef } from 'react';
+import { useMemo, useState, lazy, useEffect, useRef, useCallback } from 'react';
 import { LogIn, LogOut, Menu, PlusCircle } from 'lucide-react';
 
 import { menuItems } from '@/constants';
@@ -50,61 +50,69 @@ export default function Sidebar() {
   const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION;
   const isSyncOpen = activeDrawer === SidebarItemType.SYNC;
 
-  const handleToggleSidebar = () => setIsExpanded((prev) => !prev);
+  const handleToggleSidebar = useCallback(() => setIsExpanded((prev) => !prev), []);
 
-  const handleCloseDrawer = () => setActiveDrawer(null);
+  const handleCloseDrawer = useCallback(() => setActiveDrawer(null), []);
 
-  const handleOpenDrawer = (type: SidebarItemTypeValues) => {
-    if (activeDrawer === type) {
-      return;
-    }
-    if (isExpanded) {
-      setIsExpanded(false);
-    }
-    setActiveDrawer(type);
-  };
+  const handleOpenDrawer = useCallback(
+    (type: SidebarItemTypeValues) => {
+      setActiveDrawer((currentDrawer) => {
+        if (currentDrawer === type) {
+          return null;
+        }
 
-  const handleMyProfileNavigate = () => {
+        isExpanded && setIsExpanded(false);
+        return type;
+      });
+    },
+    [isExpanded],
+  );
+
+  const handleMyProfileNavigate = useCallback(() => {
     if (!userId) return;
     setActiveItem(SidebarItemType.PROFILE);
     router.push(`/profile/${userId}`);
-  };
+  }, [router, userId]);
 
-  const handleNavigate = (type: SidebarItemTypeValues) => {
-    setActiveItem(type);
-    router.push(type === SidebarItemType.HOME ? '/' : `/${type}`);
-  };
-
-  const handleItemClick = (type: SidebarItemTypeValues) => {
-    // 열려 있는 드로어가 있다면 정리
-    handleCloseDrawer();
-
-    // 드로어 아이콘 클릭 시 새 드로어 오픈
-    if (isDrawerItem(type)) {
+  const handleNavigate = useCallback(
+    (type: SidebarItemTypeValues) => {
       setActiveItem(type);
-      handleOpenDrawer(type);
-      return;
-    }
+      router.push(type === SidebarItemType.HOME ? '/' : `/${type}`);
+    },
+    [router],
+  );
 
-    // 비로그인 상태에서 로그인이 필요한 기능 접근 시 로그인 모달 오픈
-    if (needLogin(type) && !isAuthenticated) {
-      openModal(MODAL_TYPES.LOGIN);
-      return;
-    }
+  const handleItemClick = useCallback(
+    (type: SidebarItemTypeValues) => {
+      // 드로어 아이콘 클릭 시 토글 로직 수행
+      if (isDrawerItem(type)) {
+        setActiveItem(type);
+        handleOpenDrawer(type);
+        return;
+      }
 
-    // 프로필 아이콘 클릭 시 내 프로필 페이지 경로로 이동 / 그 외 페이지 경로 그대로 이동
-    type === SidebarItemType.PROFILE ? handleMyProfileNavigate() : handleNavigate(type);
-  };
+      // 일반 메뉴 아이템 클릭 시, 열려 있는 드로어를 닫고 페이지 이동/모달 오픈
+      handleCloseDrawer();
 
-  const handleOpenWriteModal = () => {
+      if (needLogin(type) && !isAuthenticated) {
+        openModal(MODAL_TYPES.LOGIN);
+        return;
+      }
+
+      type === SidebarItemType.PROFILE ? handleMyProfileNavigate() : handleNavigate(type);
+    },
+    [handleCloseDrawer, handleOpenDrawer, isAuthenticated, openModal, handleMyProfileNavigate, handleNavigate],
+  );
+
+  const handleOpenWriteModal = useCallback(() => {
     if (!isAuthenticated) {
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
     openModal(MODAL_TYPES.WRITE);
-  };
+  }, [isAuthenticated, openModal]);
 
-  const handleOpenLoginModal = async () => {
+  const handleOpenLoginModal = useCallback(async () => {
     if (isLoading) return;
 
     if (!isAuthenticated) {
@@ -113,17 +121,17 @@ export default function Sidebar() {
     }
 
     await performLogout();
-  };
+  }, [isLoading, isAuthenticated, openModal]);
 
   useEffect(() => {
     // 페이지 url 경로가 바뀔 때마다 사이드바 활성화 아이콘을 현재 pathname 기반으로 업데이트
     setActiveItem(initialActiveItem);
-  }, [pathname]);
+  }, [pathname, initialActiveItem]);
 
   useEffect(() => {
     // 드로어가 닫힐 때마다 사이드바 활성화 아이콘을 현재 pathname 기반으로 업데이트
     !activeDrawer && setActiveItem(initialActiveItem);
-  }, [activeDrawer]);
+  }, [activeDrawer, initialActiveItem]);
 
   useEffect(() => {
     // 외부 영역 클릭 여부 판단 후 열린 드로어가 있다면 닫기
@@ -170,9 +178,10 @@ export default function Sidebar() {
           {menuItems.map((item) => (
             <MenuButton
               key={item.type}
+              type={item.type}
               Icon={item.icon}
               label={item.label}
-              onClick={() => handleItemClick(item.type)}
+              onClick={handleItemClick}
               isActive={item.type === activeItem}
               shouldShowSpan={isExpanded}
             >

@@ -15,42 +15,6 @@ type AuthedConfig = InternalAxiosRequestConfig & {
 const AUTH_ME_PATH = '/user/me';
 const SESSION_EXPIRED_CODE = 'session_expired';
 
-/** 내 서버용 Axios 인스턴스 */
-export const internalClient = axios.create({
-  baseURL: '/api',
-  timeout: 5000,
-  withCredentials: true,
-  headers: { 'Content-Type': 'application/json' },
-});
-
-/**
- * 토큰 원문을 config에 남기지 않기 위한 "서명"
- * - 보안 목적의 암호학적 해시가 아니라, "동일 토큰인지" 판별용
- * - 토큰 노출면을 줄이기 위해 token 자체는 저장하지 않는다.
- */
-const makeAuthSig = (token: string): string => {
-  const t = token.trim();
-  if (!t) return '';
-
-  // 토큰 길이 + 앞/뒤 일부만 사용 (원문 전체 노출 방지)
-  const head = t.slice(0, 8);
-  const tail = t.slice(-8);
-  const base = `${t.length}:${head}:${tail}`;
-
-  // 가벼운 해시(djb2 변형) - 동일성 체크용
-  let hash = 5381;
-  for (let i = 0; i < base.length; i += 1) {
-    hash = (hash * 33) ^ base.charCodeAt(i);
-  }
-  // unsigned
-  return (hash >>> 0).toString(16);
-};
-
-const getSessionToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  return sessionStorage.getItem(APP_ACCESS_TOKEN_STORAGE_KEY);
-};
-
 const isAuthMeRequest = (cfg?: AuthedConfig): boolean => {
   const url = cfg?.url ?? '';
   return url === AUTH_ME_PATH || url.endsWith(AUTH_ME_PATH);
@@ -71,9 +35,39 @@ const clearAuthState = () => {
   useModalStore.getState().closeModal();
 };
 
+/**
+ * 토큰 원문을 config에 남기지 않기 위한 "서명"(동일 토큰 여부 체크용)
+ */
+const makeAuthSig = (token: string): string => {
+  const t = token.trim();
+  if (!t) return '';
+
+  const head = t.slice(0, 8);
+  const tail = t.slice(-8);
+  const base = `${t.length}:${head}:${tail}`;
+
+  let hash = 5381;
+  for (let i = 0; i < base.length; i += 1) {
+    hash = (hash * 33) ^ base.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(16);
+};
+
+const getSessionToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem(APP_ACCESS_TOKEN_STORAGE_KEY);
+};
+
 let handling401 = false;
 
-/** Request: 토큰 헤더 주입 + "요청 당시 토큰 서명"만 config에 저장 */
+export const internalClient = axios.create({
+  baseURL: '/api',
+  timeout: 5000,
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+/** Request: 토큰 헤더 주입 + authMeta 저장 */
 internalClient.interceptors.request.use((config) => {
   const cfg = config as AuthedConfig;
 
@@ -97,10 +91,9 @@ internalClient.interceptors.request.use((config) => {
 });
 
 /**
- * Response: 401 처리
- * - "authMe(/user/me)"에서만 처리
- * - 요청 당시 토큰(sig)과 현재 토큰(sig)이 같을 때만 처리 (레이스 방지)
- * - 로그인 모달 중복 오픈 방지
+ * Response:
+ * - 401: authMe(/user/me)에서만 세션 만료 처리
+ * - 기타 API는 각 호출부에서 에러 처리(전역 강제 로그아웃 방지)
  */
 internalClient.interceptors.response.use(
   (res) => res,
@@ -112,13 +105,13 @@ internalClient.interceptors.response.use(
 
     const cfg = (error.config ?? {}) as AuthedConfig;
 
-    // 1) 토큰을 붙였던 요청만 "세션 만료 후보"로 본다
+    // 토큰을 붙였던 요청만 세션 만료 후보
     if (!cfg.__authMeta?.hadAuth) return Promise.reject(error);
 
-    // 2) authMe에서만 세션 만료로 정리 (다른 API는 각자 401 처리/에러 UI로)
+    // authMe에서만 세션 만료로 정리
     if (!isAuthMeRequest(cfg)) return Promise.reject(error);
 
-    // 3) 요청 당시 토큰(sig)과 현재 토큰(sig)이 다르면 레이스로 판단하고 무시
+    // 요청 당시 토큰과 현재 토큰이 동일할 때만 처리(레이스 방지)
     const currentToken = getSessionToken();
     if (!currentToken) return Promise.reject(error);
 
@@ -126,11 +119,9 @@ internalClient.interceptors.response.use(
     const requestSig = cfg.__authMeta.authSig ?? '';
     if (!requestSig || currentSig !== requestSig) return Promise.reject(error);
 
-    // 4) 중복 처리 방지
     if (handling401) return Promise.reject(error);
     handling401 = true;
 
-    // 5) 만료 처리 + 로그인 모달 오픈 (중복 오픈 방지)
     clearAuthState();
 
     if (!isLoginModalOpen()) {

@@ -73,7 +73,7 @@ export class LogsService {
     );
   }
 
-  async ingest(userId: string | null, dto: CreateLogsReqDto): Promise<number> {
+  async ingest(userId: string, dto: CreateLogsReqDto): Promise<number> {
     const serverTs = Date.now();
 
     // Stream only: 모든 이벤트를 원천 스트림에 적재

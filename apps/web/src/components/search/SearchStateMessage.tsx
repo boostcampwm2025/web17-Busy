@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { AlertTriangle, Search } from 'lucide-react';
 
 type SearchStateVariant = 'hint' | 'empty' | 'error';
@@ -15,7 +16,7 @@ const DEFAULT_MESSAGES: Record<SearchStateVariant, string> = {
   error: '검색 중 오류가 발생했습니다.',
 };
 
-export default function SearchStateMessage({ variant, message }: SearchStateProps) {
+function SearchStateMessage({ variant, message }: SearchStateProps) {
   const text = message ?? DEFAULT_MESSAGES[variant];
 
   if (variant === 'error') {
@@ -34,3 +35,5 @@ export default function SearchStateMessage({ variant, message }: SearchStateProp
     </div>
   );
 }
+
+export default memo(SearchStateMessage);
