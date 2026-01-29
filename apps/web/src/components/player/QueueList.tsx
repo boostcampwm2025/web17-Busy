@@ -6,6 +6,10 @@ import { useMusicActions } from '@/hooks';
 import { useModalStore, MODAL_TYPES } from '@/stores';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
+// UX 로그
+import { enqueueLog } from '@/utils/logQueue';
+import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api/internal/logging';
+
 interface QueueListProps {
   queue: Music[];
   currentMusicId: string | null;
@@ -21,16 +25,9 @@ interface QueueListProps {
 export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown, onSelect }: QueueListProps) {
   const isEmpty = queue.length === 0;
 
-  /**
-   * NOTE:
-   * - 사용자의 로그인 유무를 체크한다.
-   * - 사용자가 보관함 추가와 컨텐츠 생성 버튼을 누를 때 로그인 유무로 지원한다.
-   * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
-   */
   const { userId, isAuthenticated } = useAuthMe();
   const { openModal } = useModalStore();
 
-  /** 보관함 추가와 컨텐츠 생성을 위한 함수  */
   const { openWriteModalWithQueue, addQueueToArchive } = useMusicActions();
 
   const handleClearClick = () => {
@@ -44,6 +41,10 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
       return;
     }
     if (isEmpty) return;
+
+    // 큐 전체 보관함 저장 로그
+    enqueueLog(makeArchiveAddMusicLog({ musicIds: queue.map((m) => m.id) }));
+
     await addQueueToArchive(queue);
   };
 
@@ -53,6 +54,10 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
       return;
     }
     if (isEmpty) return;
+
+    // 큐 전체 포스트 추가 로그
+    enqueueLog(makePostAddMusicLog({ musicIds: queue.map((m) => m.id) }));
+
     await openWriteModalWithQueue(queue);
   };
 
@@ -135,7 +140,6 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
               >
                 <span className={`w-6 text-center text-sm font-bold ${isCurrent ? 'text-accent-pink' : 'text-gray-2'}`}>{index + 1}</span>
 
-                {/* 클릭 영역: 커버 + 텍스트 ->  재생할 곡 지정 가능*/}
                 <button type="button" onClick={handleSelectClick} className="flex items-center gap-3 min-w-0 flex-1 text-left">
                   <img src={music.albumCoverUrl} alt={music.title} className="w-10 h-10 rounded border border-gray-3 object-cover" />
                   <div className="min-w-0 flex-1">
