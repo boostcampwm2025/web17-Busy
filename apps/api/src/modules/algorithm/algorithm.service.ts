@@ -214,4 +214,29 @@ export class AlgorithmService {
 
     await pipeline.exec();
   }
+
+  async syncAllGroupsToRedis() {
+    let currentSkip: number | null = 0;
+
+    while (currentSkip !== null) {
+      const { batch, nextSkip } = await this.fetchGroupingBatch(currentSkip);
+
+      if (batch.length === 0) break;
+
+      // User와 Post(Content) 분리
+      const users: { id: string; groupId: string }[] = [];
+      const posts: { id: string; groupId: string }[] = [];
+
+      batch.forEach((item) => {
+        if (item.label === 'User') {
+          users.push({ id: item.id, groupId: item.groupId });
+        } else {
+          posts.push({ id: item.id, groupId: item.groupId });
+        }
+      });
+
+      await this.updateGroupInfoToRedis(users, posts);
+      currentSkip = nextSkip;
+    }
+  }
 }
