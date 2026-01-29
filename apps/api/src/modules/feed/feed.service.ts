@@ -23,6 +23,10 @@ export class FeedService {
     limit: number,
     cursor?: string,
   ): Promise<FeedResponseDto> {
+    const myPosts = requestUserId
+      ? await this.getPostsByAuthorId(requestUserId, limit, cursor)
+      : [];
+
     // 팔로잉 사용자들의 게시글
     const followingPosts = await this.getPostsOfFollowings(
       requestUserId,
@@ -58,6 +62,12 @@ export class FeedService {
       posts: this.mapToFeedResponseDto(targetPosts),
     };
   }
+
+  private async getPostsByAuthorId(
+    userId: string,
+    limit: number,
+    cursor?: string,
+  ) {}
 
   private dedupePosts(posts1: Post[], posts2: Post[]) {
     const map = new Map<string, Post>();
@@ -120,17 +130,27 @@ export class FeedService {
       // filtering 해야되는 개수
       let restCutoffCount = postIds.length - limit;
 
-      postIds = postIdsWithGroupId
-        .filter((pg) => {
-          if (restCutoffCount <= 0) return true;
-          if (pg.groupId === userGroupId) return true;
+      // 뒤에꺼부터 잘라야 점수 낮은것부터 잘림
+      const result: string[] = [];
+      for (let i = postIdsWithGroupId.length - 1; i >= 0; --i) {
+        const pg = postIdsWithGroupId[i];
+
+        if (restCutoffCount > 0 && pg.groupId !== userGroupId) {
           --restCutoffCount;
-          return false;
-        })
-        .map((pg) => pg.postId);
+          continue;
+        }
+
+        result.push(pg.postId);
+      }
+      result.reverse();
+
+      postIds = result;
     }
 
-    // 게시글 조회해서
+    // 로그인 안 하거나 사용자 그룹이 확인되지 않았는데 조회된 글 개수가 limit 보다 크면 인기 점수순 자르기
+    postIds = postIds.slice(0, limit);
+
+    // 게시글 조회
     const qb = this.createFeedQueryBuilder(userId, cursor, postIds);
     return await qb.take(limit + 1).getMany();
   }
