@@ -1,5 +1,5 @@
-import { ConsentView } from '@/components';
+import { PrivacyConsentView } from '@/components';
 
 export default function PrivacyConsentPage() {
-  return <ConsentView />;
+  return <PrivacyConsentView />;
 }

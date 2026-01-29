@@ -1,1 +1,1 @@
-export { default as ConsentView } from './ConsentView';
+export { default as PrivacyConsentView } from './PrivacyConsentView';

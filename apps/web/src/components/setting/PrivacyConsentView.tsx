@@ -12,7 +12,7 @@ interface ConsentState {
   privacy: boolean;
 }
 
-export default function ConsentView() {
+export default function PrivacyConsentView() {
   const [isLoading, setIsLoading] = useState(true);
   const [initialConsentState, setInitialConsentStates] = useState<ConsentState>({ terms: false, privacy: false });
 
