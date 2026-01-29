@@ -10145,7 +10145,6 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-<<<<<<< HEAD
   neo4j-driver-bolt-connection@6.0.1:
     dependencies:
       buffer: 6.0.3
@@ -10161,9 +10160,7 @@ snapshots:
       rxjs: 7.8.2
 
   next@16.0.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
-=======
   next@16.0.10(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
->>>>>>> 0464134f8ad31f04c389a0c1cd9715019e75dbd3
     dependencies:
       '@next/env': 16.0.10
       '@swc/helpers': 0.5.15
