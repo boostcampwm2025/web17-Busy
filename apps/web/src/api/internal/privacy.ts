@@ -7,6 +7,6 @@ export const updatePrivacyConsent = async (dto: UpdateConsentListDto) => {
 };
 
 export const getRecentConsents = async () => {
-  const { data } = await internalClient.get<GetRecentConsentListDto>('privacy');
+  const { data } = await internalClient.get<GetRecentConsentListDto>('/privacy');
   return data;
 };
