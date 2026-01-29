@@ -10,3 +10,4 @@ export * from './post/usePostDetail';
 export * from './search';
 export * from './playlist';
 export * from './post';
+export * from './privacy';

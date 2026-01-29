@@ -6,3 +6,4 @@ export { MobilePlayerModal } from './/MobilePlayerModal';
 export { UserListModal } from './UserListModal';
 export { PlaylistDetailModal } from './PlaylistDetailModal';
 export { PlaylistPickerModal } from './PlaylistPickerModal';
+export { PrivacyConsentModal } from './PrivacyConsentModal';

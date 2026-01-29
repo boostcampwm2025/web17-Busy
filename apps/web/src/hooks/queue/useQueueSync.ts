@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { usePlayerStore } from '@/stores';
 import { getNowPlaylist, updateNowPlaylist } from '@/api/internal/now-playlist';
