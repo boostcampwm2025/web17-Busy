@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { TrendingRankStore } from './rank/trending-rank.store';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class TrendingService {
   constructor(private readonly rankStore: TrendingRankStore) {}
 
   async getTop(limit = 10) {
-    const end = Math.max(0, limit - 1);
+    const end = Math.max(-1, limit - 1);
     const raw = await this.rankStore.getTopWithScores(0, end);
 
     const result: Array<{ postId: string; score: number }> = [];

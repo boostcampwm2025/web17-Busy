@@ -1,11 +1,10 @@
 import { CronExpression } from '@nestjs/schedule';
 
 export const TRENDING_WEIGHTS = {
-  view: 1,
-  like: 5,
-  unlike: -5,
-  comment: 10,
-  play: 3,
+  POST_DETAIL_SUMMARY: 1,
+  LIKE_ADD: 5,
+  LIKE_REMOVE: -5,
+  COMMENT_CREATE: 10,
 } as const;
 
 export type TrendingInteractionType = keyof typeof TRENDING_WEIGHTS;

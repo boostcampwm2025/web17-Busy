@@ -26,6 +26,7 @@ import { TrendingModule } from './modules/trending/trending.module';
 import { PrivacyModule } from './modules/privacy/privacy.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LogsModule } from './modules/log/logs.module';
+import { FeedModule } from './modules/feed/feed.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { LogsModule } from './modules/log/logs.module';
     UserModule,
     AlgorithmModule,
     TrendingModule,
+    FeedModule,
     PrivacyModule,
     ScheduleModule.forRoot(),
     LogsModule,
