@@ -27,12 +27,16 @@ export class FeedService {
       ? await this.getPostsByAuthorId(requestUserId, limit, cursor)
       : [];
 
+    // console.log('내 게시글', myPosts.map(p => ([p.id, p.author.nickname, p.content])));
+
     // 팔로잉 사용자들의 게시글
     const followingPosts = await this.getPostsOfFollowings(
       requestUserId,
       limit,
       cursor,
     );
+
+    // console.log('팔로잉 사용자 게시글', followingPosts.map(p => ([p.id, p.author.nickname, p.content])));
 
     // 인기 게시글
     const trendingPosts = await this.getTrendingPosts(
@@ -41,8 +45,10 @@ export class FeedService {
       cursor,
     );
 
+    // console.log('인기 게시글', trendingPosts.map(p => ([p.id, p.author.nickname, p.content])));
+
     // 중복 제거
-    const posts = this.dedupePosts(followingPosts, trendingPosts);
+    const posts = this.dedupePosts(myPosts, followingPosts, trendingPosts);
 
     // 정렬
     posts.sort((a, b) => b.id.localeCompare(a.id));
@@ -64,22 +70,44 @@ export class FeedService {
   }
 
   private async getPostsByAuthorId(
-    userId: string,
+    authorId: string,
     limit: number,
     cursor?: string,
-  ) {}
+  ) {
+    const query = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.postMusics', 'postMusic')
+      .leftJoinAndSelect('postMusic.music', 'music')
+      .orderBy('post.id', 'DESC')
+      .where('author.id = :authorId', { authorId });
 
-  private dedupePosts(posts1: Post[], posts2: Post[]) {
+    query.leftJoinAndSelect('post.likes', 'like', 'like.userId = :authorId', {
+      authorId,
+    });
+
+    if (cursor) {
+      query.andWhere('post.id < :cursor', { cursor });
+    }
+
+    return await query.take(limit + 1).getMany();
+  }
+
+  private dedupePosts(
+    myPosts: Post[],
+    followingPosts: Post[],
+    trendingPosts: Post[],
+  ) {
     const map = new Map<string, Post>();
 
-    for (const post of posts1) {
-      map.set(post.id, post);
-    }
+    myPosts.forEach((p) => map.set(p.id, p));
 
-    for (const post of posts2) {
-      if (map.has(post.id)) continue;
-      map.set(post.id, post);
-    }
+    followingPosts.forEach((p) => map.set(p.id, p));
+
+    trendingPosts.forEach((p) => {
+      if (map.has(p.id)) return;
+      map.set(p.id, p);
+    });
 
     return Array.from(map.values());
   }
