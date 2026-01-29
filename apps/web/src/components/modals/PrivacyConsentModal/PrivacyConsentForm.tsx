@@ -15,7 +15,7 @@ interface ConsentState {
 }
 
 interface PrivacyConsentFormProps {
-  onSuccess?: () => void;
+  onSuccess?: (newState: ConsentState) => void;
   submitButtonText?: string;
   initialState?: ConsentState;
 }
@@ -43,7 +43,9 @@ export const PrivacyConsentForm = ({ onSuccess, submitButtonText = '동의하고
       };
       await updatePrivacyConsent(payload);
       toast.success('동의 여부가 업데이트 되었습니다.');
-      if (onSuccess) onSuccess();
+
+      // 페이지에서 성공 시 초기 상태 업데이트 / 모달에서 성공 시 파라미터 무시하고 closeModal
+      if (onSuccess) onSuccess(agreements);
     } catch (error) {
       toast.error('동의 실패, 다시 시도해주세요');
     } finally {
