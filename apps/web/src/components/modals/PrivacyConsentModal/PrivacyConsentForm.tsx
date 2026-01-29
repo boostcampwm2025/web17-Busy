@@ -42,6 +42,7 @@ export const PrivacyConsentForm = ({ onSuccess, submitButtonText = '동의하고
         ],
       };
       await updatePrivacyConsent(payload);
+      toast.success('동의 여부가 업데이트 되었습니다.');
       if (onSuccess) onSuccess();
     } catch (error) {
       toast.error('동의 실패, 다시 시도해주세요');
