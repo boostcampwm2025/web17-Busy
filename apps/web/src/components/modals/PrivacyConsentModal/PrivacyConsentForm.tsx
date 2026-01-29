@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import { privacyConsent } from '@/api';
+import { updatePrivacyConsent } from '@/api';
 import { usePrivacyAgreements } from './usePrivacyAgreements';
 import { AgreementItem } from './AgreeItem';
 import type { UpdateConsentListDto } from '@repo/dto';
@@ -41,7 +41,7 @@ export const PrivacyConsentForm = ({ onSuccess, submitButtonText = '동의하고
           },
         ],
       };
-      await privacyConsent(payload);
+      await updatePrivacyConsent(payload);
       if (onSuccess) onSuccess();
     } catch (error) {
       toast.error('동의 실패, 다시 시도해주세요');
