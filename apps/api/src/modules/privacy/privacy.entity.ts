@@ -22,7 +22,7 @@ export class ConsentHistory {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column()
+  @Column({ length: 36 })
   userId: string;
 
   @Column({ type: 'enum', enum: ConsentType })
