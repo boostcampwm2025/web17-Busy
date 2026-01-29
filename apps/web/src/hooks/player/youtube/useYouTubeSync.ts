@@ -46,26 +46,17 @@ export function useYouTubeSync({ ready, playerRef, setProgress }: Props) {
     const player = playerRef.current;
     if (!player) return;
 
-    if (!currentMusic || !isYoutube) {
+    if (!currentMusic || !isYoutube || !videoId) {
       player.stopVideo();
       setProgress({ positionMs: 0, durationMs: 0 });
-      return;
-    }
-
-    if (!videoId) {
-      player.stopVideo();
-      setProgress({ positionMs: 0, durationMs: 0 });
-      // youtube play error로 분리 후 사용
-      // setPlayError('재생할 수 있는 YouTube videoId가 없습니다.');
       return;
     }
 
     setProgress({ durationMs: 0, positionMs: 0 });
 
-    // isPlaying에 따른 분기 필요? itunes는 분기 안 함
     if (isPlaying) player.loadVideoById(videoId);
     else player.cueVideoById(videoId);
-  }, [ready, currentMusic?.id, videoId, isYoutube, isPlaying]);
+  }, [ready, currentMusic?.id, videoId, isYoutube]);
 
   // 에러메시지 초기화
   useEffect(() => {
