@@ -24,6 +24,7 @@ import { UploadModule } from './modules/upload/upload.module';
 import { TrendingModule } from './modules/trending/trending.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LogsModule } from './modules/log/logs.module';
+import { FeedModule } from './modules/feed/feed.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { LogsModule } from './modules/log/logs.module';
     UploadModule,
     UserModule,
     TrendingModule,
+    FeedModule,
     ScheduleModule.forRoot(),
     LogsModule,
     ServeStaticModule.forRoot({

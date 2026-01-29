@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { Post } from './entities/post.entity';
+import { Post } from '../post/entities/post.entity';
 import { PostResponseDto, MusicResponseDto, FeedResponseDto } from '@repo/dto';
 
 @Injectable()

@@ -8,7 +8,6 @@ import { Post } from './entities/post.entity';
 import { PostMusic } from './entities/post-music.entity';
 import { PostController } from './post.controller';
 import { PostService } from './post.service';
-import { FeedService } from './feed.service';
 import { PostRepository } from './post.repository';
 import { PostMusicRepository } from './post-music.repository';
 
@@ -37,6 +36,6 @@ import { UploadModule } from '../upload/upload.module';
   ],
   controllers: [PostController],
   exports: [PostRepository],
-  providers: [PostService, PostRepository, FeedService, PostMusicRepository],
+  providers: [PostService, PostRepository, PostMusicRepository],
 })
 export class PostModule {}
