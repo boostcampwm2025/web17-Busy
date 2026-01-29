@@ -5,7 +5,8 @@ import { toast } from 'react-toastify';
 import { privacyConsent } from '@/api';
 import { usePrivacyAgreements } from './usePrivacyAgreements';
 import { AgreementItem } from './AgreeItem';
-import { ConsentType, UpdateConsentListDto } from '@repo/dto';
+import type { UpdateConsentListDto } from '@repo/dto';
+import { ConsentType } from '@repo/dto/values';
 
 interface PrivacyConsentFormProps {
   onSuccess?: () => void;
