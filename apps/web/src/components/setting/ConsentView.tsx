@@ -19,18 +19,7 @@ export default function ConsentView() {
   useEffect(() => {
     const fetchConsentStatus = async () => {
       try {
-        //const { items } = await getRecentConsents();
-        const items = [
-          {
-            type: 'TERMS',
-            agreed: true,
-          },
-          {
-            type: 'PRIVACY',
-            agreed: true,
-          },
-        ];
-
+        const { items } = await getRecentConsents();
         setInitialConsentStates((prev) =>
           items.reduce<ConsentState>((acc, { type, agreed }) => {
             if (type === ConsentType.TERMS_OF_SERVICE) acc.terms = agreed;
@@ -40,7 +29,7 @@ export default function ConsentView() {
         );
       } catch (e) {
         console.error(e);
-        toast.error('동의 정보를 불러오는 데 실패했습니다. 다시 시도해주세요');
+        toast.error('동의 정보를 불러오는 데 실패했습니다.');
       } finally {
         setIsLoading(false);
       }
