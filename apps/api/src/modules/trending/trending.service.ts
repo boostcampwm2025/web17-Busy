@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { TrendingRankStore } from './rank/trending-rank.store';
 
 @Injectable()
