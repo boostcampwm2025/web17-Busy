@@ -4,9 +4,12 @@ import { GraphRelation } from './algorithm-stream.consumer';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class AlgorithmService {
+  private isGroupingRunning = false;
+
   constructor(
     @Inject('NEO4J_DRIVER') private readonly driver: Driver,
     @InjectRedis() private readonly redis: Redis,
@@ -237,6 +240,24 @@ export class AlgorithmService {
 
       await this.updateGroupInfoToRedis(users, posts);
       currentSkip = nextSkip;
+    }
+  }
+
+  @Cron(CronExpression.EVERY_2_HOURS, { waitForCompletion: true })
+  async scheduledGroupingTask() {
+    if (this.isGroupingRunning) {
+      return;
+    }
+
+    this.isGroupingRunning = true;
+
+    try {
+      await this.runUnifiedGrouping();
+      await this.syncAllGroupsToRedis();
+    } catch (error) {
+      throw error;
+    } finally {
+      this.isGroupingRunning = false;
     }
   }
 }
