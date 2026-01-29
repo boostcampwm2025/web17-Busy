@@ -9,7 +9,7 @@ export const PrivacyConsentModal = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">
-      <div className="bg-white w-full max-w-md rounded-3xl border-2 border-primary shadow-[8px_8px_0px_0px_var(--color-primary)]">
+      <div className="bg-white w-full max-w-lg rounded-3xl border-2 border-primary shadow-[8px_8px_0px_0px_var(--color-primary)]">
         {/* 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary">
           <h2 className="text-xl font-black text-primary">약관 동의</h2>
