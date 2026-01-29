@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CommentRepository } from './comment.repository';

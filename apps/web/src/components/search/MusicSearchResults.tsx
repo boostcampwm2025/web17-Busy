@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { TrackItem } from './index';
 import { ContentSearchMode } from '@/types';
@@ -10,7 +11,7 @@ type Props = {
   isAuthenticated: boolean;
 };
 
-export default function MusicSearchResults({ mode, items, isAuthenticated }: Props) {
+function MusicSearchResults({ mode, items, isAuthenticated }: Props) {
   return (
     <div className="space-y-1">
       {items.map((item) => (
@@ -19,3 +20,5 @@ export default function MusicSearchResults({ mode, items, isAuthenticated }: Pro
     </div>
   );
 }
+
+export default memo(MusicSearchResults);

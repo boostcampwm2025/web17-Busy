@@ -14,6 +14,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+<<<<<<< HEAD
   neo4j:
     image: neo4j:5.15
     container_name: vibr-neo4j
@@ -25,3 +26,21 @@ services:
     volumes:
       - ./neo4j/data:/data
       retries: 10
+=======
+
+  redis:
+    image: redis:8.4-alpine
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}" ]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  redis-data:
+>>>>>>> 0464134f8ad31f04c389a0c1cd9715019e75dbd3

@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { UserId } from 'src/common/decorators/userId.decorator';
@@ -22,6 +23,7 @@ import {
   GetCommentsReqDto,
   GetCommentsResDto,
 } from '@repo/dto';
+import { CommentStreamLogInterceptor } from 'src/common/interceptors/comment-stream-log.interceptor';
 
 @Controller('comment')
 export class CommentController {
@@ -30,6 +32,7 @@ export class CommentController {
   @Post()
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(CommentStreamLogInterceptor)
   async createComment(
     @UserId() userId: string,
     @Body() createCommentDto: CreateCommentDto,
