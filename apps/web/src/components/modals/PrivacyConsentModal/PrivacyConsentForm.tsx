@@ -80,7 +80,7 @@ export const PrivacyConsentForm = ({ onSuccess, submitButtonText = '동의하고
       {/* 제출 버튼 */}
       <button
         onClick={handleSubmit}
-        disabled={isLoading}
+        disabled={!isRequiredChecked || isLoading}
         className={`w-full py-4 rounded-xl font-black transition-all border-2  ${
           isRequiredChecked ? 'bg-primary border-primary text-white shadow-[4px_4px_0px_0px_#000000]' : 'bg-gray-100 text-gray-400 border-gray-300'
         }`}
