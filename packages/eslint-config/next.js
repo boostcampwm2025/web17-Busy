@@ -6,6 +6,7 @@ import pluginReactHooks from 'eslint-plugin-react-hooks';
 import pluginReact from 'eslint-plugin-react';
 import globals from 'globals';
 import pluginNext from '@next/eslint-plugin-next';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import { config as baseConfig } from './base.mjs';
 
 /**
@@ -52,7 +53,17 @@ export const nextJsConfig = [
     },
   },
 
-  // 5. 프론트엔드 전용 네이밍 컨벤션 및 파일명 규칙
+  // 5. React Compiler 규칙
+  {
+    plugins: {
+      'react-compiler': reactCompiler,
+    },
+    rules: {
+      'react-compiler/react-compiler': 'error',
+    },
+  },
+
+  // 6. 프론트엔드 전용 네이밍 컨벤션 및 파일명 규칙
   {
     files: ['**/*.tsx'], // 컴포넌트 파일(.tsx)에만 적용
     rules: {
