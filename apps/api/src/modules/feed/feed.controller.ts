@@ -26,7 +26,7 @@ export class FeedController {
     cursor?: string,
   ): Promise<FeedResponseDto> {
     try {
-      return await this.feedService.getFeedPosts(requestUserId, limit, cursor);
+      return await this.feedService.feed(requestUserId, limit, cursor);
     } catch (error) {
       throw new InternalServerErrorException(
         `피드 데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,

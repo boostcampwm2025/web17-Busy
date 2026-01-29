@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Post } from '../post/entities/post.entity';
 import { PostResponseDto, MusicResponseDto, FeedResponseDto } from '@repo/dto';
+import { FollowService } from '../follow/follow.service';
 
 @Injectable()
 export class FeedService {
@@ -11,8 +12,47 @@ export class FeedService {
     private readonly postRepository: Repository<Post>,
   ) {}
 
-  async getFeedPosts(
-    requestUserId: string | null,
+  async feed(requestUserId: string | null, limit: number, cursor?: string) {
+    const eachLimit = limit / 2;
+
+    // 팔로잉 사용자들의 게시글
+    const postsOfFollowings = await this.getPostsOrFollowings(
+      requestUserId,
+      eachLimit,
+      cursor,
+    );
+
+    // 인기 게시글
+    const trendingPosts = this.getTrendingPosts(
+      requestUserId,
+      eachLimit,
+      cursor,
+    );
+
+    // 중복 제거
+
+    // hasNext, nextCursor 설정
+  }
+
+  private async getPostsOrFollowings(
+    userId: string | null,
+    limit: number,
+    cursor?: string,
+  ) {
+    if (!userId) return [];
+
+    const qb = this.createFeedQueryBuilder(userId, cursor);
+    return await qb.take(limit + 1).getMany();
+  }
+
+  private async getTrendingPosts(
+    userId: string | null,
+    limit: number,
+    cursor?: string,
+  ) {}
+
+  async getAllPosts(
+    requestUserId: string,
     limit: number,
     cursor?: string,
   ): Promise<FeedResponseDto> {
@@ -36,7 +76,7 @@ export class FeedService {
   }
 
   private createFeedQueryBuilder(
-    requestUserId: string | null,
+    requestUserId: string,
     cursor?: string,
   ): SelectQueryBuilder<Post> {
     const query = this.postRepository
@@ -46,18 +86,21 @@ export class FeedService {
       .leftJoinAndSelect('postMusic.music', 'music')
       .orderBy('post.id', 'DESC');
 
-    // 로그인 상태인 경우 조건 추가
-    if (requestUserId) {
-      // isLiked 확인용 조인
-      query.leftJoinAndSelect(
-        'post.likes',
-        'like',
-        'like.userId = :requestUserId',
-        { requestUserId },
-      );
+    // isLiked 확인용 조인
+    query.leftJoinAndSelect(
+      'post.likes',
+      'like',
+      'like.userId = :requestUserId',
+      { requestUserId },
+    );
 
-      // TODO: 팔로우한 사용자 게시물 필터링 조건 추가
-    }
+    // 팔로잉한 사용자의 게시글만 조회
+    query.innerJoin(
+      'follow',
+      'f',
+      'f.followerId = :requestUserId AND f.followingId = author.id',
+      { requestUserId },
+    );
 
     // 커서 페이지네이션 조건 추가
     if (cursor) {
