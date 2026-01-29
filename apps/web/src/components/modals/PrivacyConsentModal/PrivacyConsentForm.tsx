@@ -8,14 +8,20 @@ import { AgreementItem } from './AgreeItem';
 import type { UpdateConsentListDto } from '@repo/dto';
 import { ConsentType } from '@repo/dto/values';
 
+interface ConsentState {
+  terms: boolean;
+  privacy: boolean;
+}
+
 interface PrivacyConsentFormProps {
   onSuccess?: () => void;
   submitButtonText?: string;
+  initialState?: ConsentState;
 }
 
-export const PrivacyConsentForm = ({ onSuccess, submitButtonText = '동의하고 시작하기' }: PrivacyConsentFormProps) => {
+export const PrivacyConsentForm = ({ onSuccess, submitButtonText = '동의하고 시작하기', initialState }: PrivacyConsentFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { agreements, handleCheck, handleAllCheck, isRequiredChecked } = usePrivacyAgreements();
+  const { agreements, handleCheck, handleAllCheck, isRequiredChecked } = usePrivacyAgreements(initialState);
 
   const handleSubmit = async () => {
     if (isLoading) return;
@@ -75,8 +81,8 @@ export const PrivacyConsentForm = ({ onSuccess, submitButtonText = '동의하고
       <button
         onClick={handleSubmit}
         disabled={isLoading}
-        className={`w-full py-4 rounded-xl font-black transition-all border-2 border-primary ${
-          isRequiredChecked ? 'bg-primary text-white shadow-[4px_4px_0px_0px_#000000]' : 'bg-gray-100 text-gray-400 border-gray-300'
+        className={`w-full py-4 rounded-xl font-black transition-all border-2  ${
+          isRequiredChecked ? 'bg-primary border-primary text-white shadow-[4px_4px_0px_0px_#000000]' : 'bg-gray-100 text-gray-400 border-gray-300'
         }`}
       >
         {isLoading ? '로딩 중...' : submitButtonText}
