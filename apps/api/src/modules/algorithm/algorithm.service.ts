@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Driver } from 'neo4j-driver';
+import neo4j, { Driver } from 'neo4j-driver';
 import { GraphRelation } from './algorithm-stream.consumer';
 
 @Injectable()
@@ -126,11 +126,47 @@ export class AlgorithmService {
         `);
 
         await tx.run(`
-          CALL apoc.algo.community(3, ['INTERACTED'], 'partition')
+          CALL apoc.algo.community(3, ['INTERACTED'], 'partition', 'weight')
           YIELD name
           RETURN count(*)
         `);
       });
+    } finally {
+      await session.close();
+    }
+  }
+
+  // 그룹핑 결과 반환 2000배치 skip만큼 이어서
+  async fetchGroupingBatch(skip: number = 0, batchSize: number = 2000) {
+    const session = this.driver.session();
+    try {
+      const result = await session.executeRead((tx) =>
+        tx.run(
+          `
+          MATCH (n)
+          WHERE n.partition IS NOT NULL
+          RETURN n.id AS id, labels(n)[0] AS label, n.partition AS groupId
+          ORDER BY n.id
+          SKIP $skip
+          LIMIT $limit
+          `,
+          {
+            skip: neo4j.int(skip),
+            limit: neo4j.int(batchSize),
+          },
+        ),
+      );
+      const records = result.records;
+      const batch = records.map((r) => ({
+        id: r.get('id'),
+        label: r.get('label'),
+        groupId: r.get('groupId').toString(),
+      }));
+
+      // 가져온 데이터가 마지막이면 null or 0 반환
+      const nextSkip = records.length === batchSize ? skip + batchSize : null;
+
+      return { batch, nextSkip };
     } finally {
       await session.close();
     }
