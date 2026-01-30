@@ -58,7 +58,9 @@ export class FeedService {
     const targetRecentPosts = hasRecentNext
       ? recentPosts.slice(0, limit)
       : recentPosts;
-    const nextRecentCursor = targetRecentPosts[0].id;
+    const nextRecentCursor = hasRecentNext
+      ? targetRecentPosts[0].id
+      : undefined;
 
     // 중복 제거
     const tmpPosts = this.dedupePosts(myPosts, followingPosts, trendingPosts);
