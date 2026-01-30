@@ -56,7 +56,7 @@ export class FeedService {
 
     const hasRecentNext = recentPosts.length > limit;
     const targetRecentPosts = hasRecentNext
-      ? recentPosts.slice(0, -1)
+      ? recentPosts.slice(0, limit)
       : recentPosts;
     const nextRecentCursor = targetRecentPosts[0].id;
 
@@ -78,9 +78,9 @@ export class FeedService {
 
     let notDuplicatedRecentPosts: Post[] = [];
 
-    tmpPosts.forEach((p) => map.set(p.id, p));
+    targetPosts.forEach((p) => map.set(p.id, p));
 
-    tmpPosts.forEach((p) => {
+    targetRecentPosts.forEach((p) => {
       if (map.has(p.id)) return;
       notDuplicatedRecentPosts.push(p);
     });
