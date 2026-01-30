@@ -22,6 +22,7 @@ export class FeedService {
     requestUserId: string | null,
     limit: number,
     cursor?: string,
+    recentCursor?: string,
   ): Promise<FeedResponseDto> {
     const myPosts = requestUserId
       ? await this.getPostsByAuthorId(requestUserId, limit, cursor)
@@ -47,26 +48,95 @@ export class FeedService {
 
     // console.log('인기 게시글', trendingPosts.map(p => ([p.id, p.author.nickname, p.content])));
 
+    // 최근 게시글 용 커서 추가하고 얘는 cursor보다 최신글을 조회
+    const recentPosts =
+      cursor && !recentCursor
+        ? []
+        : await this.getRecentPosts(requestUserId, limit, recentCursor);
+
+    const hasRecentNext = recentPosts.length > limit;
+    const targetRecentPosts = hasRecentNext
+      ? recentPosts.slice(0, -1)
+      : recentPosts;
+    const nextRecentCursor = targetRecentPosts[0].id;
+
     // 중복 제거
-    const posts = this.dedupePosts(myPosts, followingPosts, trendingPosts);
+    const tmpPosts = this.dedupePosts(myPosts, followingPosts, trendingPosts);
 
     // 정렬
-    posts.sort((a, b) => b.id.localeCompare(a.id));
+    tmpPosts.sort((a, b) => b.id.localeCompare(a.id));
 
     // hasNext, nextCursor 설정
-    const hasNext = posts.length > limit;
-    const targetPosts = hasNext ? posts.slice(0, -1) : posts;
+    const hasNext = tmpPosts.length > limit;
+    const targetPosts = hasNext ? tmpPosts.slice(0, limit) : tmpPosts;
     const nextCursor =
       targetPosts.length > 0
         ? targetPosts[targetPosts.length - 1].id
         : undefined;
 
+    const map = new Map<string, Post>();
+
+    let notDuplicatedRecentPosts: Post[] = [];
+
+    tmpPosts.forEach((p) => map.set(p.id, p));
+
+    tmpPosts.forEach((p) => {
+      if (map.has(p.id)) return;
+      notDuplicatedRecentPosts.push(p);
+    });
+    notDuplicatedRecentPosts = notDuplicatedRecentPosts.slice(0, limit);
+
+    const len = limit;
+    const firstIdx = Math.floor(len / 3);
+    const secondIdx = firstIdx + firstIdx;
+
+    const first = notDuplicatedRecentPosts.slice(0, firstIdx);
+    const second = notDuplicatedRecentPosts.slice(firstIdx, secondIdx);
+    const third = notDuplicatedRecentPosts.slice(secondIdx, len);
+
+    const f = targetPosts.slice(0, firstIdx);
+    const s = targetPosts.slice(firstIdx, secondIdx);
+    const t = targetPosts.slice(secondIdx, len);
+
     // 응답 데이터 생성
     return {
-      hasNext,
+      hasNext: hasNext || hasRecentNext,
       nextCursor,
-      posts: this.mapToFeedResponseDto(targetPosts),
+      nextRecentCursor,
+      posts: this.mapToFeedResponseDto([
+        ...f,
+        ...first,
+        ...s,
+        ...second,
+        ...t,
+        ...third,
+      ]),
     };
+  }
+
+  private async getRecentPosts(
+    userId: string | null,
+    limit: number,
+    cursor?: string,
+  ) {
+    const query = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.postMusics', 'postMusic')
+      .leftJoinAndSelect('postMusic.music', 'music')
+      .orderBy('post.id', 'DESC');
+
+    if (userId) {
+      query.leftJoinAndSelect('post.likes', 'like', 'like.userId = :userId', {
+        userId,
+      });
+    }
+
+    if (cursor) {
+      query.andWhere('post.id > :cursor', { cursor });
+    }
+
+    return await query.take(limit + 1).getMany();
   }
 
   private async getPostsByAuthorId(
