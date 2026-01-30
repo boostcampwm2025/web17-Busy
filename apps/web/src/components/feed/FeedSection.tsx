@@ -1,6 +1,6 @@
 'use client';
 
-import { useInfiniteScroll } from '@/hooks';
+import { useFeedInfiniteScroll } from '@/hooks';
 import { getFeedPosts } from '@/api';
 import type { PostResponseDto as Post } from '@repo/dto';
 import { FeedSkeleton } from '../skeleton';
@@ -10,7 +10,7 @@ import { useFeedRefreshStore } from '@/stores';
 
 export default function FeedSection() {
   const nonce = useFeedRefreshStore((s) => s.nonce);
-  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll<Post>({
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll<Post>({
     fetchFn: getFeedPosts,
     resetKey: String(nonce), // 글 작성 성공 시 초기화/재조회 트리거
   });

@@ -4,9 +4,9 @@ import { internalClient } from './client';
 const DEFAULT_FEED_LIMIT = 12;
 
 /** [GET] 피드 데이터 조회 함수 (커서 페이지네이션) */
-export const getFeedPosts = async (cursor?: string, limit = DEFAULT_FEED_LIMIT) => {
-  const { data } = await internalClient.get<Feed>('/feed', { params: { limit, cursor } });
-  return { items: data.posts, hasNext: data.hasNext, nextCursor: data.nextCursor };
+export const getFeedPosts = async (cursor?: string, recentCursor?: string, limit = DEFAULT_FEED_LIMIT) => {
+  const { data } = await internalClient.get<Feed>('/feed', { params: { limit, cursor, recentCursor } });
+  return { items: data.posts, hasNext: data.hasNext, nextCursor: data.nextCursor, nextRecentCursor: data.nextRecentCursor };
 };
 
 /** [GET] 특정 사용자 게시물 목록 조회 함수 (커서 페이지네이션) */
