@@ -24,6 +24,8 @@
 
 음악으로 나를 표현하고 타인의 취향을 탐험하는 소셜 뮤직 큐레이션 플랫폼, **VIBR(바이버)** 입니다.
 
+<br>
+
 #### 👨🏻‍🤝‍👨🏻 기계적인 알고리즘 추천이 아닌, 사람이 중심이 되는 음악 공유 공간을 만듭니다.
 > 맨날 비슷한 노래만 나오네...
 - 알고리즘의 장르적 유사성에서 벗어나 사람과 사람을 연결하는 **사람 기반의 알고리즘**을 제공합니다.
@@ -83,6 +85,7 @@ pnpm build
 pnpm format
 ```
 
+<br>
 
 ## 🛠 기술 스택
 ### Frontend
@@ -114,10 +117,15 @@ pnpm format
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
 
+<br>
 
 ## ☁️ 인프라 아키텍처 
 
-<img width="934" height="688" alt="image" src="https://github.com/user-attachments/assets/8225ba82-1afa-402d-996e-51cc7a99013d" />
+<img width="1755" alt="image" src="https://github.com/user-attachments/assets/a6d78da1-46b1-45be-839f-86bd284028b1" />
+
+<br>
+
+자세한 내용은 [배포/인프라 설계서](https://github.com/boostcampwm2025/web17-Busy/wiki/%EB%B0%B0%ED%8F%AC---%EC%9D%B8%ED%94%84%EB%9D%BC)를 참고해주세요.
 
 ---
 
