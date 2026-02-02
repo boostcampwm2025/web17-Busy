@@ -15,6 +15,9 @@
   --color-black: #191414;
   --color-spotify-green: #1db954;
   --color-error: #ca2a30;
+
+  --breakpoint-2xs: 390px;
+  --breakpoint-xs: 480px;
 }
 
 * {
