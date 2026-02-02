@@ -4,18 +4,13 @@ import { FeedController } from './feed.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from '../post/entities/post.entity';
 import { TrendingModule } from '../trending/trending.module';
-import { FollowingSourceService } from './sources/following-source.service';
-import { TrendingSourceService } from './sources/trending-source.service';
-import { RecentSourceService } from './sources/recent-source.service';
+import { FollowingSource } from './sources/following.source';
+import { TrendingSource } from './sources/trending.source';
+import { RecentSource } from './sources/recent.source';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Post]), TrendingModule],
   controllers: [FeedController],
-  providers: [
-    FeedService,
-    FollowingSourceService,
-    TrendingSourceService,
-    RecentSourceService,
-  ],
+  providers: [FeedService, FollowingSource, TrendingSource, RecentSource],
 })
 export class FeedModule {}

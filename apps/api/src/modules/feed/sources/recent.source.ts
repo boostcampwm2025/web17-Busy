@@ -4,7 +4,7 @@ import { Post } from 'src/modules/post/entities/post.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class RecentSourceService {
+export class RecentSource {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
   ) {}

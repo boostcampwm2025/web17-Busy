@@ -8,7 +8,7 @@ import { TrendingService } from 'src/modules/trending/trending.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class TrendingSourceService {
+export class TrendingSource {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
     @InjectRedis() private readonly redis: Redis,

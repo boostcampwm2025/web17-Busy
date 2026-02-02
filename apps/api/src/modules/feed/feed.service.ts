@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { Post } from '../post/entities/post.entity';
 import { PostResponseDto, MusicResponseDto, FeedResponseDto } from '@repo/dto';
-import { FollowingSourceService } from './sources/following-source.service';
-import { TrendingSourceService } from './sources/trending-source.service';
-import { RecentSourceService } from './sources/recent-source.service';
+import { FollowingSource } from './sources/following.source';
+import { TrendingSource } from './sources/trending.source';
+import { RecentSource } from './sources/recent.source';
 
 @Injectable()
 export class FeedService {
   constructor(
-    private readonly followingSource: FollowingSourceService,
-    private readonly trendingSource: TrendingSourceService,
-    private readonly recentSource: RecentSourceService,
+    private readonly followingSource: FollowingSource,
+    private readonly trendingSource: TrendingSource,
+    private readonly recentSource: RecentSource,
   ) {}
 
   async feed(
