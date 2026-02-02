@@ -25,10 +25,12 @@ export class TrendingSource implements FeedSource {
     if (!isInitialRequest && !cursor) return { posts: [] };
 
     // 로그인 안 하거나 사용자 그룹이 확인되지 않았는데 조회된 글 개수가 limit 보다 크면 인기 점수순 자르기
+    const parsed = cursor ? Number(cursor) : undefined;
+    const maxScoreExclusive = Number.isFinite(parsed) ? parsed : undefined;
     const members = await this.getTrendingPostIds(
       requestUserId,
       limit,
-      Number(cursor),
+      maxScoreExclusive,
     );
 
     if (!members || members.length === 0) return { posts: [] };
@@ -47,10 +49,11 @@ export class TrendingSource implements FeedSource {
   private async getTrendingPostIds(
     requestUserId: string | null,
     limit: number,
-    minScore?: number,
+    maxScoreExclusive?: number,
   ): Promise<{ postId: string; score: number }[]> {
     // 전체 인기글 조회
-    let members = await this.trendingService.getTop(0);
+    let members =
+      await this.trendingService.getByMaxScoreExclusive(maxScoreExclusive);
 
     const userGroupId = requestUserId
       ? await this.redis.get(REDIS_KEYS.USER_GROUP(requestUserId))
@@ -108,8 +111,7 @@ export class TrendingSource implements FeedSource {
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.postMusics', 'postMusic')
-      .leftJoinAndSelect('postMusic.music', 'music')
-      .orderBy('post.id', 'DESC');
+      .leftJoinAndSelect('postMusic.music', 'music');
 
     // isLiked 확인용 조인
     if (requestUserId) {
