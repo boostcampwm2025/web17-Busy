@@ -1,5 +1,5 @@
-import { FeedSection } from '@/components';
+import { FeedView } from '@/components';
 
 export default async function Home() {
-  return <FeedSection />;
+  return <FeedView />;
 }

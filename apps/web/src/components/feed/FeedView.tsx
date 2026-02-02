@@ -8,7 +8,7 @@ import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
 import { useFeedRefreshStore } from '@/stores';
 
-export default function FeedSection() {
+export default function FeedView() {
   const nonce = useFeedRefreshStore((s) => s.nonce);
   const { items, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll<Post>({
     fetchFn: getFeedPosts,
