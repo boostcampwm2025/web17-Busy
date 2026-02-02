@@ -10,15 +10,17 @@ import { FollowingSource } from './sources/following.source';
 import { TrendingSource } from './sources/trending.source';
 import { RecentSource } from './sources/recent.source';
 import { SourceAllocationPolicy } from './policy/source-allocation.policy';
+import { FeedCompositionPolicy } from './policy/feed-composition.policy';
 
 @Injectable()
 export class FeedService {
   constructor(
-    private readonly sourceAllocationPolicy: SourceAllocationPolicy,
-
     private readonly followingSource: FollowingSource,
     private readonly trendingSource: TrendingSource,
     private readonly recentSource: RecentSource,
+
+    private readonly sourceAllocationPolicy: SourceAllocationPolicy,
+    private readonly feedCompositionPolicy: FeedCompositionPolicy,
   ) {}
 
   async feed(
@@ -81,11 +83,12 @@ export class FeedService {
         ? recentPosts[recentPosts.length - 1].id
         : undefined;
 
-    // 중복 제거
-    const tmpPosts = this.dedupePosts(followingPosts, trendingPosts);
-
-    // 정렬
-    tmpPosts.sort((a, b) => b.id.localeCompare(a.id));
+    // 합치기
+    const posts = this.feedCompositionPolicy.compose(
+      followingPosts,
+      trendingPosts,
+      recentPosts,
+    );
 
     const hasNext =
       !!nextFollowingCursor || !!nextTrendingCursor || !!nextRecentCursor;
@@ -98,7 +101,7 @@ export class FeedService {
     return {
       hasNext,
       nextCursor,
-      posts: this.mapToFeedResponseDto(tmpPosts),
+      posts: this.mapToFeedResponseDto(posts),
     };
   }
 
@@ -109,19 +112,6 @@ export class FeedService {
         cursor.trending === undefined &&
         cursor.recent === undefined)
     );
-  }
-
-  private dedupePosts(followingPosts: Post[], trendingPosts: Post[]) {
-    const map = new Map<string, Post>();
-
-    followingPosts.forEach((p) => map.set(p.id, p));
-
-    trendingPosts.forEach((p) => {
-      if (map.has(p.id)) return;
-      map.set(p.id, p);
-    });
-
-    return Array.from(map.values());
   }
 
   private mapToFeedResponseDto(posts: Post[]): PostResponseDto[] {
