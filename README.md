@@ -46,6 +46,12 @@
 
 ---
 
+## 서비스 실제 사용 화면
+
+![ezgif-66f35fbb95e46c12](https://github.com/user-attachments/assets/114e24eb-cf65-4788-997f-eab61f38008b)
+
+---
+
 ## 💻 로컬 Setup
 
 ### Requirements
