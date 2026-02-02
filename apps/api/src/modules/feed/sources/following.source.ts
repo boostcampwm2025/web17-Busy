@@ -28,12 +28,12 @@ export class FollowingSource implements FeedSource {
       cursor,
     );
 
-    const posts = [...myPosts, ...followingPosts]
-      .toSorted((a, b) => b.id.localeCompare(a.id))
-      .slice(0, limit);
-
-    const nextCursor =
-      posts.length >= limit ? posts[posts.length - 1].id : undefined;
+    const fetched = [...myPosts, ...followingPosts].toSorted((a, b) =>
+      b.id.localeCompare(a.id),
+    );
+    const hasNext = fetched.length > limit;
+    const posts = hasNext ? fetched.slice(0, limit) : fetched;
+    const nextCursor = hasNext ? posts[posts.length - 1].id : undefined;
 
     return { posts, nextCursor };
   }
