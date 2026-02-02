@@ -32,31 +32,29 @@ export default function ArchiveView() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* 페이지 헤더 */}
-        <ArchiveViewHeader />
+    <div className="max-w-4xl mx-auto px-6 py-8">
+      {/* 페이지 헤더 */}
+      <ArchiveViewHeader />
 
-        {/* 플리 목록 */}
-        <div className="flex flex-col space-y-4">
-          {/* 좋아요 표시한 곡 목록 */}
-          <LikeMusicsPlaylistItem />
+      {/* 플리 목록 */}
+      <div className="w-full flex flex-col space-y-4">
+        {/* 좋아요 표시한 곡 목록 */}
+        <LikeMusicsPlaylistItem />
 
-          {/* 사용자의 플리 목록 */}
-          {playlists.map((p) => (
-            <PlaylistItem
-              key={p.id}
-              id={p.id}
-              title={p.title}
-              tracksCount={p.tracksCount}
-              firstAlbumCoverUrl={p.firstAlbumCoverUrl}
-              openMenuId={openMenuId}
-              setOpenMenuId={setOpenMenuId}
-              onRename={handleRename}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        {/* 사용자의 플리 목록 */}
+        {playlists.map((p) => (
+          <PlaylistItem
+            key={p.id}
+            id={p.id}
+            title={p.title}
+            tracksCount={p.tracksCount}
+            firstAlbumCoverUrl={p.firstAlbumCoverUrl}
+            openMenuId={openMenuId}
+            setOpenMenuId={setOpenMenuId}
+            onRename={handleRename}
+            onDelete={handleDelete}
+          />
+        ))}
       </div>
     </div>
   );
