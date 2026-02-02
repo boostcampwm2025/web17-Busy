@@ -11,7 +11,6 @@ import { TrendingSource } from './sources/trending.source';
 import { RecentSource } from './sources/recent.source';
 import { SourceAllocationPolicy } from './policy/source-allocation.policy';
 import { FeedCompositionPolicy } from './policy/feed-composition.policy';
-import { FeedSource } from './sources/feed-source.interface';
 
 @Injectable()
 export class FeedService {
