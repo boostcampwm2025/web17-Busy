@@ -34,24 +34,19 @@ export class FeedService {
       this.sourceAllocationPolicy.allocate(limit);
 
     // 팔로잉 글 (+ 내 글)
-    let followingPosts: Post[] = [];
-
-    if (isInitialRequest || cursor?.following) {
-      followingPosts = await this.followingSource.getFollowingPosts(
+    const { posts: followingPosts, nextCursor: nextFollowingCursor } =
+      await this.followingSource.getPosts(
+        isInitialRequest,
         requestUserId,
         followingLimit,
         cursor?.following,
       );
-    }
-    const nextFollowingCursor =
-      followingPosts.length >= followingLimit
-        ? followingPosts[followingPosts.length - 1].id
-        : undefined;
+
     // console.log('팔로잉 사용자 게시글', followingPosts.map(p => ([p.id, p.author.nickname, p.content])));
 
     // 인기 게시글
     let trendingPosts: Post[] = [];
-    let nextTrendingCursor: number | undefined = undefined;
+    let nextTrendingCursor: string | undefined = undefined;
     if (isInitialRequest || cursor?.trending) {
       const { posts, nextCursor } = await this.trendingSource.getTrendingPosts(
         requestUserId,

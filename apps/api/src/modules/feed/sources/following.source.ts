@@ -2,18 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/modules/post/entities/post.entity';
 import { Repository } from 'typeorm';
+import { FeedSource } from './feed-source.interface';
 
 @Injectable()
-export class FollowingSource {
+export class FollowingSource implements FeedSource {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
   ) {}
 
-  async getFollowingPosts(
+  async getPosts(
+    isInitialRequest: boolean,
     requestUserId: string | null,
     limit: number,
     cursor?: string,
-  ): Promise<Post[]> {
+  ) {
+    if (!isInitialRequest && !cursor) return { posts: [] };
+
     const myPosts = requestUserId
       ? await this.getPostsByAuthorId(requestUserId, limit, cursor)
       : [];
@@ -24,9 +28,14 @@ export class FollowingSource {
       cursor,
     );
 
-    return [...myPosts, ...followingPosts]
+    const posts = [...myPosts, ...followingPosts]
       .toSorted((a, b) => b.id.localeCompare(a.id))
       .slice(0, limit);
+
+    const nextCursor =
+      posts.length >= limit ? posts[posts.length - 1].id : undefined;
+
+    return { posts, nextCursor };
   }
 
   private async getPostsByAuthorId(
