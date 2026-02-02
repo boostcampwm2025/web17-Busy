@@ -71,7 +71,7 @@ function SearchDrawerInner({ enabled = true }: Props) {
             key={tabMode}
             title={`${tabTitle} 검색 탭`}
             onClick={() => handleChangeMode(tabMode)}
-            className={`flex-1 p-2 ${mode === tabMode ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
+            className={`flex-1 p-2 text-sm sm:text-base ${mode === tabMode ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
           >
             {tabTitle}
           </button>
