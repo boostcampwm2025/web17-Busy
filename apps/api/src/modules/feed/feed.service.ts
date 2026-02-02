@@ -7,6 +7,9 @@ import { TrendingService } from '../trending/trending.service';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { FollowingSourceService } from './sources/following-source.service';
+import { TrendingSourceService } from './sources/trending-source.service';
+import { RecentSourceService } from './sources/recent-source.service';
 
 @Injectable()
 export class FeedService {
@@ -16,6 +19,10 @@ export class FeedService {
     @InjectRedis()
     private readonly redis: Redis,
     private readonly trendingService: TrendingService,
+
+    private readonly followingSource: FollowingSourceService,
+    private readonly trendingSource: TrendingSourceService,
+    private readonly recentSource: RecentSourceService,
   ) {}
 
   async feed(
@@ -24,14 +31,8 @@ export class FeedService {
     cursor?: string,
     recentCursor?: string,
   ): Promise<FeedResponseDto> {
-    const myPosts = requestUserId
-      ? await this.getPostsByAuthorId(requestUserId, limit, cursor)
-      : [];
-
-    // console.log('내 게시글', myPosts.map(p => ([p.id, p.author.nickname, p.content])));
-
-    // 팔로잉 사용자들의 게시글
-    const followingPosts = await this.getPostsOfFollowings(
+    // 팔로잉 글 (+ 내 글)
+    const followingPosts = await this.followingSource.getFollowingPosts(
       requestUserId,
       limit,
       cursor,
@@ -63,7 +64,7 @@ export class FeedService {
       : undefined;
 
     // 중복 제거
-    const tmpPosts = this.dedupePosts(myPosts, followingPosts, trendingPosts);
+    const tmpPosts = this.dedupePosts(followingPosts, trendingPosts);
 
     // 정렬
     tmpPosts.sort((a, b) => b.id.localeCompare(a.id));
@@ -165,14 +166,8 @@ export class FeedService {
     return await query.take(limit + 1).getMany();
   }
 
-  private dedupePosts(
-    myPosts: Post[],
-    followingPosts: Post[],
-    trendingPosts: Post[],
-  ) {
+  private dedupePosts(followingPosts: Post[], trendingPosts: Post[]) {
     const map = new Map<string, Post>();
-
-    myPosts.forEach((p) => map.set(p.id, p));
 
     followingPosts.forEach((p) => map.set(p.id, p));
 
