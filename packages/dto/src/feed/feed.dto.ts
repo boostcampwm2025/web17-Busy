@@ -2,7 +2,7 @@ import { PostResponseDto } from '../post/res/post.dto';
 
 export type Cursor = {
   following?: string;
-  trending?: number;
+  trending?: string;
   recent?: string;
 };
 

@@ -18,10 +18,14 @@ export class TrendingSource {
   async getTrendingPosts(
     requestUserId: string | null,
     limit: number,
-    cursor?: number,
-  ): Promise<{ posts: Post[]; nextCursor?: number }> {
+    cursor?: string,
+  ): Promise<{ posts: Post[]; nextCursor?: string }> {
     // 로그인 안 하거나 사용자 그룹이 확인되지 않았는데 조회된 글 개수가 limit 보다 크면 인기 점수순 자르기
-    const members = await this.getTrendingPostIds(requestUserId, limit, cursor);
+    const members = await this.getTrendingPostIds(
+      requestUserId,
+      limit,
+      Number(cursor),
+    );
 
     if (!members || members.length === 0) return { posts: [] };
 
@@ -33,7 +37,7 @@ export class TrendingSource {
     const nextCursor =
       members.length >= limit ? members[members.length - 1].score : undefined;
 
-    return { posts, nextCursor };
+    return { posts, nextCursor: nextCursor?.toString() };
   }
 
   private async getTrendingPostIds(
