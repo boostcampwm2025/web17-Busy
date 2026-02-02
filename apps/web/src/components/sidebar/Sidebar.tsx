@@ -157,56 +157,59 @@ export default function Sidebar() {
           ${isExpanded ? 'w-64' : 'w-20'}
         `}
       >
-        <div className="px-4 mb-8 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={handleToggleSidebar}
-            className="p-2 rounded-lg transition-colors border-2 border-transparent hover:bg-accent-cyan hover:border-primary"
-            title="사이드바 열기"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-
-          {isExpanded && (
-            <button type="button" onClick={() => handleNavigate(SidebarItemType.HOME)}>
-              <span className="font-black text-xl tracking-tighter text-accent-pink animate-fade-in">VIBR</span>
-            </button>
-          )}
-        </div>
-
-        <div className="flex flex-col px-3 gap-4">
-          {menuItems.map((item) => (
-            <MenuButton
-              key={item.type}
-              type={item.type}
-              Icon={item.icon}
-              label={item.label}
-              onClick={handleItemClick}
-              isActive={item.type === activeItem}
-              shouldShowSpan={isExpanded}
+        <div>
+          <div className="px-4 mb-8 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={handleToggleSidebar}
+              className="p-2 rounded-lg transition-colors border-2 border-transparent hover:bg-accent-cyan hover:border-primary"
+              title="사이드바 열기"
             >
-              {item.type === SidebarItemType.NOTIFICATION && unreadNotiCount > 0 && (
-                <span className="absolute top-1 left-6 min-w-5 h-5 px-1 rounded-full bg-accent-pink text-white text-[10px] flex items-center justify-center">
-                  {unreadNotiCount > 99 ? '99+' : unreadNotiCount}
-                </span>
-              )}
-            </MenuButton>
-          ))}
+              <Menu className="w-6 h-6" />
+            </button>
 
-          <div className="h-0.5 bg-gray-4 mx-2 my-4" />
+            {isExpanded && (
+              <button type="button" onClick={() => handleNavigate(SidebarItemType.HOME)}>
+                <span className="font-black text-xl tracking-tighter text-accent-pink animate-fade-in">VIBR</span>
+              </button>
+            )}
+          </div>
 
-          <button
-            type="button"
-            onClick={handleOpenWriteModal}
-            className={`
+          <div className="flex flex-col px-3 gap-4">
+            {menuItems.map((item) => (
+              <MenuButton
+                key={item.type}
+                type={item.type}
+                Icon={item.icon}
+                label={item.label}
+                onClick={handleItemClick}
+                isActive={item.type === activeItem}
+                shouldShowSpan={isExpanded}
+              >
+                {item.type === SidebarItemType.NOTIFICATION && unreadNotiCount > 0 && (
+                  <span className="absolute top-1 left-6 min-w-5 h-5 px-1 rounded-full bg-accent-pink text-white text-[10px] flex items-center justify-center">
+                    {unreadNotiCount > 99 ? '99+' : unreadNotiCount}
+                  </span>
+                )}
+              </MenuButton>
+            ))}
+
+            <div className="h-0.5 bg-gray-4 mx-2 my-4" />
+
+            <button
+              type="button"
+              onClick={handleOpenWriteModal}
+              className={`
               flex items-center p-3 rounded-xl transition-all duration-150 mb-2
               bg-primary text-white hover:bg-secondary hover:shadow-[2px_2px_0px_0px_#00ebc7]
+              ${!isExpanded && 'justify-center'}
             `}
-            title="생성"
-          >
-            <PlusCircle className="w-6 h-6" />
-            {isExpanded && <span className="ml-4 font-bold whitespace-nowrap overflow-hidden">생성</span>}
-          </button>
+              title="생성"
+            >
+              <PlusCircle className="w-6 h-6" />
+              {isExpanded && <span className="ml-4 font-bold whitespace-nowrap overflow-hidden">생성</span>}
+            </button>
+          </div>
         </div>
 
         {/* 로그인/로그아웃 토글 버튼 */}
@@ -214,7 +217,7 @@ export default function Sidebar() {
           type="button"
           onClick={handleOpenLoginModal}
           disabled={isLoading}
-          className="flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed"
+          className={`flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed ${!isExpanded && 'justify-center'}`}
           title={isAuthenticated ? '로그아웃' : '로그인'}
         >
           {isAuthenticated ? <LogOut className="w-6 h-6" /> : <LogIn className="w-6 h-6" />}
