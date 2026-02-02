@@ -42,23 +42,14 @@ export class FeedService {
         cursor?.following,
       );
 
-    // console.log('팔로잉 사용자 게시글', followingPosts.map(p => ([p.id, p.author.nickname, p.content])));
-
     // 인기 게시글
-    let trendingPosts: Post[] = [];
-    let nextTrendingCursor: string | undefined = undefined;
-    if (isInitialRequest || cursor?.trending) {
-      const { posts, nextCursor } = await this.trendingSource.getTrendingPosts(
+    const { posts: trendingPosts, nextCursor: nextTrendingCursor } =
+      await this.trendingSource.getPosts(
+        isInitialRequest,
         requestUserId,
         trendingLimit,
         cursor?.trending,
       );
-
-      trendingPosts = posts;
-      nextTrendingCursor = nextCursor;
-    }
-
-    // console.log('인기 게시글', trendingPosts.map(p => ([p.id, p.author.nickname, p.content])));
 
     let recentPosts: Post[] = [];
 
@@ -77,6 +68,9 @@ export class FeedService {
       recentPosts.length >= recentLimit
         ? recentPosts[recentPosts.length - 1].id
         : undefined;
+
+    // console.log('팔로잉 사용자 게시글', followingPosts.map(p => ([p.id, p.author.nickname, p.content])));
+    // console.log('인기 게시글', trendingPosts.map(p => ([p.id, p.author.nickname, p.content])));
 
     // 합치기
     const posts = this.feedCompositionPolicy.compose(

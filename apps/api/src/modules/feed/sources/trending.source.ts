@@ -6,20 +6,24 @@ import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
 import { Post } from 'src/modules/post/entities/post.entity';
 import { TrendingService } from 'src/modules/trending/trending.service';
 import { Repository } from 'typeorm';
+import { FeedSource } from './feed-source.interface';
 
 @Injectable()
-export class TrendingSource {
+export class TrendingSource implements FeedSource {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
     @InjectRedis() private readonly redis: Redis,
     private readonly trendingService: TrendingService,
   ) {}
 
-  async getTrendingPosts(
+  async getPosts(
+    isInitialRequest: boolean,
     requestUserId: string | null,
     limit: number,
     cursor?: string,
   ): Promise<{ posts: Post[]; nextCursor?: string }> {
+    if (!isInitialRequest && !cursor) return { posts: [] };
+
     // 로그인 안 하거나 사용자 그룹이 확인되지 않았는데 조회된 글 개수가 limit 보다 크면 인기 점수순 자르기
     const members = await this.getTrendingPostIds(
       requestUserId,
