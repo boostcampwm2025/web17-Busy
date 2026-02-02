@@ -4,9 +4,14 @@ import { GraphRelation } from './algorithm-stream.consumer';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import Graph from 'graphology';
+import louvain from 'graphology-communities-louvain';
 
 @Injectable()
 export class AlgorithmService {
+  private isGroupingRunning = false;
+
   constructor(
     @Inject('NEO4J_DRIVER') private readonly driver: Driver,
     @InjectRedis() private readonly redis: Redis,
@@ -123,20 +128,112 @@ export class AlgorithmService {
   // neo4j 그룹핑
   async runUnifiedGrouping() {
     const session = this.driver.session();
-    try {
-      await session.executeWrite(async (tx) => {
-        await tx.run(`
-          MATCH ()-[r:INTERACTED]-() 
-          WHERE r.expired_at < datetime() 
-          DELETE r
-        `);
+    const SAME_COMMUNITY_BONUS = 0.3;
 
-        await tx.run(`
-          CALL apoc.algo.community(3, ['INTERACTED'], 'partition', 'weight')
-          YIELD name
-          RETURN count(*)
-        `);
+    try {
+      // 1. 만료 관계 삭제
+      await session.executeWrite((tx) =>
+        tx.run(`MATCH ()-[r:INTERACTED]-()
+          WHERE r.expired_at IS NOT NULL AND r.expired_at < datetime()
+          DELETE r
+        `),
+      );
+
+      // 2. 기존 partition 정보 조회 (Content 라벨 사용)
+      const communityResult = await session.executeRead((tx) =>
+        tx.run(`
+          MATCH (n)
+          WHERE (n:User OR n:Content)
+            AND n.partition IS NOT NULL
+            AND EXISTS {
+              MATCH (n)-[:INTERACTED]-()
+            }
+          RETURN
+            labels(n)[0] AS type,
+            n.id AS id,
+            n.partition AS partition
+        `),
+      );
+
+      const previousCommunity = new Map<string, number>();
+      for (const record of communityResult.records) {
+        const key = `${record.get('type').toLowerCase()}:${record.get('id')}`;
+        previousCommunity.set(key, record.get('partition'));
+      }
+
+      // 3. 인터랙션 데이터 추출 (Content 라벨 사용)
+      const interactionResult = await session.executeRead((tx) =>
+        tx.run(`
+          MATCH (u:User)-[r:INTERACTED]->(t)
+          RETURN
+            u.id AS sourceId,
+            labels(t)[0] AS targetType,
+            t.id AS targetId,
+            r.weight AS weight
+        `),
+      );
+
+      const graph = new Graph({ type: 'undirected' });
+
+      for (const record of interactionResult.records) {
+        const sourceKey = `user:${record.get('sourceId')}`;
+        const targetType = record.get('targetType'); // 'User' | 'Content'
+        const targetKey =
+          targetType === 'User'
+            ? `user:${record.get('targetId')}`
+            : `content:${record.get('targetId')}`;
+
+        let weight = record.get('weight') ?? 1;
+
+        if (
+          previousCommunity.has(sourceKey) &&
+          previousCommunity.get(sourceKey) === previousCommunity.get(targetKey)
+        ) {
+          weight *= 1 + SAME_COMMUNITY_BONUS;
+        }
+
+        if (!graph.hasNode(sourceKey)) {
+          graph.addNode(sourceKey, { type: 'User' });
+        }
+        if (!graph.hasNode(targetKey)) {
+          graph.addNode(targetKey, { type: targetType });
+        }
+
+        if (graph.hasEdge(sourceKey, targetKey)) {
+          graph.updateEdgeAttribute(
+            sourceKey,
+            targetKey,
+            'weight',
+            (w) => w + weight,
+          );
+        } else {
+          graph.addEdge(sourceKey, targetKey, { weight });
+        }
+      }
+
+      const communities = louvain(graph, {
+        resolution: 1.0,
+        ...({ weightAttribute: 'weight' } as any),
       });
+
+      const updates = Object.entries(communities).map(([nodeKey, groupId]) => ({
+        type: nodeKey.split(':')[0] === 'user' ? 'User' : 'Content',
+        id: nodeKey.split(':')[1],
+        groupId: groupId.toString(),
+      }));
+
+      if (updates.length > 0) {
+        await session.executeWrite((tx) =>
+          tx.run(
+            `
+            UNWIND $updates AS row
+            MATCH (n) WHERE labels(n)[0] = row.type AND n.id = row.id
+            SET n.partition = row.groupId, n.partition_updated_at = datetime()
+          `,
+            { updates },
+          ),
+        );
+      }
     } finally {
       await session.close();
     }
@@ -237,6 +334,24 @@ export class AlgorithmService {
 
       await this.updateGroupInfoToRedis(users, posts);
       currentSkip = nextSkip;
+    }
+  }
+
+  @Cron(CronExpression.EVERY_2_HOURS, { waitForCompletion: true })
+  async scheduledGroupingTask() {
+    if (this.isGroupingRunning) {
+      return;
+    }
+
+    this.isGroupingRunning = true;
+
+    try {
+      await this.runUnifiedGrouping();
+      await this.syncAllGroupsToRedis();
+    } catch (error) {
+      throw error;
+    } finally {
+      this.isGroupingRunning = false;
     }
   }
 }
