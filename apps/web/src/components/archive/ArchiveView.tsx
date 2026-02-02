@@ -1,6 +1,6 @@
 'use client';
 
-import { LikeMusicsPlaylistItem, PlaylistItem } from './PlaylistItems';
+import { PlaylistItem } from './PlaylistItems';
 import ArchiveViewHeader from './ArchiveViewHeader';
 import { deletePlaylist, editTitleOfPlaylist, getAllPlaylists } from '@/api';
 import { usePlaylistRefreshStore } from '@/stores';
@@ -38,9 +38,6 @@ export default function ArchiveView() {
 
       {/* 플리 목록 */}
       <div className="w-full flex flex-col space-y-4">
-        {/* 좋아요 표시한 곡 목록 */}
-        <LikeMusicsPlaylistItem />
-
         {/* 사용자의 플리 목록 */}
         {playlists.map((p) => (
           <PlaylistItem
