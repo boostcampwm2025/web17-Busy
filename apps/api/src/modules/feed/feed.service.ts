@@ -41,7 +41,7 @@ export class FeedService {
     // console.log('팔로잉 사용자 게시글', followingPosts.map(p => ([p.id, p.author.nickname, p.content])));
 
     // 인기 게시글
-    const trendingPosts = await this.getTrendingPosts(
+    const trendingPosts = await this.trendingSource.getTrendingPosts(
       requestUserId,
       limit,
       cursor,
