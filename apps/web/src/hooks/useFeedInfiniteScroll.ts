@@ -9,43 +9,49 @@ interface UseInfiniteScrollParams {
   resetKey?: string; // 목록 초기화 트리거
 }
 
+interface FeedCursors {
+  nextCursor: string | undefined;
+  nextPopularCursor: string | undefined;
+  nextRecentCursor: string | undefined;
+}
+
 export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfiniteScrollParams) {
   const { ref, inView } = useInView({ threshold: 0.8, rootMargin: '200px' });
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [hasNext, setHasNext] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
-  const [nextRecentCursor, setNextRecentCursor] = useState<string | undefined>(undefined);
+  const [cursors, setCursors] = useState<FeedCursors>({ nextCursor: undefined, nextPopularCursor: undefined, nextRecentCursor: undefined });
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null); // 추가 데이터 fetch 오류
 
   // 초기 데이터 로드 관련 state
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [initialError, setInitialError] = useState<Error | null>(null); // 초기 데이터 fetch 오류
   const prevResetKeyRef = useRef<string | undefined>(undefined);
   const initialLoadedRef = useRef(false); // 초기 데이터 fetch 재호출 방지 가드
+
+  /** 커서 상태 업데이트 함수 */
+  const updateCursorStates = (cursor?: string, popularCursor?: string, recentCursor?: string) => {
+    setCursors({ nextCursor: cursor, nextPopularCursor: popularCursor, nextRecentCursor: recentCursor });
+  };
 
   /** 무한 스크롤 관련 상태 업데이트 함수 */
   const updateScrollStates = useCallback((data: FeedResponseDto) => {
     setPosts((prev) => [...prev, ...data.posts]);
     setHasNext(data.hasNext);
-    setNextCursor(data.nextCursor);
-    setNextRecentCursor(data.nextRecentCursor);
+    updateCursorStates(data.nextCursor, data.nextPopularCursor, data.nextRecentCursor);
     setErrorMsg(null);
   }, []);
 
   const reset = useCallback(() => {
     setPosts([]);
     setHasNext(false);
-    setNextCursor(undefined);
-    setNextRecentCursor(undefined);
+    updateCursorStates();
 
     setIsLoading(false);
     setErrorMsg(null);
 
     setIsInitialLoading(true);
-    setInitialError(null);
   }, []);
 
   /** 초기 데이터 fetch 함수 */
@@ -70,14 +76,14 @@ export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfinite
     await new Promise((resolve) => setTimeout(resolve, 300)); // 로딩 스피너 짧게 노출
 
     try {
-      const data = await fetchFn(nextCursor, nextRecentCursor);
+      const data = await fetchFn(cursors.nextCursor, cursors.nextPopularCursor, cursors.nextRecentCursor);
       updateScrollStates(data);
     } catch {
       setErrorMsg('오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
-  }, [fetchFn, hasNext, isLoading, nextCursor, nextRecentCursor, updateScrollStates]);
+  }, [fetchFn, hasNext, isLoading, cursors, updateScrollStates]);
 
   // 최초 1회 로드
   useEffect(() => {
@@ -109,11 +115,8 @@ export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfinite
     posts,
     setPosts,
     hasNext,
-    nextCursor,
-    nextRecentCursor,
     isLoading,
     isInitialLoading,
-    initialError,
     errorMsg,
     ref,
     reset,
