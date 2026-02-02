@@ -50,7 +50,7 @@ export class AlgorithmStreamConsumer implements OnModuleInit {
     }
   }
 
-  @Cron(CronExpression.EVERY_HOUR, { waitForCompletion: true })
+  @Cron(CronExpression.EVERY_30_MINUTES, { waitForCompletion: true })
   async pollAndProcess() {
     let hasMore = true;
 
