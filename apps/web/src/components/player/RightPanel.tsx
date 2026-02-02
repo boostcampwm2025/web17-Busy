@@ -1,9 +1,10 @@
 'use client';
 
 import { QueueList, MiniPlayerBar, NowPlaying } from './index';
-import { useQueueSync, useGuestQueueSession, usePlayback } from '@/hooks';
+import { useQueueSync, useGuestQueueSession } from '@/hooks';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { usePlayerStore, useModalStore, MODAL_TYPES } from '@/stores';
+import { useMemo, useCallback } from 'react';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
   if (!currentMusicId) return -1;
@@ -11,64 +12,44 @@ const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): nu
 };
 
 export default function RightPanel() {
-  // 사용자가 로그인이 된 상태인지를 확인해 준다.
   const { isAuthenticated, isLoading } = useAuthMe();
   const enableServerSync = isAuthenticated && !isLoading;
   const enableGuestSession = !isAuthenticated && !isLoading;
 
-  // 현재 재생목록을 보여줄 때 로그인 여부로 인해 결과가 달라져야 한다.
   useQueueSync({ enabled: enableServerSync });
-  // 비로그인 시에는 세션 스토리지로 현재 재생목록 상태를 새로고침 시에도 유지한다.
   useGuestQueueSession(enableGuestSession);
 
-  const playback = usePlayback();
   const { openModal, closeModal, isOpen, modalType } = useModalStore();
   const isQueueOpen = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
 
-  const currentMusic = usePlayerStore((state) => state.currentMusic);
-  const isPlaying = usePlayerStore((state) => state.isPlaying);
-  const queue = usePlayerStore((state) => state.queue);
+  const currentMusic = usePlayerStore((s) => s.currentMusic);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const queue = usePlayerStore((s) => s.queue);
 
-  const playMusic = usePlayerStore((state) => state.playMusic);
-  const togglePlay = usePlayerStore((state) => state.togglePlay);
-  const clearQueue = usePlayerStore((state) => state.clearQueue);
-  const removeFromQueue = usePlayerStore((state) => state.removeFromQueue);
-  const moveUp = usePlayerStore((state) => state.moveUp);
-  const moveDown = usePlayerStore((state) => state.moveDown);
-  const playPrev = usePlayerStore((state) => state.playPrev);
-  const playNext = usePlayerStore((state) => state.playNext);
+  const playMusic = usePlayerStore((s) => s.playMusic);
+  const togglePlay = usePlayerStore((s) => s.togglePlay);
+  const clearQueue = usePlayerStore((s) => s.clearQueue);
+  const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
+  const moveUp = usePlayerStore((s) => s.moveUp);
+  const moveDown = usePlayerStore((s) => s.moveDown);
+  const playPrev = usePlayerStore((s) => s.playPrev);
+  const playNext = usePlayerStore((s) => s.playNext);
 
-  const queueIds = queue.map((m) => m.id);
-  const currentIndex = findCurrentIndex(currentMusic?.id ?? null, queueIds);
+  const queueIds = useMemo(() => queue.map((m) => m.id), [queue]);
+  const currentIndex = useMemo(() => findCurrentIndex(currentMusic?.id ?? null, queueIds), [currentMusic?.id, queueIds]);
 
   const canPrev = currentIndex > 0;
   const canNext = currentIndex >= 0 && currentIndex < queue.length - 1;
 
-  const handleTogglePlay = () => {
+  const handleTogglePlay = useCallback(() => {
     if (!currentMusic) return;
     togglePlay();
-  };
+  }, [currentMusic, togglePlay]);
 
-  const handleClearQueue = () => clearQueue();
-  const handleRemoveFromQueue = (musicId: string) => removeFromQueue(musicId);
-  const handleMoveUp = (index: number) => moveUp(index);
-  const handleMoveDown = (index: number) => moveDown(index);
-  const handlePrev = () => playPrev();
-  const handleNext = () => playNext();
-
-  const handleToggleQueue = () => {
-    if (isQueueOpen) {
-      closeModal();
-      return;
-    }
+  const handleToggleQueue = useCallback(() => {
+    if (isQueueOpen) return closeModal();
     openModal(MODAL_TYPES.MOBILE_QUEUE);
-  };
-
-  const handlePlayFromQueue = (music: (typeof queue)[number]) => {
-    playMusic(music);
-  };
-
-  const handleShuffle = () => {};
+  }, [isQueueOpen, closeModal, openModal]);
 
   return (
     <>
@@ -79,8 +60,8 @@ export default function RightPanel() {
         canNext={canNext}
         isQueueOpen={isQueueOpen}
         onTogglePlay={handleTogglePlay}
-        onPrev={handlePrev}
-        onNext={handleNext}
+        onPrev={playPrev}
+        onNext={playNext}
         onToggleQueue={handleToggleQueue}
       />
 
@@ -90,24 +71,19 @@ export default function RightPanel() {
           isPlaying={isPlaying}
           canPrev={canPrev}
           canNext={canNext}
-          positionMs={playback.positionMs}
-          durationMs={playback.durationMs}
           onTogglePlay={handleTogglePlay}
-          onPrev={handlePrev}
-          onNext={handleNext}
-          onShuffle={handleShuffle}
-          onSeek={playback.seekToMs}
-          youtubeContainerRef={playback.kind === 'youtube' ? playback.containerRef : null}
+          onPrev={playPrev}
+          onNext={playNext}
         />
 
         <QueueList
           queue={queue}
           currentMusicId={currentMusic?.id ?? null}
-          onClear={handleClearQueue}
-          onRemove={handleRemoveFromQueue}
-          onMoveUp={handleMoveUp}
-          onMoveDown={handleMoveDown}
-          onSelect={handlePlayFromQueue}
+          onClear={clearQueue}
+          onRemove={removeFromQueue}
+          onMoveUp={moveUp}
+          onMoveDown={moveDown}
+          onSelect={playMusic}
         />
       </section>
     </>
