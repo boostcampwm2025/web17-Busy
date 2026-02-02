@@ -35,13 +35,13 @@ export class TrendingSource implements FeedSource {
 
     if (!members || members.length === 0) return { posts: [] };
 
-    // 게시글 조회
-    const postIds = members.map((m) => m.postId);
-    const posts = await this.hydratePosts(requestUserId, postIds, limit);
-
     // nextCursor
-    const nextCursor =
-      members.length >= limit ? members[members.length - 1].score : undefined;
+    const hasNext = members.length > limit;
+    const nextCursor = hasNext ? members[members.length - 1].score : undefined;
+
+    // 게시글 조회
+    const postIds = members.slice(0, limit).map((m) => m.postId);
+    const posts = await this.hydratePosts(requestUserId, postIds, limit);
 
     return { posts, nextCursor: nextCursor?.toString() };
   }
@@ -98,8 +98,7 @@ export class TrendingSource implements FeedSource {
       members = result;
     }
 
-    // 로그인 안 하거나 사용자 그룹이 확인되지 않았는데 조회된 글 개수가 limit 보다 크면 인기 점수순 자르기
-    return members.slice(0, limit);
+    return members.slice(0, limit + 1);
   }
 
   private async hydratePosts(
