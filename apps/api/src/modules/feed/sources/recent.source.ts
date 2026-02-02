@@ -37,12 +37,13 @@ export class RecentSource implements FeedSource {
     }
 
     if (cursor) {
-      query.andWhere('post.id > :cursor', { cursor });
+      query.andWhere('post.id < :cursor', { cursor });
     }
 
-    const posts = await query.take(limit + 1).getMany();
-    const nextCursor =
-      posts.length >= limit ? posts[posts.length - 1].id : undefined;
+    const fetched = await query.take(limit + 1).getMany();
+    const hasNext = fetched.length > limit;
+    const posts = hasNext ? fetched.slice(0, limit) : fetched;
+    const nextCursor = hasNext ? posts[posts.length - 1].id : undefined;
 
     return { posts, nextCursor };
   }
