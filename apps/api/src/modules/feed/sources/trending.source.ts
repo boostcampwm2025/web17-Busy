@@ -18,34 +18,41 @@ export class TrendingSource {
   async getTrendingPosts(
     requestUserId: string | null,
     limit: number,
-    cursor?: string,
-  ): Promise<Post[]> {
+    cursor?: number,
+  ): Promise<{ posts: Post[]; nextCursor?: number }> {
     // 로그인 안 하거나 사용자 그룹이 확인되지 않았는데 조회된 글 개수가 limit 보다 크면 인기 점수순 자르기
-    const postIds = await this.getTrendingPostIds(requestUserId, limit);
+    const members = await this.getTrendingPostIds(requestUserId, limit, cursor);
 
-    if (!postIds || postIds.length === 0) return [];
+    if (!members || members.length === 0) return { posts: [] };
 
     // 게시글 조회
-    return await this.hydratePosts(requestUserId, postIds, limit, cursor);
+    const postIds = members.map((m) => m.postId);
+    const posts = await this.hydratePosts(requestUserId, postIds, limit);
+
+    // nextCursor
+    const nextCursor =
+      members.length >= limit ? members[members.length - 1].score : undefined;
+
+    return { posts, nextCursor };
   }
 
   private async getTrendingPostIds(
     requestUserId: string | null,
     limit: number,
-  ): Promise<string[]> {
+    minScore?: number,
+  ): Promise<{ postId: string; score: number }[]> {
     // 전체 인기글 조회
-    const top = await this.trendingService.getTop(0);
-    let postIds = top.map((t) => t.postId);
+    let members = await this.trendingService.getTop(0);
 
     const userGroupId = requestUserId
       ? await this.redis.get(REDIS_KEYS.USER_GROUP(requestUserId))
       : null;
 
     // 로그인 && 로그인한 사용자의 그룹이 확인되고 && 조회된 글 개수가 limit 보다 크면 group으로 필터링
-    if (userGroupId && postIds.length > limit) {
+    if (userGroupId && members.length > limit) {
       const pipeline = this.redis.pipeline();
-      for (const postId of postIds) {
-        pipeline.get(REDIS_KEYS.POST_GROUP(postId));
+      for (const member of members) {
+        pipeline.get(REDIS_KEYS.POST_GROUP(member.postId));
       }
 
       const results = await pipeline.exec();
@@ -55,40 +62,39 @@ export class TrendingSource {
           '피드 - 게시글들의 그룹 확인이 되지 않습니다.',
         );
 
-      const postIdsWithGroupId = postIds.map((postId, idx) => {
+      const membersWithGroupId = members.map((member, idx) => {
         const [, groupId] = results[idx] as [any, string | null];
-        return { postId, groupId };
+        return { ...member, groupId };
       });
 
       // filtering 해야되는 개수
-      let restCutoffCount = postIds.length - limit;
+      let restCutoffCount = members.length - limit;
 
       // 뒤에꺼부터 잘라야 점수 낮은것부터 잘림
-      const result: string[] = [];
-      for (let i = postIdsWithGroupId.length - 1; i >= 0; --i) {
-        const pg = postIdsWithGroupId[i];
+      const result: { postId: string; score: number }[] = [];
+      for (let i = membersWithGroupId.length - 1; i >= 0; --i) {
+        const mg = membersWithGroupId[i];
 
-        if (restCutoffCount > 0 && pg.groupId !== userGroupId) {
+        if (restCutoffCount > 0 && mg.groupId !== userGroupId) {
           --restCutoffCount;
           continue;
         }
 
-        result.push(pg.postId);
+        result.push({ postId: mg.postId, score: mg.score });
       }
       result.reverse();
 
-      postIds = result;
+      members = result;
     }
 
     // 로그인 안 하거나 사용자 그룹이 확인되지 않았는데 조회된 글 개수가 limit 보다 크면 인기 점수순 자르기
-    return postIds.slice(0, limit);
+    return members.slice(0, limit);
   }
 
   private async hydratePosts(
     requestUserId: string | null,
     postIds: string[],
     limit: number,
-    cursor?: string,
   ): Promise<Post[]> {
     const query = this.postRepository
       .createQueryBuilder('post')
@@ -108,11 +114,6 @@ export class TrendingSource {
     }
 
     query.andWhere('post.id IN (:...postIds)', { postIds });
-
-    // 커서 페이지네이션 조건 추가
-    if (cursor) {
-      query.andWhere('post.id < :cursor', { cursor });
-    }
 
     return await query.take(limit + 1).getMany();
   }

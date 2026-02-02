@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Post } from '../post/entities/post.entity';
-import { PostResponseDto, MusicResponseDto, FeedResponseDto } from '@repo/dto';
+import {
+  PostResponseDto,
+  MusicResponseDto,
+  FeedResponseDto,
+  Cursor,
+} from '@repo/dto';
 import { FollowingSource } from './sources/following.source';
 import { TrendingSource } from './sources/trending.source';
 import { RecentSource } from './sources/recent.source';
@@ -19,50 +24,62 @@ export class FeedService {
   async feed(
     requestUserId: string | null,
     limit: number,
-    cursor?: string,
-    recentCursor?: string,
+    cursor?: Cursor,
   ): Promise<FeedResponseDto> {
-    const { followingLimit, trendingLimit, recentLimit } =
+    const isInitialRequest = this.isInitialCursor(cursor);
+
+    let { followingLimit, trendingLimit, recentLimit } =
       this.sourceAllocationPolicy.allocate(limit);
 
     // 팔로잉 글 (+ 내 글)
-    const followingPosts = await this.followingSource.getFollowingPosts(
-      requestUserId,
-      followingLimit,
-      cursor,
-    );
+    let followingPosts: Post[] = [];
 
+    if (isInitialRequest || cursor?.following) {
+      followingPosts = await this.followingSource.getFollowingPosts(
+        requestUserId,
+        followingLimit,
+        cursor?.following,
+      );
+    }
+    const nextFollowingCursor =
+      followingPosts.length >= followingLimit
+        ? followingPosts[followingPosts.length - 1].id
+        : undefined;
     // console.log('팔로잉 사용자 게시글', followingPosts.map(p => ([p.id, p.author.nickname, p.content])));
 
     // 인기 게시글
-    const trendingPosts = await this.trendingSource.getTrendingPosts(
-      requestUserId,
-      trendingLimit,
-      cursor,
-    );
+    let trendingPosts: Post[] = [];
+    let nextTrendingCursor: number | undefined = undefined;
+    if (isInitialRequest || cursor?.trending) {
+      const { posts, nextCursor } = await this.trendingSource.getTrendingPosts(
+        requestUserId,
+        trendingLimit,
+        cursor?.trending,
+      );
+
+      trendingPosts = posts;
+      nextTrendingCursor = nextCursor;
+    }
 
     // console.log('인기 게시글', trendingPosts.map(p => ([p.id, p.author.nickname, p.content])));
 
-    // 덜 조회된 팔로잉 글 수만큼 최신글을 더 조회
-    const followingShortage = followingLimit - followingPosts.length;
+    let recentPosts: Post[] = [];
 
-    // 최근 게시글 용 커서 추가하고 얘는 cursor보다 최신글을 조회
-    const recentPosts =
-      cursor && !recentCursor
-        ? []
-        : await this.recentSource.getRecentPosts(
-            requestUserId,
-            recentLimit + followingShortage,
-            recentCursor,
-          );
+    if (isInitialRequest || cursor?.recent) {
+      // 덜 조회된 팔로잉 글 수만큼 최신글을 더 조회
+      const followingShortage = followingLimit - followingPosts.length;
+      recentLimit += followingShortage;
 
-    const hasRecentNext = recentPosts.length > limit;
-    const targetRecentPosts = hasRecentNext
-      ? recentPosts.slice(0, limit)
-      : recentPosts;
-    const nextRecentCursor = hasRecentNext
-      ? targetRecentPosts[0].id
-      : undefined;
+      recentPosts = await this.recentSource.getRecentPosts(
+        requestUserId,
+        recentLimit,
+        cursor?.recent,
+      );
+    }
+    const nextRecentCursor =
+      recentPosts.length >= recentLimit
+        ? recentPosts[recentPosts.length - 1].id
+        : undefined;
 
     // 중복 제거
     const tmpPosts = this.dedupePosts(followingPosts, trendingPosts);
@@ -70,52 +87,28 @@ export class FeedService {
     // 정렬
     tmpPosts.sort((a, b) => b.id.localeCompare(a.id));
 
-    // hasNext, nextCursor 설정
-    const hasNext = tmpPosts.length > limit;
-    const targetPosts = hasNext ? tmpPosts.slice(0, limit) : tmpPosts;
-    const nextCursor =
-      targetPosts.length > 0
-        ? targetPosts[targetPosts.length - 1].id
-        : undefined;
-
-    const map = new Map<string, Post>();
-
-    let notDuplicatedRecentPosts: Post[] = [];
-
-    targetPosts.forEach((p) => map.set(p.id, p));
-
-    targetRecentPosts.forEach((p) => {
-      if (map.has(p.id)) return;
-      notDuplicatedRecentPosts.push(p);
-    });
-    notDuplicatedRecentPosts = notDuplicatedRecentPosts.slice(0, limit);
-
-    const len = limit;
-    const firstIdx = Math.floor(len / 3);
-    const secondIdx = firstIdx + firstIdx;
-
-    const first = notDuplicatedRecentPosts.slice(0, firstIdx);
-    const second = notDuplicatedRecentPosts.slice(firstIdx, secondIdx);
-    const third = notDuplicatedRecentPosts.slice(secondIdx, len);
-
-    const f = targetPosts.slice(0, firstIdx);
-    const s = targetPosts.slice(firstIdx, secondIdx);
-    const t = targetPosts.slice(secondIdx, len);
-
-    // 응답 데이터 생성
-    return {
-      hasNext: hasNext || hasRecentNext,
-      nextCursor,
-      nextRecentCursor,
-      posts: this.mapToFeedResponseDto([
-        ...f,
-        ...first,
-        ...s,
-        ...second,
-        ...t,
-        ...third,
-      ]),
+    const hasNext =
+      !!nextFollowingCursor || !!nextTrendingCursor || !!nextRecentCursor;
+    const nextCursor: Cursor = {
+      following: nextFollowingCursor,
+      trending: nextTrendingCursor,
+      recent: nextRecentCursor,
     };
+
+    return {
+      hasNext,
+      nextCursor,
+      posts: this.mapToFeedResponseDto(tmpPosts),
+    };
+  }
+
+  private isInitialCursor(cursor?: Cursor) {
+    return (
+      !cursor ||
+      (cursor.following === undefined &&
+        cursor.trending === undefined &&
+        cursor.recent === undefined)
+    );
   }
 
   private dedupePosts(followingPosts: Post[], trendingPosts: Post[]) {
