@@ -20,7 +20,7 @@ export default function LikeMusicsPlaylistItem() {
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <h3 className="sm:text-lg md:text-xl font-black text-accent-pink truncate">좋아요 표시한 곡</h3>
+        <h3 className="sm:text-lg font-black text-accent-pink truncate">좋아요 표시한 곡</h3>
         <p className="text-xs sm:text-sm font-bold text-gray-400 mt-1 flex items-center">
           <Heart className="w-4 h-4 mr-1 fill-current" />
           {likeMusicsCount}곡 좋아요

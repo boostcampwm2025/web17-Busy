@@ -92,7 +92,7 @@ export default function PlaylistItem(playlist: Props) {
     return (
       <div
         ref={menuRef}
-        className="fixed z-[9999] w-36 bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] overflow-hidden"
+        className="fixed z-9999 w-36 bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] overflow-hidden"
         style={{ top: menuPos.top, left: menuPos.left - 144 }} // menu width: 144px
         onClick={(e) => e.stopPropagation()}
       >
@@ -101,7 +101,7 @@ export default function PlaylistItem(playlist: Props) {
           이름 변경
         </button>
         <button
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-[var(--color-accent-pink)] hover:bg-[color-mix(in_srgb,var(--color-accent-pink),white_90%)]"
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-accent-pink hover:bg-[color-mix(in_srgb,var(--color-accent-pink),white_90%)]"
           onClick={onDelete}
         >
           <Trash2 className="w-4 h-4" />
@@ -132,7 +132,7 @@ export default function PlaylistItem(playlist: Props) {
         {isEditingTitle ? (
           <input
             autoFocus
-            className="w-full sm:text-lg md:text-xl font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
+            className="w-full sm:text-lg font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
             value={draftTitle}
             onClick={(e) => e.stopPropagation()}
             onChange={(e) => setDraftTitle(e.target.value)}
@@ -147,11 +147,9 @@ export default function PlaylistItem(playlist: Props) {
             }}
           />
         ) : (
-          <h3 className="max-w-full sm:text-lg md:text-xl font-black text-primary truncate group-hover:text-accent-pink transition-colors">
-            {playlist.title}
-          </h3>
+          <h3 className="max-w-full sm:text-lg font-black text-primary truncate group-hover:text-accent-pink transition-colors">{playlist.title}</h3>
         )}
-        <p className="text-xs text-sm font-bold text-gray-400 mt-1 flex items-center shrink-0">
+        <p className="text-xs sm:text-sm font-bold text-gray-400 mt-1 flex items-center shrink-0">
           <Library className="w-4 h-4 mr-1" />
           {playlist.tracksCount}곡 저장됨
         </p>
