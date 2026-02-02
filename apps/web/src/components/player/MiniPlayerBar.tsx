@@ -112,7 +112,7 @@ export default function MiniPlayerBar({
         <p className="text-xs font-bold text-gray-1 truncate">{currentMusic ? currentMusic.artistName : ' '}</p>
       </div>
 
-      <div className="flex items-center gap-1 flex-wrap">
+      <div className="flex items-center gap-1 shrink-0">
         <button
           type="button"
           onClick={handlePrevClick}
