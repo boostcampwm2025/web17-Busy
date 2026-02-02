@@ -35,9 +35,14 @@ export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfinite
     setCursors({ nextCursor: cursor, nextPopularCursor: popularCursor, nextRecentCursor: recentCursor });
   };
 
+  /** postId 기반 게시글 목록 중복 제거 함수 */
+  const dedupePosts = (posts: Post[]) => {
+    return Array.from(new Map(posts.map((post) => [post.id, post])).values());
+  };
+
   /** 무한 스크롤 관련 상태 업데이트 함수 */
   const updateScrollStates = useCallback((data: FeedResponseDto) => {
-    setPosts((prev) => [...prev, ...data.posts]);
+    setPosts((prev) => [...prev, ...dedupePosts(data.posts)]);
     setHasNext(data.hasNext);
     updateCursorStates(data.nextCursor, data.nextPopularCursor, data.nextRecentCursor);
     setErrorMsg(null);
