@@ -20,9 +20,9 @@ export default function Drawer({ isOpen, isSidebarExpanded, children, loadingFal
   return (
     <div
       className={`
-        absolute top-0 ${isSidebarExpanded ? 'left-64' : 'left-20'} h-full bg-white border-r-2 border-primary z-30
+        absolute top-0 ${isSidebarExpanded ? 'left-64' : 'left-20'} w-2xs xs:w-xs sm:w-md h-full bg-white border-r-2 border-primary z-30
         transition-all duration-300 ease-in-out shadow-[8px_0px_20px_rgba(0,0,0,0.05)]
-        ${isOpen ? 'translate-x-0 w-100' : '-translate-x-full w-100 opacity-0 pointer-events-none'}
+        ${isOpen ? 'translate-x-0' : '-translate-x-full opacity-0 pointer-events-none'}
       `}
     >
       <ErrorBoundary FallbackComponent={ErrorScreen}>
