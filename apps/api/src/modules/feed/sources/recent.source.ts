@@ -2,18 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/modules/post/entities/post.entity';
 import { Repository } from 'typeorm';
+import { FeedSource } from './feed-source.interface';
 
 @Injectable()
-export class RecentSource {
+export class RecentSource implements FeedSource {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
   ) {}
 
-  async getRecentPosts(
+  async getPosts(
+    isInitialRequest: boolean,
     requestUserId: string | null,
     limit: number,
     cursor?: string,
   ) {
+    if (!isInitialRequest && !cursor) return { posts: [] };
+
     const query = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.author', 'author')
@@ -36,6 +40,10 @@ export class RecentSource {
       query.andWhere('post.id > :cursor', { cursor });
     }
 
-    return await query.take(limit + 1).getMany();
+    const posts = await query.take(limit + 1).getMany();
+    const nextCursor =
+      posts.length >= limit ? posts[posts.length - 1].id : undefined;
+
+    return { posts, nextCursor };
   }
 }

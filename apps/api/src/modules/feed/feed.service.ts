@@ -11,6 +11,7 @@ import { TrendingSource } from './sources/trending.source';
 import { RecentSource } from './sources/recent.source';
 import { SourceAllocationPolicy } from './policy/source-allocation.policy';
 import { FeedCompositionPolicy } from './policy/feed-composition.policy';
+import { FeedSource } from './sources/feed-source.interface';
 
 @Injectable()
 export class FeedService {
@@ -51,26 +52,18 @@ export class FeedService {
         cursor?.trending,
       );
 
-    let recentPosts: Post[] = [];
+    // 덜 조회된 팔로잉 글 수만큼 최신글을 더 조회
+    const followingShortage = followingLimit - followingPosts.length;
+    recentLimit += followingShortage;
 
-    if (isInitialRequest || cursor?.recent) {
-      // 덜 조회된 팔로잉 글 수만큼 최신글을 더 조회
-      const followingShortage = followingLimit - followingPosts.length;
-      recentLimit += followingShortage;
-
-      recentPosts = await this.recentSource.getRecentPosts(
+    // 최신글
+    const { posts: recentPosts, nextCursor: nextRecentCursor } =
+      await this.recentSource.getPosts(
+        isInitialRequest,
         requestUserId,
         recentLimit,
         cursor?.recent,
       );
-    }
-    const nextRecentCursor =
-      recentPosts.length >= recentLimit
-        ? recentPosts[recentPosts.length - 1].id
-        : undefined;
-
-    // console.log('팔로잉 사용자 게시글', followingPosts.map(p => ([p.id, p.author.nickname, p.content])));
-    // console.log('인기 게시글', trendingPosts.map(p => ([p.id, p.author.nickname, p.content])));
 
     // 합치기
     const posts = this.feedCompositionPolicy.compose(
@@ -79,17 +72,14 @@ export class FeedService {
       recentPosts,
     );
 
-    const hasNext =
-      !!nextFollowingCursor || !!nextTrendingCursor || !!nextRecentCursor;
-    const nextCursor: Cursor = {
-      following: nextFollowingCursor,
-      trending: nextTrendingCursor,
-      recent: nextRecentCursor,
-    };
-
     return {
-      hasNext,
-      nextCursor,
+      hasNext:
+        !!nextFollowingCursor || !!nextTrendingCursor || !!nextRecentCursor,
+      nextCursor: {
+        following: nextFollowingCursor,
+        trending: nextTrendingCursor,
+        recent: nextRecentCursor,
+      },
       posts: this.mapToFeedResponseDto(posts),
     };
   }
