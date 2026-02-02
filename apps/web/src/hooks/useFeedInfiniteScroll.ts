@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 interface UseInfiniteScrollParams {
-  fetchFn: (cursor?: string, recentCursor?: string, limit?: number) => Promise<FeedResponseDto>;
+  fetchFn: (cursor?: string, popularCursor?: string, recentCursor?: string, limit?: number) => Promise<FeedResponseDto>;
   resetKey?: string; // 목록 초기화 트리거
 }
 
