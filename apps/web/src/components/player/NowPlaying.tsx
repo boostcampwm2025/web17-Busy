@@ -128,8 +128,8 @@ export default function NowPlaying({
   };
 
   return (
-    <div className="p-4 border-b-2 border-primary">
-      <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-2 text-center">Now Playing</h2>
+    <div className="p-4 py-8 border-b-2 border-primary">
+      <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-4 text-center">Now Playing</h2>
 
       {/* 기존 앨범커버 영역 */}
       <div className="mx-auto w-full max-w-55 aspect-square rounded-2xl border-2 border-primary overflow-hidden bg-gray-4 mb-2 flex items-center justify-center">
