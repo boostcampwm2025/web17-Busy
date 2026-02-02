@@ -28,4 +28,14 @@ export class TrendingService {
     }
     return result;
   }
+
+  async getByMaxScore(maxScore?: number) {
+    const raw = await this.rankStore.getByMaxScoreRaw(maxScore);
+
+    const result: Array<{ postId: string; score: number }> = [];
+    for (let i = 0; i < raw.length; i += 2) {
+      result.push({ postId: raw[i], score: Number(raw[i + 1]) });
+    }
+    return result;
+  }
 }

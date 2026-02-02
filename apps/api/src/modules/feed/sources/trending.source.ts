@@ -52,8 +52,7 @@ export class TrendingSource implements FeedSource {
     maxScoreExclusive?: number,
   ): Promise<{ postId: string; score: number }[]> {
     // 전체 인기글 조회
-    let members =
-      await this.trendingService.getByMaxScoreExclusive(maxScoreExclusive);
+    let members = await this.trendingService.getByMaxScore(maxScoreExclusive);
 
     const userGroupId = requestUserId
       ? await this.redis.get(REDIS_KEYS.USER_GROUP(requestUserId))
