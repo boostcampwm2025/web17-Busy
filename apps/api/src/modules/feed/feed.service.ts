@@ -4,10 +4,13 @@ import { PostResponseDto, MusicResponseDto, FeedResponseDto } from '@repo/dto';
 import { FollowingSource } from './sources/following.source';
 import { TrendingSource } from './sources/trending.source';
 import { RecentSource } from './sources/recent.source';
+import { SourceAllocationPolicy } from './policy/source-allocation.policy';
 
 @Injectable()
 export class FeedService {
   constructor(
+    private readonly sourceAllocationPolicy: SourceAllocationPolicy,
+
     private readonly followingSource: FollowingSource,
     private readonly trendingSource: TrendingSource,
     private readonly recentSource: RecentSource,
@@ -19,10 +22,13 @@ export class FeedService {
     cursor?: string,
     recentCursor?: string,
   ): Promise<FeedResponseDto> {
+    const { followingLimit, trendingLimit, recentLimit } =
+      this.sourceAllocationPolicy.allocate(limit);
+
     // 팔로잉 글 (+ 내 글)
     const followingPosts = await this.followingSource.getFollowingPosts(
       requestUserId,
-      limit,
+      followingLimit,
       cursor,
     );
 
@@ -31,11 +37,14 @@ export class FeedService {
     // 인기 게시글
     const trendingPosts = await this.trendingSource.getTrendingPosts(
       requestUserId,
-      limit,
+      trendingLimit,
       cursor,
     );
 
     // console.log('인기 게시글', trendingPosts.map(p => ([p.id, p.author.nickname, p.content])));
+
+    // 덜 조회된 팔로잉 글 수만큼 최신글을 더 조회
+    const followingShortage = followingLimit - followingPosts.length;
 
     // 최근 게시글 용 커서 추가하고 얘는 cursor보다 최신글을 조회
     const recentPosts =
@@ -43,7 +52,7 @@ export class FeedService {
         ? []
         : await this.recentSource.getRecentPosts(
             requestUserId,
-            limit,
+            recentLimit + followingShortage,
             recentCursor,
           );
 
