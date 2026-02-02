@@ -1,31 +1,25 @@
 'use client';
 
+import { FeedResponseDto, PostResponseDto as Post } from '@repo/dto';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-interface InfiniteResponse<T> {
-  items: T[];
-  hasNext: boolean;
-  nextCursor?: string;
-  nextRecentCursor?: string;
+interface UseInfiniteScrollParams {
+  fetchFn: (cursor?: string, recentCursor?: string, limit?: number) => Promise<FeedResponseDto>;
+  resetKey?: string; // 목록 초기화 트리거
 }
 
-interface UseInfiniteScrollParams<T> {
-  fetchFn: (cursor?: string, recentCursor?: string, limit?: number) => Promise<InfiniteResponse<T>>;
-  /** query 변경 등으로 목록을 초기화해야 할 때 사용 */
-  resetKey?: string;
-}
-
-export default function useFeedInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteScrollParams<T>) {
+export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfiniteScrollParams) {
   const { ref, inView } = useInView({ threshold: 0.8, rootMargin: '200px' });
 
-  const [items, setItems] = useState<T[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [hasNext, setHasNext] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [nextRecentCursor, setNextRecentCursor] = useState<string | undefined>(undefined);
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null); // 추가 데이터 fetch 오류
+
   // 초기 데이터 로드 관련 state
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [initialError, setInitialError] = useState<Error | null>(null); // 초기 데이터 fetch 오류
@@ -33,8 +27,8 @@ export default function useFeedInfiniteScroll<T>({ fetchFn, resetKey }: UseInfin
   const initialLoadedRef = useRef(false); // 초기 데이터 fetch 재호출 방지 가드
 
   /** 무한 스크롤 관련 상태 업데이트 함수 */
-  const updateScrollStates = useCallback((data: InfiniteResponse<T>) => {
-    setItems((prev) => [...prev, ...data.items]);
+  const updateScrollStates = useCallback((data: FeedResponseDto) => {
+    setPosts((prev) => [...prev, ...data.posts]);
     setHasNext(data.hasNext);
     setNextCursor(data.nextCursor);
     setNextRecentCursor(data.nextRecentCursor);
@@ -42,7 +36,7 @@ export default function useFeedInfiniteScroll<T>({ fetchFn, resetKey }: UseInfin
   }, []);
 
   const reset = useCallback(() => {
-    setItems([]);
+    setPosts([]);
     setHasNext(false);
     setNextCursor(undefined);
     setNextRecentCursor(undefined);
@@ -112,8 +106,8 @@ export default function useFeedInfiniteScroll<T>({ fetchFn, resetKey }: UseInfin
   }, [inView, loadMore]);
 
   return {
-    items,
-    setItems,
+    posts,
+    setPosts,
     hasNext,
     nextCursor,
     nextRecentCursor,
