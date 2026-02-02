@@ -117,7 +117,7 @@ export default function PlaylistItem(playlist: Props) {
       className="group flex items-center bg-white border-2 border-primary rounded-xl p-4 cursor-pointer hover:bg-gray-50 hover:shadow-[6px_6px_0px_0px_#00EBC7] hover:-translate-y-1 transition-all duration-200"
     >
       {/* 플리 첫 곡 앨범 커버 이미지 부분 */}
-      <div className="relative w-16 h-16 mr-6 flex-shrink-0">
+      <div className="relative w-12 md:w-16 aspect-square mr-4 shrink-0">
         <div className="absolute top-0 right-0 w-full h-full bg-primary/20 rounded-lg transform rotate-6 border border-primary/20 transition-transform group-hover:rotate-12"></div>
         <div className="absolute top-0 right-0 w-full h-full bg-white rounded-lg border border-primary/20 transform rotate-3"></div>
         <img
@@ -132,7 +132,7 @@ export default function PlaylistItem(playlist: Props) {
         {isEditingTitle ? (
           <input
             autoFocus
-            className="w-full text-xl font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
+            className="w-full sm:text-lg md:text-xl font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
             value={draftTitle}
             onClick={(e) => e.stopPropagation()}
             onChange={(e) => setDraftTitle(e.target.value)}
@@ -147,7 +147,7 @@ export default function PlaylistItem(playlist: Props) {
             }}
           />
         ) : (
-          <h3 className="text-xl font-black text-primary truncate group-hover:text-accent-pink transition-colors">{playlist.title}</h3>
+          <h3 className="sm:text-lg md:text-xl font-black text-primary truncate group-hover:text-accent-pink transition-colors">{playlist.title}</h3>
         )}
         <p className="text-sm font-bold text-gray-400 mt-1 flex items-center">
           <Library className="w-4 h-4 mr-1" />
@@ -159,7 +159,7 @@ export default function PlaylistItem(playlist: Props) {
       <button
         ref={buttonRef}
         onClick={toggleMenu}
-        className="p-2 rounded-lg border-none text-gray-500 hover:text-primary hover:border-primary transition-colors"
+        className="ml-2 p-2 rounded-lg border-none text-gray-500 hover:text-primary hover:border-primary transition-colors shrink-0"
         aria-label="Playlist actions"
       >
         <MoreHorizontal className="w-5 h-5" />
