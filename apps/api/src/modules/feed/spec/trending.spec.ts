@@ -50,4 +50,19 @@ describe('TrendingSource (mock only)', () => {
     expect(res).toEqual({ posts: [] });
     expect(trendingService.getByMaxScore).not.toHaveBeenCalled();
   });
+
+  it('cursor 숫자 파싱해서 getByMaxScore에 maxScoreExclusive 전달', async () => {
+    // given
+    trendingService.getByMaxScore.mockResolvedValue(makeMembers([50, 40]));
+    redis.get.mockResolvedValue(null); // group 필터 x
+
+    const qb = makeQb();
+    qb.getMany.mockResolvedValue([]);
+    postRepository.createQueryBuilder.mockReturnValue(qb);
+
+    // when
+    await source.getPosts(true, null, 1, '123');
+
+    expect(trendingService.getByMaxScore).toHaveBeenCalledWith(123);
+  });
 });
