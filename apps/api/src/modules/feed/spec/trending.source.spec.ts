@@ -1,4 +1,3 @@
-import { PostRepository } from 'src/modules/post/post.repository';
 import { TrendingSource } from '../sources/trending.source';
 import { InternalServerErrorException } from '@nestjs/common';
 
