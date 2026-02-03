@@ -153,11 +153,11 @@ export default function MiniPlayerBar({
           <ListPlus className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handlePostClick} title={'컨텐츠 생성'} className="p-2 text-primary hidden xs:block">
+        <button type="button" onClick={handlePostClick} title={'컨텐츠 생성'} className="p-2 text-primary hidden sm:block">
           <PlusCircle className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handleSaveClick} title={'보관함 선택 후 추가'} className="p-2 text-primary hidden xs:block">
+        <button type="button" onClick={handleSaveClick} title={'보관함 선택 후 추가'} className="p-2 text-primary hidden sm:block">
           <FolderPlus className="w-5 h-5" />
         </button>
       </div>
