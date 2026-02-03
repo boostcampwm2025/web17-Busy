@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 function base64UrlEncode(buffer: Buffer) {
-  return buffer.toString('base64').replaceAll(/\+/g, '-').replaceAll(/\//g, '_').replace(/=+$/, '');
+  return buffer.toString('base64').replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
 }
 
 export function createPkcePair() {
