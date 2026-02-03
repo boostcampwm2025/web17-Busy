@@ -36,7 +36,7 @@ export default function PostDetailCommentComposer({ isAuthenticated, isSubmittin
 
       <button
         type="button"
-        onClick={() => void onSubmit()}
+        onClick={() => onSubmit()}
         disabled={!isAuthenticated || !value.trim() || isSubmitting}
         aria-busy={isSubmitting}
         title={isAuthenticated ? '전송' : '로그인 후 사용 가능'}
