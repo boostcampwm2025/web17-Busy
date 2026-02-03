@@ -6,6 +6,7 @@ import { DEFAULT_IMAGES } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
 import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist, getPlaylistDetail } from '@/api';
 import { reorder } from '@/utils';
+import { toast } from 'react-toastify';
 
 export default function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
   const { closeModal } = useModalStore();
@@ -54,8 +55,8 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
       await changeMusicOrderOfPlaylist(playlistId, songIds); // playlist.id?
       bumpPlaylistRefresh();
     } catch (e) {
-      // 에러 처리
-      throw e;
+      toast.error('변경사항 반영에 실패했습니다.');
+      console.error(e);
     }
   };
 
