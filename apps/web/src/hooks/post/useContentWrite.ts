@@ -135,9 +135,11 @@ export const useContentWrite = ({ initialMusic, initialMusics, onSuccess }: Opti
     closeSearch();
   };
 
+  const dedupePlaylistMusic = (prevList: Music[], newList: Music[]) => newList.filter((m) => !prevList.some((p) => p.id === m.id));
+
   const onAddPlaylist = (playlist: PlaylistDetail) => {
     setSelectedMusics((prev) => {
-      const next = playlist.musics.filter((m) => !prev.some((p) => p.id === m.id));
+      const next = dedupePlaylistMusic(prev, playlist.musics);
       if (next.length === 0) return prev;
       return [...prev, ...next];
     });
