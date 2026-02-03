@@ -50,86 +50,97 @@ export class AlgorithmStreamConsumer implements OnModuleInit {
     }
   }
 
-  @Cron(CronExpression.EVERY_HOUR, { waitForCompletion: true })
+  @Cron(CronExpression.EVERY_30_MINUTES, { waitForCompletion: true })
   async pollAndProcess() {
-    const res = (await this.redis.xreadgroup(
-      'GROUP',
-      this.CONSUMER_GROUP,
-      this.consumerName,
-      'COUNT',
-      this.BATCH_SIZE,
-      'BLOCK',
-      3000,
-      'STREAMS',
-      REDIS_KEYS.LOG_EVENTS_STREAM,
-      '>',
-    )) as XReadGroupReply;
+    let hasMore = true;
 
-    if (!res || !res[0]) return;
-    const [, entries] = res[0];
-    if (!entries?.length) return;
+    while (hasMore) {
+      const res = (await this.redis.xreadgroup(
+        'GROUP',
+        this.CONSUMER_GROUP,
+        this.consumerName,
+        'COUNT',
+        this.BATCH_SIZE,
+        'BLOCK',
+        3000,
+        'STREAMS',
+        REDIS_KEYS.LOG_EVENTS_STREAM,
+        '>',
+      )) as XReadGroupReply;
 
-    // 1개의 로그가 여러 관계(N)가 될 수 있으므로 배열을 평탄화해서 관리
-    const batchToAdd: GraphRelation[] = [];
-    const batchToRemove: GraphRelation[] = [];
-
-    const validIds: string[] = [];
-    const skipIds: string[] = [];
-
-    for (const [id, fields] of entries) {
-      const parsedRelations = this.parseToGraphData(fields);
-
-      if (!parsedRelations || parsedRelations.length === 0) {
-        skipIds.push(id);
-        continue;
+      if (!res || !res[0] || !res[0][1].length) {
+        hasMore = false;
+        break;
       }
 
-      // ADD와 REMOVE를 분리하여 담기
-      parsedRelations.forEach((rel) => {
-        if (rel.action === 'REMOVE') {
-          batchToRemove.push(rel);
-        } else {
-          batchToAdd.push(rel);
+      const [, entries] = res[0];
+
+      // 1개의 로그가 여러 관계(N)가 될 수 있으므로 배열을 평탄화해서 관리
+      const batchToAdd: GraphRelation[] = [];
+      const batchToRemove: GraphRelation[] = [];
+
+      const validIds: string[] = [];
+      const skipIds: string[] = [];
+
+      for (const [id, fields] of entries) {
+        const parsedRelations = this.parseToGraphData(fields);
+
+        if (!parsedRelations || parsedRelations.length === 0) {
+          skipIds.push(id);
+          continue;
         }
-      });
 
-      validIds.push(id);
-    }
+        // ADD와 REMOVE를 분리하여 담기
+        parsedRelations.forEach((rel) => {
+          if (rel.action === 'REMOVE') {
+            batchToRemove.push(rel);
+          } else {
+            batchToAdd.push(rel);
+          }
+        });
 
-    // DB 트랜잭션 처리
-    try {
-      // 1. 관계 생성 배치 실행
-      if (batchToAdd.length > 0) {
-        await this.algorithmService.addRelationshipsBatch(batchToAdd);
+        validIds.push(id);
       }
 
-      // 2. 관계 삭제 배치 실행
-      if (batchToRemove.length > 0) {
-        await this.algorithmService.removeRelationshipsBatch(batchToRemove);
-      }
+      // DB 트랜잭션 처리
+      try {
+        // 1. 관계 생성 배치 실행
+        if (batchToAdd.length > 0) {
+          await this.algorithmService.addRelationshipsBatch(batchToAdd);
+        }
 
-      if (batchToAdd.length > 0 || batchToRemove.length > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      }
+        // 2. 관계 삭제 배치 실행
+        if (batchToRemove.length > 0) {
+          await this.algorithmService.removeRelationshipsBatch(batchToRemove);
+        }
 
-      // 3. 성공 시 ACK (처리 완료 통보)
-      const idsToAck = [...validIds, ...skipIds];
-      if (idsToAck.length > 0) {
-        await this.redis.xack(
-          REDIS_KEYS.LOG_EVENTS_STREAM,
-          this.CONSUMER_GROUP,
-          ...idsToAck,
-        );
+        if (batchToAdd.length > 0 || batchToRemove.length > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        }
+
+        // 3. 성공 시 ACK (처리 완료 통보)
+        const idsToAck = [...validIds, ...skipIds];
+        if (idsToAck.length > 0) {
+          await this.redis.xack(
+            REDIS_KEYS.LOG_EVENTS_STREAM,
+            this.CONSUMER_GROUP,
+            ...idsToAck,
+          );
+        }
+      } catch (error) {
+        this.logger.error('Failed to sync to Neo4j', error);
+        // DB 에러 시, 파싱 불가능한 데이터(skipIds)만이라도 ACK 처리하여 무한 루프 방지
+        hasMore = false;
+        if (skipIds.length > 0) {
+          await this.redis.xack(
+            REDIS_KEYS.LOG_EVENTS_STREAM,
+            this.CONSUMER_GROUP,
+            ...skipIds,
+          );
+        }
       }
-    } catch (error) {
-      this.logger.error('Failed to sync to Neo4j', error);
-      // DB 에러 시, 파싱 불가능한 데이터(skipIds)만이라도 ACK 처리하여 무한 루프 방지
-      if (skipIds.length > 0) {
-        await this.redis.xack(
-          REDIS_KEYS.LOG_EVENTS_STREAM,
-          this.CONSUMER_GROUP,
-          ...skipIds,
-        );
+      if (entries.length < this.BATCH_SIZE) {
+        hasMore = false;
       }
     }
   }
