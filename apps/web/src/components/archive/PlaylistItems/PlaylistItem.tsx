@@ -9,8 +9,8 @@ import { createPortal } from 'react-dom';
 type Props = Playlist & {
   openMenuId: string | null;
   setOpenMenuId: (id: string | null) => void;
-  onRename: (id: string, title: string) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
+  onRename: (id: string, title: string) => void;
+  onDelete: (id: string) => void;
 };
 
 export default function PlaylistItem(playlist: Props) {
