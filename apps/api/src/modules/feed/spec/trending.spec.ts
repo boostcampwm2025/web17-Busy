@@ -1,5 +1,6 @@
 import { PostRepository } from 'src/modules/post/post.repository';
 import { TrendingSource } from '../sources/trending.source';
+import { InternalServerErrorException } from '@nestjs/common';
 
 describe('TrendingSource (mock only)', () => {
   const trendingService = { getByMaxScore: jest.fn() };
@@ -114,5 +115,20 @@ describe('TrendingSource (mock only)', () => {
 
     // nextCursor
     expect(res.nextCursor).toBeUndefined();
+  });
+
+  it('pipeline.exec()가 null이면 InternalServerErrorException', async () => {
+    // given
+    trendingService.getByMaxScore.mockResolvedValue(makeMembers([10, 9, 8, 7]));
+    redis.get.mockResolvedValue('G1');
+
+    const pipeline = makePipeline();
+    pipeline.exec.mockResolvedValue(null);
+    redis.pipeline.mockReturnValue(pipeline);
+
+    // when, then
+    await expect(
+      source.getPosts(true, 'u1', 2, undefined),
+    ).rejects.toBeInstanceOf(InternalServerErrorException);
   });
 });
