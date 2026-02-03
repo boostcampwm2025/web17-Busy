@@ -80,16 +80,19 @@ export function SearchDropdown({ handleAddSong }: { handleAddSong: (song: Unsave
 
       {query && (
         <div className="flex text-center">
-          {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => (
-            <button
-              key={tabMode}
-              title={`${tabTitle} 검색 탭`}
-              onClick={() => handleChangeMode(tabMode)}
-              className={`flex-1 p-2 text-sm sm:text-base ${mode === tabMode ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
-            >
-              {tabTitle}
-            </button>
-          ))}
+          {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => {
+            if (tabMode === 'user') return;
+            return (
+              <button
+                key={tabMode}
+                title={`${tabTitle} 검색 탭`}
+                onClick={() => handleChangeMode(tabMode)}
+                className={`flex-1 p-2 text-sm sm:text-base ${mode === tabMode ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
+              >
+                {tabTitle}
+              </button>
+            );
+          })}
         </div>
       )}
 
