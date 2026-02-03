@@ -1,3 +1,4 @@
+import { PostRepository } from 'src/modules/post/post.repository';
 import { TrendingSource } from '../sources/trending.source';
 
 describe('TrendingSource (mock only)', () => {
@@ -64,5 +65,54 @@ describe('TrendingSource (mock only)', () => {
     await source.getPosts(true, null, 1, '123');
 
     expect(trendingService.getByMaxScore).toHaveBeenCalledWith(123);
+  });
+
+  it('userGroupId 있고 members.length > limit면 pipeline 기반 group 필터 수행', async () => {
+    // given
+    // 인기글 조회 결과 mocking
+    trendingService.getByMaxScore.mockResolvedValue([
+      { postId: 'p1', score: 100 },
+      { postId: 'p2', score: 90 },
+      { postId: 'p3', score: 80 },
+      { postId: 'p4', score: 70 },
+      { postId: 'p5', score: 60 },
+    ]);
+
+    // 로그인 유저 그룹 G1
+    redis.get.mockResolvedValue('G1');
+
+    // 각 게시글 별 그룹 id mocking
+    const pipeline = makePipeline();
+    pipeline.exec.mockResolvedValue([
+      [null, 'G1'],
+      [null, 'G1'],
+      [null, 'G2'], // filtering 대상
+      [null, 'G3'], // filtering 대상
+      [null, 'G1'],
+    ]);
+    redis.pipeline.mockReturnValue(pipeline);
+
+    const qb = makeQb();
+    qb.getMany.mockResolvedValue([]); // hydrate 결과는 여기서 테스트 X
+    postRepository.createQueryBuilder.mockReturnValue(qb);
+
+    // 필터링 된 게시글 확인 spy
+    const andWhereSpy = qb.andWhere;
+
+    // when
+    // limit는
+    const res = await source.getPosts(true, 'u1', 3, undefined);
+
+    // then
+    expect(pipeline.get).toHaveBeenCalledTimes(5);
+    expect(pipeline.exec).toHaveBeenCalledTimes(1);
+
+    // p4, p5는 이전에 필터링 됨
+    expect(andWhereSpy).toHaveBeenCalledWith('post.id IN (:...postIds)', {
+      postIds: ['p1', 'p2', 'p5'],
+    });
+
+    // nextCursor
+    expect(res.nextCursor).toBeUndefined();
   });
 });
