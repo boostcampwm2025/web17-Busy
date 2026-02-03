@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Pencil, Check, X } from 'lucide-react';
 import ProfileActionButton from './ProfileActionButton';
 import FollowStats from './FollowStats';
