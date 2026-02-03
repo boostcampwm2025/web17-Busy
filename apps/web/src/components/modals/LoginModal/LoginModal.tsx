@@ -3,7 +3,7 @@
 import React from 'react';
 import { useModalStore } from '@/stores/useModalStore';
 import { X } from 'lucide-react';
-import { SpotifyLoginButton, GoogleLoginButton, TmpLoginButton } from './index';
+import { GoogleLoginButton } from './index';
 import { getAuthErrorMessage } from '@/hooks/auth/client/authErrorMessage';
 
 type LoginModalProps = {
