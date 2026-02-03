@@ -132,10 +132,13 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
 
   return (
     <div className="relative mb-6">
-      <label className="text-sm font-bold text-gray-1 mb-2 block">음악 검색</label>
+      <label htmlFor="musicQuery" className="text-sm font-bold text-gray-1 mb-2 block">
+        음악 검색
+      </label>
 
       <div className="relative z-20">
         <input
+          id="musicQuery"
           type="text"
           placeholder="어떤 음악을 공유하고 싶나요?"
           value={searchQuery}
