@@ -28,37 +28,37 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
   const playerRef = useRef<YT.Player | null>(null);
   const queueLengthRef = useRef(queueLength);
 
-  const loadScript = () =>
+  const waitForYTReady = (intervalMs = 50): Promise<void> =>
+    new Promise((resolve) => {
+      const check = setInterval(() => {
+        if (window.YT?.Player) {
+          clearInterval(check);
+          resolve();
+        }
+      }, intervalMs);
+    });
+
+  const appendYouTubeScript = () =>
     new Promise<void>((resolve) => {
-      if (window.YT?.Player) return resolve();
-
-      const existing = document.getElementById(YOUTUBE_IFRAME_ID);
-      if (existing) {
-        const check = setInterval(() => {
-          if (window.YT?.Player) {
-            clearInterval(check);
-            resolve();
-          }
-        }, 50);
-        return;
-      }
-
       const tag = document.createElement('script');
       tag.id = YOUTUBE_IFRAME_ID;
       tag.src = YOUTUBE_IFRAME_SCRIPT_SRC;
+
       window.onYouTubeIframeAPIReady = () => resolve();
       document.body.appendChild(tag);
     });
 
-  const waitForContainer = (containerRef: RefObject<HTMLDivElement | null>) =>
-    new Promise<HTMLDivElement>((resolve) => {
-      const tick = () => {
-        const el = containerRef.current;
-        if (el) return resolve(el);
-        requestAnimationFrame(tick);
-      };
-      tick();
-    });
+  const loadScript = async () => {
+    if (window.YT?.Player) return;
+
+    const existing = document.getElementById(YOUTUBE_IFRAME_ID);
+    if (existing) {
+      await waitForYTReady();
+      return;
+    }
+
+    await appendYouTubeScript();
+  };
 
   useEffect(() => {
     queueLengthRef.current = queueLength;
@@ -67,9 +67,20 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
   useEffect(() => {
     let mounted = true;
 
+    const waitForContainer = () =>
+      new Promise<HTMLDivElement>((resolve) => {
+        const tick = () => {
+          if (!mounted) return;
+          const el = containerRef.current;
+          if (el) return resolve(el);
+          requestAnimationFrame(tick);
+        };
+        tick();
+      });
+
     const init = async () => {
       await loadScript();
-      const el = await waitForContainer(containerRef);
+      const el = await waitForContainer();
       if (!mounted || playerRef.current) return;
 
       playerRef.current = new window.YT.Player(el, {
