@@ -42,7 +42,7 @@ export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfinite
 
   /** 무한 스크롤 관련 상태 업데이트 함수 */
   const updateScrollStates = useCallback((data: FeedResponseDto) => {
-    setPosts((prev) => [...prev, ...dedupePosts(data.posts)]);
+    setPosts((prev) => dedupePosts([...prev, ...data.posts]));
     setHasNext(data.hasNext);
     updateCursorStates(data.nextCursor, data.nextPopularCursor, data.nextRecentCursor);
     setErrorMsg(null);
