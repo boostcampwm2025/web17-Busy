@@ -6,9 +6,8 @@ import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/d
 import { useRouter } from 'next/navigation';
 import { PostHeader } from '../../post';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
+import { useModalStore, MODAL_TYPES, usePlayerStore, usePostReactionOverridesStore } from '@/stores';
 import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions } from '@/hooks';
-import { usePostReactionOverridesStore } from '@/stores';
 
 import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { LoadingSpinner, PostMedia } from '@/components';
