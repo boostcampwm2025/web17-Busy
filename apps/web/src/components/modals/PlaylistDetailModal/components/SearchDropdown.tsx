@@ -6,11 +6,10 @@ import { useMemo, useState } from 'react';
 
 const MIN_QUERY_HINT = `${ITUNES_SEARCH.MIN_QUERY_LENGTH}글자 이상 입력해주세요.`;
 
-export function SearchDropdown({ isSearchOpen, handleAddSong }: { isSearchOpen: boolean; handleAddSong: (song: UnsavedMusic) => void }) {
+export function SearchDropdown({ handleAddSong }: { handleAddSong: (song: UnsavedMusic) => void }) {
   const [searchQuery, setSearchQuery] = useState('');
   const { status, results, errorMessage, trimmedQuery } = useItunesSearch({
     query: searchQuery,
-    enabled: isSearchOpen,
   });
 
   const needMin = useMemo(() => trimmedQuery.length > 0 && trimmedQuery.length < ITUNES_SEARCH.MIN_QUERY_LENGTH, [trimmedQuery]);
@@ -50,7 +49,6 @@ export function SearchDropdown({ isSearchOpen, handleAddSong }: { isSearchOpen: 
       <div className="relative">
         <input
           type="text"
-          autoFocus
           placeholder="추가할 음악 검색..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
