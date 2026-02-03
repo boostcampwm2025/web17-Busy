@@ -1,57 +1,56 @@
 'use client';
 
+import { Cursor, FeedResponseDto, PostResponseDto as Post } from '@repo/dto';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-interface InfiniteResponse<T> {
-  items: T[];
-  hasNext: boolean;
-  nextCursor?: string;
-  nextRecentCursor?: string;
+interface UseInfiniteScrollParams {
+  fetchFn: (cursors?: Cursor, limit?: number) => Promise<FeedResponseDto>;
+  resetKey?: string; // 목록 초기화 트리거
 }
 
-interface UseInfiniteScrollParams<T> {
-  fetchFn: (cursor?: string, recentCursor?: string, limit?: number) => Promise<InfiniteResponse<T>>;
-  /** query 변경 등으로 목록을 초기화해야 할 때 사용 */
-  resetKey?: string;
-}
-
-export default function useFeedInfiniteScroll<T>({ fetchFn, resetKey }: UseInfiniteScrollParams<T>) {
+export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfiniteScrollParams) {
   const { ref, inView } = useInView({ threshold: 0.8, rootMargin: '200px' });
 
-  const [items, setItems] = useState<T[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [hasNext, setHasNext] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
-  const [nextRecentCursor, setNextRecentCursor] = useState<string | undefined>(undefined);
+  const [cursors, setCursors] = useState<Cursor>({ following: undefined, trending: undefined, recent: undefined });
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null); // 추가 데이터 fetch 오류
+
   // 초기 데이터 로드 관련 state
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [initialError, setInitialError] = useState<Error | null>(null); // 초기 데이터 fetch 오류
   const prevResetKeyRef = useRef<string | undefined>(undefined);
   const initialLoadedRef = useRef(false); // 초기 데이터 fetch 재호출 방지 가드
 
+  /** 커서 상태 업데이트 함수 */
+  const updateCursorStates = (following?: string, trending?: string, recent?: string) => {
+    setCursors({ following, trending, recent });
+  };
+
+  /** postId 기반 게시글 목록 중복 제거 함수 */
+  const dedupePosts = (posts: Post[]) => {
+    return Array.from(new Map(posts.map((post) => [post.id, post])).values());
+  };
+
   /** 무한 스크롤 관련 상태 업데이트 함수 */
-  const updateScrollStates = useCallback((data: InfiniteResponse<T>) => {
-    setItems((prev) => [...prev, ...data.items]);
+  const updateScrollStates = useCallback((data: FeedResponseDto) => {
+    setPosts((prev) => dedupePosts([...prev, ...data.posts]));
     setHasNext(data.hasNext);
-    setNextCursor(data.nextCursor);
-    setNextRecentCursor(data.nextRecentCursor);
+    updateCursorStates(data.nextCursor?.following, data.nextCursor?.trending, data.nextCursor?.recent);
     setErrorMsg(null);
   }, []);
 
   const reset = useCallback(() => {
-    setItems([]);
+    setPosts([]);
     setHasNext(false);
-    setNextCursor(undefined);
-    setNextRecentCursor(undefined);
+    updateCursorStates();
 
     setIsLoading(false);
     setErrorMsg(null);
 
     setIsInitialLoading(true);
-    setInitialError(null);
   }, []);
 
   /** 초기 데이터 fetch 함수 */
@@ -76,14 +75,14 @@ export default function useFeedInfiniteScroll<T>({ fetchFn, resetKey }: UseInfin
     await new Promise((resolve) => setTimeout(resolve, 300)); // 로딩 스피너 짧게 노출
 
     try {
-      const data = await fetchFn(nextCursor, nextRecentCursor);
+      const data = await fetchFn(cursors);
       updateScrollStates(data);
     } catch {
       setErrorMsg('오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
-  }, [fetchFn, hasNext, isLoading, nextCursor, nextRecentCursor, updateScrollStates]);
+  }, [fetchFn, hasNext, isLoading, cursors, updateScrollStates]);
 
   // 최초 1회 로드
   useEffect(() => {
@@ -112,14 +111,11 @@ export default function useFeedInfiniteScroll<T>({ fetchFn, resetKey }: UseInfin
   }, [inView, loadMore]);
 
   return {
-    items,
-    setItems,
+    posts,
+    setPosts,
     hasNext,
-    nextCursor,
-    nextRecentCursor,
     isLoading,
     isInitialLoading,
-    initialError,
     errorMsg,
     ref,
     reset,
