@@ -17,13 +17,14 @@ export default function PostActions({ post, onClickLike, onClickComment, disable
   const liked = Boolean(post.isLiked);
 
   const heartClassName = [
-    'w-7 h-7 transition-colors',
+    'w-5 h-5 sm:w-7 sm:h-7 transition-colors',
     liked ? 'text-accent-pink fill-accent-pink' : 'text-primary group-hover:text-accent-pink group-hover:fill-accent-pink',
   ].join(' ');
 
-  const likeCountClassName = ['font-bold text-sm transition-colors', liked ? 'text-accent-pink' : 'text-primary group-hover:text-accent-pink'].join(
-    ' ',
-  );
+  const likeCountClassName = [
+    'font-bold text-xs sm:text-sm transition-colors',
+    liked ? 'text-accent-pink' : 'text-primary group-hover:text-accent-pink',
+  ].join(' ');
 
   return (
     <div className="flex items-center gap-6 mb-4">
@@ -50,8 +51,8 @@ export default function PostActions({ post, onClickLike, onClickComment, disable
         className="flex items-center gap-1 group"
         title="댓글"
       >
-        <MessageCircle className="w-7 h-7 text-primary group-hover:text-accent-cyan transition-colors" />
-        <span className="font-bold text-sm text-primary group-hover:text-accent-cyan transition-colors">{post.commentCount}</span>
+        <MessageCircle className="w-5 h-5 sm:w-7 sm:h-7 text-primary group-hover:text-accent-cyan transition-colors" />
+        <span className="font-bold text-xs sm:text-sm text-primary group-hover:text-accent-cyan transition-colors">{post.commentCount}</span>
       </button>
     </div>
   );

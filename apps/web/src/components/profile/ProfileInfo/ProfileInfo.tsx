@@ -41,9 +41,9 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
 
   return (
     <section className="max-w-4xl">
-      <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10 mb-8">
+      <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10 mb-2 md:mb-4">
         {/* 프로필 이미지 아바타 */}
-        <div className="shrink-0 relative w-28 h-28 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-primary p-1 bg-white shadow-[3px_3px_0px_0px_#00214D]">
+        <div className="shrink-0 relative w-24 h-24 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-primary p-1 bg-white shadow-[3px_3px_0px_0px_#00214D]">
           <img src={profileImgUrl ?? DEFAULT_IMAGES.PROFILE} alt={nickname} className="w-full h-full object-cover rounded-full" />
         </div>
 
@@ -56,11 +56,11 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
                   <EditInput
                     value={editForm.nickname}
                     onChange={(e: any) => setEditForm({ ...editForm, nickname: e.target.value })}
-                    className="text-2xl font-black text-center md:text-left"
+                    className="text-xl md:text-2xl font-black text-center md:text-left"
                   />
                 </div>
               ) : (
-                <h2 className="text-2xl font-black text-primary">{nickname}</h2>
+                <h2 className="text-xl md:text-2xl font-black text-primary">{nickname}</h2>
               )}
 
               {isOwner &&
@@ -101,7 +101,7 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
             {isEditing ? (
               <EditTextarea value={editForm.bio} onChange={(e: any) => setEditForm({ ...editForm, bio: e.target.value })} />
             ) : (
-              <p className="text-primary font-medium whitespace-pre-wrap leading-relaxed text-justify">
+              <p className="text-primary font-medium text-sm xs:text-base whitespace-pre-wrap leading-relaxed text-center md:text-justify">
                 {bio || (isOwner ? '자기소개를 입력해주세요.' : '')}
               </p>
             )}

@@ -81,8 +81,8 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
   }, []);
 
   return (
-    <div className="p-4 border-b-2 border-primary">
-      <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-2 text-center">Now Playing</h2>
+    <div className="p-4 py-8 border-b-2 border-primary">
+      <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-4 text-center">Now Playing</h2>
 
       <PlaybackProvider>
         <NowPlayingCoverPlayback currentMusic={currentMusic} isYouTube={isYouTube} />

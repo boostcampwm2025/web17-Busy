@@ -112,7 +112,7 @@ export default function MiniPlayerBar({
         <p className="text-xs font-bold text-gray-1 truncate">{currentMusic ? currentMusic.artistName : ' '}</p>
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 shrink-0">
         <button
           type="button"
           onClick={handlePrevClick}
@@ -148,16 +148,16 @@ export default function MiniPlayerBar({
           type="button"
           onClick={handleToggleQueueClick}
           title={queueTitle}
-          className="p-2 text-primary hover:bg-gray-4 rounded-full transition-colors"
+          className="p-2 text-primary hover:bg-gray-4 rounded-full transition-colors hidden 2xs:block"
         >
           <ListPlus className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handlePostClick} title={'컨텐츠 생성'} className="p-2 text-primary">
+        <button type="button" onClick={handlePostClick} title={'컨텐츠 생성'} className="p-2 text-primary hidden sm:block">
           <PlusCircle className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handleSaveClick} title={'보관함 선택 후 추가'} className="p-2 text-primary">
+        <button type="button" onClick={handleSaveClick} title={'보관함 선택 후 추가'} className="p-2 text-primary hidden sm:block">
           <FolderPlus className="w-5 h-5" />
         </button>
       </div>

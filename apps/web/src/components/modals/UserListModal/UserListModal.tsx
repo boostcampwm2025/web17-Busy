@@ -57,7 +57,7 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 animate-fade-in">
       <div className="absolute inset-0" onClick={closeModal}></div>
-      <div className="relative bg-white w-full max-w-md rounded-3xl border-2 border-primary flex flex-col h-[50vh] overflow-hidden animate-scale-up z-10">
+      <div className="relative bg-white w-full max-w-sm md:max-w-md rounded-3xl border-2 border-primary flex flex-col h-[50vh] overflow-hidden animate-scale-up z-10">
         {/* 모달 헤더 영역 */}
         <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary bg-white">
           <h2 className="text-xl font-black text-primary">{title}</h2>

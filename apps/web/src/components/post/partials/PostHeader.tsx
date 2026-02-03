@@ -58,7 +58,7 @@ export default function PostHeader({ post, isOwner, onUserClick, onMoreClick }: 
         </div>
 
         <div className="min-w-0">
-          <h3 className="font-bold text-lg leading-none truncate group-hover:text-accent-pink transition-colors">{post.author.nickname}</h3>
+          <h3 className="font-bold lg:text-lg leading-none truncate group-hover:text-accent-pink transition-colors">{post.author.nickname}</h3>
           <span className="text-xs text-gray-500 font-medium">{createdAtText}</span>
         </div>
       </div>
