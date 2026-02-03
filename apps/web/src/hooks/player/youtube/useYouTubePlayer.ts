@@ -3,7 +3,7 @@
 import { YOUTUBE_IFRAME_ID, YOUTUBE_IFRAME_SCRIPT_SRC } from '@/constants';
 import { usePlayerStore } from '@/stores';
 import { PlayerProgress } from '@/types';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 declare global {
   interface Window {
