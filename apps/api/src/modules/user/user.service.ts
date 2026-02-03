@@ -42,7 +42,6 @@ export class UserService {
 
     if (existing) {
       return this.userRepository.updateUser(existing, {
-        nickname,
         email: profile.email ?? existing.email,
         profileImgUrl: profile.profileImgUrl ?? existing.profileImgUrl,
         providerRefreshToken:
