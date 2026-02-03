@@ -16,7 +16,8 @@ export const metadata: Metadata = {
   },
 };
 
-const MINI_PLAYER_BAR_HEIGHT = 24;
+const MINI_PLAYER_BAR_HEIGHT_MB = 'mb-24';
+const MINI_PLAYER_BAR_HEIGHT_HEIGHT = 'h-24';
 
 export default function RootLayout({
   children,
@@ -41,14 +42,14 @@ export default function RootLayout({
 
             <div className="relative flex flex-1 h-full lg:flex-row">
               {/* 중앙 컨텐츠: column 레이아웃에서 flex-1로 높이 차지 */}
-              <main className={`flex-1 flex flex-col min-h-0 min-w-0 mb-${MINI_PLAYER_BAR_HEIGHT} lg:mb-0`}>
+              <main className={`flex-1 flex flex-col min-h-0 min-w-0 ${MINI_PLAYER_BAR_HEIGHT_MB} lg:mb-0`}>
                 <Header />
                 <div className="flex-1 overflow-y-auto min-w-0">{children}</div>
               </main>
 
               {/* 우측/하단 플레이어 영역 */}
               <aside
-                className={`absolute bottom-0 lg:static min-w-0 w-full h-${MINI_PLAYER_BAR_HEIGHT} border-t-2 border-primary lg:w-95 lg:h-full lg:border-t-0 lg:border-l-2`}
+                className={`absolute bottom-0 lg:static min-w-0 w-full ${MINI_PLAYER_BAR_HEIGHT_HEIGHT} border-t-2 border-primary lg:w-95 lg:h-full lg:border-t-0 lg:border-l-2`}
               >
                 <RightPanel />
               </aside>
