@@ -1,18 +1,12 @@
 'use client';
 
-import { FeedResponseDto, PostResponseDto as Post } from '@repo/dto';
+import { Cursor, FeedResponseDto, PostResponseDto as Post } from '@repo/dto';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 interface UseInfiniteScrollParams {
-  fetchFn: (cursor?: string, popularCursor?: string, recentCursor?: string, limit?: number) => Promise<FeedResponseDto>;
+  fetchFn: (cursors?: Cursor, limit?: number) => Promise<FeedResponseDto>;
   resetKey?: string; // 목록 초기화 트리거
-}
-
-interface FeedCursors {
-  nextCursor: string | undefined;
-  nextPopularCursor: string | undefined;
-  nextRecentCursor: string | undefined;
 }
 
 export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfiniteScrollParams) {
@@ -20,7 +14,7 @@ export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfinite
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [hasNext, setHasNext] = useState(false);
-  const [cursors, setCursors] = useState<FeedCursors>({ nextCursor: undefined, nextPopularCursor: undefined, nextRecentCursor: undefined });
+  const [cursors, setCursors] = useState<Cursor>({ following: undefined, trending: undefined, recent: undefined });
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null); // 추가 데이터 fetch 오류
@@ -31,8 +25,8 @@ export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfinite
   const initialLoadedRef = useRef(false); // 초기 데이터 fetch 재호출 방지 가드
 
   /** 커서 상태 업데이트 함수 */
-  const updateCursorStates = (cursor?: string, popularCursor?: string, recentCursor?: string) => {
-    setCursors({ nextCursor: cursor, nextPopularCursor: popularCursor, nextRecentCursor: recentCursor });
+  const updateCursorStates = (following?: string, trending?: string, recent?: string) => {
+    setCursors({ following, trending, recent });
   };
 
   /** postId 기반 게시글 목록 중복 제거 함수 */
@@ -44,7 +38,7 @@ export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfinite
   const updateScrollStates = useCallback((data: FeedResponseDto) => {
     setPosts((prev) => dedupePosts([...prev, ...data.posts]));
     setHasNext(data.hasNext);
-    updateCursorStates(data.nextCursor, data.nextPopularCursor, data.nextRecentCursor);
+    updateCursorStates(data.nextCursor?.following, data.nextCursor?.trending, data.nextCursor?.recent);
     setErrorMsg(null);
   }, []);
 
@@ -81,7 +75,7 @@ export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfinite
     await new Promise((resolve) => setTimeout(resolve, 300)); // 로딩 스피너 짧게 노출
 
     try {
-      const data = await fetchFn(cursors.nextCursor, cursors.nextPopularCursor, cursors.nextRecentCursor);
+      const data = await fetchFn(cursors);
       updateScrollStates(data);
     } catch {
       setErrorMsg('오류가 발생했습니다.');
