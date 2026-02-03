@@ -14,7 +14,7 @@ import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { LoadingSpinner, PostMedia } from '@/components';
 import { coalesceImageSrc } from '@/utils';
 
-import { PostDetailBody, PostDetailActions, PostDetailCommentComposer, LikedUsersOverlay } from './index';
+import { PostDetailBody, PostDetailActions, PostDetailCommentComposer, LikedUsersOverlay } from './partials';
 
 // UX 로그
 import { enqueueLog } from '@/utils/logQueue';
