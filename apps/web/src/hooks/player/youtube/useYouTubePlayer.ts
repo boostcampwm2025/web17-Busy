@@ -3,7 +3,7 @@
 import { YOUTUBE_IFRAME_ID, YOUTUBE_IFRAME_SCRIPT_SRC } from '@/constants';
 import { usePlayerStore } from '@/stores';
 import { PlayerProgress } from '@/types';
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 
 declare global {
   interface Window {
@@ -28,6 +28,38 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
   const playerRef = useRef<YT.Player | null>(null);
   const queueLengthRef = useRef(queueLength);
 
+  const loadScript = () =>
+    new Promise<void>((resolve) => {
+      if (window.YT?.Player) return resolve();
+
+      const existing = document.getElementById(YOUTUBE_IFRAME_ID);
+      if (existing) {
+        const check = setInterval(() => {
+          if (window.YT?.Player) {
+            clearInterval(check);
+            resolve();
+          }
+        }, 50);
+        return;
+      }
+
+      const tag = document.createElement('script');
+      tag.id = YOUTUBE_IFRAME_ID;
+      tag.src = YOUTUBE_IFRAME_SCRIPT_SRC;
+      window.onYouTubeIframeAPIReady = () => resolve();
+      document.body.appendChild(tag);
+    });
+
+  const waitForContainer = (containerRef: RefObject<HTMLDivElement | null>) =>
+    new Promise<HTMLDivElement>((resolve) => {
+      const tick = () => {
+        const el = containerRef.current;
+        if (el) return resolve(el);
+        requestAnimationFrame(tick);
+      };
+      tick();
+    });
+
   useEffect(() => {
     queueLengthRef.current = queueLength;
   }, [queueLength]);
@@ -35,42 +67,9 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
   useEffect(() => {
     let mounted = true;
 
-    const loadScript = () =>
-      new Promise<void>((resolve) => {
-        if (window.YT?.Player) return resolve();
-
-        const existing = document.getElementById(YOUTUBE_IFRAME_ID);
-        if (existing) {
-          const check = setInterval(() => {
-            if (window.YT?.Player) {
-              clearInterval(check);
-              resolve();
-            }
-          }, 50);
-          return;
-        }
-
-        const tag = document.createElement('script');
-        tag.id = YOUTUBE_IFRAME_ID;
-        tag.src = YOUTUBE_IFRAME_SCRIPT_SRC;
-        window.onYouTubeIframeAPIReady = () => resolve();
-        document.body.appendChild(tag);
-      });
-
-    const waitForContainer = () =>
-      new Promise<HTMLDivElement>((resolve) => {
-        const tick = () => {
-          if (!mounted) return;
-          const el = containerRef.current;
-          if (el) return resolve(el);
-          requestAnimationFrame(tick);
-        };
-        tick();
-      });
-
     const init = async () => {
       await loadScript();
-      const el = await waitForContainer();
+      const el = await waitForContainer(containerRef);
       if (!mounted || playerRef.current) return;
 
       playerRef.current = new window.YT.Player(el, {
