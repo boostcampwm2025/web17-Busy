@@ -9,7 +9,7 @@ type Props = {
 
 export function MusicSearchResults({ items, handleAddSong }: Props) {
   return (
-    <div className="mt-2 bg-white border-2 border-primary rounded-xl max-h-40 overflow-y-auto custom-scrollbar">
+    <div className="bg-white border-2 border-primary rounded-xl max-h-40 overflow-y-auto custom-scrollbar shadow-md">
       {items.map((song) => (
         <div key={song.id} className="w-full flex items-center p-2 hover:bg-grayish text-left border-b border-gray-100 last:border-0">
           <img src={song.albumCoverUrl} alt={song.title} className="w-8 h-8 rounded border border-gray-200 mr-2" />

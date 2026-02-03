@@ -66,7 +66,11 @@ export function SearchDropdown({ handleAddSong }: { handleAddSong: (song: Unsave
       )}
 
       {/* Search Results */}
-      {query && renderSearchResults()}
+      {query && (
+        <div className="relative mt-2 min-h-40">
+          <div className="absolute inset-x-0 top-0 z-10">{renderSearchResults()}</div>
+        </div>
+      )}
     </div>
   );
 }
