@@ -41,20 +41,27 @@ export function SearchDropdown({ handleAddSong }: { handleAddSong: (song: Unsave
       <SearchInput value={query} onChange={setQuery} onClear={clearQuery} />
 
       {query && (
-        <div className="flex text-center">
-          {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => {
-            if (tabMode === 'user') return;
-            return (
-              <button
-                key={tabMode}
-                title={`${tabTitle} 검색 탭`}
-                onClick={() => handleChangeMode(tabMode)}
-                className={`flex-1 p-2 text-sm sm:text-base ${mode === tabMode ? 'font-bold border-b-2 border-accent-pink' : 'text-gray-1'}`}
-              >
-                {tabTitle}
-              </button>
-            );
-          })}
+        <div className="mt-2 rounded-lg border border-gray-100 bg-white/70 p-1 shadow-sm">
+          <div className="flex text-center gap-1">
+            {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => {
+              if (tabMode === 'user') return;
+              const isActive = mode === tabMode;
+              return (
+                <button
+                  key={tabMode}
+                  type="button"
+                  title={`${tabTitle} 검색 탭`}
+                  aria-pressed={isActive}
+                  onClick={() => handleChangeMode(tabMode)}
+                  className={`flex-1 rounded-md px-3 py-2 text-sm sm:text-base transition-colors ${
+                    isActive ? 'bg-primary font-bold text-white shadow' : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
+                  }`}
+                >
+                  {tabTitle}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
