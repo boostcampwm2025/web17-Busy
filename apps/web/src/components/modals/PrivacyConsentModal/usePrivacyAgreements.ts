@@ -2,8 +2,14 @@
 
 import { useState } from 'react';
 
-export const usePrivacyAgreements = (initialState = { terms: false, privacy: false }) => {
-  const [agreements, setAgreements] = useState(initialState);
+interface ConsentState {
+  terms: boolean;
+  privacy: boolean;
+}
+
+export const usePrivacyAgreements = (initialState?: ConsentState) => {
+  const initialConsentState = initialState ?? { terms: false, privacy: false };
+  const [agreements, setAgreements] = useState(initialConsentState);
 
   const handleCheck = (key: keyof typeof agreements) => {
     setAgreements((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -15,7 +21,7 @@ export const usePrivacyAgreements = (initialState = { terms: false, privacy: fal
   };
 
   // 초기 상태와 비교했을 때 변경 사항 있으면 제출 버튼 활성화
-  const isRequiredChecked = initialState.terms !== agreements.terms || initialState.privacy !== agreements.privacy;
+  const isRequiredChecked = initialConsentState.terms !== agreements.terms || initialConsentState.privacy !== agreements.privacy;
 
   return { agreements, setAgreements, handleCheck, handleAllCheck, isRequiredChecked };
 };
