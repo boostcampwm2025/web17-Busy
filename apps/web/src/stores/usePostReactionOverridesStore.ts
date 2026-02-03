@@ -5,19 +5,26 @@ type LikeOverride = {
   likeCount: number;
 };
 
+type CommentOverride = {
+  commentCount: number;
+};
+
 type State = {
   /** postId -> (isLiked/likeCount) 절대값 override */
   likesByPostId: Record<string, LikeOverride>;
+  /** postId -> (commentCount) 절대값 override */
+  commentsByPostId: Record<string, CommentOverride>;
 
-  /** 특정 postId의 like 상태를 절대값으로 덮어씀 */
   setLikeOverride: (postId: string, next: LikeOverride) => void;
-
-  /** 특정 postId의 override 제거(서버값으로 복귀) */
   clearLikeOverride: (postId: string) => void;
+
+  setCommentOverride: (postId: string, next: CommentOverride) => void;
+  clearCommentOverride: (postId: string) => void;
 };
 
 export const usePostReactionOverridesStore = create<State>((set) => ({
   likesByPostId: {},
+  commentsByPostId: {},
 
   setLikeOverride: (postId, next) =>
     set((s) => ({
@@ -32,5 +39,20 @@ export const usePostReactionOverridesStore = create<State>((set) => ({
       const next = { ...s.likesByPostId };
       delete next[postId];
       return { likesByPostId: next };
+    }),
+
+  setCommentOverride: (postId, next) =>
+    set((s) => ({
+      commentsByPostId: {
+        ...s.commentsByPostId,
+        [postId]: next,
+      },
+    })),
+
+  clearCommentOverride: (postId) =>
+    set((s) => {
+      const next = { ...s.commentsByPostId };
+      delete next[postId];
+      return { commentsByPostId: next };
     }),
 }));

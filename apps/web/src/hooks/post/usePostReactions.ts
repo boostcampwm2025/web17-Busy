@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GetCommentsResDto, UserDto } from '@repo/dto';
 
 import { addLike, removeLike, getComments, createComment } from '@/api/internal';
@@ -83,6 +83,12 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
 
   const [commentCount, setCommentCount] = useState(0);
 
+  // 최신 comments를 항상 참조하기 위한 ref (setState updater 내부에서 다른 setState 호출 방지)
+  const commentsRef = useRef<CommentItem[]>([]);
+  useEffect(() => {
+    commentsRef.current = comments;
+  }, [comments]);
+
   const meRef = useRef<UserDto | null>(null);
   const timerRef = useRef<number | null>(null);
   const onlineRef = useRef<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
@@ -93,14 +99,35 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     timerRef.current = null;
   }, []);
 
+  const setGlobalCommentCount = useCallback(
+    (count: number) => {
+      // store가 없거나 미구현이면 여기서 타입 에러가 날 수 있음(스토어 확장 필요)
+      usePostReactionOverridesStore.getState().setCommentOverride(postId, { commentCount: count });
+    },
+    [postId],
+  );
+
   /**
-   * postId가 바뀔 때만 "전체 리셋"
-   * - 댓글 초기화는 여기서만 한다.
-   * - 좋아요 초기값 변화(=토글)로 댓글이 날아가면 안 됨.
+   * comments/카운트/스토어를 "한 번에" 맞추는 헬퍼
+   * - setComments(updater) 안에서 setState/store set을 호출하지 않도록 분리
+   */
+  const applyComments = useCallback(
+    (next: CommentItem[]) => {
+      commentsRef.current = next;
+      setComments(next);
+
+      const nextCount = next.length;
+      setCommentCount(nextCount);
+      setGlobalCommentCount(nextCount);
+    },
+    [setGlobalCommentCount],
+  );
+
+  /**
+   * postId가 바뀔 때만 전체 리셋
    */
   useEffect(() => {
-    setComments([]);
-    setCommentCount(0);
+    applyComments([]);
     setCommentText('');
     setCommentsLoading(false);
 
@@ -108,19 +135,17 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     setIsSubmittingLike(false);
 
     clearTimer();
-  }, [postId, clearTimer]);
+  }, [postId, clearTimer, applyComments]);
 
   /**
    * like 초기값 동기화는 postId 단위로만 반영
-   * - Detail 열릴 때 1회 세팅
-   * - 이후 좋아요 토글은 local state/override store가 주도
    */
   useEffect(() => {
     setIsLiked(initialIsLiked);
     setLikeCount(initialLikeCount);
   }, [postId, initialIsLiked, initialLikeCount]);
 
-  // 내 정보 로드(댓글 optimistic author용 + 로그인 여부)
+  // 내 정보 로드(댓글 optimistic author + 로그인 여부)
   useEffect(() => {
     if (!enabled) return;
 
@@ -153,12 +178,9 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     const data = await getComments(postId);
     const server = safeComments(data);
 
-    setComments((prev) => {
-      const merged = mergeComments(server, prev);
-      setCommentCount(merged.length);
-      return merged;
-    });
-  }, [enabled, postId]);
+    const merged = mergeComments(server, commentsRef.current);
+    applyComments(merged);
+  }, [enabled, postId, applyComments]);
 
   // 최초 댓글 로드
   useEffect(() => {
@@ -175,11 +197,8 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
         if (!alive) return;
 
         const server = safeComments(data);
-        setComments((prev) => {
-          const merged = mergeComments(server, prev);
-          setCommentCount(merged.length);
-          return merged;
-        });
+        const merged = mergeComments(server, commentsRef.current);
+        applyComments(merged);
       } finally {
         if (alive) setCommentsLoading(false);
       }
@@ -190,9 +209,9 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     return () => {
       alive = false;
     };
-  }, [enabled, postId]);
+  }, [enabled, postId, applyComments]);
 
-  // 댓글 폴링 (모달 열린 동안만)
+  // 댓글 폴링(모달 열린 동안만)
   useEffect(() => {
     if (!enabled) {
       clearTimer();
@@ -201,7 +220,6 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
 
     const schedule = () => {
       clearTimer();
-
       const effective = getEffectivePollMs(pollMs);
 
       timerRef.current = window.setTimeout(() => {
@@ -210,7 +228,6 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
           schedule();
           return;
         }
-
         if (!onlineRef.current) {
           schedule();
           return;
@@ -279,7 +296,7 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     }
   }, [isAuthenticated, isSubmittingLike, isLiked, likeCount, postId]);
 
-  // 댓글 작성(optimistic + 성공 시 refetch로 정합성 보정)
+  // 댓글 작성(optimistic + 성공 시 refetch)
   const submitComment = useCallback(async () => {
     if (!isAuthenticated) return;
     if (isSubmittingComment) return;
@@ -302,29 +319,26 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     setIsSubmittingComment(true);
     setCommentText('');
 
-    setComments((prev) => {
-      const next = [...prev, optimistic];
-      setCommentCount(next.length);
-      return next;
-    });
+    // optimistic append
+    applyComments([...commentsRef.current, optimistic]);
 
     try {
       const res = await createComment({ postId, content });
 
-      setComments((prev) => prev.map((c) => (c.id === tmpId ? { ...c, id: res.id } : c)));
+      // tmp id -> server id
+      const replaced = commentsRef.current.map((c) => (c.id === tmpId ? { ...c, id: res.id } : c));
+      applyComments(replaced);
 
       // 정합성 보정 + 동시 댓글 반영
       await refetchComments();
     } catch {
-      setComments((prev) => {
-        const next = prev.filter((c) => c.id !== tmpId);
-        setCommentCount(next.length);
-        return next;
-      });
+      // rollback
+      const rolled = commentsRef.current.filter((c) => c.id !== tmpId);
+      applyComments(rolled);
     } finally {
       setIsSubmittingComment(false);
     }
-  }, [isAuthenticated, isSubmittingComment, commentText, postId, refetchComments]);
+  }, [isAuthenticated, isSubmittingComment, commentText, postId, refetchComments, applyComments]);
 
   return {
     isAuthenticated,

@@ -23,11 +23,15 @@ interface PostCardProps {
 export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onUserClick, onOpenDetail }: PostCardProps) {
   const { isAuthenticated, userId } = useAuthMe();
 
-  const override = usePostReactionOverridesStore((s) => s.likesByPostId[post.id]);
+  const likeOverride = usePostReactionOverridesStore((s) => s.likesByPostId[post.id]);
   const setLikeOverride = usePostReactionOverridesStore((s) => s.setLikeOverride);
 
-  const baseLiked = Boolean(override?.isLiked ?? post.isLiked);
-  const baseLikeCount = override?.likeCount ?? post.likeCount;
+  // 댓글 카운트 override 추가
+  const commentOverride = usePostReactionOverridesStore((s) => s.commentsByPostId[post.id]);
+  const baseCommentCount = commentOverride?.commentCount ?? post.commentCount;
+
+  const baseLiked = Boolean(likeOverride?.isLiked ?? post.isLiked);
+  const baseLikeCount = likeOverride?.likeCount ?? post.likeCount;
 
   const [optimisticLiked, setOptimisticLiked] = useState(baseLiked);
   const [optimisticLikeCount, setOptimisticLikeCount] = useState(baseLikeCount);
@@ -39,13 +43,15 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
       ...post,
       isLiked: optimisticLiked,
       likeCount: optimisticLikeCount,
+      // 댓글 카운트도 store 반영값 사용
+      commentCount: baseCommentCount,
     }),
-    [post, optimisticLiked, optimisticLikeCount],
+    [post, optimisticLiked, optimisticLikeCount, baseCommentCount],
   );
 
   /**
-   *  핵심: override/서버값 변경 시 로컬 optimistic도 동기화
-   * - Detail에서 눌러서 store가 바뀌어도 이 effect로 카드가 즉시 따라감
+   * 핵심: override/서버값 변경 시 로컬 optimistic도 동기화
+   * - Detail에서 눌러서 store가 바뀌어도 카드가 즉시 따라감
    */
   useEffect(() => {
     setOptimisticLiked(baseLiked);
@@ -71,14 +77,14 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
     setOptimisticLiked(nextLiked);
     setOptimisticLikeCount(nextCount);
 
-    // optimistic (전역) — 다른 화면/디테일 모달도 즉시 동기화됨
+    // optimistic (전역)
     setLikeOverride(post.id, { isLiked: nextLiked, likeCount: nextCount });
 
     try {
       if (nextLiked) await addLike({ postId: post.id });
       else await removeLike(post.id);
     } catch {
-      // rollback (로컬 + 전역 동일하게 복구)
+      // rollback
       setOptimisticLiked(prevLiked);
       setOptimisticLikeCount(prevCount);
       setLikeOverride(post.id, { isLiked: prevLiked, likeCount: prevCount });
