@@ -9,8 +9,8 @@ import { createPortal } from 'react-dom';
 type Props = Playlist & {
   openMenuId: string | null;
   setOpenMenuId: (id: string | null) => void;
-  onRename: (id: string, title: string) => void;
-  onDelete: (id: string) => void;
+  onRename: (id: string, title: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 };
 
 export default function PlaylistItem(playlist: Props) {
@@ -44,7 +44,7 @@ export default function PlaylistItem(playlist: Props) {
     playlist.setOpenMenuId(playlist.id);
   };
 
-  const onRename: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+  const onRename: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.stopPropagation();
     playlist.setOpenMenuId(null);
 
@@ -52,7 +52,7 @@ export default function PlaylistItem(playlist: Props) {
     setIsEditingTitle(true);
   };
 
-  const onDelete: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+  const onDelete: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.stopPropagation();
     playlist.setOpenMenuId(null);
 
