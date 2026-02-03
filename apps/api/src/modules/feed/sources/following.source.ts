@@ -15,7 +15,7 @@ export class FollowingSource implements FeedSource {
     requestUserId: string | null,
     limit: number,
     cursor?: string,
-  ) {
+  ): Promise<{ posts: Post[]; nextCursor?: string }> {
     if (!isInitialRequest && !cursor) return { posts: [] };
 
     const myPosts = requestUserId
