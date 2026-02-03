@@ -3,7 +3,7 @@ import { useItunesSearch, useYoutubeSearch } from '@/hooks';
 import { SearchMode } from '@/types';
 import { getHintMessage } from '@/utils';
 import type { MusicRequestDto as UnsavedMusic } from '@repo/dto';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, XCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 export function SearchDropdown({ handleAddSong }: { handleAddSong: (song: UnsavedMusic) => void }) {
@@ -65,6 +65,17 @@ export function SearchDropdown({ handleAddSong }: { handleAddSong: (song: Unsave
           className="w-full pl-10 pr-4 py-2 rounded-xl border-2 border-primary focus:outline-none focus:ring-2 focus:ring-accent bg-white font-medium"
         />
         <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+
+        {query.length > 0 ? (
+          <button
+            type="button"
+            onClick={clearQuery}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-2 hover:text-primary"
+            title="검색어 지우기"
+          >
+            <XCircle className="w-5 h-5" />
+          </button>
+        ) : null}
       </div>
 
       {query && (
