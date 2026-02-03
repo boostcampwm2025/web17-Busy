@@ -92,7 +92,7 @@ export default function PlaylistItem(playlist: Props) {
     return (
       <div
         ref={menuRef}
-        className="fixed z-9999 w-36 bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] overflow-hidden"
+        className="fixed z-9999 w-36 px-1 py-2 bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] overflow-hidden"
         style={{ top: menuPos.top, left: menuPos.left - 144 }} // menu width: 144px
         onClick={(e) => e.stopPropagation()}
       >
