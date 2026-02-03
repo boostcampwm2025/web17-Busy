@@ -3,9 +3,9 @@ import { useItunesSearch, useYoutubeSearch } from '@/hooks';
 import { SearchMode } from '@/types';
 import { getHintMessage } from '@/utils';
 import type { MusicRequestDto as UnsavedMusic } from '@repo/dto';
-import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { SearchInput } from './SearchInput';
+import { MusicSearchResults } from './MusicSearchResults';
 
 export function SearchDropdown({ handleAddSong }: { handleAddSong: (song: UnsavedMusic) => void }) {
   const [query, setQuery] = useState('');
@@ -33,26 +33,7 @@ export function SearchDropdown({ handleAddSong }: { handleAddSong: (song: Unsave
       return <div className="p-4 text-center text-gray-2 text-sm">{active.errorMessage ?? '검색 중 오류가 발생했습니다.'}</div>;
     if (active.status === 'empty') return <div className="p-4 text-center text-gray-2 text-sm">검색 결과가 없습니다.</div>;
 
-    return (
-      <>
-        {query && (
-          <div className="mt-2 bg-white border-2 border-primary rounded-xl max-h-40 overflow-y-auto custom-scrollbar">
-            {active.results.map((song) => (
-              <div key={song.id} className="w-full flex items-center p-2 hover:bg-grayish text-left border-b border-gray-100 last:border-0">
-                <img src={song.albumCoverUrl} alt={song.title} className="w-8 h-8 rounded border border-gray-200 mr-2" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm truncate">{song.title}</div>
-                  <div className="text-xs text-gray-500 truncate">{song.artistName}</div>
-                </div>
-                <button onClick={() => handleAddSong({ ...song, id: undefined })}>
-                  <Plus className="w-4 h-4 text-primary" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </>
-    );
+    return <MusicSearchResults items={active.results} handleAddSong={handleAddSong} />;
   };
 
   return (
@@ -78,7 +59,7 @@ export function SearchDropdown({ handleAddSong }: { handleAddSong: (song: Unsave
       )}
 
       {/* Search Results */}
-      {renderSearchResults()}
+      {query && renderSearchResults()}
     </div>
   );
 }
