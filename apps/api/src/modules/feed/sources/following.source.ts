@@ -18,10 +18,7 @@ export class FollowingSource implements FeedSource {
   ): Promise<{ posts: Post[]; nextCursor?: string }> {
     if (!isInitialRequest && !cursor) return { posts: [] };
 
-    const myPosts = requestUserId
-      ? await this.getMyPosts(requestUserId, limit, cursor)
-      : [];
-
+    const myPosts = await this.getMyPosts(requestUserId, limit, cursor);
     const followingPosts = await this.getPostsOfFollowings(
       requestUserId,
       limit,
@@ -38,17 +35,23 @@ export class FollowingSource implements FeedSource {
     return { posts, nextCursor };
   }
 
-  private async getMyPosts(myId: string, limit: number, cursor?: string) {
+  private async getMyPosts(
+    myId: string | null,
+    limit: number,
+    cursor?: string,
+  ) {
+    if (!myId) return [];
+
     const query = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.postMusics', 'postMusic')
       .leftJoinAndSelect('postMusic.music', 'music')
       .orderBy('post.id', 'DESC')
-      .where('author.id = :authorId', { authorId: myId });
+      .where('author.id = :myId', { myId });
 
-    query.leftJoinAndSelect('post.likes', 'like', 'like.userId = :authorId', {
-      authorId: myId,
+    query.leftJoinAndSelect('post.likes', 'like', 'like.userId = :myId', {
+      myId,
     });
 
     if (cursor) {
