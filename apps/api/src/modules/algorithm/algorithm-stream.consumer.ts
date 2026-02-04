@@ -65,6 +65,8 @@ export class AlgorithmStreamConsumer implements OnModuleInit {
       if (!result.ok) break;
       if (entries.length < this.BATCH_SIZE) break;
     }
+
+    await this.reclaimPendingOnce();
   }
 
   private async readNewEntriesOnce(): Promise<StreamEntry[]> {
