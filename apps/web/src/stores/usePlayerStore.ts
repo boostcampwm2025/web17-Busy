@@ -184,9 +184,10 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const items = normalizeToArray(music);
 
     set((state) => {
-      const deduped = items.filter((item) => !hasMusic(state.queue, item.id));
-      if (deduped.length === 0) return state;
-      return { queue: [...state.queue, ...deduped] };
+      const before = state.queue;
+      const addIdSet = new Set(items.map((m) => m.id));
+      const filtered = before.filter((m) => !addIdSet.has(m.id));
+      return { queue: [...filtered, ...items] };
     });
   },
   /**

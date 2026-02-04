@@ -29,7 +29,7 @@ type SearchItunesSongsParams = {
 
 const ITUNES_SEARCH_ENDPOINT = 'https://itunes.apple.com/search';
 const DEFAULT_LIMIT = 20;
-const DEFAULT_COUNTRY: 'KR' = 'KR';
+const DEFAULT_COUNTRY = 'KR' as const;
 
 const buildItunesSearchUrl = (keyword: string, limit: number, country: string): string => {
   const params = new URLSearchParams({

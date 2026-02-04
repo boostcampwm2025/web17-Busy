@@ -35,4 +35,33 @@ export class TrendingRankStore {
   pipeline() {
     return this.redis.pipeline();
   }
+
+  getByMaxScoreExclusiveRaw(maxScoreExclusive?: number, cap = 2000) {
+    const max =
+      maxScoreExclusive === undefined ? '+inf' : `(${maxScoreExclusive}`;
+
+    return this.redis.zrevrangebyscore(
+      REDIS_KEYS.TRENDING_POSTS,
+      max,
+      '-inf',
+      'WITHSCORES',
+      'LIMIT',
+      0,
+      cap,
+    );
+  }
+
+  getByMaxScoreRaw(maxScore?: number, cap = 2000) {
+    const max = maxScore === undefined ? '+inf' : `${maxScore}`;
+
+    return this.redis.zrevrangebyscore(
+      REDIS_KEYS.TRENDING_POSTS,
+      max,
+      '-inf',
+      'WITHSCORES',
+      'LIMIT',
+      0,
+      cap,
+    );
+  }
 }

@@ -72,8 +72,11 @@ export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
           />
 
           <div className="mb-2">
-            <label className="text-sm font-bold text-gray-1 mb-2 block">내용</label>
+            <label htmlFor="postContent" className="text-sm font-bold text-gray-1 mb-2 block">
+              내용
+            </label>
             <textarea
+            id="postContent"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="이 음악에 대한 이야기를 들려주세요..."
@@ -82,28 +85,15 @@ export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
           </div>
         </div>
 
-        <div className="p-6 border-t-2 border-primary bg-white shrink-0 flex items-center justify-between">
-          <button type="button" className="flex items-center text-gray-1 font-bold hover:text-primary transition-colors">
-            <FolderOpen className="w-5 h-5 mr-2" />
-            <span className="hidden sm:inline">임시 보관함</span>
+        <div className="p-6 border-t-2 border-primary bg-white shrink-0 flex items-center flex-row-reverse">
+          <button
+            type="button"
+            className="px-8 py-2.5 rounded-full font-bold bg-primary text-white border-2 border-primary hover:bg-white hover:text-primary hover:shadow-[4px_4px_0px_0px_var(--color-accent-cyan)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+            disabled={isSubmitDisabled}
+            onClick={() => void onSubmit()}
+          >
+            등록
           </button>
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              className="px-6 py-2.5 rounded-full font-bold border-2 border-gray-3 text-gray-1 hover:border-primary hover:text-primary hover:bg-gray-4 transition-colors"
-            >
-              임시 저장
-            </button>
-            <button
-              type="button"
-              className="px-8 py-2.5 rounded-full font-bold bg-primary text-white border-2 border-primary hover:bg-white hover:text-primary hover:shadow-[4px_4px_0px_0px_var(--color-accent-cyan)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
-              disabled={isSubmitDisabled}
-              onClick={() => void onSubmit()}
-            >
-              등록
-            </button>
-          </div>
         </div>
       </div>
     </div>

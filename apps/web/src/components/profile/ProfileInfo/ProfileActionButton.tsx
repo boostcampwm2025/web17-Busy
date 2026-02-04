@@ -46,7 +46,7 @@ export default function ProfileActionButton({
     return renderIn === 'modal' ? null : (
       <button
         title="프로필 리캡 생성"
-        className="px-6 py-2 rounded-full bg-accent-yellow/90 border-2 border-primary text-primary font-bold hover:bg-accent-yellow hover:shadow-[2px_2px_0px_0px_#00214D] transition-all"
+        className="text-sm xs:text-base px-4 xs:px-6 py-2 rounded-full bg-accent-yellow/90 border-2 border-primary text-primary font-bold hover:bg-accent-yellow hover:shadow-[2px_2px_0px_0px_#00214D] transition-all"
       >
         Recap
       </button>
@@ -61,7 +61,7 @@ export default function ProfileActionButton({
         title="팔로우 취소"
         disabled={!isLoggedIn || isLoading}
         className={`${
-          renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'
+          renderIn === 'page' ? 'text-sm xs:text-base px-4 xs:px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'
         } flex items-center justify-center bg-transparent border-gray-2 text-gray-1 border-2 font-bold hover:bg-gray-4 transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
       >
         {isLoading ? <SmallSpinner /> : BUTTON_TEXT}
@@ -76,7 +76,7 @@ export default function ProfileActionButton({
       title="팔로우"
       disabled={!isLoggedIn || isLoading}
       className={`${
-        renderIn === 'page' ? 'px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'
+        renderIn === 'page' ? 'text-sm xs:text-base px-4 xs:px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'
       } flex items-center justify-center bg-primary/90 text-white border-2 border-primary font-bold hover:bg-primary transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
     >
       {isLoading ? <SmallSpinner /> : BUTTON_TEXT}

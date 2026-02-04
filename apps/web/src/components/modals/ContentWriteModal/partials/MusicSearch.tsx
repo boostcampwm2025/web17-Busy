@@ -1,13 +1,16 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Music as MusicIcon, Search, Sparkles } from 'lucide-react';
 
 import { ITUNES_SEARCH } from '@/constants';
-import { useItunesSearch, usePlaylistRecommendations, type PlaylistDetail } from '@/hooks';
-import { PlaylistBriefItem } from '@/components';
+import { useItunesSearch, usePlaylistRecommendations, useYoutubeSearch, type PlaylistDetail } from '@/hooks';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
+import { BriefItemList, EmptyPlaylist, LoadingMessage } from './PlaylistSectionInner';
+
+import { SearchMode } from '@/types';
+import { SEARCH_TAB_ENTRIES } from '@/components/search/SearchDrawerContent';
 
 interface MusicSearchProps {
   searchQuery: string;
@@ -23,13 +26,25 @@ interface MusicSearchProps {
 const MIN_QUERY_HINT = `${ITUNES_SEARCH.MIN_QUERY_LENGTH}글자 이상 입력해주세요.`;
 
 export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen, onAddMusic, onAddPlaylist }: MusicSearchProps) => {
-  const { status, results, errorMessage, trimmedQuery } = useItunesSearch({
-    query: searchQuery,
-    enabled: isSearchOpen,
-  });
+  const [mode, setMode] = useState<SearchMode>('music');
 
-  const hasQuery = useMemo(() => trimmedQuery.length > 0, [trimmedQuery]);
-  const needMin = useMemo(() => trimmedQuery.length > 0 && trimmedQuery.length < ITUNES_SEARCH.MIN_QUERY_LENGTH, [trimmedQuery]);
+  const itunes = useItunesSearch({
+    query: searchQuery,
+    enabled: isSearchOpen && mode === 'music',
+  });
+  const videos = useYoutubeSearch({
+    query: searchQuery,
+    enabled: isSearchOpen && mode === 'video',
+  });
+  const active = useMemo(() => (mode === 'video' ? videos : itunes), [mode, itunes, videos]);
+
+  const handleChangeMode = (newMode: SearchMode) => {
+    if (mode === newMode || newMode === 'user') return;
+    setMode(newMode);
+  };
+
+  const hasQuery = useMemo(() => active.trimmedQuery.length > 0, [active.trimmedQuery]);
+  const needMin = useMemo(() => active.trimmedQuery.length > 0 && active.trimmedQuery.length < ITUNES_SEARCH.MIN_QUERY_LENGTH, [active.trimmedQuery]);
 
   const recommendEnabled = useMemo(() => isSearchOpen && !hasQuery, [isSearchOpen, hasQuery]);
 
@@ -63,42 +78,61 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
   };
 
   const renderPlaylistSection = () => {
+    let playlistContent;
+
+    if (playlistStatus === 'loading') {
+      playlistContent = <LoadingMessage />;
+    } else if (briefs.length === 0) {
+      playlistContent = <EmptyPlaylist onClick={refetch} />;
+    } else {
+      playlistContent = <BriefItemList briefs={briefs} selectedPlaylistId={selectedPlaylistId} onSelect={handleSelectPlaylist} />;
+    }
+
     return (
       <>
         <div className="px-4 py-2 flex items-center text-xs font-bold text-accent-cyan uppercase tracking-wider bg-gray-4/50 border-b border-gray-3 mb-1">
           <Sparkles className="w-3 h-3 mr-1" />
           추천 (내 플레이리스트)
         </div>
-
-        {playlistStatus === 'loading' ? (
-          <div className="p-4 text-center text-gray-2 text-sm">불러오는 중...</div>
-        ) : briefs.length === 0 ? (
-          <div className="p-4 text-center text-gray-2 text-sm">
-            보관함이 비어있습니다.
-            <div className="mt-2">
-              <button type="button" onClick={refetch} className="text-xs font-bold underline text-gray-1">
-                다시 시도
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            {briefs.map((pl) => (
-              <PlaylistBriefItem key={pl.id} brief={pl} isLoading={selectedPlaylistId === pl.id} onSelect={handleSelectPlaylist} />
-            ))}
-          </div>
-        )}
-
+        {playlistContent}
         {playlistError ? <div className="px-4 py-2 text-[11px] text-gray-2">{playlistError}</div> : null}
       </>
     );
   };
 
+  const renderTabs = () => (
+    <div className="px-2 pb-2">
+      <div className="rounded-lg border border-gray-100 bg-white/70 p-1 shadow-sm">
+        <div className="flex text-center gap-1">
+          {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => {
+            if (tabMode === 'user') return;
+            const isActive = mode === tabMode;
+            return (
+              <button
+                key={tabMode}
+                type="button"
+                title={`${tabTitle} 검색`}
+                aria-pressed={isActive}
+                onClick={() => handleChangeMode(tabMode)}
+                className={`flex-1 rounded-md px-3 py-2 text-sm sm:text-base transition-colors ${
+                  isActive ? 'bg-primary font-bold text-white shadow' : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
+                }`}
+              >
+                {tabTitle}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
   const renderSearchResults = () => {
     if (needMin) return <div className="p-4 text-center text-gray-2 text-sm">{MIN_QUERY_HINT}</div>;
-    if (status === 'loading') return <div className="p-4 text-center text-gray-2 text-sm">검색 중...</div>;
-    if (status === 'error') return <div className="p-4 text-center text-gray-2 text-sm">{errorMessage ?? '검색 중 오류가 발생했습니다.'}</div>;
-    if (status === 'empty') return <div className="p-4 text-center text-gray-2 text-sm">검색 결과가 없습니다.</div>;
+    if (active.status === 'loading') return <div className="p-4 text-center text-gray-2 text-sm">검색 중...</div>;
+    if (active.status === 'error')
+      return <div className="p-4 text-center text-gray-2 text-sm">{active.errorMessage ?? '검색 중 오류가 발생했습니다.'}</div>;
+    if (active.status === 'empty') return <div className="p-4 text-center text-gray-2 text-sm">검색 결과가 없습니다.</div>;
 
     return (
       <>
@@ -107,7 +141,7 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
           검색 결과
         </div>
 
-        {results.map((music) => (
+        {active.results.map((music) => (
           <button
             key={music.id}
             type="button"
@@ -127,15 +161,23 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
 
   const renderBody = () => {
     if (!hasQuery) return renderPlaylistSection();
-    return renderSearchResults();
+    return (
+      <>
+        {renderTabs()}
+        {renderSearchResults()}
+      </>
+    );
   };
 
   return (
     <div className="relative mb-6">
-      <label className="text-sm font-bold text-gray-1 mb-2 block">음악 검색</label>
+      <label htmlFor="musicQuery" className="text-sm font-bold text-gray-1 mb-2 block">
+        음악 검색
+      </label>
 
       <div className="relative z-20">
         <input
+          id="musicQuery"
           type="text"
           placeholder="어떤 음악을 공유하고 싶나요?"
           value={searchQuery}

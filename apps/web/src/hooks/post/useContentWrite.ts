@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
-import type { PlaylistDetail } from '@/hooks';
+import { useMusicActions, type PlaylistDetail } from '@/hooks';
 import { createPost } from '@/api';
 import { DEFAULT_IMAGES } from '@/constants';
 import { reorder } from '@/utils';
@@ -35,7 +35,7 @@ type Return = {
   isSubmitDisabled: boolean;
 
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onAddMusic: (music: Music) => void;
+  onAddMusic: (music: Music) => Promise<void>;
   onAddPlaylist: (playlist: PlaylistDetail) => void;
   onRemoveMusic: (id: string) => void;
   onMoveMusic: (index: number, direction: 'up' | 'down') => void;
@@ -75,6 +75,8 @@ const toMusicPayload = (m: Music) => ({
 });
 
 export const useContentWrite = ({ initialMusic, initialMusics, onSuccess }: Options): Return => {
+  const { ensureMusicInDb } = useMusicActions();
+
   const [selectedMusics, setSelectedMusics] = useState<Music[]>(() => toInitialSelected(initialMusics, initialMusic));
   const [content, setContent] = useState('');
 
@@ -127,17 +129,20 @@ export const useContentWrite = ({ initialMusic, initialMusics, onSuccess }: Opti
     setIsSearchOpen(false);
   };
 
-  const onAddMusic = (music: Music) => {
+  const onAddMusic = async (music: Music) => {
+    const savedMusic = await ensureMusicInDb(music);
     setSelectedMusics((prev) => {
-      if (prev.some((m) => m.id === music.id)) return prev;
-      return [...prev, music];
+      if (prev.some((m) => m.id === savedMusic.id)) return prev;
+      return [...prev, savedMusic];
     });
     closeSearch();
   };
 
+  const dedupePlaylistMusic = (prevList: Music[], newList: Music[]) => newList.filter((m) => !prevList.some((p) => p.id === m.id));
+
   const onAddPlaylist = (playlist: PlaylistDetail) => {
     setSelectedMusics((prev) => {
-      const next = playlist.musics.filter((m) => !prev.some((p) => p.id === m.id));
+      const next = dedupePlaylistMusic(prev, playlist.musics);
       if (next.length === 0) return prev;
       return [...prev, ...next];
     });

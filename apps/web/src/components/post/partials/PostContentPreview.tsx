@@ -13,8 +13,8 @@ export default function PostContentPreview({ content, onClickMore }: Props) {
 
   return (
     <div className="text-primary">
-      <p className="text-base font-medium leading-relaxed line-clamp-3">{content}</p>
-      <button type="button" onClick={handleMore} className="text-gray-400 text-sm font-bold mt-2 hover:text-primary">
+      <p className="text-sm sm:text-base font-medium leading-relaxed line-clamp-3">{content}</p>
+      <button type="button" onClick={handleMore} className="text-gray-400 text-xs sm:text-sm font-bold mt-2 hover:text-primary">
         더보기...
       </button>
     </div>

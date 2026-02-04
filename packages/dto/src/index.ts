@@ -11,3 +11,4 @@ export * from './playlist';
 export * from './privacy';
 export * from './log';
 export * from './privacy';
+export * from './feed';

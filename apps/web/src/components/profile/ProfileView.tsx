@@ -54,7 +54,7 @@ export default function ProfileView({ userId }: { userId: string }) {
   if (renderError) throw renderError;
 
   // 최초 요청 처리 중이거나, 스토어의 프로필 id와 현재 페이지의 프로필 id가 다를 때 스켈레톤 표시
-  if (isInitialLoading || !profile || profile.id !== userId) return <ProfileSkeleton />;
+  if (isInitialLoading || profile?.id !== userId) return <ProfileSkeleton />;
 
   return (
     <div className="h-full flex flex-col mx-auto p-6 md:p-10 gap-y-4">

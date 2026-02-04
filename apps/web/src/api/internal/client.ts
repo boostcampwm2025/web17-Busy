@@ -98,28 +98,28 @@ internalClient.interceptors.request.use((config) => {
 internalClient.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
-    if (typeof window === 'undefined') return Promise.reject(error);
+    if (typeof window === 'undefined') throw error;
 
     const status = error.response?.status;
-    if (status !== 401) return Promise.reject(error);
+    if (status !== 401) throw error;
 
     const cfg = (error.config ?? {}) as AuthedConfig;
 
     // 토큰을 붙였던 요청만 세션 만료 후보
-    if (!cfg.__authMeta?.hadAuth) return Promise.reject(error);
+    if (!cfg.__authMeta?.hadAuth) throw error;
 
     // authMe에서만 세션 만료로 정리
-    if (!isAuthMeRequest(cfg)) return Promise.reject(error);
+    if (!isAuthMeRequest(cfg)) throw error;
 
     // 요청 당시 토큰과 현재 토큰이 동일할 때만 처리(레이스 방지)
     const currentToken = getSessionToken();
-    if (!currentToken) return Promise.reject(error);
+    if (!currentToken) throw error;
 
     const currentSig = makeAuthSig(currentToken);
     const requestSig = cfg.__authMeta.authSig ?? '';
-    if (!requestSig || currentSig !== requestSig) return Promise.reject(error);
+    if (!requestSig || currentSig !== requestSig) throw error;
 
-    if (handling401) return Promise.reject(error);
+    if (handling401) throw error;
     handling401 = true;
 
     clearAuthState();
@@ -132,6 +132,6 @@ internalClient.interceptors.response.use(
       handling401 = false;
     }, 1000);
 
-    return Promise.reject(error);
+    throw error;
   },
 );

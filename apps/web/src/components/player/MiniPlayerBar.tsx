@@ -43,7 +43,7 @@ export default function MiniPlayerBar({
    * - 사용자가 보관함 추가와 컨텐츠 생성 버튼을 누를 때 로그인 유무로 지원한다.
    * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
    */
-  const { userId, isAuthenticated } = useAuthMe();
+  const { isAuthenticated } = useAuthMe();
   const { openModal } = useModalStore();
 
   /** 보관함 추가와 컨텐츠 생성을 위한 함수  */
@@ -112,7 +112,7 @@ export default function MiniPlayerBar({
         <p className="text-xs font-bold text-gray-1 truncate">{currentMusic ? currentMusic.artistName : ' '}</p>
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 shrink-0">
         <button
           type="button"
           onClick={handlePrevClick}
@@ -148,16 +148,16 @@ export default function MiniPlayerBar({
           type="button"
           onClick={handleToggleQueueClick}
           title={queueTitle}
-          className="p-2 text-primary hover:bg-gray-4 rounded-full transition-colors"
+          className="p-2 text-primary hover:bg-gray-4 rounded-full transition-colors hidden 2xs:block"
         >
           <ListPlus className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handlePostClick} title={'컨텐츠 생성'} className="p-2 text-primary">
+        <button type="button" onClick={handlePostClick} title={'컨텐츠 생성'} className="p-2 text-primary hidden sm:block">
           <PlusCircle className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handleSaveClick} title={'보관함 선택 후 추가'} className="p-2 text-primary">
+        <button type="button" onClick={handleSaveClick} title={'보관함 선택 후 추가'} className="p-2 text-primary hidden sm:block">
           <FolderPlus className="w-5 h-5" />
         </button>
       </div>
