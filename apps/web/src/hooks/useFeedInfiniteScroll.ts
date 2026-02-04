@@ -7,12 +7,13 @@ import { useInView } from 'react-intersection-observer';
 interface UseInfiniteScrollParams {
   fetchFn: (cursors?: Cursor, limit?: number) => Promise<FeedResponseDto>;
   resetKey?: string; // 목록 초기화 트리거
+  initialData?: Post[]; // 특정 글 공유 라우트 데이터
 }
 
-export default function useFeedInfiniteScroll({ fetchFn, resetKey }: UseInfiniteScrollParams) {
+export default function useFeedInfiniteScroll({ fetchFn, resetKey, initialData = [] }: UseInfiniteScrollParams) {
   const { ref, inView } = useInView({ threshold: 0.8, rootMargin: '200px' });
 
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Post[]>(initialData);
   const [hasNext, setHasNext] = useState(false);
   const [cursors, setCursors] = useState<Cursor>({ following: undefined, trending: undefined, recent: undefined });
 

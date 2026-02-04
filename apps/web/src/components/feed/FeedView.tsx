@@ -6,17 +6,22 @@ import { FeedSkeleton } from '../skeleton';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
 import { useFeedRefreshStore } from '@/stores';
+import { PostResponseDto } from '@repo/dto';
 
-export default function FeedView() {
+interface FeedViewProps {
+  initialPost?: PostResponseDto;
+}
+
+export default function FeedView({ initialPost }: FeedViewProps) {
   const nonce = useFeedRefreshStore((s) => s.nonce);
+
   const { posts, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
     fetchFn: getFeedPosts,
-    resetKey: String(nonce), // 글 작성 성공 시 초기화/재조회 트리거
+    resetKey: String(nonce),
+    initialData: initialPost ? [initialPost] : [],
   });
 
-  // 최초 요청 처리 중에만 스켈레톤 표시
-  if (isInitialLoading) return <FeedSkeleton />;
-
+  if (isInitialLoading && !initialPost) return <FeedSkeleton />;
   return (
     <>
       <FeedList posts={posts} />
