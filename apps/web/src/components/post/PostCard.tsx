@@ -96,8 +96,8 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
   }, [isAuthenticated, likeSubmitting, optimisticLiked, optimisticLikeCount, post.id, setLikeOverride]);
 
   const openEditPostModal = useCallback(() => {
-    openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, initialIsEditing: true });
-  }, [openModal, post.id]);
+    openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, initialIsEditing: true, initialEditingContent: post.content });
+  }, [openModal, post.id, post.content]);
 
   return (
     <article

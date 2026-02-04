@@ -15,12 +15,29 @@ export default function FeedView() {
     resetKey: String(nonce), // 글 작성 성공 시 초기화/재조회 트리거
   });
 
+  const contentByPostId = usePostReactionOverridesStore((s) => s.contentByPostId);
+  const clearContentOverride = usePostReactionOverridesStore((s) => s.clearContentOverride);
+
   const deletedPostId = usePostReactionOverridesStore((s) => s.deletedPostId);
   const clearDeletedPostId = usePostReactionOverridesStore((s) => s.clearDeletedPostId);
+
+  const updatePostContent = (updatedPostId: string, newContent?: string) => {
+    if (!newContent) return;
+    setPosts((prev) => prev.map((post) => (post.id === updatedPostId ? { ...post, content: newContent } : post)));
+  };
 
   const updateDeletedPost = (deletedPostId: string) => {
     setPosts((prev) => prev.filter((post) => post.id !== deletedPostId));
   };
+
+  useEffect(() => {
+    const updatedIds = Object.keys(contentByPostId);
+    if (updatedIds.length === 0) return;
+    updatedIds.map((id) => {
+      updatePostContent(id, contentByPostId[id]?.content);
+      clearContentOverride(id);
+    });
+  }, [contentByPostId]);
 
   useEffect(() => {
     if (!deletedPostId) return;

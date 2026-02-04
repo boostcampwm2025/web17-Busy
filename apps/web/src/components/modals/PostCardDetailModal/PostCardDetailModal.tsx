@@ -41,6 +41,7 @@ export const PostCardDetailModal = () => {
   const isOwner = userId === post?.author.id;
   const safePost = post ?? passedPost ?? EMPTY_POST;
 
+  const setContentOverride = usePostReactionOverridesStore((s) => s.setContentOverride);
   const likeOverride = usePostReactionOverridesStore((s) => (postId ? s.likesByPostId[postId] : undefined));
 
   const initialIsLiked = likeOverride?.isLiked ?? post?.isLiked ?? passedPost?.isLiked ?? false;
@@ -72,18 +73,9 @@ export const PostCardDetailModal = () => {
   const profileImg = useMemo(() => coalesceImageSrc(safePost.author.profileImgUrl, DEFAULT_IMAGES.PROFILE), [safePost.author.profileImgUrl]);
 
   // 게시글 수정 관련 상태
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedContent, setEditedContent] = useState(safePost.content);
+  const [isEditing, setIsEditing] = useState(modalProps?.initialIsEditing === true);
+  const [editedContent, setEditedContent] = useState(modalProps?.initialEditingContent || '');
   const [isSaving, setIsSaving] = useState(false);
-
-  // 모달이 열리거나 post 데이터가 변경될 때 editedContent 초기화 및 isEditing 초기화
-  useEffect(() => {
-    if (enabled && safePost.content) {
-      setEditedContent(safePost.content);
-      // modalProps에서 initialIsEditing을 받아와 isEditing 상태 초기화
-      setIsEditing(modalProps?.initialIsEditing === true);
-    }
-  }, [enabled, safePost.content, modalProps?.initialIsEditing]);
 
   const handleSave = async () => {
     if (!postId || isSaving || editedContent === safePost.content) return; // 내용 변경 없으면 저장 안 함
@@ -94,9 +86,8 @@ export const PostCardDetailModal = () => {
       toast.success('게시글을 수정했습니다.');
       setIsEditing(false);
 
-      // 게시글 데이터 갱신
-      updatePostContent(editedContent);
-      // TODO: 피드 게시글 데이터 갱신
+      updatePostContent(editedContent); // 게시글 상세 데이터 갱신
+      setContentOverride(postId, { content: editedContent }); // 피드 게시글 데이터 갱신 위한 상태 업데이트
     } catch (err) {
       toast.error('게시글 수정에 실패했습니다.');
       console.error('게시글 수정 실패:', err);
