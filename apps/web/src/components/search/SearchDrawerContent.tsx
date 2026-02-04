@@ -6,9 +6,9 @@ import { LoadingSpinner } from '@/components';
 import { SearchInput, SearchStateMessage, MusicSearchResults, UserSearchResults } from './index';
 
 import { getHintMessage } from '@/utils';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useSearchDrawer } from '@/hooks';
 import { SearchMode } from '@/types';
+import { useAuthStore } from '@/stores';
 
 const SEARCH_TAB_TITLES = {
   music: '음원',
@@ -21,7 +21,8 @@ export const SEARCH_TAB_ENTRIES = Object.entries(SEARCH_TAB_TITLES) as [SearchMo
 type Props = { enabled?: boolean };
 
 function SearchDrawerInner({ enabled = true }: Props) {
-  const { userId, isAuthenticated } = useAuthMe();
+  const userId = useAuthStore((s) => s.userId);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { query, setQuery, clearQuery, mode, handleChangeMode, itunes, users, videos, active, followOverrides, setFollowState } = useSearchDrawer({
     enabled,
   });
