@@ -63,26 +63,28 @@ export default function PostHeader({ post, isOwner, onUserClick, onMoreClick }: 
         </div>
       </div>
 
-      <div className="relative">
-        <button
-          type="button"
-          onClick={handleMore}
-          className={`text-gray-400 hover:text-primary transition-colors ${isMenuOpen ? 'text-primary' : ''}`}
-          title="더보기"
-        >
-          <MoreHorizontal className="w-6 h-6" />
-        </button>
-        {isMenuOpen && isOwner && (
-          <div className="absolute top-full right-0 mt-2 bg-white border-2 border-primary rounded-lg shadow-[3px_3px_0px_0px_#00214D] overflow-hidden min-w-25 z-30 animate-in fade-in zoom-in duration-200">
-            <button
-              onClick={handleDelete}
-              className="block w-full px-4 py-2 text-sm text-red-500 font-bold hover:bg-red-50 transition-colors text-left"
-            >
-              삭제하기
-            </button>
-          </div>
-        )}
-      </div>
+      {isOwner && (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={handleMore}
+            className={`text-gray-400 hover:text-primary transition-colors ${isMenuOpen ? 'text-primary' : ''}`}
+            title="더보기"
+          >
+            <MoreHorizontal className="w-6 h-6" />
+          </button>
+          {isMenuOpen && isOwner && (
+            <div className="absolute top-full right-0 mt-2 bg-white border-2 border-primary rounded-lg shadow-[3px_3px_0px_0px_#00214D] overflow-hidden min-w-25 z-30 animate-in fade-in zoom-in duration-200">
+              <button
+                onClick={handleDelete}
+                className="block w-full px-4 py-2 text-sm text-red-500 font-bold hover:bg-red-50 transition-colors text-left"
+              >
+                삭제하기
+              </button>
+            </div>
+          )}
+        </div>
+      )}
       {isMenuOpen && <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />}
     </div>
   );
