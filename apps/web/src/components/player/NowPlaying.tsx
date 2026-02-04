@@ -76,10 +76,6 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
     await addMusicToArchive(currentMusic);
   }, [isAuthenticated, openModal, currentMusic, addMusicToArchive]);
 
-  const handleShuffle = useCallback(() => {
-    // TODO
-  }, []);
-
   return (
     <div className="p-4 py-8 border-b-2 border-primary">
       <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-4 text-center">Now Playing</h2>
@@ -99,7 +95,6 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
         onTogglePlay={safeTogglePlay}
         onPrev={safePrev}
         onNext={safeNext}
-        onShuffle={handleShuffle}
         volume={volume}
         onVolumeChange={setVolume}
       />
