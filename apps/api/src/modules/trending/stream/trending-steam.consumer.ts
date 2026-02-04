@@ -10,6 +10,7 @@ import {
 } from '../trending.constants';
 import { Cron } from '@nestjs/schedule';
 import {
+  StreamEntry,
   XAutoClaimReply,
   XReadGroupReply,
 } from 'src/infra/redis/redis-steam.type';
@@ -62,39 +63,10 @@ export class TrendingStreamConsumer implements OnModuleInit {
     const [, entries] = res[0];
     if (!entries?.length) return;
 
-    const pipeline = this.rankStore.pipeline();
-    const ackIds: string[] = [];
-    const cmdEntryIds: string[] = [];
+    await this.aggregateEntriesAndAck(entries);
 
-    for (const [id, kv] of entries) {
-      const parsed = parseTrendingEvent(kv);
-      if (!parsed) {
-        ackIds.push(id);
-        continue;
-      }
-
-      pipeline.zincrby(REDIS_KEYS.TRENDING_POSTS, parsed.weight, parsed.postId);
-      cmdEntryIds.push(id);
-    }
-
-    const pipelineResult = await pipeline.exec();
-
-    pipelineResult?.forEach(([err], i) => {
-      const id = cmdEntryIds[i];
-      if (!err) ackIds.push(id);
-    });
-
-    if (ackIds.length === 0) return;
-
-    await this.redis.xack(
-      REDIS_KEYS.LOG_EVENTS_STREAM,
-      TRENDING_CONSUMER_GROUP_NAME,
-      ...ackIds,
-    );
-
+    // reclaim tick
     ++this.reclaimTick;
-
-    // reclaim
     if (this.reclaimTick === this.RECLAIM_INTERVAL_TICKS) {
       await this.reclaimPendingOnce();
       this.reclaimTick = 0;
@@ -116,8 +88,12 @@ export class TrendingStreamConsumer implements OnModuleInit {
     )) as XAutoClaimReply;
 
     const [, entries] = res;
-    if (!entries || entries.length === 0) return;
+    if (!entries?.length) return;
 
+    await this.aggregateEntriesAndAck(entries);
+  }
+
+  private async aggregateEntriesAndAck(entries: StreamEntry[]) {
     const pipeline = this.rankStore.pipeline();
     const ackIds: string[] = [];
     const cmdEntryIds: string[] = [];
