@@ -3,6 +3,7 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import React, { memo } from 'react';
 import { PlusCircle, FolderPlus } from 'lucide-react';
+import { TickerText } from '@/components';
 
 type Props = {
   currentMusic: Music | null;
@@ -20,8 +21,8 @@ function NowPlayingMetaActionsBase({ currentMusic, playError, onPost, onSave }: 
       <div className="text-center mb-2">
         {currentMusic ? (
           <>
-            <h3 className="text-lg font-black text-primary truncate">{currentMusic.title}</h3>
-            <p className="text-xs font-bold text-gray-1 truncate">{currentMusic.artistName}</p>
+            <TickerText text={currentMusic.title} className="text-lg font-black text-primary" />
+            <TickerText text={currentMusic.artistName} className="text-xs font-bold text-gray-1" />
           </>
         ) : (
           <>

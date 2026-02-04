@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronUp, ChevronDown, Trash2, Music as MusicIcon } from 'lucide-react';
 import type { MusicResponseDto as Music } from '@repo/dto';
+import { TickerText } from '@/components';
 
 interface SelectedMusicListProps {
   musics: Music[];
@@ -27,8 +28,8 @@ export const SelectedMusicList = ({ musics, onRemove, onMove }: SelectedMusicLis
               <img src={music.albumCoverUrl} alt="art" className="w-10 h-10 rounded border border-gray-3 object-cover shrink-0" />
 
               <div className="ml-3 flex-1 min-w-0">
-                <p className="text-sm font-bold truncate text-primary">{music.title}</p>
-                <p className="text-xs text-gray-1 truncate">{music.artistName}</p>
+                <TickerText text={music.title} className="text-sm font-bold text-primary" />
+                <TickerText text={music.artistName} className="text-xs text-gray-1" />
               </div>
 
               {/* 컨트롤 버튼 그룹 */}
