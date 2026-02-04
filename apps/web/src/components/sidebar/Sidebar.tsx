@@ -162,9 +162,9 @@ export default function Sidebar() {
               type="button"
               onClick={handleToggleSidebar}
               className="p-2 rounded-lg transition-colors border-2 border-transparent hover:bg-accent-cyan hover:border-primary"
-              title="사이드바 열기"
+              title={isExpanded ? '사이드바 닫기' : '사이드바 열기'}
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="sidebar-icon" />
             </button>
 
             {isExpanded && (
@@ -205,7 +205,7 @@ export default function Sidebar() {
             `}
               title="생성"
             >
-              <PlusCircle className="w-6 h-6" />
+              <PlusCircle className="sidebar-icon" />
               {isExpanded && <span className="ml-4 font-bold text-sm md:text-base whitespace-nowrap overflow-hidden">생성</span>}
             </button>
           </div>
@@ -219,7 +219,7 @@ export default function Sidebar() {
           className={`flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed ${!isExpanded && 'justify-center'}`}
           title={isAuthenticated ? '로그아웃' : '로그인'}
         >
-          {isAuthenticated ? <LogOut className="w-6 h-6" /> : <LogIn className="w-6 h-6" />}
+          {isAuthenticated ? <LogOut className="sidebar-icon" /> : <LogIn className="sidebar-icon" />}
           {isExpanded && (
             <span className="ml-4 font-medium text-sm md:text-base hover:font-bold whitespace-nowrap overflow-hidden">
               {isLoading ? '...' : isAuthenticated ? '로그아웃' : '로그인'}

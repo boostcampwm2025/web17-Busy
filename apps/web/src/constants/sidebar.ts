@@ -11,7 +11,7 @@ export const menuItems = [
 ];
 
 export const SIDEBAR_WIDTH_SHRINKED = 'w-20';
-export const SIDEBAR_WIDTH_EXPANDED = 'w-48 md:w-64';
+export const SIDEBAR_WIDTH_EXPANDED = 'w-40 md:w-64';
 
 export const DRAWER_LEFT_SHRINKED = 'left-20';
-export const DRAWER_LEFT_EXPANDED = 'left-48 md:left-64';
+export const DRAWER_LEFT_EXPANDED = 'left-40 md:left-64';
