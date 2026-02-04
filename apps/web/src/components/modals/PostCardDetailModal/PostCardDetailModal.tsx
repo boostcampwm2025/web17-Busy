@@ -234,7 +234,7 @@ export const PostCardDetailModal = () => {
           )}
 
           <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary">
-            <div className="p-4 border-b-2 border-primary/10">
+            <div className="mt-4 px-4 py-2 border-b-2 border-primary/10">
               <PostHeader
                 post={safePost}
                 isOwner={isOwner}

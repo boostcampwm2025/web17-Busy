@@ -73,7 +73,7 @@ export default function PostHeader({ post, isOwner, onUserClick, onEditPost, onD
   const profileImg = coalesceImageSrc(post.author.profileImgUrl, DEFAULT_IMAGES.PROFILE);
 
   return (
-    <div className="flex items-center justify-between my-2">
+    <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-3 cursor-pointer group min-w-0" onClick={handleUser}>
         <div className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden bg-gray-100 shrink-0 group-hover:ring-2 ring-accent-cyan transition-all">
           <img src={profileImg} alt={post.author.nickname} className="w-full h-full object-cover" />
