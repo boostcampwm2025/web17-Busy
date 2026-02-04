@@ -1,13 +1,15 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Music as MusicIcon, Search, Sparkles } from 'lucide-react';
 
 import { ITUNES_SEARCH } from '@/constants';
-import { useItunesSearch, usePlaylistRecommendations, type PlaylistDetail } from '@/hooks';
+import { useItunesSearch, usePlaylistRecommendations, useYoutubeSearch, type PlaylistDetail } from '@/hooks';
 import { PlaylistBriefItem } from '@/components';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
+import { SearchMode } from '@/types';
+import { SEARCH_TAB_ENTRIES } from '@/components/search/SearchDrawerContent';
 
 interface MusicSearchProps {
   searchQuery: string;
@@ -23,13 +25,25 @@ interface MusicSearchProps {
 const MIN_QUERY_HINT = `${ITUNES_SEARCH.MIN_QUERY_LENGTH}글자 이상 입력해주세요.`;
 
 export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen, onAddMusic, onAddPlaylist }: MusicSearchProps) => {
-  const { status, results, errorMessage, trimmedQuery } = useItunesSearch({
-    query: searchQuery,
-    enabled: isSearchOpen,
-  });
+  const [mode, setMode] = useState<SearchMode>('music');
 
-  const hasQuery = useMemo(() => trimmedQuery.length > 0, [trimmedQuery]);
-  const needMin = useMemo(() => trimmedQuery.length > 0 && trimmedQuery.length < ITUNES_SEARCH.MIN_QUERY_LENGTH, [trimmedQuery]);
+  const itunes = useItunesSearch({
+    query: searchQuery,
+    enabled: isSearchOpen && mode === 'music',
+  });
+  const videos = useYoutubeSearch({
+    query: searchQuery,
+    enabled: isSearchOpen && mode === 'video',
+  });
+  const active = useMemo(() => (mode === 'video' ? videos : itunes), [mode, itunes, videos]);
+
+  const handleChangeMode = (newMode: SearchMode) => {
+    if (mode === newMode || newMode === 'user') return;
+    setMode(newMode);
+  };
+
+  const hasQuery = useMemo(() => active.trimmedQuery.length > 0, [active.trimmedQuery]);
+  const needMin = useMemo(() => active.trimmedQuery.length > 0 && active.trimmedQuery.length < ITUNES_SEARCH.MIN_QUERY_LENGTH, [active.trimmedQuery]);
 
   const recommendEnabled = useMemo(() => isSearchOpen && !hasQuery, [isSearchOpen, hasQuery]);
 
@@ -94,11 +108,39 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
     );
   };
 
+  const renderTabs = () => (
+    <div className="px-2 pb-2">
+      <div className="rounded-lg border border-gray-100 bg-white/70 p-1 shadow-sm">
+        <div className="flex text-center gap-1">
+          {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => {
+            if (tabMode === 'user') return;
+            const isActive = mode === tabMode;
+            return (
+              <button
+                key={tabMode}
+                type="button"
+                title={`${tabTitle} 검색`}
+                aria-pressed={isActive}
+                onClick={() => handleChangeMode(tabMode)}
+                className={`flex-1 rounded-md px-3 py-2 text-sm sm:text-base transition-colors ${
+                  isActive ? 'bg-primary font-bold text-white shadow' : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
+                }`}
+              >
+                {tabTitle}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
   const renderSearchResults = () => {
     if (needMin) return <div className="p-4 text-center text-gray-2 text-sm">{MIN_QUERY_HINT}</div>;
-    if (status === 'loading') return <div className="p-4 text-center text-gray-2 text-sm">검색 중...</div>;
-    if (status === 'error') return <div className="p-4 text-center text-gray-2 text-sm">{errorMessage ?? '검색 중 오류가 발생했습니다.'}</div>;
-    if (status === 'empty') return <div className="p-4 text-center text-gray-2 text-sm">검색 결과가 없습니다.</div>;
+    if (active.status === 'loading') return <div className="p-4 text-center text-gray-2 text-sm">검색 중...</div>;
+    if (active.status === 'error')
+      return <div className="p-4 text-center text-gray-2 text-sm">{active.errorMessage ?? '검색 중 오류가 발생했습니다.'}</div>;
+    if (active.status === 'empty') return <div className="p-4 text-center text-gray-2 text-sm">검색 결과가 없습니다.</div>;
 
     return (
       <>
@@ -107,7 +149,7 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
           검색 결과
         </div>
 
-        {results.map((music) => (
+        {active.results.map((music) => (
           <button
             key={music.id}
             type="button"
@@ -127,7 +169,12 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
 
   const renderBody = () => {
     if (!hasQuery) return renderPlaylistSection();
-    return renderSearchResults();
+    return (
+      <>
+        {renderTabs()}
+        {renderSearchResults()}
+      </>
+    );
   };
 
   return (

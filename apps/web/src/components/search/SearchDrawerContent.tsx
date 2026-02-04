@@ -16,7 +16,7 @@ const SEARCH_TAB_TITLES = {
   video: '유튜브',
 } as const satisfies Record<SearchMode, string>;
 
-const SEARCH_TAB_ENTRIES = Object.entries(SEARCH_TAB_TITLES) as [SearchMode, string][];
+export const SEARCH_TAB_ENTRIES = Object.entries(SEARCH_TAB_TITLES) as [SearchMode, string][];
 
 type Props = { enabled?: boolean };
 
