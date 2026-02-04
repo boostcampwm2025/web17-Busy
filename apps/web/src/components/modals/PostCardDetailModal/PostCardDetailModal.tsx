@@ -37,7 +37,7 @@ export const PostCardDetailModal = () => {
     if (!postId) closeModal();
   }, [enabled, postId, closeModal]);
 
-  const { post, isLoading, error } = usePostDetail({ enabled, postId, passedPost });
+  const { post, isLoading, error, updatePostContent } = usePostDetail({ enabled, postId, passedPost });
   const isOwner = userId === post?.author.id;
   const safePost = post ?? passedPost ?? EMPTY_POST;
 
@@ -93,7 +93,10 @@ export const PostCardDetailModal = () => {
       await updatePost(postId, { content: editedContent });
       toast.success('게시글을 수정했습니다.');
       setIsEditing(false);
-      // TODO: 수정 후 상세 게시글 데이터 갱신
+
+      // 게시글 데이터 갱신
+      updatePostContent(editedContent);
+      // TODO: 피드 게시글 데이터 갱신
     } catch (err) {
       toast.error('게시글 수정에 실패했습니다.');
       console.error('게시글 수정 실패:', err);
