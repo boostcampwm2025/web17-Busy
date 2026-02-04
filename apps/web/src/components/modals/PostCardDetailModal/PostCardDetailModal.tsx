@@ -210,6 +210,7 @@ export const PostCardDetailModal = () => {
               isSubmitting={reactions.isSubmittingLike}
               isLiked={reactions.isLiked}
               likeCount={reactions.likeCount}
+              postId={postId}
               onToggleLike={reactions.toggleLike}
               onOpenLikedUsers={() => setLikedUsersOpen(true)}
             />
