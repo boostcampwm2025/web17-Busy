@@ -240,6 +240,7 @@ export const PostCardDetailModal = () => {
                 isOwner={isOwner}
                 onUserClick={() => handleUserClick(safePost.author.id)}
                 onEditPost={isOwner ? () => setIsEditing(true) : undefined}
+                onDeletePost={isOwner ? closeModal : undefined}
               />
             </div>
 

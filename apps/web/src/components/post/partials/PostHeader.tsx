@@ -14,9 +14,10 @@ type Props = {
   isOwner: boolean;
   onUserClick: (userId: string) => void;
   onEditPost?: () => void;
+  onDeletePost?: () => void;
 };
 
-export default function PostHeader({ post, isOwner, onUserClick, onEditPost }: Props) {
+export default function PostHeader({ post, isOwner, onUserClick, onEditPost, onDeletePost }: Props) {
   const createdAtText = formatRelativeTime(post.createdAt);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -61,7 +62,8 @@ export default function PostHeader({ post, isOwner, onUserClick, onEditPost }: P
       try {
         await deletePost(post.id);
         toast.success('삭제했습니다.');
-        // TODO: 모달 닫기 + 피드 상태 업데이트
+        // TODO: 피드 상태 업데이트
+        onDeletePost && onDeletePost();
       } catch (error) {
         toast.error('삭제 실패');
       }
