@@ -5,9 +5,10 @@ import { Music as MusicIcon, Search, Sparkles } from 'lucide-react';
 
 import { ITUNES_SEARCH } from '@/constants';
 import { useItunesSearch, usePlaylistRecommendations, useYoutubeSearch, type PlaylistDetail } from '@/hooks';
-import { PlaylistBriefItem } from '@/components';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
+import { BriefItemList, EmptyPlaylist, LoadingMessage } from './PlaylistSectionInner';
+
 import { SearchMode } from '@/types';
 import { SEARCH_TAB_ENTRIES } from '@/components/search/SearchDrawerContent';
 
@@ -77,32 +78,23 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
   };
 
   const renderPlaylistSection = () => {
+    let playlistContent;
+
+    if (playlistStatus === 'loading') {
+      playlistContent = <LoadingMessage />;
+    } else if (briefs.length === 0) {
+      playlistContent = <EmptyPlaylist onClick={refetch} />;
+    } else {
+      playlistContent = <BriefItemList briefs={briefs} selectedPlaylistId={selectedPlaylistId} onSelect={handleSelectPlaylist} />;
+    }
+
     return (
       <>
         <div className="px-4 py-2 flex items-center text-xs font-bold text-accent-cyan uppercase tracking-wider bg-gray-4/50 border-b border-gray-3 mb-1">
           <Sparkles className="w-3 h-3 mr-1" />
           추천 (내 플레이리스트)
         </div>
-
-        {playlistStatus === 'loading' ? (
-          <div className="p-4 text-center text-gray-2 text-sm">불러오는 중...</div>
-        ) : briefs.length === 0 ? (
-          <div className="p-4 text-center text-gray-2 text-sm">
-            보관함이 비어있습니다.
-            <div className="mt-2">
-              <button type="button" onClick={refetch} className="text-xs font-bold underline text-gray-1">
-                다시 시도
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            {briefs.map((pl) => (
-              <PlaylistBriefItem key={pl.id} brief={pl} isLoading={selectedPlaylistId === pl.id} onSelect={handleSelectPlaylist} />
-            ))}
-          </div>
-        )}
-
+        {playlistContent}
         {playlistError ? <div className="px-4 py-2 text-[11px] text-gray-2">{playlistError}</div> : null}
       </>
     );
@@ -179,10 +171,13 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
 
   return (
     <div className="relative mb-6">
-      <label className="text-sm font-bold text-gray-1 mb-2 block">음악 검색</label>
+      <label htmlFor="musicQuery" className="text-sm font-bold text-gray-1 mb-2 block">
+        음악 검색
+      </label>
 
       <div className="relative z-20">
         <input
+          id="musicQuery"
           type="text"
           placeholder="어떤 음악을 공유하고 싶나요?"
           value={searchQuery}

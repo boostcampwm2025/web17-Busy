@@ -44,7 +44,7 @@ export default function PlaylistItem(playlist: Props) {
     playlist.setOpenMenuId(playlist.id);
   };
 
-  const onRename: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+  const onRename: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.stopPropagation();
     playlist.setOpenMenuId(null);
 
@@ -52,7 +52,7 @@ export default function PlaylistItem(playlist: Props) {
     setIsEditingTitle(true);
   };
 
-  const onDelete: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+  const onDelete: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.stopPropagation();
     playlist.setOpenMenuId(null);
 
@@ -92,7 +92,7 @@ export default function PlaylistItem(playlist: Props) {
     return (
       <div
         ref={menuRef}
-        className="fixed z-9999 w-36 bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] overflow-hidden"
+        className="fixed z-9999 w-36 px-1 py-2 bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] overflow-hidden"
         style={{ top: menuPos.top, left: menuPos.left - 144 }} // menu width: 144px
         onClick={(e) => e.stopPropagation()}
       >

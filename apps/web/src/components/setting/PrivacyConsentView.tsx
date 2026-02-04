@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { ConsentType } from '@repo/dto/values';
 import LoadingSpinner from '../LoadingSpinner';
 import { getRecentConsents } from '@/api';
+import { ConsentItemDto } from '@repo/dto';
 
 interface ConsentState {
   terms: boolean;
@@ -18,17 +19,21 @@ export default function PrivacyConsentView() {
 
   const updateInitialConsentState = (newState: ConsentState) => setInitialConsentStates(newState);
 
+  const getNewConsentState = (items: ConsentItemDto[]) =>
+    items.reduce<ConsentState>(
+      (acc, { type, agreed }) => {
+        if (type === ConsentType.TERMS_OF_SERVICE) acc.terms = agreed;
+        if (type === ConsentType.PRIVACY_POLICY) acc.privacy = agreed;
+        return acc;
+      },
+      { terms: false, privacy: false },
+    );
+
   useEffect(() => {
     const fetchConsentStatus = async () => {
       try {
         const { items } = await getRecentConsents();
-        setInitialConsentStates((prev) =>
-          items.reduce<ConsentState>((acc, { type, agreed }) => {
-            if (type === ConsentType.TERMS_OF_SERVICE) acc.terms = agreed;
-            if (type === ConsentType.PRIVACY_POLICY) acc.privacy = agreed;
-            return acc;
-          }, prev),
-        );
+        setInitialConsentStates(getNewConsentState(items));
       } catch (e) {
         console.error(e);
         toast.error('동의 정보를 불러오는 데 실패했습니다.');

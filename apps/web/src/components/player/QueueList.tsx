@@ -25,7 +25,7 @@ interface QueueListProps {
 export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown, onSelect }: QueueListProps) {
   const isEmpty = queue.length === 0;
 
-  const { userId, isAuthenticated } = useAuthMe();
+  const { isAuthenticated } = useAuthMe();
   const { openModal } = useModalStore();
 
   const { openWriteModalWithQueue, addQueueToArchive } = useMusicActions();

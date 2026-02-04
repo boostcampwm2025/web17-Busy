@@ -28,7 +28,7 @@ export default function PostDetailActions({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            void onToggleLike();
+            onToggleLike();
           }}
           disabled={!isAuthenticated || isSubmitting}
           title={isAuthenticated ? '좋아요' : '로그인 후 사용 가능'}

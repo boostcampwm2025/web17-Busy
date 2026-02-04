@@ -3,8 +3,8 @@
 import React from 'react';
 import { useModalStore } from '@/stores/useModalStore';
 import { X } from 'lucide-react';
-import { SpotifyLoginButton, GoogleLoginButton, TmpLoginButton } from './index';
 import { getAuthErrorMessage } from '@/hooks/auth/client/authErrorMessage';
+import { GoogleLoginButton } from './loginButtons';
 
 type LoginModalProps = {
   authError?: string;
@@ -36,8 +36,6 @@ export const LoginModal = () => {
           {errorMessage && (
             <div className="text-sm font-bold text-secondary border border-secondary/40 bg-secondary/5 rounded-xl px-4 py-3">{errorMessage}</div>
           )}
-          {/* <TmpLoginButton userId="019be163-4b37-76ad-aeb3-6986a3489de6" nickname="테스트 사용자 1" />
-          <TmpLoginButton userId="019be163-4b3a-7619-a3cd-75302c5451e6" nickname="테스트 사용자 2" /> */}
           <GoogleLoginButton />
           {/* <SpotifyLoginButton /> */}
         </div>

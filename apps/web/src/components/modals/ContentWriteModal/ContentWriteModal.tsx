@@ -72,8 +72,11 @@ export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
           />
 
           <div className="mb-2">
-            <label className="text-sm font-bold text-gray-1 mb-2 block">내용</label>
+            <label htmlFor="postContent" className="text-sm font-bold text-gray-1 mb-2 block">
+              내용
+            </label>
             <textarea
+            id="postContent"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="이 음악에 대한 이야기를 들려주세요..."

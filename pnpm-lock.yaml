@@ -14,6 +14,9 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^20.2.0
         version: 20.2.0
+      baseline-browser-mapping:
+        specifier: ^2.9.19
+        version: 2.9.19
       eslint-plugin-check-file:
         specifier: ^3.3.1
         version: 3.3.1(eslint@9.39.1(jiti@2.6.1))
@@ -2483,6 +2486,10 @@ packages:
 
   baseline-browser-mapping@2.9.11:
     resolution: {integrity: sha512-Sg0xJUNDU1sJNGdfGWhVHX0kkZ+HWcvmVymJbj6NSgZZmW/8S9Y2HQ5euytnIgakgxN6papOAWiwDo1ctFDcoQ==}
+    hasBin: true
+
+  baseline-browser-mapping@2.9.19:
+    resolution: {integrity: sha512-ipDqC8FrAl/76p2SSWKSI+H9tFwm7vYqXQrItCuiVPt26Km0jS+NzSsBWAaBusvSbQcfJG+JitdMm+wZAgTYqg==}
     hasBin: true
 
   bl@4.1.0:
@@ -8211,6 +8218,8 @@ snapshots:
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.9.11: {}
+
+  baseline-browser-mapping@2.9.19: {}
 
   bl@4.1.0:
     dependencies:

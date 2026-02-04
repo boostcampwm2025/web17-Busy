@@ -28,34 +28,44 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
   const playerRef = useRef<YT.Player | null>(null);
   const queueLengthRef = useRef(queueLength);
 
+  const waitForYTReady = (intervalMs = 50): Promise<void> =>
+    new Promise((resolve) => {
+      const check = setInterval(() => {
+        if (window.YT?.Player) {
+          clearInterval(check);
+          resolve();
+        }
+      }, intervalMs);
+    });
+
+  const appendYouTubeScript = () =>
+    new Promise<void>((resolve) => {
+      const tag = document.createElement('script');
+      tag.id = YOUTUBE_IFRAME_ID;
+      tag.src = YOUTUBE_IFRAME_SCRIPT_SRC;
+
+      window.onYouTubeIframeAPIReady = () => resolve();
+      document.body.appendChild(tag);
+    });
+
+  const loadScript = async () => {
+    if (window.YT?.Player) return;
+
+    const existing = document.getElementById(YOUTUBE_IFRAME_ID);
+    if (existing) {
+      await waitForYTReady();
+      return;
+    }
+
+    await appendYouTubeScript();
+  };
+
   useEffect(() => {
     queueLengthRef.current = queueLength;
   }, [queueLength]);
 
   useEffect(() => {
     let mounted = true;
-
-    const loadScript = () =>
-      new Promise<void>((resolve) => {
-        if (window.YT?.Player) return resolve();
-
-        const existing = document.getElementById(YOUTUBE_IFRAME_ID);
-        if (existing) {
-          const check = setInterval(() => {
-            if (window.YT?.Player) {
-              clearInterval(check);
-              resolve();
-            }
-          }, 50);
-          return;
-        }
-
-        const tag = document.createElement('script');
-        tag.id = YOUTUBE_IFRAME_ID;
-        tag.src = YOUTUBE_IFRAME_SCRIPT_SRC;
-        window.onYouTubeIframeAPIReady = () => resolve();
-        document.body.appendChild(tag);
-      });
 
     const waitForContainer = () =>
       new Promise<HTMLDivElement>((resolve) => {

@@ -24,5 +24,5 @@ export const handleEnterSubmitWithShiftNewline = (e: React.KeyboardEvent<HTMLTex
 
   e.preventDefault();
   e.stopPropagation();
-  void onSubmit();
+  onSubmit();
 };

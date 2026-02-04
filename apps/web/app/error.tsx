@@ -2,7 +2,7 @@
 
 import { CircleAlert } from 'lucide-react';
 
-export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+export default function AppError({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex h-[90vh] flex-col items-center justify-center gap-4 p-6 text-center overflow-hidden">
       <CircleAlert className="text-gray-1" />

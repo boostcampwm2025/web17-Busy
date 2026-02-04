@@ -84,6 +84,7 @@ export default function useMusicActions() {
   };
 
   return {
+    ensureMusicInDb,
     addMusicToPlayer,
     openWriteModalWithMusic,
     addMusicToArchive,
