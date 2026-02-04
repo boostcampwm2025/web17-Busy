@@ -48,7 +48,6 @@ export default function Sidebar() {
   // 드로어별 open/close 여부 상태 관리
   const isSearchOpen = activeDrawer === SidebarItemType.SEARCH;
   const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION;
-  const isSyncOpen = activeDrawer === SidebarItemType.SYNC;
 
   const handleToggleSidebar = useCallback(() => setIsExpanded((prev) => !prev), []);
 
@@ -237,11 +236,6 @@ export default function Sidebar() {
       {/* 2. 알림 */}
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
         <NotiDrawerContent />
-      </Drawer>
-
-      {/* 3. 싱크룸 */}
-      <Drawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
-        <div className="flex h-full justify-center items-center text-lg">협업 드로어</div>
       </Drawer>
     </div>
   );
