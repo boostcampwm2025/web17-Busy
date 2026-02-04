@@ -5,9 +5,10 @@ import { MoreHorizontal } from 'lucide-react';
 import { coalesceImageSrc, formatRelativeTime } from '@/utils';
 import type { PostResponseDto } from '@repo/dto';
 import { DEFAULT_IMAGES } from '@/constants';
-import { deletePost } from '@/api/internal/post';
-import { toast } from 'react-toastify';
+import { usePostReactionOverridesStore } from '@/stores';
 import { showConfirmToast } from '@/components/ConfirmToast';
+import { deletePost } from '@/api';
+import { toast } from 'react-toastify';
 
 type Props = {
   post: PostResponseDto;
@@ -23,6 +24,8 @@ export default function PostHeader({ post, isOwner, onUserClick, onEditPost, onD
 
   const menuRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  const setDeletedPostId = usePostReactionOverridesStore((s) => s.setDeletedPostId);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -52,20 +55,20 @@ export default function PostHeader({ post, isOwner, onUserClick, onEditPost, onD
 
   const handleEditPost = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    onEditPost && onEditPost();
+    onEditPost?.();
     setIsMenuOpen(false);
   };
 
-  const handleDeletePost = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDeletePost = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     showConfirmToast('정말로 삭제하시겠습니까?', async () => {
       try {
         await deletePost(post.id);
         toast.success('삭제했습니다.');
-        // TODO: 피드 상태 업데이트
-        onDeletePost && onDeletePost();
+        onDeletePost?.();
+        setDeletedPostId(post.id); // 삭제한 게시글 id 등록 (피드에 반영)
       } catch (error) {
-        toast.error('삭제 실패');
+        toast.error('삭제 실패! 다시 시도해주세요.');
       }
     });
   };
