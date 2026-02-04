@@ -233,7 +233,7 @@ export const PostCardDetailModal = () => {
             <PostMedia post={safePost} variant="modal" currentMusicId={currentMusicId} isPlayingGlobal={isPlaying} onPlay={handlePlayFromPost} />
           )}
 
-          <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary">
+          <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary flex-1 min-h-0">
             <div className="mt-4 px-4 py-2 border-b-2 border-primary/10">
               <PostHeader
                 post={safePost}
