@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState, lazy, useEffect, useRef, useCallback } from 'react';
 import { LogIn, LogOut, Menu, PlusCircle } from 'lucide-react';
 
-import { menuItems } from '@/constants';
+import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
 import { useModalStore, MODAL_TYPES } from '@/stores';
 
@@ -153,7 +153,7 @@ export default function Sidebar() {
       <nav
         className={`
           h-full bg-white border-r-2 border-primary flex flex-col justify-between py-6 transition-all duration-200 ease-in-out relative z-40
-          ${isExpanded ? 'w-64' : 'w-20'}
+          ${isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_SHRINKED}
         `}
       >
         <div>
@@ -206,7 +206,7 @@ export default function Sidebar() {
               title="생성"
             >
               <PlusCircle className="w-6 h-6" />
-              {isExpanded && <span className="ml-4 font-bold whitespace-nowrap overflow-hidden">생성</span>}
+              {isExpanded && <span className="ml-4 font-bold text-sm md:text-base whitespace-nowrap overflow-hidden">생성</span>}
             </button>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function Sidebar() {
         >
           {isAuthenticated ? <LogOut className="w-6 h-6" /> : <LogIn className="w-6 h-6" />}
           {isExpanded && (
-            <span className="ml-4 font-medium text-sm hover:font-bold whitespace-nowrap overflow-hidden">
+            <span className="ml-4 font-medium text-sm md:text-base hover:font-bold whitespace-nowrap overflow-hidden">
               {isLoading ? '...' : isAuthenticated ? '로그아웃' : '로그인'}
             </span>
           )}

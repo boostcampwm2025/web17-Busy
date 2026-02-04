@@ -9,3 +9,9 @@ export const menuItems = [
   { type: SidebarItemType.PROFILE, icon: User, label: '프로필' },
   { type: SidebarItemType.SETTING, icon: Settings, label: '설정' },
 ];
+
+export const SIDEBAR_WIDTH_SHRINKED = 'w-20';
+export const SIDEBAR_WIDTH_EXPANDED = 'w-48 md:w-64';
+
+export const DRAWER_LEFT_SHRINKED = 'left-20';
+export const DRAWER_LEFT_EXPANDED = 'left-48 md:left-64';
