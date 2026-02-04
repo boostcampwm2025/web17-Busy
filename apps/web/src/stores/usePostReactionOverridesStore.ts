@@ -9,12 +9,15 @@ type CommentOverride = {
   commentCount: number;
 };
 
+type ContentOverride = {
+  content: string;
+};
+
 type State = {
-  /** postId -> (isLiked/likeCount) 절대값 override */
   likesByPostId: Record<string, LikeOverride>;
-  /** postId -> (commentCount) 절대값 override */
   commentsByPostId: Record<string, CommentOverride>;
 
+  contentByPostId: Record<string, ContentOverride>;
   deletedPostId: string | null;
 
   setLikeOverride: (postId: string, next: LikeOverride) => void;
@@ -23,6 +26,9 @@ type State = {
   setCommentOverride: (postId: string, next: CommentOverride) => void;
   clearCommentOverride: (postId: string) => void;
 
+  setContentOverride: (postId: string, next: ContentOverride) => void;
+  clearContentOverride: (postId: string) => void;
+
   setDeletedPostId: (postId: string) => void;
   clearDeletedPostId: () => void;
 };
@@ -30,6 +36,7 @@ type State = {
 export const usePostReactionOverridesStore = create<State>((set) => ({
   likesByPostId: {},
   commentsByPostId: {},
+  contentByPostId: {},
 
   deletedPostId: null,
 
@@ -63,6 +70,21 @@ export const usePostReactionOverridesStore = create<State>((set) => ({
       return { commentsByPostId: next };
     }),
 
-  setDeletedPostId: (postId) => set((s) => ({ deletedPostId: postId })),
-  clearDeletedPostId: () => set((s) => ({ deletedPostId: null })),
+  setContentOverride: (postId, next) =>
+    set((s) => ({
+      contentByPostId: {
+        ...s.contentByPostId,
+        [postId]: next,
+      },
+    })),
+
+  clearContentOverride: (postId) =>
+    set((s) => {
+      const next = { ...s.contentByPostId };
+      delete next[postId];
+      return { contentByPostId: next };
+    }),
+
+  setDeletedPostId: (postId) => set({ deletedPostId: postId }),
+  clearDeletedPostId: () => set({ deletedPostId: null }),
 }));
