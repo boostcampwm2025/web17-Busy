@@ -77,6 +77,11 @@ export const PostCardDetailModal = () => {
   const [editedContent, setEditedContent] = useState(modalProps?.initialEditingContent || '');
   const [isSaving, setIsSaving] = useState(false);
 
+  const handleStartEdit = () => {
+    setEditedContent(safePost.content);
+    setIsEditing(true);
+  };
+
   const handleSave = async () => {
     if (!postId || isSaving || editedContent === safePost.content) return; // 내용 변경 없으면 저장 안 함
 
@@ -230,7 +235,7 @@ export const PostCardDetailModal = () => {
                 post={safePost}
                 isOwner={isOwner}
                 onUserClick={() => handleUserClick(safePost.author.id)}
-                onEditPost={isOwner ? () => setIsEditing(true) : undefined}
+                onEditPost={isOwner ? handleStartEdit : undefined}
                 onDeletePost={isOwner ? closeModal : undefined}
               />
             </div>
