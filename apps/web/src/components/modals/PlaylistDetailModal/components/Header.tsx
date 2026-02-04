@@ -5,9 +5,6 @@ type Props = {
   title: string;
   tracksCount: number;
   coverImgUrl: string;
-  isSearchOpen: boolean;
-  setIsSearchOpen: Dispatch<SetStateAction<boolean>>;
-  onClose: () => void;
   onPlayTotalSongs: () => void;
   isEditingTitle: boolean;
   draftTitle: string;
@@ -22,9 +19,6 @@ export function Header({
   title,
   tracksCount,
   coverImgUrl,
-  isSearchOpen,
-  setIsSearchOpen,
-  onClose,
   onPlayTotalSongs,
   isEditingTitle,
   draftTitle,
@@ -115,12 +109,6 @@ export function Header({
             >
               <Play className="w-4 h-4 fill-current" />
               <span>재생</span>
-            </button>
-            <button
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={`p-1.5 rounded-lg border-2 transition-all ${isSearchOpen ? 'bg-accent border-primary text-primary' : 'bg-white border-primary/30 text-gray-500 hover:border-primary hover:text-primary'}`}
-            >
-              <Search className="w-5 h-5" />
             </button>
           </div>
         </div>

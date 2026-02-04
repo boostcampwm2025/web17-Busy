@@ -18,7 +18,6 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
   const [playlist, setPlaylist] = useState<GetPlaylistDetailResDto | null>(null);
   const [songs, setSongs] = useState<SavedMusic[]>([]);
   const [selectedSongIds, setSelectedSongIds] = useState<Set<string>>(new Set());
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -33,7 +32,6 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     initialFetchPlaylist();
   }, []);
 
-  // 이미 현재 재생 목록에 있는 곡들은 추가 안 됨
   const onPlayTotalSongs = () => {
     if (songs.length > 0) {
       addToQueue(songs);
@@ -127,9 +125,6 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
             title={playlist.title}
             tracksCount={songs.length}
             coverImgUrl={songs[0]?.albumCoverUrl || DEFAULT_IMAGES.ALBUM}
-            onClose={closeModal}
-            isSearchOpen={isSearchOpen}
-            setIsSearchOpen={setIsSearchOpen}
             onPlayTotalSongs={onPlayTotalSongs}
             isEditingTitle={isEditingTitle}
             draftTitle={draftTitle}
@@ -141,7 +136,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
           />
 
           {/* Search Dropdown Area */}
-          {isSearchOpen && <SearchDropdown isSearchOpen={isSearchOpen} handleAddSong={handleAddSong} />}
+          {<SearchDropdown handleAddSong={handleAddSong} />}
 
           {/* Toolbar (Delete) */}
           {selectedSongIds.size > 0 && <Toolbar selectedSongIds={selectedSongIds} deleteSelectedSongs={deleteSelectedSongs} />}

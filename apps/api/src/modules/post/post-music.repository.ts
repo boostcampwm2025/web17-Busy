@@ -14,11 +14,13 @@ export class PostMusicRepository extends Repository<PostMusic> {
       .innerJoin('pm.music', 'm')
       .where('pm.post = :postId', { postId })
       .select([
-        'm.id AS musicId',
+        'm.id AS id',
         'm.title AS title',
         'm.artistName AS artistName',
         'm.albumCoverUrl AS albumCoverUrl',
         'm.trackUri AS trackUri',
+        'm.provider AS provider',
+        'm.durationMs As durationMs',
       ])
       .getRawMany<MusicResponseDto>();
   }

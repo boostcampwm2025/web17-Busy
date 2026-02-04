@@ -2,15 +2,14 @@
 
 import { useFeedInfiniteScroll } from '@/hooks';
 import { getFeedPosts } from '@/api';
-import type { PostResponseDto as Post } from '@repo/dto';
 import { FeedSkeleton } from '../skeleton';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
 import { useFeedRefreshStore } from '@/stores';
 
-export default function FeedSection() {
+export default function FeedView() {
   const nonce = useFeedRefreshStore((s) => s.nonce);
-  const { items, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll<Post>({
+  const { posts, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
     fetchFn: getFeedPosts,
     resetKey: String(nonce), // 글 작성 성공 시 초기화/재조회 트리거
   });
@@ -20,7 +19,7 @@ export default function FeedSection() {
 
   return (
     <>
-      <FeedList posts={items} />
+      <FeedList posts={posts} />
       {errorMsg && (
         <div className="text-center">
           <p>{errorMsg}</p>
