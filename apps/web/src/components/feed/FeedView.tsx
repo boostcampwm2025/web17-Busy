@@ -1,10 +1,13 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useFeedInfiniteScroll } from '@/hooks';
 import { getFeedPosts } from '@/api';
 import { FeedSkeleton } from '../skeleton';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+
 import { useFeedRefreshStore } from '@/stores';
 import { PostResponseDto } from '@repo/dto';
 
@@ -13,7 +16,14 @@ interface FeedViewProps {
 }
 
 export default function FeedView({ initialPost }: FeedViewProps) {
+  const openModal = useModalStore((s) => s.openModal);
   const nonce = useFeedRefreshStore((s) => s.nonce);
+
+  useEffect(() => {
+    if (initialPost) {
+      openModal(MODAL_TYPES.POST_DETAIL, { postId: initialPost.id, initialPost });
+    }
+  }, [initialPost, openModal]);
 
   const { posts, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
     fetchFn: getFeedPosts,

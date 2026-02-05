@@ -8,7 +8,6 @@ interface Props {
 
 // 데이터 페칭 (서버 동작)
 async function getPost(id: string) {
-  console.log(`${process.env.INTERNAL_API_URL}/post/${id}`);
   const res = await fetch(`${process.env.INTERNAL_API_URL}/post/${id}`, {
     cache: 'no-store',
   });
