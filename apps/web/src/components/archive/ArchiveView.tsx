@@ -6,6 +6,7 @@ import { deletePlaylist, editTitleOfPlaylist, getAllPlaylists } from '@/api';
 import { usePlaylistRefreshStore } from '@/stores';
 import { useEffect, useState } from 'react';
 import type { PlaylistBriefResDto } from '@repo/dto';
+import { toast } from 'react-toastify';
 
 export default function ArchiveView() {
   const [playlists, setPlaylists] = useState<PlaylistBriefResDto[]>([]);
@@ -14,7 +15,12 @@ export default function ArchiveView() {
   const bumpPlaylistRefresh = usePlaylistRefreshStore((s) => s.bump);
 
   const fetchInitialPlaylists = async () => {
-    setPlaylists(await getAllPlaylists());
+    try {
+      setPlaylists(await getAllPlaylists());
+    } catch (e) {
+      toast.error('플레이리스트 목록을 불러오지 못했습니다.');
+      console.error(e);
+    }
   };
 
   useEffect(() => {
@@ -22,13 +28,23 @@ export default function ArchiveView() {
   }, [playlistNonce]);
 
   const handleRename = async (id: string, title: string) => {
-    await editTitleOfPlaylist(id, title);
-    bumpPlaylistRefresh();
+    try {
+      await editTitleOfPlaylist(id, title);
+      bumpPlaylistRefresh();
+    } catch (e) {
+      toast.error('플레이리스트 이름 변경에 실패했습니다.');
+      console.error(e);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    await deletePlaylist(id);
-    bumpPlaylistRefresh();
+    try {
+      await deletePlaylist(id);
+      bumpPlaylistRefresh();
+    } catch (e) {
+      toast.error('플레이리스트 삭제에 실패했습니다.');
+      console.error(e);
+    }
   };
 
   return (
