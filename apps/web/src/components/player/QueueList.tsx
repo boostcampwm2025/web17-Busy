@@ -11,6 +11,8 @@ import { useState } from 'react';
 import { enqueueLog } from '@/utils/logQueue';
 import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api/internal/logging';
 
+import { TickerText } from '@/components';
+
 interface QueueListProps {
   queue: Music[];
   currentMusicId: string | null;
@@ -185,8 +187,14 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
                 <button type="button" onClick={handleSelectClick} className="flex items-center gap-3 min-w-0 flex-1 text-left">
                   <img src={music.albumCoverUrl} alt={music.title} className="w-10 h-10 rounded border border-gray-3 object-cover" />
                   <div className="min-w-0 flex-1">
-                    <p className={`text-sm font-bold truncate ${isCurrent ? 'text-accent-pink' : 'text-primary'}`}>{music.title}</p>
-                    <p className="text-xs text-gray-1 truncate">{music.artistName}</p>
+                    <TickerText
+                      text={music.title}
+                      className={`text-sm font-bold ${isCurrent ? 'text-accent-pink' : 'text-primary'}`}
+                      durationSec={10}
+                      playOnHover
+                    />
+
+                    <TickerText text={music.artistName} className="text-xs text-gray-1" durationSec={10} playOnHover />
                   </div>
                 </button>
 

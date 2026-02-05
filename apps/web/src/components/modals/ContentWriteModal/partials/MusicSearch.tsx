@@ -12,6 +12,8 @@ import { BriefItemList, EmptyPlaylist, LoadingMessage } from './PlaylistSectionI
 import { SearchMode } from '@/types';
 import { SEARCH_TAB_ENTRIES } from '@/components/search/SearchDrawerContent';
 
+import { TickerText } from '@/components';
+
 interface MusicSearchProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -149,9 +151,9 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
             className="w-full flex items-center px-4 py-2 hover:bg-gray-4 transition-colors text-left group"
           >
             <img src={music.albumCoverUrl} alt="art" className="w-10 h-10 rounded object-cover mr-3 border border-gray-3" />
-            <div className="min-w-0">
-              <p className="font-bold text-sm text-primary truncate group-hover:text-accent-cyan transition-colors">{music.title}</p>
-              <p className="text-xs text-gray-1 truncate">{music.artistName}</p>
+            <div className="min-w-0 flex-1">
+              <TickerText text={music.title} className="font-bold text-sm text-primary group-hover:text-accent-cyan transition-colors" />
+              <TickerText text={music.artistName} className="text-xs text-gray-1" />
             </div>
           </button>
         ))}

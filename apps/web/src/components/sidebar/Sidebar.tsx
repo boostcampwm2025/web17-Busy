@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState, lazy, useEffect, useRef, useCallback } from 'react';
 import { LogIn, LogOut, Menu, PlusCircle } from 'lucide-react';
 
-import { menuItems } from '@/constants';
+import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
 import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
 
@@ -49,7 +49,6 @@ export default function Sidebar() {
   // 드로어별 open/close 여부 상태 관리
   const isSearchOpen = activeDrawer === SidebarItemType.SEARCH;
   const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION;
-  const isSyncOpen = activeDrawer === SidebarItemType.SYNC;
 
   const handleToggleSidebar = useCallback(() => setIsExpanded((prev) => !prev), []);
 
@@ -155,7 +154,7 @@ export default function Sidebar() {
       <nav
         className={`
           h-full bg-white border-r-2 border-primary flex flex-col justify-between py-6 transition-all duration-200 ease-in-out relative z-40
-          ${isExpanded ? 'w-64' : 'w-20'}
+          ${isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_SHRINKED}
         `}
       >
         <div>
@@ -164,9 +163,9 @@ export default function Sidebar() {
               type="button"
               onClick={handleToggleSidebar}
               className="p-2 rounded-lg transition-colors border-2 border-transparent hover:bg-accent-cyan hover:border-primary"
-              title="사이드바 열기"
+              title={isExpanded ? '사이드바 닫기' : '사이드바 열기'}
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="sidebar-icon" />
             </button>
 
             {isExpanded && (
@@ -207,8 +206,8 @@ export default function Sidebar() {
             `}
               title="생성"
             >
-              <PlusCircle className="w-6 h-6" />
-              {isExpanded && <span className="ml-4 font-bold whitespace-nowrap overflow-hidden">생성</span>}
+              <PlusCircle className="sidebar-icon" />
+              {isExpanded && <span className="ml-4 font-bold text-sm md:text-base whitespace-nowrap overflow-hidden">생성</span>}
             </button>
           </div>
         </div>
@@ -221,9 +220,9 @@ export default function Sidebar() {
           className={`flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed ${!isExpanded && 'justify-center'}`}
           title={isAuthenticated ? '로그아웃' : '로그인'}
         >
-          {isAuthenticated ? <LogOut className="w-6 h-6" /> : <LogIn className="w-6 h-6" />}
+          {isAuthenticated ? <LogOut className="sidebar-icon" /> : <LogIn className="sidebar-icon" />}
           {isExpanded && (
-            <span className="ml-4 font-medium text-sm hover:font-bold whitespace-nowrap overflow-hidden">
+            <span className="ml-4 font-medium text-sm md:text-base hover:font-bold whitespace-nowrap overflow-hidden">
               {isLoading ? '...' : isAuthenticated ? '로그아웃' : '로그인'}
             </span>
           )}
@@ -238,11 +237,6 @@ export default function Sidebar() {
       {/* 2. 알림 */}
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
         <NotiDrawerContent />
-      </Drawer>
-
-      {/* 3. 싱크룸 */}
-      <Drawer isOpen={isSyncOpen} isSidebarExpanded={isExpanded}>
-        <div className="flex h-full justify-center items-center text-lg">협업 드로어</div>
       </Drawer>
     </div>
   );

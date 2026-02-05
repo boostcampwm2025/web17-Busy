@@ -11,6 +11,8 @@ import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions } from '@
 import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { LoadingSpinner, PostMedia } from '@/components';
 import { coalesceImageSrc } from '@/utils';
+import { toast } from 'react-toastify';
+import { updatePost } from '@/api';
 
 import { PostDetailBody, PostDetailActions, PostDetailCommentComposer, LikedUsersOverlay } from './partials';
 
@@ -34,10 +36,11 @@ export const PostCardDetailModal = () => {
     if (!postId) closeModal();
   }, [enabled, postId, closeModal]);
 
-  const { post, isLoading, error } = usePostDetail({ enabled, postId, passedPost });
+  const { post, isLoading, error, updatePostContent } = usePostDetail({ enabled, postId, passedPost });
   const isOwner = userId === post?.author.id;
   const safePost = post ?? passedPost ?? EMPTY_POST;
 
+  const setContentOverride = usePostReactionOverridesStore((s) => s.setContentOverride);
   const likeOverride = usePostReactionOverridesStore((s) => (postId ? s.likesByPostId[postId] : undefined));
 
   const initialIsLiked = likeOverride?.isLiked ?? post?.isLiked ?? passedPost?.isLiked ?? false;
@@ -67,6 +70,40 @@ export const PostCardDetailModal = () => {
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
   const profileImg = useMemo(() => coalesceImageSrc(safePost.author.profileImgUrl, DEFAULT_IMAGES.PROFILE), [safePost.author.profileImgUrl]);
+
+  // 게시글 수정 관련 상태
+  const [isEditing, setIsEditing] = useState(modalProps?.initialIsEditing === true);
+  const [editedContent, setEditedContent] = useState(modalProps?.initialEditingContent || '');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleStartEdit = () => {
+    setEditedContent(safePost.content);
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    if (!postId || isSaving || editedContent === safePost.content) return; // 내용 변경 없으면 저장 안 함
+
+    setIsSaving(true);
+    try {
+      await updatePost(postId, { content: editedContent });
+      toast.success('게시글을 수정했습니다.');
+      setIsEditing(false);
+
+      updatePostContent(editedContent); // 게시글 상세 데이터 갱신
+      setContentOverride(postId, { content: editedContent }); // 피드 게시글 데이터 갱신 위한 상태 업데이트
+    } catch (err) {
+      toast.error('게시글 수정에 실패했습니다.');
+      console.error('게시글 수정 실패:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedContent(safePost.content); // 원본 content로 되돌리기
+  };
 
   // =========================
   // UX 로그 수집(상세모달)
@@ -191,18 +228,50 @@ export const PostCardDetailModal = () => {
             <PostMedia post={safePost} variant="modal" currentMusicId={currentMusicId} isPlayingGlobal={isPlaying} onPlay={handlePlayFromPost} />
           )}
 
-          <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary">
-            <div className="p-4 border-b-2 border-primary/10">
-              <PostHeader post={safePost} isOwner={isOwner} onUserClick={() => handleUserClick(safePost.author.id)} />
+          <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary flex-1 min-h-0">
+            <div className="mt-4 px-4 py-2 border-b-2 border-primary/10">
+              <PostHeader
+                post={safePost}
+                isOwner={isOwner}
+                onUserClick={() => handleUserClick(safePost.author.id)}
+                onEditPost={isOwner ? handleStartEdit : undefined}
+                onDeletePost={isOwner ? closeModal : undefined}
+              />
             </div>
 
-            <PostDetailBody
-              profileImg={profileImg}
-              nickname={safePost.author.nickname}
-              content={safePost.content}
-              comments={reactions.comments}
-              commentsLoading={reactions.commentsLoading}
-            />
+            {isEditing ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <textarea
+                  className="w-full p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-accent-cyan transition-all"
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  rows={10}
+                />
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    onClick={handleCancelEdit}
+                    className="px-4 py-2 text-sm font-bold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving || editedContent === safePost.content}
+                    className="px-4 py-2 text-sm font-bold text-white bg-accent-cyan rounded-lg hover:bg-cyan-500 transition-colors disabled:opacity-50"
+                  >
+                    {isSaving ? '저장 중...' : '저장'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <PostDetailBody
+                profileImg={profileImg}
+                nickname={safePost.author.nickname}
+                content={safePost.content}
+                comments={reactions.comments}
+                commentsLoading={reactions.commentsLoading}
+              />
+            )}
 
             <PostDetailActions
               isAuthenticated={reactions.isAuthenticated}

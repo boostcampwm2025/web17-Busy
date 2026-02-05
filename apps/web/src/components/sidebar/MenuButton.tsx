@@ -28,9 +28,9 @@ function MenuButton({ type, Icon, label, onClick, isActive, shouldShowSpan, chil
                       : 'border-transparent hover:bg-gray-4 hover:border-primary/30'
                   }`}
     >
-      <Icon className="w-6 md:w-8 aspect-square" />
+      <Icon className="sidebar-icon" />
       {children}
-      {shouldShowSpan && <span className="ml-4 font-bold whitespace-nowrap overflow-hidden">{label}</span>}
+      {shouldShowSpan && <span className="ml-4 text-sm md:text-base font-bold whitespace-nowrap overflow-hidden">{label}</span>}
     </button>
   );
 }
