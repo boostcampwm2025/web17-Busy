@@ -33,23 +33,27 @@ export class FeedService {
     let { followingLimit, trendingLimit, recentLimit } =
       this.sourceAllocationPolicy.allocate(limit);
 
+    // todo promise.all로 묶기
     // 팔로잉 글 (+ 내 글)
-    const { posts: followingPosts, nextCursor: nextFollowingCursor } =
+    // 인기 게시글
+
+    const [
+      { posts: followingPosts, nextCursor: nextFollowingCursor },
+      { posts: trendingPosts, nextCursor: nextTrendingCursor },
+    ] = await Promise.all([
       await this.followingSource.getPosts(
         isInitialRequest,
         requestUserId,
         followingLimit,
         cursor?.following,
-      );
-
-    // 인기 게시글
-    const { posts: trendingPosts, nextCursor: nextTrendingCursor } =
+      ),
       await this.trendingSource.getPosts(
         isInitialRequest,
         requestUserId,
         trendingLimit,
         cursor?.trending,
-      );
+      ),
+    ]);
 
     // 덜 조회된 팔로잉 글 수만큼 최신글을 더 조회
     const followingShortage = followingLimit - followingPosts.length;
