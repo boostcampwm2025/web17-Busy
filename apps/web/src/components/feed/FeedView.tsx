@@ -31,7 +31,6 @@ export default function FeedView({ initialPost }: FeedViewProps) {
     initialData: initialPost ? [initialPost] : [],
   });
 
-  if (isInitialLoading && !initialPost) return <FeedSkeleton />;
   const contentByPostId = usePostReactionOverridesStore((s) => s.contentByPostId);
   const clearContentOverride = usePostReactionOverridesStore((s) => s.clearContentOverride);
 
@@ -61,6 +60,8 @@ export default function FeedView({ initialPost }: FeedViewProps) {
     updateDeletedPost(deletedPostId);
     clearDeletedPostId();
   }, [deletedPostId]);
+
+  if (isInitialLoading && !initialPost) return <FeedSkeleton />;
 
   return (
     <>
