@@ -36,3 +36,8 @@ export const createPost = async (formData: FormData) => {
 export const deletePost = async (postId: string) => {
   await internalClient.delete(`/post/${postId}`);
 };
+
+/** [PATCH] 게시글 수정 (content만 수정) */
+export const updatePost = async (postId: string, data: { content: string }) => {
+  await internalClient.patch(`/post/${postId}`, data);
+};

@@ -3,7 +3,6 @@ export const SidebarItemType = {
   SEARCH: 'search',
   NOTIFICATION: 'notification',
   ARCHIVE: 'archive',
-  SYNC: 'sync',
   HOME: 'home',
   SETTING: 'setting',
   CREATE: 'create',
@@ -11,4 +10,4 @@ export const SidebarItemType = {
 
 export type SidebarItemTypeValues = (typeof SidebarItemType)[keyof typeof SidebarItemType];
 
-export const drawerTypes = [SidebarItemType.SEARCH, SidebarItemType.NOTIFICATION, SidebarItemType.SYNC] as const;
+export const drawerTypes = [SidebarItemType.SEARCH, SidebarItemType.NOTIFICATION] as const;

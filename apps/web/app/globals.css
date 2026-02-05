@@ -20,6 +20,10 @@
   --breakpoint-xs: 480px;
 }
 
+@utility sidebar-icon {
+  @apply w-6 aspect-square;
+}
+
 * {
   box-sizing: border-box;
 }

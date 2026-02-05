@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useAuthMe } from '../auth/client/useAuthMe';
-import { MODAL_TYPES, useModalStore } from '@/stores';
+import { MODAL_TYPES, useAuthStore, useModalStore } from '@/stores';
 import { getRecentConsents } from '@/api';
 
 export function PrivacyConsentGate() {
-  const { isAuthenticated, isLoading } = useAuthMe();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const openModal = useModalStore((s) => s.openModal);
   const ranRef = useRef(false);
 

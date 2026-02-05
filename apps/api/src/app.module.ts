@@ -76,6 +76,21 @@ import { FeedModule } from './modules/feed/feed.module';
         entities: [join(__dirname, '**/*.entity.{ts,js}')],
         synchronize: process.env.NODE_ENV !== 'production',
         timezone: 'Z',
+
+        retryAttempts: 5,
+        retryDelay: 2000,
+
+        extra: {
+          // 풀 제한 (서버 1개면 5~10 정도로 시작 추천)
+          connectionLimit: 10,
+
+          // 연결/응답 지연 시 너무 오래 매달리지 않기
+          connectTimeout: 10_000,
+
+          // idle TCP 끊김 방지(핵심)
+          enableKeepAlive: true,
+          keepAliveInitialDelay: 0,
+        },
       }),
       inject: [ConfigService],
     }),

@@ -16,6 +16,7 @@ const safeDateOrNull = (iso?: string): Date | null => {
 
 const CONSENT_CACHE_TTL_SEC = 300; // 5분(필요시 조정)
 const consentCacheKey = (userId: string) => `consent:log:${userId}`;
+const LOG_STREAM_MAXLEN = 20_000;
 
 /**
  * FE/BE 공용 로그 적재(Sink) - Stream Only
@@ -75,6 +76,9 @@ export class LogsService {
 
     await this.redis.xadd(
       REDIS_KEYS.LOG_EVENTS_STREAM,
+      'MAXLEN',
+      '~',
+      LOG_STREAM_MAXLEN,
       '*',
       'serverTs',
       String(serverTs),

@@ -2,8 +2,7 @@
 
 import { QueueList, MiniPlayerBar, NowPlaying } from './index';
 import { useQueueSync, useGuestQueueSession } from '@/hooks';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { usePlayerStore, useModalStore, MODAL_TYPES } from '@/stores';
+import { usePlayerStore, useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
 import { useMemo, useCallback } from 'react';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
@@ -12,7 +11,8 @@ const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): nu
 };
 
 export default function RightPanel() {
-  const { isAuthenticated, isLoading } = useAuthMe();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const enableServerSync = isAuthenticated && !isLoading;
   const enableGuestSession = !isAuthenticated && !isLoading;
 
@@ -26,12 +26,13 @@ export default function RightPanel() {
   const isPlaying = usePlayerStore((s) => s.isPlaying);
   const queue = usePlayerStore((s) => s.queue);
 
-  const playMusic = usePlayerStore((s) => s.playMusic);
+  const selectMusic = usePlayerStore((s) => s.selectMusic);
   const togglePlay = usePlayerStore((s) => s.togglePlay);
   const clearQueue = usePlayerStore((s) => s.clearQueue);
   const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
   const moveUp = usePlayerStore((s) => s.moveUp);
   const moveDown = usePlayerStore((s) => s.moveDown);
+  const moveTo = usePlayerStore((s) => s.moveTo);
   const playPrev = usePlayerStore((s) => s.playPrev);
   const playNext = usePlayerStore((s) => s.playNext);
 
@@ -83,7 +84,8 @@ export default function RightPanel() {
           onRemove={removeFromQueue}
           onMoveUp={moveUp}
           onMoveDown={moveDown}
-          onSelect={playMusic}
+          onMove={moveTo}
+          onSelect={selectMusic}
         />
       </section>
     </>

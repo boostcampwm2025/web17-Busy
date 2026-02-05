@@ -25,6 +25,7 @@ interface PlayerState {
  */
 interface PlayerActions {
   playMusic: (music: Music) => void;
+  selectMusic: (music: Music) => void;
   togglePlay: () => void;
 
   playPrev: () => void;
@@ -35,6 +36,7 @@ interface PlayerActions {
 
   moveUp: (index: number) => void;
   moveDown: (index: number) => void;
+  moveTo: (from: number, to: number) => void;
 
   clearQueue: () => void;
   initializeQueue: (queue: Music[]) => void;
@@ -97,6 +99,14 @@ const dedupeQueue = (queue: Music[]): Music[] => {
 const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
 
 /**
+ * 큐에서 해당 곡이 이미 있으면 제거하고 맨 뒤에 추가(=재생/추가 시 최근 곡을 뒤로 보냄)
+ */
+const moveToEnd = (queue: Music[], music: Music): Music[] => {
+  const filtered = removeById(queue, music.id);
+  return [...filtered, music];
+};
+
+/**
  * usePlayerStore
  * - 컴포넌트에서 usePlayerStore((s) => s.currentMusic) 형태로 구독 가능
  * - set/get으로 상태/액션 구현
@@ -128,6 +138,24 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   },
 
   playMusic: (music) => {
+    const { currentMusic, queue } = get();
+
+    // 새 재생 시 기존 에러 메시지 제거
+    set({ playError: null });
+
+    if (isSameMusic(currentMusic, music)) {
+      get().togglePlay();
+      return;
+    }
+
+    set({
+      currentMusic: music,
+      isPlaying: true,
+      queue: moveToEnd(queue, music),
+    });
+  },
+
+  selectMusic: (music) => {
     const { currentMusic, queue } = get();
 
     // 새 재생 시 기존 에러 메시지 제거
@@ -219,6 +247,20 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     set((state) => {
       if (index < 0 || index >= state.queue.length - 1) return state;
       return { queue: swap(state.queue, index, index + 1) };
+    });
+  },
+  /** from -> to 드래그 앤 드롭 */
+  moveTo: (from, to) => {
+    set((state) => {
+      if (from === to) return state;
+      if (from < 0 || from >= state.queue.length) return state;
+      if (to < 0 || to >= state.queue.length) return state;
+
+      const next = [...state.queue];
+      const [item] = next.splice(from, 1);
+      if (!item) return state;
+      next.splice(to, 0, item);
+      return { queue: next };
     });
   },
   /** 큐 전체 초기화 + 현재곡/재생 상태도 초기화 */

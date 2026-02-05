@@ -6,8 +6,8 @@ import { PostHeader, PostMedia, PostActions, PostContentPreview } from './index'
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 import { addLike, removeLike } from '@/api';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
+import { useModalStore, useAuthStore, MODAL_TYPES } from '@/stores';
 
 interface PostCardProps {
   post: Post;
@@ -21,13 +21,19 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onUserClick, onOpenDetail }: PostCardProps) {
-  const { isAuthenticated, userId } = useAuthMe();
+  const userId = useAuthStore((s) => s.userId);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { openModal } = useModalStore();
 
-  const override = usePostReactionOverridesStore((s) => s.likesByPostId[post.id]);
+  const likeOverride = usePostReactionOverridesStore((s) => s.likesByPostId[post.id]);
   const setLikeOverride = usePostReactionOverridesStore((s) => s.setLikeOverride);
 
-  const baseLiked = Boolean(override?.isLiked ?? post.isLiked);
-  const baseLikeCount = override?.likeCount ?? post.likeCount;
+  // 댓글 카운트 override 추가
+  const commentOverride = usePostReactionOverridesStore((s) => s.commentsByPostId[post.id]);
+  const baseCommentCount = commentOverride?.commentCount ?? post.commentCount;
+
+  const baseLiked = Boolean(likeOverride?.isLiked ?? post.isLiked);
+  const baseLikeCount = likeOverride?.likeCount ?? post.likeCount;
 
   const [optimisticLiked, setOptimisticLiked] = useState(baseLiked);
   const [optimisticLikeCount, setOptimisticLikeCount] = useState(baseLikeCount);
@@ -39,13 +45,15 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
       ...post,
       isLiked: optimisticLiked,
       likeCount: optimisticLikeCount,
+      // 댓글 카운트도 store 반영값 사용
+      commentCount: baseCommentCount,
     }),
-    [post, optimisticLiked, optimisticLikeCount],
+    [post, optimisticLiked, optimisticLikeCount, baseCommentCount],
   );
 
   /**
-   *  핵심: override/서버값 변경 시 로컬 optimistic도 동기화
-   * - Detail에서 눌러서 store가 바뀌어도 이 effect로 카드가 즉시 따라감
+   * 핵심: override/서버값 변경 시 로컬 optimistic도 동기화
+   * - Detail에서 눌러서 store가 바뀌어도 카드가 즉시 따라감
    */
   useEffect(() => {
     setOptimisticLiked(baseLiked);
@@ -71,14 +79,14 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
     setOptimisticLiked(nextLiked);
     setOptimisticLikeCount(nextCount);
 
-    // optimistic (전역) — 다른 화면/디테일 모달도 즉시 동기화됨
+    // optimistic (전역)
     setLikeOverride(post.id, { isLiked: nextLiked, likeCount: nextCount });
 
     try {
       if (nextLiked) await addLike({ postId: post.id });
       else await removeLike(post.id);
     } catch {
-      // rollback (로컬 + 전역 동일하게 복구)
+      // rollback
       setOptimisticLiked(prevLiked);
       setOptimisticLikeCount(prevCount);
       setLikeOverride(post.id, { isLiked: prevLiked, likeCount: prevCount });
@@ -87,13 +95,17 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
     }
   }, [isAuthenticated, likeSubmitting, optimisticLiked, optimisticLikeCount, post.id, setLikeOverride]);
 
+  const openEditPostModal = useCallback(() => {
+    openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, initialIsEditing: true, initialEditingContent: post.content });
+  }, [openModal, post.id, post.content]);
+
   return (
     <article
       onClick={handleOpenDetail}
-      className="bg-white border-2 border-primary rounded-2xl px-4 py-6 mb-8 shadow-[3px_3px_0px_0px_#00214D]
+      className="bg-white border-2 border-primary rounded-2xl px-4 sm:px-6 py-6 mb-8 shadow-[3px_3px_0px_0px_#00214D]
                  hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_#00EBC7] transition-all duration-300 cursor-pointer"
     >
-      <PostHeader post={post} isOwner={isOwner} onUserClick={onUserClick} />
+      <PostHeader post={post} isOwner={isOwner} onUserClick={onUserClick} onEditPost={isOwner ? openEditPostModal : undefined} />
 
       <PostMedia
         post={post}

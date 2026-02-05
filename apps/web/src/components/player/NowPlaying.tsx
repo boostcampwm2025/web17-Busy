@@ -4,8 +4,7 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 import { MusicProvider } from '@repo/dto/values';
 import { useCallback } from 'react';
 import { useMusicActions } from '@/hooks';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
+import { useModalStore, MODAL_TYPES, usePlayerStore, useAuthStore } from '@/stores';
 import { enqueueLog } from '@/utils';
 import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api';
 
@@ -27,7 +26,7 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
   const playError = usePlayerStore((s) => s.playError);
   const setPlayError = usePlayerStore((s) => s.setPlayError);
 
-  const { isAuthenticated } = useAuthMe();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { openModal } = useModalStore();
   const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
@@ -76,10 +75,6 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
     await addMusicToArchive(currentMusic);
   }, [isAuthenticated, openModal, currentMusic, addMusicToArchive]);
 
-  const handleShuffle = useCallback(() => {
-    // TODO
-  }, []);
-
   return (
     <div className="p-4 py-8 border-b-2 border-primary">
       <h2 className="text-xs font-bold text-accent-pink tracking-widest uppercase mb-4 text-center">Now Playing</h2>
@@ -99,7 +94,6 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
         onTogglePlay={safeTogglePlay}
         onPrev={safePrev}
         onNext={safeNext}
-        onShuffle={handleShuffle}
         volume={volume}
         onVolumeChange={setVolume}
       />

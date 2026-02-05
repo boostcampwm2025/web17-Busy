@@ -1,6 +1,7 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import type { MusicRequestDto as UnsavedMusic } from '@repo/dto';
 import { Plus } from 'lucide-react';
+import { TickerText } from '@/components';
 
 type Props = {
   items: Music[];
@@ -18,8 +19,8 @@ export function MusicSearchResults({ items, handleAddSong }: Props) {
         >
           <img src={song.albumCoverUrl} alt={song.title} className="w-8 h-8 rounded border border-gray-200 mr-2" />
           <div className="flex-1 min-w-0">
-            <div className="font-bold text-sm truncate">{song.title}</div>
-            <div className="text-xs text-gray-500 truncate">{song.artistName}</div>
+            <TickerText text={song.title} className="font-bold text-sm" />
+            <TickerText text={song.artistName} className="text-xs text-gray-500" />
           </div>
         </button>
       ))}
