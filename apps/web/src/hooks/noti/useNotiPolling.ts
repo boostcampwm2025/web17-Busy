@@ -23,5 +23,5 @@ export default function useNotiPolling() {
     }, NOTI_POLLING_INTERVAL_MS);
 
     return () => clearInterval(timeout);
-  }, [isAuthenticated, isLoading, updateNotis]);
+  }, [isAuthenticated, isLoading, updateNotis, setFetchStatus]);
 }
