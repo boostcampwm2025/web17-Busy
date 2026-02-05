@@ -7,6 +7,7 @@ import { Suspense } from 'react';
 import NotiPollingGate from '@/components/noti/NotiPollingGate';
 import ToastProvider from '@/components/ToastContainer';
 import { PrivacyConsentGate } from '@/hooks';
+import { AuthBootstrap } from '@/hooks/auth/client/AuthBootstrap';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -32,6 +33,7 @@ export default function RootLayout({
           <AuthLoginQueryHandler />
         </Suspense>
         <ModalContainer />
+        <AuthBootstrap />
         <PrivacyConsentGate />
         <NotiPollingGate />
 

@@ -6,8 +6,8 @@ import { PostHeader, PostMedia, PostActions, PostContentPreview } from './index'
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 import { addLike, removeLike } from '@/api';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
+import { useModalStore, useAuthStore, MODAL_TYPES } from '@/stores';
 
 interface PostCardProps {
   post: Post;
@@ -21,7 +21,9 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onUserClick, onOpenDetail }: PostCardProps) {
-  const { isAuthenticated, userId } = useAuthMe();
+  const userId = useAuthStore((s) => s.userId);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { openModal } = useModalStore();
 
   const likeOverride = usePostReactionOverridesStore((s) => s.likesByPostId[post.id]);
   const setLikeOverride = usePostReactionOverridesStore((s) => s.setLikeOverride);
@@ -93,13 +95,17 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
     }
   }, [isAuthenticated, likeSubmitting, optimisticLiked, optimisticLikeCount, post.id, setLikeOverride]);
 
+  const openEditPostModal = useCallback(() => {
+    openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, initialIsEditing: true, initialEditingContent: post.content });
+  }, [openModal, post.id, post.content]);
+
   return (
     <article
       onClick={handleOpenDetail}
-      className="bg-white border-2 border-primary rounded-2xl px-4 py-6 mb-8 shadow-[3px_3px_0px_0px_#00214D]
+      className="bg-white border-2 border-primary rounded-2xl px-4 sm:px-6 py-6 mb-8 shadow-[3px_3px_0px_0px_#00214D]
                  hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_#00EBC7] transition-all duration-300 cursor-pointer"
     >
-      <PostHeader post={post} isOwner={isOwner} onUserClick={onUserClick} />
+      <PostHeader post={post} isOwner={isOwner} onUserClick={onUserClick} onEditPost={isOwner ? openEditPostModal : undefined} />
 
       <PostMedia
         post={post}

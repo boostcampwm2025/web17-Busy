@@ -27,7 +27,7 @@ export default function PostDetailActions({ isAuthenticated, isSubmitting, isLik
   };
 
   return (
-    <div className="p-4 border-t-2 border-primary/10 bg-gray-4/30">
+    <div className="p-4 border-t-2 border-primary/10 bg-gray-4/30 shrink-0">
       <div className="flex items-center space-x-4">
         <button
           type="button"

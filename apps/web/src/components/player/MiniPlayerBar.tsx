@@ -3,10 +3,12 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { FolderPlus, Pause, Play, PlusCircle, SkipBack, SkipForward, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useMusicActions } from '@/hooks';
 import { enqueueLog } from '@/utils';
 import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api';
+import { useAuthStore } from '@/stores';
+
+import { TickerText } from '@/components';
 
 interface MiniPlayerBarProps {
   currentMusic: Music | null;
@@ -43,7 +45,7 @@ export default function MiniPlayerBar({
    * - 사용자가 보관함 추가와 컨텐츠 생성 버튼을 누를 때 로그인 유무로 지원한다.
    * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
    */
-  const { isAuthenticated } = useAuthMe();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { openModal } = useModalStore();
 
   /** 보관함 추가와 컨텐츠 생성을 위한 함수  */
@@ -108,8 +110,17 @@ export default function MiniPlayerBar({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-black text-primary truncate">{currentMusic ? currentMusic.title : '재생 중인 음악 없음'}</p>
-        <p className="text-xs font-bold text-gray-1 truncate">{currentMusic ? currentMusic.artistName : ' '}</p>
+        {currentMusic ? (
+          <>
+            <TickerText text={currentMusic.title} className="text-sm font-black text-primary" />
+            <TickerText text={currentMusic.artistName} className="text-xs font-bold text-gray-1" />
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-black text-primary">재생 중인 음악 없음</p>
+            <p className="text-xs font-bold text-gray-1"> </p>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-1 shrink-0">

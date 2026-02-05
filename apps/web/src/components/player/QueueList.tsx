@@ -1,14 +1,17 @@
 'use client';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
-import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle } from 'lucide-react';
+import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle, GripVertical } from 'lucide-react';
 import { useMusicActions } from '@/hooks';
-import { useModalStore, MODAL_TYPES } from '@/stores';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
+import type { DragEvent } from 'react';
+import { useState } from 'react';
 
 // UX 로그
 import { enqueueLog } from '@/utils/logQueue';
 import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api/internal/logging';
+
+import { TickerText } from '@/components';
 
 interface QueueListProps {
   queue: Music[];
@@ -17,18 +20,21 @@ interface QueueListProps {
   onRemove: (musicId: string) => void;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
+  onMove: (from: number, to: number) => void;
 
   /** 추가: 큐 아이템 선택(현재 재생 곡 변경) */
   onSelect: (music: Music) => void;
 }
 
-export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown, onSelect }: QueueListProps) {
+export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown, onMove, onSelect }: QueueListProps) {
   const isEmpty = queue.length === 0;
 
-  const { isAuthenticated } = useAuthMe();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { openModal } = useModalStore();
 
   const { openWriteModalWithQueue, addQueueToArchive } = useMusicActions();
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const handleClearClick = () => {
     if (isEmpty) return;
@@ -131,20 +137,64 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
               onMoveDown(index);
             };
 
+            const handleDragStart = (event: DragEvent<HTMLLIElement>) => {
+              setDragIndex(index);
+              event.dataTransfer.effectAllowed = 'move';
+              event.dataTransfer.setData('text/plain', String(index));
+            };
+
+            const handleDragOver = (event: DragEvent<HTMLLIElement>) => {
+              event.preventDefault();
+              setDragOverIndex(index);
+              event.dataTransfer.dropEffect = 'move';
+            };
+
+            const handleDrop = (event: DragEvent<HTMLLIElement>) => {
+              event.preventDefault();
+              const from = dragIndex ?? Number(event.dataTransfer.getData('text/plain'));
+              if (!Number.isFinite(from)) {
+                setDragIndex(null);
+                setDragOverIndex(null);
+                return;
+              }
+              if (from !== index) onMove(from, index);
+              setDragIndex(null);
+              setDragOverIndex(null);
+            };
+
+            const handleDragEnd = () => {
+              setDragIndex(null);
+              setDragOverIndex(null);
+            };
+
             return (
               <li
                 key={`${music.id}-${index}`}
+                draggable
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onDragEnd={handleDragEnd}
                 className={`flex items-center gap-3 p-3 rounded-xl border-2 ${
                   isCurrent ? 'border-primary bg-white' : 'border-transparent hover:border-gray-3 hover:bg-white'
-                }`}
+                } ${dragOverIndex === index ? 'border-accent-cyan bg-accent-cyan/10' : ''}`}
               >
+                <span className="text-gray-2 cursor-grab active:cursor-grabbing">
+                  <GripVertical className="w-4 h-4" />
+                </span>
                 <span className={`w-6 text-center text-sm font-bold ${isCurrent ? 'text-accent-pink' : 'text-gray-2'}`}>{index + 1}</span>
 
                 <button type="button" onClick={handleSelectClick} className="flex items-center gap-3 min-w-0 flex-1 text-left">
                   <img src={music.albumCoverUrl} alt={music.title} className="w-10 h-10 rounded border border-gray-3 object-cover" />
                   <div className="min-w-0 flex-1">
-                    <p className={`text-sm font-bold truncate ${isCurrent ? 'text-accent-pink' : 'text-primary'}`}>{music.title}</p>
-                    <p className="text-xs text-gray-1 truncate">{music.artistName}</p>
+                    <TickerText
+                      text={music.title}
+                      className={`text-sm font-bold ${isCurrent ? 'text-accent-pink' : 'text-primary'}`}
+                      durationSec={10}
+                      playOnHover
+                    />
+
+                    <TickerText text={music.artistName} className="text-xs text-gray-1" durationSec={10} playOnHover />
                   </div>
                 </button>
 

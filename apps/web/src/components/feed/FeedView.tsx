@@ -8,7 +8,7 @@ import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 
-import { useFeedRefreshStore } from '@/stores';
+import { useFeedRefreshStore, usePostReactionOverridesStore } from '@/stores';
 import { PostResponseDto } from '@repo/dto';
 
 interface FeedViewProps {
@@ -25,13 +25,43 @@ export default function FeedView({ initialPost }: FeedViewProps) {
     }
   }, [initialPost, openModal]);
 
-  const { posts, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
+  const { posts, setPosts, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
     fetchFn: getFeedPosts,
     resetKey: String(nonce),
     initialData: initialPost ? [initialPost] : [],
   });
 
   if (isInitialLoading && !initialPost) return <FeedSkeleton />;
+  const contentByPostId = usePostReactionOverridesStore((s) => s.contentByPostId);
+  const clearContentOverride = usePostReactionOverridesStore((s) => s.clearContentOverride);
+
+  const deletedPostId = usePostReactionOverridesStore((s) => s.deletedPostId);
+  const clearDeletedPostId = usePostReactionOverridesStore((s) => s.clearDeletedPostId);
+
+  const updatePostContent = (updatedPostId: string, newContent?: string) => {
+    if (!newContent) return;
+    setPosts((prev) => prev.map((post) => (post.id === updatedPostId ? { ...post, content: newContent } : post)));
+  };
+
+  const updateDeletedPost = (deletedPostId: string) => {
+    setPosts((prev) => prev.filter((post) => post.id !== deletedPostId));
+  };
+
+  useEffect(() => {
+    const updatedIds = Object.keys(contentByPostId);
+    if (updatedIds.length === 0) return;
+    updatedIds.map((id) => {
+      updatePostContent(id, contentByPostId[id]?.content);
+      clearContentOverride(id);
+    });
+  }, [contentByPostId]);
+
+  useEffect(() => {
+    if (!deletedPostId) return;
+    updateDeletedPost(deletedPostId);
+    clearDeletedPostId();
+  }, [deletedPostId]);
+
   return (
     <>
       <FeedList posts={posts} />

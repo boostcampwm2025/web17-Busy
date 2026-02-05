@@ -14,6 +14,7 @@ type Result = {
   post: Post | null;
   isLoading: boolean;
   error: string | null;
+  updatePostContent: (newContent: string) => void;
 };
 
 export function usePostDetail({ enabled, postId, passedPost }: Params): Result {
@@ -27,6 +28,13 @@ export function usePostDetail({ enabled, postId, passedPost }: Params): Result {
   const [error, setError] = useState<string | null>(null);
 
   const requestIdRef = useRef(0);
+
+  const updatePostContent = (newContent: string) => {
+    setPost((prev) => {
+      if (!prev) return null;
+      return { ...prev, content: newContent };
+    });
+  };
 
   useEffect(() => {
     if (!enabled) {
@@ -80,5 +88,5 @@ export function usePostDetail({ enabled, postId, passedPost }: Params): Result {
     void run();
   }, [enabled, postId, matchedPost]);
 
-  return { post, isLoading, error };
+  return { post, isLoading, error, updatePostContent };
 }
