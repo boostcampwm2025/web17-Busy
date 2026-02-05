@@ -32,7 +32,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
 
   useEffect(() => {
     initialFetchPlaylist();
-  }, []);
+  }, [playlistId]);
 
   const onPlayTotalSongs = () => {
     if (songs.length > 0) {
@@ -74,6 +74,20 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     const nextSongs = reorder(songs, index, direction);
     setSongs(nextSongs);
 
+    await requestChangeOrder(nextSongs);
+  };
+
+  const moveSongTo = async (from: number, to: number) => {
+    if (from === to) return;
+    if (from < 0 || from >= songs.length) return;
+    if (to < 0 || to >= songs.length) return;
+
+    const nextSongs = [...songs];
+    const [item] = nextSongs.splice(from, 1);
+    if (!item) return;
+    nextSongs.splice(to, 0, item);
+
+    setSongs(nextSongs);
     await requestChangeOrder(nextSongs);
   };
 
@@ -158,7 +172,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
           {selectedSongIds.size > 0 && <Toolbar selectedSongIds={selectedSongIds} deleteSelectedSongs={deleteSelectedSongs} />}
 
           {/* Song List */}
-          <SongList songs={songs} selectedSongIds={selectedSongIds} toggleSelectSong={toggleSelectSong} moveSong={moveSong} />
+          <SongList songs={songs} selectedSongIds={selectedSongIds} toggleSelectSong={toggleSelectSong} moveSong={moveSong} moveSongTo={moveSongTo} />
         </div>
 
         <ConfirmOverlay

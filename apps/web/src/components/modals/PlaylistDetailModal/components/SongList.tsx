@@ -1,6 +1,8 @@
 import { usePlayerStore } from '@/stores';
 import type { MusicResponseDto } from '@repo/dto';
-import { CheckSquare, ChevronDown, ChevronUp, Music, Play, Square } from 'lucide-react';
+import { CheckSquare, ChevronDown, ChevronUp, GripVertical, Music, Play, Square } from 'lucide-react';
+import type { DragEvent } from 'react';
+import { useState } from 'react';
 
 import { TickerText } from '@/components';
 
@@ -9,20 +11,42 @@ function SongItem({
   idx,
   isLast,
   isChecked,
+  isDragOver,
   toggleSelectSong,
   moveSong,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
 }: {
   song: MusicResponseDto;
   idx: number;
   isLast: boolean;
   isChecked: boolean;
+  isDragOver: boolean;
   toggleSelectSong: (musicId: string) => void;
   moveSong: (index: number, direction: 'up' | 'down') => void;
+  onDragStart: (event: DragEvent<HTMLLIElement>) => void;
+  onDragOver: (event: DragEvent<HTMLLIElement>) => void;
+  onDrop: (event: DragEvent<HTMLLIElement>) => void;
+  onDragEnd: (event: DragEvent<HTMLLIElement>) => void;
 }) {
   const playMusic = usePlayerStore((s) => s.playMusic);
 
   return (
-    <li className="group flex items-center p-2 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors">
+    <li
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+      className={`group flex items-center p-2 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors ${
+        isDragOver ? 'border-accent-cyan bg-accent-cyan/10' : ''
+      }`}
+    >
+      <span className="mr-2 text-gray-300 cursor-grab active:cursor-grabbing" aria-label="drag-handle">
+        <GripVertical className="w-4 h-4" />
+      </span>
       {/* Checkbox (Left) */}
       <button onClick={() => toggleSelectSong(song.id)} className="mr-3 text-gray-300 hover:text-primary transition-colors">
         {isChecked ? <CheckSquare className="w-5 h-5 text-accent-pink" /> : <Square className="w-5 h-5" />}
@@ -60,12 +84,47 @@ export function SongList({
   selectedSongIds,
   toggleSelectSong,
   moveSong,
+  moveSongTo,
 }: {
   songs: MusicResponseDto[];
   selectedSongIds: Set<string>;
   toggleSelectSong: (musicId: string) => void;
   moveSong: (index: number, direction: 'up' | 'down') => void;
+  moveSongTo: (from: number, to: number) => void;
 }) {
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (event: DragEvent<HTMLLIElement>, index: number) => {
+    setDragIndex(index);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', String(index));
+  };
+
+  const handleDragOver = (event: DragEvent<HTMLLIElement>, index: number) => {
+    event.preventDefault();
+    setDragOverIndex(index);
+    event.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (event: DragEvent<HTMLLIElement>, index: number) => {
+    event.preventDefault();
+    const from = dragIndex ?? Number(event.dataTransfer.getData('text/plain'));
+    if (!Number.isFinite(from)) {
+      setDragIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+    if (from !== index) moveSongTo(from, index);
+    setDragIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+    setDragOverIndex(null);
+  };
+
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar bg-white p-2">
       {songs.length === 0 ? (
@@ -82,8 +141,13 @@ export function SongList({
               idx={idx}
               isLast={idx === songs.length - 1}
               isChecked={selectedSongIds.has(song.id)}
+              isDragOver={dragOverIndex === idx}
               toggleSelectSong={toggleSelectSong}
               moveSong={moveSong}
+              onDragStart={(event) => handleDragStart(event, idx)}
+              onDragOver={(event) => handleDragOver(event, idx)}
+              onDrop={(event) => handleDrop(event, idx)}
+              onDragEnd={handleDragEnd}
             />
           ))}
         </ul>
