@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { usePostMedia } from '@/hooks';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
+import TickerText from '@/components/TickerText';
 
 type Variant = 'card' | 'modal';
 
@@ -25,17 +26,18 @@ const stylesByVariant: Record<Variant, { container: string; playBtn: string; inf
     playBtn: 'w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-[2px_2px_0px_0px_#00ebc7]',
     infoBox: 'absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-primary shadow-[4px_4px_0px_0px_#FDE24F]',
     navBtn:
-      'absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white ' +
-      'opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto',
+      'absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white transition-opacity ' +
+      'md:opacity-0 md:group-hover:opacity-100 md:pointer-events-none md:group-hover:pointer-events-auto',
   },
   modal: {
-    container: 'w-full aspect-[7/3] md:flex-1 bg-gray-4 relative group overflow-hidden',
+    container: 'w-full aspect-[7/4] md:aspect-[7/3] md:flex-1 bg-gray-4 relative group overflow-hidden',
     playBtn:
       'w-10 md:w-14 aspect-square rounded-full bg-primary text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#00ebc7] hover:scale-105 transition-transform',
-    infoBox: 'absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-xl border-2 border-primary shadow-[6px_6px_0px_0px_#FDE24F]',
+    infoBox:
+      'absolute max-w-3/4 bottom-3 left-3 md:bottom-6 md:left-6 flex items-center sm:block bg-white/90 backdrop-blur-sm px-2 py-1 sm:px-5 sm:py-3 rounded-xl border-2 border-primary shadow-[3px_3px_0px_0px_#FDE24F] md:shadow-[6px_6px_0px_0px_#FDE24F]',
     navBtn:
-      'absolute top-1/2 -translate-y-1/2 w-8 md:w-12 aspect-square rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white ' +
-      'opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto',
+      'absolute top-1/2 -translate-y-1/2 w-8 md:w-12 aspect-square rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white transition-opacity ' +
+      'md:opacity-0 md:group-hover:opacity-100 md:pointer-events-none md:group-hover:pointer-events-auto',
   },
 };
 
@@ -76,7 +78,7 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
 
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/35 transition-colors">
         {!isCoverPage && activeMusic && (
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <button type="button" onClick={handlePlay} className={styles.playBtn} title={isActivePlaying ? '일시정지' : '재생'}>
               {isActivePlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
             </button>
@@ -102,8 +104,9 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
 
       {activeMusic ? (
         <div className={styles.infoBox}>
-          <p className="text-sm md:text-base font-black text-primary">{activeMusic.title}</p>
-          <p className="text-xs font-bold text-gray-600">{activeMusic.artistName}</p>
+          <p className="flex-1 min-w-0 truncate text-sm md:text-base font-black text-primary">{activeMusic.title}</p>
+          <span className="mx-2 sm:hidden">-</span>
+          <p className="shrink-0 text-xs font-bold text-gray-600">{activeMusic.artistName}</p>
         </div>
       ) : null}
     </div>
