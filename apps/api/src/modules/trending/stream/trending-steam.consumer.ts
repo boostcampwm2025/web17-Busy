@@ -9,12 +9,18 @@ import {
   TRENDING_STREAM_BATCH_SIZE,
 } from '../trending.constants';
 import { Cron } from '@nestjs/schedule';
-import { XReadGroupReply } from 'src/infra/redis/redis-steam.type';
+import {
+  StreamEntry,
+  XAutoClaimReply,
+  XReadGroupReply,
+} from 'src/infra/redis/redis-steam.type';
 import { parseTrendingEvent } from '../internal/trending-event.parser';
 
 @Injectable()
 export class TrendingStreamConsumer implements OnModuleInit {
   private readonly consumerName = `trending-${process.pid}`;
+  private reclaimTick = 0;
+  private readonly RECLAIM_INTERVAL_TICKS = 5;
 
   constructor(
     @InjectRedis() private readonly redis: Redis,
@@ -57,6 +63,37 @@ export class TrendingStreamConsumer implements OnModuleInit {
     const [, entries] = res[0];
     if (!entries?.length) return;
 
+    await this.aggregateEntriesAndAck(entries);
+
+    // reclaim tick
+    ++this.reclaimTick;
+    if (this.reclaimTick === this.RECLAIM_INTERVAL_TICKS) {
+      await this.reclaimPendingOnce();
+      this.reclaimTick = 0;
+    }
+  }
+
+  async reclaimPendingOnce() {
+    const minIdleTimeMs = 60_000;
+    const count = 100;
+
+    const res = (await this.redis.xautoclaim(
+      REDIS_KEYS.LOG_EVENTS_STREAM,
+      TRENDING_CONSUMER_GROUP_NAME,
+      this.consumerName,
+      minIdleTimeMs,
+      '0-0',
+      'COUNT',
+      count,
+    )) as XAutoClaimReply;
+
+    const [, entries] = res;
+    if (!entries?.length) return;
+
+    await this.aggregateEntriesAndAck(entries);
+  }
+
+  private async aggregateEntriesAndAck(entries: StreamEntry[]) {
     const pipeline = this.rankStore.pipeline();
     const ackIds: string[] = [];
     const cmdEntryIds: string[] = [];
@@ -72,15 +109,12 @@ export class TrendingStreamConsumer implements OnModuleInit {
       cmdEntryIds.push(id);
     }
 
-    if (cmdEntryIds.length > 0) {
-      const pipelineResult = await pipeline.exec();
-      if (!pipelineResult) return;
+    const pipelineResult = await pipeline.exec();
 
-      pipelineResult.forEach(([err], i) => {
-        const id = cmdEntryIds[i];
-        if (!err) ackIds.push(id);
-      });
-    }
+    pipelineResult?.forEach(([err], i) => {
+      const id = cmdEntryIds[i];
+      if (!err) ackIds.push(id);
+    });
 
     if (ackIds.length === 0) return;
 
