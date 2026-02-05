@@ -4,7 +4,6 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle } from 'lucide-react';
 import { useMusicActions } from '@/hooks';
 import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 // UX 로그
 import { enqueueLog } from '@/utils/logQueue';
