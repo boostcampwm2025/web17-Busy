@@ -15,7 +15,6 @@ type Props = {
   onTogglePlay: () => void;
   onPrev: () => void;
   onNext: () => void;
-  onShuffle: () => void;
 
   volume: number;
   onVolumeChange: (v: number) => void;
@@ -30,16 +29,12 @@ function NowPlayingControlsStaticBase({
   onTogglePlay,
   onPrev,
   onNext,
-  onShuffle,
   volume,
   onVolumeChange,
 }: Props) {
   return (
-    <div className={`flex items-center justify-center gap-4${enabled ? '' : ' opacity-50'}`}>
-      <button type="button" onClick={onShuffle} disabled title="랜덤 재생 버튼" className="text-gray-2 opacity-50 cursor-not-allowed">
-        <Shuffle className="w-5 h-5" />
-      </button>
-
+    <div className={`relative flex items-center justify-center gap-4${enabled ? '' : ' opacity-50'}`}>
+      <div className="w-5 aspect-square" />
       <button
         type="button"
         onClick={() => {

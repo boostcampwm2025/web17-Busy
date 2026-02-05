@@ -51,7 +51,7 @@ export default function PostDetailBody({ profileImg, nickname, content, comments
         ) : (
           <div className="py-10 text-center">
             <p className="text-sm text-gray-400 font-bold">아직 댓글이 없습니다.</p>
-            <p className="text-xs text-gray-300">첫 번째 댓글을 남겨보세요!</p>
+            <p className="text-xs text-gray-400 mt-1">첫 번째 댓글을 남겨보세요!</p>
           </div>
         )}
       </div>
