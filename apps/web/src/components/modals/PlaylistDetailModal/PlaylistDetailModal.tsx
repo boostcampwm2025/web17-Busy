@@ -25,9 +25,14 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
   const [isInvalidTitle, setIsInvalidTitle] = useState(false);
 
   const initialFetchPlaylist = async () => {
-    const fetched = await getPlaylistDetail(playlistId);
-    setPlaylist(fetched);
-    setSongs(fetched.musics);
+    try {
+      const fetched = await getPlaylistDetail(playlistId);
+      setPlaylist(fetched);
+      setSongs(fetched.musics);
+    } catch (e) {
+      toast.error('플레이리스트 정보를 불러오지 못했습니다.');
+      console.error(e);
+    }
   };
 
   useEffect(() => {
@@ -92,10 +97,15 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
   };
 
   const handleAddSong = async (song: UnsavedMusic) => {
-    // 낙관적 업데이트 x - song id가 필요해서 안 됨
-    const { addedMusics } = await addMusicsToPlaylist(playlistId, [song]);
-    setSongs([...songs, ...addedMusics]);
-    bumpPlaylistRefresh();
+    try {
+      // 낙관적 업데이트 x - song id가 필요해서 안 됨
+      const { addedMusics } = await addMusicsToPlaylist(playlistId, [song]);
+      setSongs([...songs, ...addedMusics]);
+      bumpPlaylistRefresh();
+    } catch (e) {
+      toast.error('곡 추가에 실패했습니다.');
+      console.error(e);
+    }
   };
 
   const startRename = () => {
@@ -118,11 +128,15 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
       setDraftTitle(playlist.title);
       return;
     }
-    await editTitleOfPlaylist(playlistId, nextTitle);
-    setPlaylist({ ...playlist, title: nextTitle });
-    setIsEditingTitle(false);
-    setIsInvalidTitle(false);
-    bumpPlaylistRefresh();
+    try {
+      await editTitleOfPlaylist(playlistId, nextTitle);
+      setPlaylist({ ...playlist, title: nextTitle });
+      setIsEditingTitle(false);
+      bumpPlaylistRefresh();
+    } catch (e) {
+      toast.error('플레이리스트 이름 변경에 실패했습니다.');
+      console.error(e);
+    }
   };
 
   const cancelRename = () => {
@@ -182,10 +196,15 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
           cancelLabel="취소"
           onCancel={() => setConfirmOpen(false)}
           onConfirm={async () => {
-            setConfirmOpen(false);
-            await deletePlaylist(playlistId);
-            bumpPlaylistRefresh();
-            closeModal();
+            try {
+              setConfirmOpen(false);
+              await deletePlaylist(playlistId);
+              bumpPlaylistRefresh();
+              closeModal();
+            } catch (e) {
+              toast.error('플레이리스트 삭제에 실패했습니다.');
+              console.error(e);
+            }
           }}
         />
       </div>
