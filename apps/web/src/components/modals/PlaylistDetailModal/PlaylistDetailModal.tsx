@@ -2,7 +2,7 @@ import { ConfirmOverlay } from '@/components';
 import { useModalStore, usePlayerStore, usePlaylistRefreshStore } from '@/stores';
 import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic, GetPlaylistDetailResDto } from '@repo/dto';
 import { useEffect, useState } from 'react';
-import { DEFAULT_IMAGES } from '@/constants';
+import { DEFAULT_IMAGES, MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
 import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist, getPlaylistDetail } from '@/api';
 import { reorder } from '@/utils';
@@ -21,6 +21,8 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const [isInvalidTitle, setIsInvalidTitle] = useState(false);
 
   const initialFetchPlaylist = async () => {
     try {
@@ -112,8 +114,14 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     setIsEditingTitle(true);
   };
 
+  const validateRename = (title: string) => {
+    return title.trim().length <= MAX_PLAYLIST_TITLE_LENGTH;
+  };
+
   const commitRename = async () => {
     if (!playlist) return;
+    if (isInvalidTitle) return;
+
     const nextTitle = draftTitle.trim();
     if (!nextTitle || nextTitle === playlist.title) {
       setIsEditingTitle(false);
@@ -134,11 +142,17 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
   const cancelRename = () => {
     if (playlist) setDraftTitle(playlist.title);
     setIsEditingTitle(false);
+    setIsInvalidTitle(false);
   };
 
   const requestDeletePlaylist = () => {
     setConfirmOpen(true);
   };
+
+  useEffect(() => {
+    const isInValid = !validateRename(draftTitle);
+    isInvalidTitle !== isInValid && setIsInvalidTitle(isInValid);
+  }, [draftTitle]);
 
   return (
     playlist && (
@@ -157,6 +171,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
             onPlayTotalSongs={onPlayTotalSongs}
             isEditingTitle={isEditingTitle}
             draftTitle={draftTitle}
+            isInvalidTitle={isInvalidTitle}
             onStartRename={startRename}
             onChangeTitle={setDraftTitle}
             onCommitRename={commitRename}

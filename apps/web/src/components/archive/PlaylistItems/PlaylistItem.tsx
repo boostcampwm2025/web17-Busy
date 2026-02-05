@@ -1,5 +1,5 @@
 import ConfirmOverlay from '@/components/ConfirmOverlay';
-import { DEFAULT_IMAGES } from '@/constants';
+import { DEFAULT_IMAGES, MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import type { PlaylistBriefResDto as Playlist } from '@repo/dto';
 import { Library, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
@@ -26,6 +26,7 @@ export default function PlaylistItem(playlist: Props) {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState(playlist.title);
+  const [isInvalidTitle, setIsInvalidTitle] = useState(false);
 
   // 플리 상세 모달 열기
   const handlePlaylistClick = () => {
@@ -59,21 +60,35 @@ export default function PlaylistItem(playlist: Props) {
     setConfirmOpen(true);
   };
 
+  const validateRename = (title: string) => {
+    return title.trim().length <= MAX_PLAYLIST_TITLE_LENGTH;
+  };
+
   const commitRename = async () => {
     const nextTitle = draftTitle.trim();
+    if (isInvalidTitle) return;
+
     if (!nextTitle || nextTitle === playlist.title) {
       setIsEditingTitle(false);
       setDraftTitle(playlist.title);
       return;
     }
+
     await playlist.onRename(playlist.id, nextTitle);
     setIsEditingTitle(false);
+    setIsInvalidTitle(false);
   };
 
   const cancelRename = () => {
     setIsEditingTitle(false);
+    setIsInvalidTitle(false);
     setDraftTitle(playlist.title);
   };
+
+  useEffect(() => {
+    const isInValid = !validateRename(draftTitle);
+    isInvalidTitle !== isInValid && setIsInvalidTitle(isInValid);
+  }, [draftTitle]);
 
   useEffect(() => {
     const onDocMouseDown = (e: MouseEvent) => {
@@ -130,22 +145,25 @@ export default function PlaylistItem(playlist: Props) {
       {/* 플리 정보 */}
       <div className="min-w-0 overflow-hidden">
         {isEditingTitle ? (
-          <input
-            autoFocus
-            className="w-full sm:text-lg font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
-            value={draftTitle}
-            onClick={(e) => e.stopPropagation()}
-            onChange={(e) => setDraftTitle(e.target.value)}
-            onBlur={commitRename}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                commitRename();
-              }
-              if (e.key === 'Escape') {
-                cancelRename();
-              }
-            }}
-          />
+          <>
+            <input
+              autoFocus
+              className="w-full sm:text-lg font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
+              value={draftTitle}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => setDraftTitle(e.target.value)}
+              onBlur={commitRename}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  commitRename();
+                }
+                if (e.key === 'Escape') {
+                  cancelRename();
+                }
+              }}
+            />
+            {isInvalidTitle && <span className="text-right my-2 text-xs text-error">제목은 최대 {MAX_PLAYLIST_TITLE_LENGTH}자까지 허용합니다.</span>}
+          </>
         ) : (
           <h3 className="max-w-full sm:text-lg font-black text-primary truncate group-hover:text-accent-pink transition-colors">{playlist.title}</h3>
         )}

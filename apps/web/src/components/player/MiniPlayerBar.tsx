@@ -8,6 +8,8 @@ import { enqueueLog } from '@/utils';
 import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api';
 import { useAuthStore } from '@/stores';
 
+import { TickerText } from '@/components';
+
 interface MiniPlayerBarProps {
   currentMusic: Music | null;
   isPlaying: boolean;
@@ -108,8 +110,17 @@ export default function MiniPlayerBar({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-black text-primary truncate">{currentMusic ? currentMusic.title : '재생 중인 음악 없음'}</p>
-        <p className="text-xs font-bold text-gray-1 truncate">{currentMusic ? currentMusic.artistName : ' '}</p>
+        {currentMusic ? (
+          <>
+            <TickerText text={currentMusic.title} className="text-sm font-black text-primary" />
+            <TickerText text={currentMusic.artistName} className="text-xs font-bold text-gray-1" />
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-black text-primary">재생 중인 음악 없음</p>
+            <p className="text-xs font-bold text-gray-1"> </p>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-1 shrink-0">

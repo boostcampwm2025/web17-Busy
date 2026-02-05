@@ -4,6 +4,7 @@ import Redis from 'ioredis';
 import { AlgorithmService } from './algorithm.service';
 import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { StreamEntry, XAutoClaimReply } from 'src/infra/redis/redis-steam.type';
 
 export interface GraphRelation {
   userId: string;
@@ -24,6 +25,9 @@ export class AlgorithmStreamConsumer implements OnModuleInit {
 
   private readonly CONSUMER_GROUP = 'algorithm-group';
   private readonly BATCH_SIZE = 500;
+
+  private reclaimTick = 0;
+  private readonly RECLAIM_INTERVAL_TICKS = 5;
 
   constructor(
     @InjectRedis() private readonly redis: Redis,
@@ -52,96 +56,132 @@ export class AlgorithmStreamConsumer implements OnModuleInit {
 
   @Cron(CronExpression.EVERY_30_MINUTES, { waitForCompletion: true })
   async pollAndProcess() {
-    let hasMore = true;
+    while (true) {
+      const entries = await this.readNewEntriesOnce();
+      if (entries.length === 0) break;
 
-    while (hasMore) {
-      const res = (await this.redis.xreadgroup(
-        'GROUP',
-        this.CONSUMER_GROUP,
-        this.consumerName,
-        'COUNT',
-        this.BATCH_SIZE,
-        'BLOCK',
-        3000,
-        'STREAMS',
-        REDIS_KEYS.LOG_EVENTS_STREAM,
-        '>',
-      )) as XReadGroupReply;
+      const result = await this.processEntriesAndAck(entries);
 
-      if (!res || !res[0] || !res[0][1].length) {
-        hasMore = false;
-        break;
+      if (!result.ok) break;
+      if (entries.length < this.BATCH_SIZE) break;
+    }
+
+    await this.reclaimPendingOnce();
+  }
+
+  private async readNewEntriesOnce(): Promise<StreamEntry[]> {
+    const res = (await this.redis.xreadgroup(
+      'GROUP',
+      this.CONSUMER_GROUP,
+      this.consumerName,
+      'COUNT',
+      this.BATCH_SIZE,
+      'BLOCK',
+      3000,
+      'STREAMS',
+      REDIS_KEYS.LOG_EVENTS_STREAM,
+      '>',
+    )) as XReadGroupReply;
+
+    if (!res || !res[0] || !res[0][1]?.length) return [];
+    return res[0][1] as StreamEntry[];
+  }
+
+  async reclaimPendingOnce() {
+    const { entries } = await this.autoClaimPendingOnce({
+      minIdleTimeMs: 5 * 60_000,
+      count: this.BATCH_SIZE,
+      startId: '0-0',
+    });
+
+    if (entries.length === 0) return;
+
+    await this.processEntriesAndAck(entries);
+  }
+
+  private async autoClaimPendingOnce(params?: {
+    minIdleTimeMs?: number;
+    count?: number;
+    startId: string;
+  }): Promise<{ nextStartId: string; entries: StreamEntry[] }> {
+    const minIdleTimeMs = params?.minIdleTimeMs ?? 5 * 60_000;
+    const count = params?.count ?? this.BATCH_SIZE ?? 100;
+    const startId = params?.startId ?? '0-0';
+
+    const [nextStartId, entries] = (await this.redis.xautoclaim(
+      REDIS_KEYS.LOG_EVENTS_STREAM,
+      this.CONSUMER_GROUP,
+      this.consumerName,
+      minIdleTimeMs,
+      startId,
+      'COUNT',
+      count,
+    )) as XAutoClaimReply;
+
+    return { nextStartId, entries };
+  }
+
+  private async processEntriesAndAck(entries: StreamEntry[]) {
+    // 1개의 로그 → 여러 관계가 될 수 있으니 평탄화
+    const batchToAdd: GraphRelation[] = [];
+    const batchToRemove: GraphRelation[] = [];
+
+    const validIds: string[] = [];
+    const skipIds: string[] = [];
+
+    for (const [id, fields] of entries) {
+      const parsedRelations = this.parseToGraphData(fields);
+
+      if (!parsedRelations || parsedRelations.length === 0) {
+        skipIds.push(id); // 파싱 불가/의미 없음 → ACK해서 PEL 무한 증가 방지
+        continue;
       }
 
-      const [, entries] = res[0];
-
-      // 1개의 로그가 여러 관계(N)가 될 수 있으므로 배열을 평탄화해서 관리
-      const batchToAdd: GraphRelation[] = [];
-      const batchToRemove: GraphRelation[] = [];
-
-      const validIds: string[] = [];
-      const skipIds: string[] = [];
-
-      for (const [id, fields] of entries) {
-        const parsedRelations = this.parseToGraphData(fields);
-
-        if (!parsedRelations || parsedRelations.length === 0) {
-          skipIds.push(id);
-          continue;
-        }
-
-        // ADD와 REMOVE를 분리하여 담기
-        parsedRelations.forEach((rel) => {
-          if (rel.action === 'REMOVE') {
-            batchToRemove.push(rel);
-          } else {
-            batchToAdd.push(rel);
-          }
-        });
-
-        validIds.push(id);
+      for (const rel of parsedRelations) {
+        if (rel.action === 'REMOVE') batchToRemove.push(rel);
+        else batchToAdd.push(rel);
       }
 
-      // DB 트랜잭션 처리
-      try {
-        // 1. 관계 생성 배치 실행
-        if (batchToAdd.length > 0) {
-          await this.algorithmService.addRelationshipsBatch(batchToAdd);
-        }
+      validIds.push(id);
+    }
 
-        // 2. 관계 삭제 배치 실행
-        if (batchToRemove.length > 0) {
-          await this.algorithmService.removeRelationshipsBatch(batchToRemove);
-        }
-
-        if (batchToAdd.length > 0 || batchToRemove.length > 0) {
-          await new Promise((resolve) => setTimeout(resolve, 200));
-        }
-
-        // 3. 성공 시 ACK (처리 완료 통보)
-        const idsToAck = [...validIds, ...skipIds];
-        if (idsToAck.length > 0) {
-          await this.redis.xack(
-            REDIS_KEYS.LOG_EVENTS_STREAM,
-            this.CONSUMER_GROUP,
-            ...idsToAck,
-          );
-        }
-      } catch (error) {
-        this.logger.error('Failed to sync to Neo4j', error);
-        // DB 에러 시, 파싱 불가능한 데이터(skipIds)만이라도 ACK 처리하여 무한 루프 방지
-        hasMore = false;
-        if (skipIds.length > 0) {
-          await this.redis.xack(
-            REDIS_KEYS.LOG_EVENTS_STREAM,
-            this.CONSUMER_GROUP,
-            ...skipIds,
-          );
-        }
+    try {
+      if (batchToAdd.length > 0) {
+        await this.algorithmService.addRelationshipsBatch(batchToAdd);
       }
-      if (entries.length < this.BATCH_SIZE) {
-        hasMore = false;
+
+      if (batchToRemove.length > 0) {
+        await this.algorithmService.removeRelationshipsBatch(batchToRemove);
       }
+
+      if (batchToAdd.length > 0 || batchToRemove.length > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+
+      // 성공한 것 + 스킵한 것은 ACK
+      const idsToAck = [...validIds, ...skipIds];
+      if (idsToAck.length > 0) {
+        await this.redis.xack(
+          REDIS_KEYS.LOG_EVENTS_STREAM,
+          this.CONSUMER_GROUP,
+          ...idsToAck,
+        );
+      }
+
+      return { ok: true as const, acked: validIds.length + skipIds.length };
+    } catch (error) {
+      this.logger.error('Failed to sync to Neo4j', error);
+
+      // DB 에러 시에도 파싱 불가(스킵)만 ACK → 무한루프 방지
+      if (skipIds.length > 0) {
+        await this.redis.xack(
+          REDIS_KEYS.LOG_EVENTS_STREAM,
+          this.CONSUMER_GROUP,
+          ...skipIds,
+        );
+      }
+
+      return { ok: false as const, acked: skipIds.length };
     }
   }
 

@@ -1,3 +1,4 @@
+import { MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
 import { Check, Pencil, Play, Search, Trash2, X } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 
@@ -8,6 +9,7 @@ type Props = {
   onPlayTotalSongs: () => void;
   isEditingTitle: boolean;
   draftTitle: string;
+  isInvalidTitle: boolean;
   onStartRename: () => void;
   onChangeTitle: (value: string) => void;
   onCommitRename: () => void;
@@ -22,6 +24,7 @@ export function Header({
   onPlayTotalSongs,
   isEditingTitle,
   draftTitle,
+  isInvalidTitle,
   onStartRename,
   onChangeTitle,
   onCommitRename,
@@ -32,7 +35,7 @@ export function Header({
     <div className="relative bg-grayish border-b-2 border-primary p-6">
       <div className="flex items-center space-x-6">
         {/* Cover */}
-        <div className="relative w-28 h-28 flex-shrink-0">
+        <div className="relative w-28 h-28 shrink-0">
           <div className="absolute inset-0 bg-primary translate-x-1 translate-y-1 rounded-xl"></div>
           <img src={coverImgUrl} alt={title} className="relative w-full h-full object-cover rounded-xl border-2 border-primary z-10" />
           <div className="absolute -bottom-2 -right-2 z-20 bg-accent-pink text-white text-xs font-bold px-2 py-0.5 rounded-full border border-primary">
@@ -45,20 +48,26 @@ export function Header({
           <div className="flex items-start justify-between gap-2 mb-1">
             {isEditingTitle ? (
               <div className="flex items-center gap-2 w-full">
-                <input
-                  autoFocus
-                  className="w-full text-2xl font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
-                  value={draftTitle}
-                  onChange={(e) => onChangeTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      onCommitRename();
-                    }
-                    if (e.key === 'Escape') {
-                      onCancelRename();
-                    }
-                  }}
-                />
+                <div>
+                  <input
+                    autoFocus
+                    className="w-full text-2xl font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
+                    value={draftTitle}
+                    onChange={(e) => onChangeTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        onCommitRename();
+                      }
+                      if (e.key === 'Escape') {
+                        onCancelRename();
+                      }
+                    }}
+                  />
+                  {isInvalidTitle && (
+                    <span className="text-right my-2 text-xs text-error">제목은 최대 {MAX_PLAYLIST_TITLE_LENGTH}자까지 허용합니다.</span>
+                  )}
+                </div>
+
                 <button
                   type="button"
                   className="p-1 rounded-md border-2 border-primary text-primary hover:bg-gray-50"
@@ -90,7 +99,7 @@ export function Header({
                   </button>
                   <button
                     type="button"
-                    className="p-1 rounded-md border-2 border-primary text-[var(--color-accent-pink)] hover:bg-gray-50"
+                    className="p-1 rounded-md border-2 border-primary text-accent-pink hover:bg-gray-50"
                     onClick={onDelete}
                     aria-label="Delete playlist"
                   >
