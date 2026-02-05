@@ -30,7 +30,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
 
   useEffect(() => {
     initialFetchPlaylist();
-  }, []);
+  }, [playlistId]);
 
   const onPlayTotalSongs = () => {
     if (songs.length > 0) {

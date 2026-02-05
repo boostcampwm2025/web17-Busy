@@ -1,7 +1,8 @@
 import { usePlayerStore } from '@/stores';
 import type { MusicResponseDto } from '@repo/dto';
-import { CheckSquare, ChevronDown, ChevronUp, Music, Play, Square } from 'lucide-react';
-import { DragEvent, useState } from 'react';
+import { CheckSquare, ChevronDown, ChevronUp, GripVertical, Music, Play, Square } from 'lucide-react';
+import type { DragEvent } from 'react';
+import { useState } from 'react';
 
 function SongItem({
   song,
@@ -38,9 +39,12 @@ function SongItem({
       onDrop={onDrop}
       onDragEnd={onDragEnd}
       className={`group flex items-center p-2 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors ${
-        isDragOver ? 'border-accent-pink bg-accent-pink/10' : ''
+        isDragOver ? 'border-accent-cyan bg-accent-cyan/10' : ''
       }`}
     >
+      <span className="mr-2 text-gray-300 cursor-grab active:cursor-grabbing" aria-label="drag-handle">
+        <GripVertical className="w-4 h-4" />
+      </span>
       {/* Checkbox (Left) */}
       <button onClick={() => toggleSelectSong(song.id)} className="mr-3 text-gray-300 hover:text-primary transition-colors">
         {isChecked ? <CheckSquare className="w-5 h-5 text-accent-pink" /> : <Square className="w-5 h-5" />}
