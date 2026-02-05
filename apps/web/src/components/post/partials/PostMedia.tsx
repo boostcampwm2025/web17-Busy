@@ -35,7 +35,7 @@ const stylesByVariant: Record<Variant, { container: string; playBtn: string; inf
     playBtn:
       'w-10 md:w-14 aspect-square rounded-full bg-primary text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#00ebc7] hover:scale-105 transition-transform',
     infoBox:
-      'absolute max-w-4/5 bottom-3 left-3 md:bottom-6 md:left-6 flex gap-2 items-center sm:block bg-white/90 backdrop-blur-sm px-2.5 py-1.5 sm:px-5 sm:py-3 rounded-xl border-2 border-primary shadow-[3px_3px_0px_0px_#FDE24F] md:shadow-[6px_6px_0px_0px_#FDE24F]',
+      'absolute max-w-4/5 bottom-3 left-3 md:bottom-6 md:left-6 bg-white/90 backdrop-blur-sm px-2.5 py-1.5 sm:px-5 sm:py-3 rounded-xl border-2 border-primary shadow-[3px_3px_0px_0px_#FDE24F] md:shadow-[6px_6px_0px_0px_#FDE24F]',
     navBtn:
       'absolute top-1/2 -translate-y-1/2 w-8 md:w-12 aspect-square rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white transition-opacity ' +
       'md:opacity-0 md:group-hover:opacity-100 md:pointer-events-none md:group-hover:pointer-events-auto',
@@ -104,9 +104,9 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
       ) : null}
 
       {activeMusic ? (
-        <div className={styles.infoBox}>
-          <p className="min-w-12 truncate shrink-2 text-sm md:text-base font-black text-primary">{activeMusic.title}</p>
-          <p className="min-w-4 truncate shrink text-xs font-bold text-gray-600">{activeMusic.artistName}</p>
+        <div className={`${styles.infoBox} max-w-[70%] md:max-w-[60%] min-w-0`}>
+          <TickerText text={activeMusic.title} className="text-sm md:text-base font-black text-primary" />
+          <TickerText text={activeMusic.artistName} className="text-xs font-bold text-gray-600" />
         </div>
       ) : null}
     </div>
