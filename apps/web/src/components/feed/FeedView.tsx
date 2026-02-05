@@ -1,18 +1,34 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useFeedInfiniteScroll } from '@/hooks';
 import { getFeedPosts } from '@/api';
 import { FeedSkeleton } from '../skeleton';
 import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
-import { useFeedRefreshStore, usePostReactionOverridesStore } from '@/stores';
-import { useEffect } from 'react';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 
-export default function FeedView() {
+import { useFeedRefreshStore, usePostReactionOverridesStore } from '@/stores';
+import { PostResponseDto } from '@repo/dto';
+
+interface FeedViewProps {
+  initialPost?: PostResponseDto;
+}
+
+export default function FeedView({ initialPost }: FeedViewProps) {
+  const openModal = useModalStore((s) => s.openModal);
   const nonce = useFeedRefreshStore((s) => s.nonce);
+
+  useEffect(() => {
+    if (initialPost) {
+      openModal(MODAL_TYPES.POST_DETAIL, { postId: initialPost.id, initialPost });
+    }
+  }, [initialPost, openModal]);
+
   const { posts, setPosts, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
     fetchFn: getFeedPosts,
-    resetKey: String(nonce), // 글 작성 성공 시 초기화/재조회 트리거
+    resetKey: String(nonce),
+    initialData: initialPost ? [initialPost] : [],
   });
 
   const contentByPostId = usePostReactionOverridesStore((s) => s.contentByPostId);
@@ -45,8 +61,7 @@ export default function FeedView() {
     clearDeletedPostId();
   }, [deletedPostId]);
 
-  // 최초 요청 처리 중에만 스켈레톤 표시
-  if (isInitialLoading) return <FeedSkeleton />;
+  if (isInitialLoading && !initialPost) return <FeedSkeleton />;
 
   return (
     <>
