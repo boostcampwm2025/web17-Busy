@@ -16,9 +16,9 @@ export const SelectedMusicList = ({ musics, onRemove, onMove }: SelectedMusicLis
         선택된 음악 <span className="text-accent-cyan">*</span> ({musics.length})
       </label>
 
-      <div className="flex-1 border-2 border-primary/20 rounded-xl overflow-y-auto max-h-37.5 p-2 bg-gray-4/50 custom-scrollbar space-y-2 min-h-37.5">
+      <div className="flex-1 flex flex-col border-2 border-primary/20 rounded-xl overflow-y-auto max-h-37.5 p-2 bg-gray-4/50 custom-scrollbar space-y-2 min-h-37.5">
         {musics.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-gray-2">
+          <div className="flex-1 flex flex-col items-center justify-center text-gray-2">
             <MusicIcon className="w-8 h-8 mb-2 opacity-50" />
             <span className="text-sm font-medium">검색 또는 내 보관함에서 추가해주세요</span>
           </div>
