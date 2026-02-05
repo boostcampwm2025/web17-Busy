@@ -25,6 +25,7 @@ interface PlayerState {
  */
 interface PlayerActions {
   playMusic: (music: Music) => void;
+  selectMusic: (music: Music) => void;
   togglePlay: () => void;
 
   playPrev: () => void;
@@ -97,6 +98,14 @@ const dedupeQueue = (queue: Music[]): Music[] => {
 const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
 
 /**
+ * 큐에서 해당 곡이 이미 있으면 제거하고 맨 뒤에 추가(=재생/추가 시 최근 곡을 뒤로 보냄)
+ */
+const moveToEnd = (queue: Music[], music: Music): Music[] => {
+  const filtered = removeById(queue, music.id);
+  return [...filtered, music];
+};
+
+/**
  * usePlayerStore
  * - 컴포넌트에서 usePlayerStore((s) => s.currentMusic) 형태로 구독 가능
  * - set/get으로 상태/액션 구현
@@ -128,6 +137,24 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   },
 
   playMusic: (music) => {
+    const { currentMusic, queue } = get();
+
+    // 새 재생 시 기존 에러 메시지 제거
+    set({ playError: null });
+
+    if (isSameMusic(currentMusic, music)) {
+      get().togglePlay();
+      return;
+    }
+
+    set({
+      currentMusic: music,
+      isPlaying: true,
+      queue: moveToEnd(queue, music),
+    });
+  },
+
+  selectMusic: (music) => {
     const { currentMusic, queue } = get();
 
     // 새 재생 시 기존 에러 메시지 제거

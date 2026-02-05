@@ -29,12 +29,12 @@ const stylesByVariant: Record<Variant, { container: string; playBtn: string; inf
       'opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto',
   },
   modal: {
-    container: 'flex-1 bg-gray-4 relative group overflow-hidden',
+    container: 'w-full aspect-[7/3] md:flex-1 bg-gray-4 relative group overflow-hidden',
     playBtn:
-      'w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#00ebc7] hover:scale-105 transition-transform',
+      'w-10 md:w-14 aspect-square rounded-full bg-primary text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#00ebc7] hover:scale-105 transition-transform',
     infoBox: 'absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-xl border-2 border-primary shadow-[6px_6px_0px_0px_#FDE24F]',
     navBtn:
-      'absolute top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white ' +
+      'absolute top-1/2 -translate-y-1/2 w-8 md:w-12 aspect-square rounded-full bg-white/80 border border-primary text-primary flex items-center justify-center hover:bg-white ' +
       'opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto',
   },
 };
@@ -102,7 +102,7 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
 
       {activeMusic ? (
         <div className={styles.infoBox}>
-          <p className="font-black text-primary">{activeMusic.title}</p>
+          <p className="text-sm md:text-base font-black text-primary">{activeMusic.title}</p>
           <p className="text-xs font-bold text-gray-600">{activeMusic.artistName}</p>
         </div>
       ) : null}

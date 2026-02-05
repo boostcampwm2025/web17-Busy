@@ -26,7 +26,7 @@ export default function RightPanel() {
   const isPlaying = usePlayerStore((s) => s.isPlaying);
   const queue = usePlayerStore((s) => s.queue);
 
-  const playMusic = usePlayerStore((s) => s.playMusic);
+  const selectMusic = usePlayerStore((s) => s.selectMusic);
   const togglePlay = usePlayerStore((s) => s.togglePlay);
   const clearQueue = usePlayerStore((s) => s.clearQueue);
   const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
@@ -83,7 +83,7 @@ export default function RightPanel() {
           onRemove={removeFromQueue}
           onMoveUp={moveUp}
           onMoveDown={moveDown}
-          onSelect={playMusic}
+          onSelect={selectMusic}
         />
       </section>
     </>

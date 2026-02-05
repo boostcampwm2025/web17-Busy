@@ -2,6 +2,8 @@ import { usePlayerStore } from '@/stores';
 import type { MusicResponseDto } from '@repo/dto';
 import { CheckSquare, ChevronDown, ChevronUp, Music, Play, Square } from 'lucide-react';
 
+import { TickerText } from '@/components';
+
 function SongItem({
   song,
   idx,
@@ -28,15 +30,15 @@ function SongItem({
 
       {/* Song Info (Click to play individual) */}
       <div className="flex items-center flex-1 min-w-0 cursor-pointer" onClick={() => playMusic(song)}>
-        <div className="relative w-10 h-10 mr-3 flex-shrink-0">
+        <div className="relative w-10 h-10 mr-3 shrink-0">
           <img src={song.albumCoverUrl} alt="cover" className="w-full h-full rounded border border-gray-200 object-cover" />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded flex items-center justify-center transition-colors">
             <Play className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 fill-current drop-shadow-md" />
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-primary truncate">{song.title}</p>
-          <p className="text-xs text-gray-500 truncate">{song.artistName}</p>
+          <TickerText text={song.title} className="text-sm font-bold text-primary" />
+          <TickerText text={song.artistName} className="text-xs text-gray-500" />
         </div>
       </div>
 

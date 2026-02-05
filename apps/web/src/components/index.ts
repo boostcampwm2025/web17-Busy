@@ -14,3 +14,4 @@ export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as ModalContainer } from './modals/ModalContainer';
 export { default as LoginRequestScreen } from './LoginRequestScreen';
 export { default as ConfirmOverlay } from './ConfirmOverlay';
+export { default as TickerText } from './TickerText';
