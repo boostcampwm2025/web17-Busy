@@ -5,8 +5,7 @@ import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/d
 
 import { useRouter } from 'next/navigation';
 import { PostHeader } from '../../post';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { useModalStore, MODAL_TYPES, usePlayerStore, usePostReactionOverridesStore } from '@/stores';
+import { useModalStore, MODAL_TYPES, usePlayerStore, usePostReactionOverridesStore, useAuthStore } from '@/stores';
 import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions } from '@/hooks';
 
 import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
@@ -22,7 +21,7 @@ import { enqueueLog } from '@/utils/logQueue';
 import { makePostDetailLog } from '@/api/internal/logging';
 
 export const PostCardDetailModal = () => {
-  const { userId } = useAuthMe();
+  const userId = useAuthStore((s) => s.userId);
   const router = useRouter();
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
   const enabled = isOpen && modalType === MODAL_TYPES.POST_DETAIL;

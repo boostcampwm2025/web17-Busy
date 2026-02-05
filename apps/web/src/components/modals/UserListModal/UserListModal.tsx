@@ -3,9 +3,8 @@
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ProfileActionButton } from '@/components/profile';
 import { DEFAULT_IMAGES } from '@/constants';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import type { GetUserFollowDto } from '@repo/dto';
-import { useModalStore, useProfileStore } from '@/stores';
+import { useAuthStore, useModalStore, useProfileStore } from '@/stores';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
@@ -21,7 +20,7 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
   const { profileUserId }: { profileUserId: string } = modalProps;
 
   const router = useRouter();
-  const { userId: loggedInUserId } = useAuthMe();
+  const loggedInUserId = useAuthStore((s) => s.userId);
 
   const incrementFollowingCount = useProfileStore((s) => s.incrementFollowingCount);
   const decrementFollowingCount = useProfileStore((s) => s.decrementFollowingCount);

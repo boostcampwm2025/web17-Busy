@@ -2,16 +2,15 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { getUser, getUserProfilePosts } from '@/api';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useInfiniteScroll } from '@/hooks';
-import { useFeedRefreshStore, useProfileStore } from '@/stores';
+import { useAuthStore, useFeedRefreshStore, useProfileStore } from '@/stores';
 import { ProfileSkeleton } from '../skeleton';
 import { ProfileInfo } from './ProfileInfo';
 import ProfilePosts from './ProfilePosts';
 import LoadingSpinner from '../LoadingSpinner';
 
 export default function ProfileView({ userId }: { userId: string }) {
-  const { userId: loggedInUserId } = useAuthMe();
+  const loggedInUserId = useAuthStore((s) => s.userId);
   const { profile, setProfile } = useProfileStore();
 
   const nonce = useFeedRefreshStore((s) => s.nonce);

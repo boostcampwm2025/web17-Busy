@@ -3,8 +3,7 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle } from 'lucide-react';
 import { useMusicActions } from '@/hooks';
-import { useModalStore, MODAL_TYPES } from '@/stores';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
 
 // UX 로그
 import { enqueueLog } from '@/utils/logQueue';
@@ -27,7 +26,7 @@ interface QueueListProps {
 export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown, onSelect }: QueueListProps) {
   const isEmpty = queue.length === 0;
 
-  const { isAuthenticated } = useAuthMe();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { openModal } = useModalStore();
 
   const { openWriteModalWithQueue, addQueueToArchive } = useMusicActions();

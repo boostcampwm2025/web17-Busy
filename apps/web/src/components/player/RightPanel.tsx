@@ -2,8 +2,7 @@
 
 import { QueueList, MiniPlayerBar, NowPlaying } from './index';
 import { useQueueSync, useGuestQueueSession } from '@/hooks';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { usePlayerStore, useModalStore, MODAL_TYPES } from '@/stores';
+import { usePlayerStore, useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
 import { useMemo, useCallback } from 'react';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
@@ -12,7 +11,8 @@ const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): nu
 };
 
 export default function RightPanel() {
-  const { isAuthenticated, isLoading } = useAuthMe();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const enableServerSync = isAuthenticated && !isLoading;
   const enableGuestSession = !isAuthenticated && !isLoading;
 
