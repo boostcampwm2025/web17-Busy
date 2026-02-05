@@ -35,6 +35,7 @@ interface PlayerActions {
 
   moveUp: (index: number) => void;
   moveDown: (index: number) => void;
+  moveTo: (from: number, to: number) => void;
 
   clearQueue: () => void;
   initializeQueue: (queue: Music[]) => void;
@@ -219,6 +220,20 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     set((state) => {
       if (index < 0 || index >= state.queue.length - 1) return state;
       return { queue: swap(state.queue, index, index + 1) };
+    });
+  },
+  /** from -> to 드래그 앤 드롭 */
+  moveTo: (from, to) => {
+    set((state) => {
+      if (from === to) return state;
+      if (from < 0 || from >= state.queue.length) return state;
+      if (to < 0 || to >= state.queue.length) return state;
+
+      const next = [...state.queue];
+      const [item] = next.splice(from, 1);
+      if (!item) return state;
+      next.splice(to, 0, item);
+      return { queue: next };
     });
   },
   /** 큐 전체 초기화 + 현재곡/재생 상태도 초기화 */
