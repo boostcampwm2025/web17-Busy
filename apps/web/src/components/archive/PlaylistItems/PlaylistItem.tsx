@@ -1,12 +1,10 @@
 import ConfirmOverlay from '@/components/ConfirmOverlay';
-import { DEFAULT_IMAGES } from '@/constants';
+import { DEFAULT_IMAGES, MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import type { PlaylistBriefResDto as Playlist } from '@repo/dto';
 import { Library, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-
-const MAX_PLAYLIST_TITLE_LENGTH = 20;
 
 type Props = Playlist & {
   openMenuId: string | null;
