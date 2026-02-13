@@ -1,46 +1,54 @@
-name: Build and Push to NCP Registry
+name: Deploy to Each Account ECR
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-push:
+  # --- Account A: Frontend 배포 ---
+  deploy-frontend:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to NCP Container Registry
-        uses: docker/login-action@v3
+      - name: Configure AWS Credentials (Account A)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          registry: ${{ secrets.NCP_REGISTRY_URL }}
-          username: ${{ secrets.NCP_REGISTRY_ACCESS_KEY }} # Access Key
-          password: ${{ secrets.NCP_REGISTRY_SECRET_KEY }} # Secret Key
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_A }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_A }}
+          aws-region: ap-northeast-2
 
-      # ---- Frontend Build ----
-      - name: Build & Push Frontend
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./apps/web/Dockerfile # Dockerfile 위치 지정
-          push: true
-          tags: ${{ secrets.NCP_REGISTRY_URL }}/frontend:latest
-          cache-from: type=registry,ref=${{ secrets.NCP_REGISTRY_URL }}/frontend:buildcache
-          cache-to: type=registry,ref=${{ secrets.NCP_REGISTRY_URL }}/frontend:buildcache,mode=max
-          build-args: |
-            NEXT_PUBLIC_SPOTIFY_API_BASE_URL=${{ secrets.NEXT_PUBLIC_SPOTIFY_API_BASE_URL }}
+      - name: Login to ECR (Account A)
+        id: login-ecr-a
+        uses: aws-actions/amazon-ecr-login@v2
 
-      # ---- Backend Build ----
-      - name: Build & Push Backend
-        uses: docker/build-push-action@v5
+      - name: Build and Push FE Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr-a.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/busy-fe:latest -f apps/web/Dockerfile .
+          docker push $ECR_REGISTRY/busy-fe:latest
+
+  # --- Account B: Backend 배포 ---
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (Account B)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          context: .
-          file: ./apps/api/Dockerfile # Dockerfile 위치 지정
-          push: true
-          tags: ${{ secrets.NCP_REGISTRY_URL }}/backend:latest
-          cache-from: type=registry,ref=${{ secrets.NCP_REGISTRY_URL }}/backend:buildcache
-          cache-to: type=registry,ref=${{ secrets.NCP_REGISTRY_URL }}/backend:buildcache,mode=max`
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_B }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_B }}
+          aws-region: ap-northeast-2
+
+      - name: Login to ECR (Account B)
+        id: login-ecr-b
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push BE Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr-b.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/busy-be:latest -f apps/api/Dockerfile .
+          docker push $ECR_REGISTRY/busy-be:latest
