@@ -24,8 +24,8 @@ jobs:
 
       - name: Fetch SSL Certificates from SSM
         run: |
-          aws ssm get-parameter --name "/your-app/ssl/certificate" --with-decryption --query "Parameter.Value" --output text > server.crt
-          aws ssm get-parameter --name "/your-app/ssl/private_key" --with-decryption --query "Parameter.Value" --output text > server.key
+          aws ssm get-parameter --name "/vibr/ssl/fullchain" --with-decryption --query "Parameter.Value" --output text > server.crt
+          aws ssm get-parameter --name "/vibr/ssl/privkey" --with-decryption --query "Parameter.Value" --output text > server.key
       
       - name: Build and Push FE Image
         env:
