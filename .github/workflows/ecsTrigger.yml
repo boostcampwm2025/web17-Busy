@@ -6,12 +6,19 @@ on:
     types:
       - completed
 
+env:
+  BE_CLUSTER: vibr-be-cluster
+  BE_SERVICE: vibr-be-service
+  FE_CLUSTER: vibr-fe-cluster
+  FE_SERVICE: vibr-fe-service
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+      # 1. Backend 배포
       - name: Configure AWS credentials for Backend
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -22,11 +29,12 @@ jobs:
       - name: Force new deployment for Backend
         run: |
           aws ecs update-service \
-            --cluster <vibr-be-cluster> \
-            --service <vibr-be-service> \
+            --cluster ${{ env.BE_CLUSTER }} \
+            --service ${{ env.BE_SERVICE }} \
             --force-new-deployment
 
-      - name: Configure AWS credentials for Frontend (Account A)
+      # 2. Frontend 배포 (Account A)
+      - name: Configure AWS credentials for Frontend
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.FE_AWS_ACCESS_KEY_ID }}
@@ -36,6 +44,40 @@ jobs:
       - name: Force new deployment for Frontend
         run: |
           aws ecs update-service \
-            --cluster <vibr-be-cluster> \
-            --service <vibr-be-service> \
+            --cluster ${{ env.FE_CLUSTER }} \
+            --service ${{ env.FE_SERVICE }} \
             --force-new-deployment
+
+      # 3. 새 Task가 RUNNING 상태가 될 때까지 대기
+      - name: Wait for Frontend ECS Task
+        run: |
+          aws ecs wait services-stable --cluster ${{ env.FE_CLUSTER }} --services ${{ env.FE_SERVICE }}
+
+      # 4. 새 Task의 퍼블릭 IP 추출
+      - name: Get Frontend ECS Task Public IP
+        id: get-ip
+        run: |
+          TASK_ARN=$(aws ecs list-tasks --cluster ${{ env.FE_CLUSTER }} --service ${{ env.FE_SERVICE }} --desired-status RUNNING --query 'taskArns[0]' --output text)
+          ENI_ID=$(aws ecs describe-tasks --cluster ${{ env.FE_CLUSTER }} --tasks $TASK_ARN --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' --output text)
+          PUBLIC_IP=$(aws ec2 describe-network-interfaces --network-interface-ids $ENI_ID --query 'NetworkInterfaces[0].Association.PublicIp' --output text)
+          
+          echo "NEW_IP=$PUBLIC_IP" >> $GITHUB_OUTPUT
+          echo "Detected New Public IP: $PUBLIC_IP"
+
+      # 5. Route 53 A 레코드 갱신 (UPSERT)
+      - name: Update Route 53 A Record
+        run: |
+          aws route53 change-resource-record-sets \
+            --hosted-zone-id ${{ secrets.AWS_HOSTED_ZONE_ID }} \
+            --change-batch '{
+              "Comment": "Update FE IP after ECS deployment",
+              "Changes": [{
+                "Action": "UPSERT",
+                "ResourceRecordSet": {
+                  "Name": "${{ secrets.DOMAIN_NAME }}",
+                  "Type": "A",
+                  "TTL": 60,
+                  "ResourceRecords": [{ "Value": "${{ steps.get-ip.outputs.NEW_IP }}" }]
+                }
+              }]
+            }'
