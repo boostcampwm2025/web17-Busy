@@ -23,10 +23,15 @@ RUN pnpm turbo run build --filter=web...
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# [수정] Nginx 설치 및 TZ 설정
+# Nginx 설치 및 TZ 설정
 RUN apk add --no-cache nginx tzdata
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN mkdir -p /etc/nginx/ssl
+COPY server.crt /etc/nginx/ssl/server.crt
+COPY server.key /etc/nginx/ssl/server.key
+RUN chmod 400 /etc/nginx/ssl/server.key
 
 ENV NODE_ENV=production
 ENV PORT=3001
@@ -37,12 +42,12 @@ COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder /app/apps/web/public ./apps/web/public
 
-# [추가] 프로젝트 루트에 있는 nginx.conf를 컨테이너 설정 경로로 복사
+# 프로젝트 루트에 있는 nginx.conf를 컨테이너 설정 경로로 복사
 # 빌드 컨텍스트에 따라 경로를 확인하세요 (예: apps/web/nginx/nginx.conf)
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 # 80(Nginx 외부용), 3001(Next.js 내부용) 개방
-EXPOSE 80 3001
+EXPOSE 80 443 3001
 
 # [중요] Nginx는 백그라운드(daemon off 옵션 제거 시)로, Node는 포어그라운드로 실행
 CMD nginx && node apps/web/server.js
