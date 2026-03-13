@@ -22,6 +22,11 @@ jobs:
         id: login-ecr-a
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Fetch SSL Certificates from SSM
+        run: |
+          aws ssm get-parameter --name "/vibr/ssl/fullchain" --with-decryption --query "Parameter.Value" --output text > server.crt
+          aws ssm get-parameter --name "/vibr/ssl/privkey" --with-decryption --query "Parameter.Value" --output text > server.key
+      
       - name: Build and Push FE Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr-a.outputs.registry }}
