@@ -12,7 +12,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
   const { closeModal } = useModalStore();
 
   const addToQueue = usePlayerStore((s) => s.addToQueue);
-  const playMusic = usePlayerStore((s) => s.playMusic);
+  const selectMusic = usePlayerStore((s) => s.selectMusic);
   const bumpPlaylistRefresh = usePlaylistRefreshStore((s) => s.bump);
 
   const [playlist, setPlaylist] = useState<GetPlaylistDetailResDto | null>(null);
@@ -42,7 +42,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
   const onPlayTotalSongs = () => {
     if (songs.length > 0) {
       addToQueue(songs);
-      playMusic(songs[0]!);
+      selectMusic(songs[0]!);
     }
   };
 
