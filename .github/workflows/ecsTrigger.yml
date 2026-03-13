@@ -5,6 +5,8 @@ on:
     workflows: ["Deploy to Each Account ECR"]
     types:
       - completed
+    branches: 
+      - main
 
 env:
   BE_CLUSTER: vibr-be-cluster
