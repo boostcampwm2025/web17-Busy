@@ -22,8 +22,8 @@ jobs:
       - name: Configure AWS credentials for Backend
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.BE_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.BE_AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_B }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_B }}
           aws-region: ap-northeast-2
 
       - name: Force new deployment for Backend
@@ -37,8 +37,8 @@ jobs:
       - name: Configure AWS credentials for Frontend
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.FE_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.FE_AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_A }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_A }}
           aws-region: ap-northeast-2
 
       - name: Force new deployment for Frontend
