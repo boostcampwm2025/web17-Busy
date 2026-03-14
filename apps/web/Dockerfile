@@ -33,6 +33,8 @@ COPY server.crt /etc/nginx/ssl/server.crt
 COPY server.key /etc/nginx/ssl/server.key
 RUN chmod 400 /etc/nginx/ssl/server.key
 
+RUN ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log
+
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
@@ -49,5 +51,4 @@ COPY nginx/nginx.conf /etc/nginx/nginx.conf
 # 80(Nginx 외부용), 3001(Next.js 내부용) 개방
 EXPOSE 80 443 3001
 
-# [중요] Nginx는 백그라운드(daemon off 옵션 제거 시)로, Node는 포어그라운드로 실행
-CMD nginx && node apps/web/server.js
+CMD nginx && HOSTNAME=127.0.0.1 node apps/web/server.js
