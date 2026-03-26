@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
 import { Header, Sidebar, RightPanel, ModalContainer, LoadingSpinner } from '@/components';
 import NotiPollingGate from '@/components/noti/NotiPollingGate';
+import PwaInstallBanner from '@/components/PwaInstallBanner';
 import PwaRegister from '@/components/PwaRegister';
 import ToastProvider from '@/components/ToastContainer';
 import { PrivacyConsentGate } from '@/hooks';
@@ -39,8 +40,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__pwaPrompt=e;});`,
+          }}
+        />
+      </head>
       <body>
         <PwaRegister />
+        <PwaInstallBanner />
         <SpotifyTokenFromHash />
         <Suspense fallback={<LoadingSpinner />}>
           <AuthLoginQueryHandler />
