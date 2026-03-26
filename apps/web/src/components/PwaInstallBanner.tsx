@@ -78,24 +78,24 @@ export default function PwaInstallBanner() {
   if (!bannerType) return null;
 
   return (
-    <div className="fixed bottom-28 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 rounded-2xl border border-white/10 bg-neutral-900/95 p-4 shadow-2xl backdrop-blur lg:bottom-6">
+    <div className="fixed top-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 rounded-2xl border border-gray-3 bg-white p-4 shadow-2xl">
       <div className="flex items-start gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/icons/icon-192.png" alt="VIBR" className="h-12 w-12 shrink-0 rounded-xl" />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-white">VIBR 앱 설치</p>
-          <p className="mt-0.5 text-xs text-white/60">
+          <p className="text-sm font-semibold text-primary">VIBR 앱 설치</p>
+          <p className="mt-0.5 text-xs text-gray-1">
             {bannerType === 'ios' ? (
               <>
-                하단 <span className="font-medium text-white/80">공유</span> 버튼 → <span className="font-medium text-white/80">홈 화면에 추가</span>
-                를 탭하세요.
+                하단 <span className="font-medium text-primary">공유</span> 버튼 → <span className="font-medium text-primary">홈 화면에 추가</span>를
+                탭하세요.
               </>
             ) : (
               '홈 화면에 추가하면 앱처럼 빠르게 실행할 수 있어요.'
             )}
           </p>
         </div>
-        <button onClick={dismiss} className="shrink-0 text-white/40 transition hover:text-white/80" aria-label="닫기">
+        <button onClick={dismiss} className="shrink-0 text-gray-2 transition hover:text-primary" aria-label="닫기">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
           </svg>
@@ -106,14 +106,14 @@ export default function PwaInstallBanner() {
         <div className="mt-3 flex gap-2">
           <button
             onClick={dismiss}
-            className="flex-1 rounded-xl border border-white/10 py-2 text-xs font-medium text-white/60 transition hover:bg-white/5"
+            className="flex-1 rounded-xl border border-gray-3 py-2 text-xs font-medium text-gray-1 transition hover:bg-gray-4"
           >
             나중에
           </button>
           <button
             onClick={install}
             disabled={!deferredPrompt}
-            className="flex-1 rounded-xl bg-white py-2 text-xs font-semibold text-neutral-900 transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex-1 rounded-xl bg-accent-cyan py-2 text-xs font-semibold text-primary transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
           >
             설치하기
           </button>
