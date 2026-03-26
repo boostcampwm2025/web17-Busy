@@ -78,10 +78,11 @@ export default function MobilePlayerModal() {
   return (
     <>
       {/* Backdrop: bar 위 영역만 덮기 */}
-      <div className="lg:hidden fixed inset-x-0 top-0 bottom-24 bg-primary/20 backdrop-blur-[2px] z-40" onClick={closeModal} />
+      {/* 플레이어(h-24) + 네비(h-16) 위부터 backdrop */}
+      <div className="lg:hidden fixed inset-x-0 top-0 bottom-40 bg-primary/20 backdrop-blur-[2px] z-40" onClick={closeModal} />
 
       {/* Modal */}
-      <section className="lg:hidden fixed inset-x-0 bottom-24 z-50 bg-white border-t-2 border-primary max-h-[55vh] rounded-t-2xl overflow-hidden flex flex-col">
+      <section className="lg:hidden fixed inset-x-0 bottom-40 z-50 bg-white border-t-2 border-primary max-h-[55vh] rounded-t-2xl overflow-hidden flex flex-col">
         <header className="flex items-center justify-between p-4 border-b border-gray-3">
           <div className="flex items-center gap-2">
             <ListPlus className="w-5 h-5 text-accent-pink" />
