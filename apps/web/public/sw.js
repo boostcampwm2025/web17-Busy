@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vibr-pwa-v1';
+const CACHE_NAME = 'vibr-pwa-v2';
 const OFFLINE_URL = '/offline';
 const APP_SHELL = ['/', OFFLINE_URL, '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
 
