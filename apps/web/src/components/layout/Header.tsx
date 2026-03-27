@@ -1,18 +1,24 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useState, Suspense } from 'react';
-import { Bell, X } from 'lucide-react';
+import { useState, Suspense, useEffect } from 'react';
+import { Bell } from 'lucide-react';
 
 import { useNotiStore } from '@/stores/useNotiStore';
 import { NotiDrawerContent } from '@/components/noti';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import MobileBottomSheet from './MobileBottomSheet';
 
 export default function Header() {
   const pathname = usePathname();
   const pageTitle = pathname === '/' ? 'feed' : pathname.split('/')[1];
   const unreadNotiCount = useNotiStore((s) => s.unreadCount);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
+
+  // 라우트 변경 시 패널 닫기
+  useEffect(() => {
+    setIsNotiOpen(false);
+  }, [pathname]);
 
   return (
     <>
@@ -35,27 +41,11 @@ export default function Header() {
         </button>
       </header>
 
-      {/* 모바일 알림 패널 */}
-      {isNotiOpen && (
-        <>
-          <div className="lg:hidden fixed inset-0 bg-primary/20 backdrop-blur-[2px] z-[60]" onClick={() => setIsNotiOpen(false)} />
-          <section className="lg:hidden fixed inset-0 z-[60] bg-white border-r-2 border-primary flex flex-col">
-            <div className="flex items-center justify-between px-6 pt-4 pb-0">
-              <button
-                type="button"
-                onClick={() => setIsNotiOpen(false)}
-                className="ml-auto p-2 rounded-full hover:bg-gray-4 text-primary"
-                title="닫기"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <Suspense fallback={<LoadingSpinner />}>
-              <NotiDrawerContent />
-            </Suspense>
-          </section>
-        </>
-      )}
+      <MobileBottomSheet isOpen={isNotiOpen} title="알림" onClose={() => setIsNotiOpen(false)}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <NotiDrawerContent />
+        </Suspense>
+      </MobileBottomSheet>
     </>
   );
 }

@@ -74,15 +74,14 @@ export default function MobilePlayerModal() {
 
   if (!enabled) return null;
 
-  // 바 높이: layout에서 h-24(= 6rem) 사용 중 → bottom-24로 띄움
+  // 플레이어(h-16) + 네비(h-16) = bottom-32
   return (
     <>
-      {/* Backdrop: bar 위 영역만 덮기 */}
-      {/* 플레이어(h-24) + 네비(h-16) 위부터 backdrop */}
-      <div className="lg:hidden fixed inset-x-0 top-0 bottom-40 bg-primary/20 backdrop-blur-[2px] z-40" onClick={closeModal} />
+      {/* Backdrop */}
+      <div className="lg:hidden fixed inset-x-0 top-0 bottom-32 bg-primary/20 backdrop-blur-[2px] z-40" onClick={closeModal} />
 
       {/* Modal */}
-      <section className="lg:hidden fixed inset-x-0 bottom-40 z-50 bg-white border-t-2 border-primary max-h-[55vh] rounded-t-2xl overflow-hidden flex flex-col">
+      <section className="lg:hidden fixed inset-x-0 bottom-32 z-50 bg-white border-t-2 border-primary max-h-[55vh] rounded-t-2xl overflow-hidden flex flex-col animate-slide-up">
         <header className="flex items-center justify-between p-4 border-b border-gray-3">
           <div className="flex items-center gap-2">
             <ListPlus className="w-5 h-5 text-accent-pink" />

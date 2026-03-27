@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useCallback, lazy, Suspense, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Box, PlusCircle, Search, User, X } from 'lucide-react';
+import { Home, Box, PlusCircle, Search, User } from 'lucide-react';
 
 import { SidebarItemType } from '@/types';
 import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import MobileBottomSheet from './MobileBottomSheet';
 
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 
@@ -33,6 +34,11 @@ export default function MobileBottomNav() {
   const userId = useAuthStore((s) => s.userId);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // 라우트 변경 시 패널 닫기
+  useEffect(() => {
+    setIsSearchOpen(false);
+  }, [pathname]);
 
   const activeItem = pathname === '/' ? SidebarItemType.HOME : (pathname.split('/')[1] as string);
 
@@ -77,30 +83,14 @@ export default function MobileBottomNav() {
 
   return (
     <>
-      {/* 모바일 검색 패널 */}
-      {isSearchOpen && (
-        <>
-          <div className="lg:hidden fixed inset-0 bg-primary/20 backdrop-blur-[2px] z-[60]" onClick={() => setIsSearchOpen(false)} />
-          <section className="lg:hidden fixed inset-0 z-[60] bg-white border-r-2 border-primary flex flex-col">
-            <div className="flex items-center justify-between px-6 pt-4 pb-0">
-              <button
-                type="button"
-                onClick={() => setIsSearchOpen(false)}
-                className="ml-auto p-2 rounded-full hover:bg-gray-4 text-primary"
-                title="닫기"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <Suspense fallback={<LoadingSpinner />}>
-              <SearchDrawerContent enabled={isSearchOpen} />
-            </Suspense>
-          </section>
-        </>
-      )}
+      <MobileBottomSheet isOpen={isSearchOpen} title="검색" onClose={() => setIsSearchOpen(false)}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <SearchDrawerContent enabled={isSearchOpen} />
+        </Suspense>
+      </MobileBottomSheet>
 
       {/* 하단 네비게이션 바 (flex 흐름 안에 위치) */}
-      <nav className="lg:hidden w-full h-16 bg-white border-t-2 border-primary z-50 flex">
+      <nav className="lg:hidden relative z-[10000] w-full h-16 bg-white border-t-2 border-primary flex">
         {navItems.map(({ key, icon: Icon, label, special }) => {
           const isActive = key === activeItem || (key === SidebarItemType.SEARCH && isSearchOpen);
           return (
