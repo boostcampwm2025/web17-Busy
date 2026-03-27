@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { usePostMedia } from '@/hooks';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
@@ -43,13 +44,29 @@ const stylesByVariant: Record<Variant, { container: string; playBtn: string; inf
 };
 
 export default function PostMedia({ post, variant, currentMusicId, isPlayingGlobal, onPlay, onClickContainer }: Props) {
-  const { isMulti, activeMusic, coverUrl, isActivePlaying, prev, next, activeIndex } = usePostMedia({
+  const { isMulti, activeMusic, coverUrl, isActivePlaying, prev, next, activeIndex, totalLength } = usePostMedia({
     post,
     currentMusicId,
     isPlayingGlobal,
   });
 
   const styles = stylesByVariant[variant];
+
+  // 스와이프 캐러셀 상태
+  const [dragOffset, setDragOffset] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+  const touchStartX = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const wasSwipeRef = useRef(false); // 스와이프였으면 click 방지
+
+  // 인접 슬라이드 이미지 URL
+  const getSlideUrl = (index: number) => {
+    const i = ((index % totalLength) + totalLength) % totalLength;
+    if (i === 0) return post.coverImgUrl || '';
+    return post.musics[i - 1]?.albumCoverUrl || post.coverImgUrl || '';
+  };
+  const prevUrl = isMulti ? getSlideUrl(activeIndex - 1) : '';
+  const nextUrl = isMulti ? getSlideUrl(activeIndex + 1) : '';
 
   const handlePlay = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -67,16 +84,105 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
     next();
   };
 
+  const handleContainerClick = () => {
+    if (wasSwipeRef.current) return;
+    onClickContainer?.();
+  };
+
+  // 터치 스와이프
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isMulti || transitioning) return;
+    touchStartX.current = e.touches[0]?.clientX ?? 0;
+    wasSwipeRef.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isMulti || transitioning) return;
+    const delta = (e.touches[0]?.clientX ?? 0) - touchStartX.current;
+    if (Math.abs(delta) > 5) wasSwipeRef.current = true;
+    setDragOffset(delta);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isMulti) return;
+    const delta = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.current;
+    const containerWidth = containerRef.current?.offsetWidth ?? 300;
+    const threshold = containerWidth * 0.3;
+
+    // 짧은 탭은 스와이프 처리 안 함
+    if (Math.abs(delta) < 5) {
+      setDragOffset(0);
+      return;
+    }
+
+    setTransitioning(true);
+
+    if (delta < -threshold) {
+      // 왼쪽 스와이프 → 다음
+      setDragOffset(-containerWidth);
+      setTimeout(() => {
+        next();
+        setTransitioning(false);
+        setDragOffset(0);
+      }, 250);
+    } else if (delta > threshold) {
+      // 오른쪽 스와이프 → 이전
+      setDragOffset(containerWidth);
+      setTimeout(() => {
+        prev();
+        setTransitioning(false);
+        setDragOffset(0);
+      }, 250);
+    } else {
+      // 임계값 미달 → 제자리 복귀
+      setDragOffset(0);
+      setTimeout(() => setTransitioning(false), 250);
+    }
+  };
+
   const isCoverPage = activeIndex === 0;
 
-  return (
-    <div className={styles.container} onClick={onClickContainer}>
-      <img
-        src={coverUrl}
-        alt={activeMusic?.title ?? 'cover'}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-      />
+  // 트랙 스타일: [이전, 현재, 다음]을 나란히, translateX로 현재 이미지를 중앙에 표시
+  const trackStyle: React.CSSProperties = {
+    transform: `translateX(calc(-33.333% + ${dragOffset}px))`,
+    transition: transitioning ? 'transform 0.25s ease-out' : 'none',
+  };
 
+  return (
+    <div
+      ref={containerRef}
+      className={styles.container}
+      onClick={handleContainerClick}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* 이미지 슬라이드 트랙 */}
+      {isMulti ? (
+        <div className="flex h-full w-[300%]" style={trackStyle}>
+          <div className="w-1/3 h-full flex-shrink-0">
+            <img src={prevUrl} alt="이전" className="w-full h-full object-cover" />
+          </div>
+          <div className="w-1/3 h-full flex-shrink-0">
+            <img
+              src={coverUrl}
+              alt={activeMusic?.title ?? 'cover'}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+          <div className="w-1/3 h-full flex-shrink-0">
+            <img src={nextUrl} alt="다음" className="w-full h-full object-cover" />
+          </div>
+        </div>
+      ) : (
+        <img
+          src={coverUrl}
+          alt={activeMusic?.title ?? 'cover'}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      )}
+
+      {/* 오버레이 (버튼, 배지, 음악 정보) */}
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/35 transition-colors">
         {!isCoverPage && activeMusic && (
           <div className="absolute inset-0 flex items-center justify-center opacity-100 md:group-hover:opacity-100 transition-opacity">
@@ -85,7 +191,7 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
             </button>
           </div>
         )}
-        {isMulti ? (
+        {isMulti && (
           <>
             <button type="button" onClick={handlePrev} className={`${styles.navBtn} left-3`} title="이전">
               <ChevronLeft className="w-6 h-6" />
@@ -94,21 +200,21 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
               <ChevronRight className="w-6 h-6" />
             </button>
           </>
-        ) : null}
+        )}
       </div>
 
-      {isMulti ? (
+      {isMulti && (
         <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full border-2 border-primary text-xs font-black">
           {post.musics.length}곡
         </div>
-      ) : null}
+      )}
 
-      {activeMusic ? (
+      {activeMusic && (
         <div className={`${styles.infoBox} max-w-[70%] md:max-w-[60%] min-w-0`}>
           <TickerText text={activeMusic.title} className="text-sm md:text-base font-black text-primary" />
           <TickerText text={activeMusic.artistName} className="text-xs font-bold text-gray-600" />
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
