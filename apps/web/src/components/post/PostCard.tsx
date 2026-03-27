@@ -100,13 +100,13 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
   }, [openModal, post.id, post.content]);
 
   return (
-    <article
-      onClick={handleOpenDetail}
-      className="bg-white border-2 border-primary rounded-2xl px-4 sm:px-6 py-6 mb-8 shadow-[3px_3px_0px_0px_#00214D]
-                 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_#00EBC7] transition-all duration-300 cursor-pointer"
-    >
-      <PostHeader post={post} isOwner={isOwner} onUserClick={onUserClick} onEditPost={isOwner ? openEditPostModal : undefined} />
+    <article onClick={handleOpenDetail} className="bg-white py-6 cursor-pointer">
+      {/* 이미지 제외한 텍스트 섹션은 개별 패딩 적용 */}
+      <div className="px-4 sm:px-6">
+        <PostHeader post={post} isOwner={isOwner} onUserClick={onUserClick} onEditPost={isOwner ? openEditPostModal : undefined} />
+      </div>
 
+      {/* 이미지: 패딩 없이 카드 너비 전체를 채움 (xs 미만에서는 FeedList px-0 덕분에 화면 끝까지) */}
       <PostMedia
         post={post}
         variant="card"
@@ -116,14 +116,16 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
         onClickContainer={handleOpenDetail}
       />
 
-      <PostActions
-        post={postForActions}
-        onClickLike={handleToggleLike}
-        onClickComment={handleOpenDetail}
-        disabledLike={!isAuthenticated || likeSubmitting}
-      />
+      <div className="px-4 sm:px-6">
+        <PostActions
+          post={postForActions}
+          onClickLike={handleToggleLike}
+          onClickComment={handleOpenDetail}
+          disabledLike={!isAuthenticated || likeSubmitting}
+        />
 
-      <PostContentPreview content={post.content} onClickMore={handleOpenDetail} />
+        <PostContentPreview content={post.content} onClickMore={handleOpenDetail} />
+      </div>
     </article>
   );
 }

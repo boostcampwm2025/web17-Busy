@@ -92,6 +92,16 @@ button:disabled {
   border-radius: 4px;
 }
 
+/* xs(480px) 미만: 스크롤바 숨김 */
+@media (max-width: 479px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  * {
+    scrollbar-width: none;
+  }
+}
+
 /* input 기본 트랙/thumb 정렬을 강제로 맞춤 */
 .volume-range {
   -webkit-appearance: none;
