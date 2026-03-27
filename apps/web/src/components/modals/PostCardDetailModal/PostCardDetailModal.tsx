@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { X } from 'lucide-react';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 import { useRouter } from 'next/navigation';
@@ -206,10 +207,79 @@ export const PostCardDetailModal = () => {
     router.push(`/profile/${targetUserId}`);
   };
 
+  // 스와이프 다운으로 닫기 (모바일)
+  const touchStartY = useRef(0);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0]?.clientY ?? 0;
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if ((e.touches[0]?.clientY ?? 0) - touchStartY.current > 80) handleClose();
+  };
+
   return (
     <>
+      {/* ── 모바일: 댓글 바텀시트 ── */}
+      <div className="lg:hidden">
+        <div className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm animate-fade-in" onClick={handleClose} />
+        <section
+          className="fixed inset-x-0 bottom-32 z-[9999] max-h-[75vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+        >
+          {/* 핸들 + 닫기 버튼 */}
+          <div className="flex items-center justify-between px-4 pt-3 pb-1 flex-shrink-0">
+            <div className="flex-1" />
+            <div className="w-10 h-1 rounded-full bg-gray-3" />
+            <div className="flex-1 flex justify-end">
+              <button type="button" onClick={handleClose} className="p-2 rounded-full hover:bg-gray-4 text-primary transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* 작성자 헤더 */}
+          <div className="px-4 py-2 border-b-2 border-primary/10 flex-shrink-0">
+            <PostHeader
+              post={safePost}
+              isOwner={isOwner}
+              onUserClick={() => handleUserClick(safePost.author.id)}
+              onEditPost={isOwner ? handleStartEdit : undefined}
+              onDeletePost={isOwner ? closeModal : undefined}
+            />
+          </div>
+
+          {/* 댓글 목록 */}
+          <PostDetailBody
+            profileImg={profileImg}
+            nickname={safePost.author.nickname}
+            content={safePost.content}
+            comments={reactions.comments}
+            commentsLoading={reactions.commentsLoading}
+          />
+
+          {/* 액션 + 댓글 입력 */}
+          <PostDetailActions
+            isAuthenticated={reactions.isAuthenticated}
+            isSubmitting={reactions.isSubmittingLike}
+            isLiked={reactions.isLiked}
+            likeCount={reactions.likeCount}
+            postId={postId}
+            onToggleLike={reactions.toggleLike}
+            onOpenLikedUsers={() => setLikedUsersOpen(true)}
+          />
+          <PostDetailCommentComposer
+            isAuthenticated={reactions.isAuthenticated}
+            isSubmitting={reactions.isSubmittingComment}
+            value={reactions.commentText}
+            onChange={reactions.setCommentText}
+            onSubmit={reactions.submitComment}
+          />
+        </section>
+      </div>
+
+      {/* ── 데스크탑: 기존 풀 모달 ── */}
       <div
-        className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
+        className="hidden lg:flex fixed inset-0 z-60 items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
         onClick={handleClose}
         role="dialog"
         aria-modal="true"
@@ -282,7 +352,6 @@ export const PostCardDetailModal = () => {
               onToggleLike={reactions.toggleLike}
               onOpenLikedUsers={() => setLikedUsersOpen(true)}
             />
-
             <PostDetailCommentComposer
               isAuthenticated={reactions.isAuthenticated}
               isSubmitting={reactions.isSubmittingComment}
