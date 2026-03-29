@@ -152,6 +152,7 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
     <div
       ref={containerRef}
       className={styles.container}
+      data-swipe-carousel
       onClick={handleContainerClick}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}

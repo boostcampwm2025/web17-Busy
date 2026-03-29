@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Header, Sidebar, RightPanel, ModalContainer, LoadingSpinner, MobileBottomNav } from '@/components';
+import MobileNotiOverlay from '@/components/layout/MobileNotiOverlay';
 import { Suspense } from 'react';
 import NotiPollingGate from '@/components/noti/NotiPollingGate';
 import PwaInstallBanner from '@/components/PwaInstallBanner';
@@ -84,6 +85,9 @@ export default function RootLayout({
               <MobileBottomNav />
             </div>
           </div>
+
+          {/* 모바일 알림 오버레이 (스와이프 제스처 포함) */}
+          <MobileNotiOverlay />
         </ToastProvider>
       </body>
     </html>
