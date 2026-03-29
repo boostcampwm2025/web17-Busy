@@ -222,7 +222,7 @@ export const PostCardDetailModal = () => {
       <div className="lg:hidden">
         <div className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm animate-fade-in" onClick={handleClose} />
         <section
-          className="fixed inset-x-0 bottom-32 z-[9999] max-h-[75vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
+          className="fixed inset-x-0 bottom-32 z-[9999] h-[70vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
         >
@@ -237,17 +237,6 @@ export const PostCardDetailModal = () => {
             </div>
           </div>
 
-          {/* 작성자 헤더 */}
-          <div className="px-4 py-2 border-b-2 border-primary/10 flex-shrink-0">
-            <PostHeader
-              post={safePost}
-              isOwner={isOwner}
-              onUserClick={() => handleUserClick(safePost.author.id)}
-              onEditPost={isOwner ? handleStartEdit : undefined}
-              onDeletePost={isOwner ? closeModal : undefined}
-            />
-          </div>
-
           {/* 댓글 목록 */}
           <PostDetailBody
             profileImg={profileImg}
@@ -255,18 +244,10 @@ export const PostCardDetailModal = () => {
             content={safePost.content}
             comments={reactions.comments}
             commentsLoading={reactions.commentsLoading}
+            hideAuthorRow
           />
 
-          {/* 액션 + 댓글 입력 */}
-          <PostDetailActions
-            isAuthenticated={reactions.isAuthenticated}
-            isSubmitting={reactions.isSubmittingLike}
-            isLiked={reactions.isLiked}
-            likeCount={reactions.likeCount}
-            postId={postId}
-            onToggleLike={reactions.toggleLike}
-            onOpenLikedUsers={() => setLikedUsersOpen(true)}
-          />
+          {/* 댓글 입력 */}
           <PostDetailCommentComposer
             isAuthenticated={reactions.isAuthenticated}
             isSubmitting={reactions.isSubmittingComment}
