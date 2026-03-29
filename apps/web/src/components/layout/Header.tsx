@@ -2,12 +2,12 @@
 
 import { usePathname } from 'next/navigation';
 import { useState, Suspense, useEffect } from 'react';
-import { Bell } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Bell, ArrowLeft } from 'lucide-react';
 
 import { useNotiStore } from '@/stores/useNotiStore';
 import { NotiDrawerContent } from '@/components/noti';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import MobileBottomSheet from './MobileBottomSheet';
 
 export default function Header() {
   const pathname = usePathname();
@@ -41,11 +41,24 @@ export default function Header() {
         </button>
       </header>
 
-      <MobileBottomSheet isOpen={isNotiOpen} title="알림" onClose={() => setIsNotiOpen(false)}>
-        <Suspense fallback={<LoadingSpinner />}>
-          <NotiDrawerContent />
-        </Suspense>
-      </MobileBottomSheet>
+      {/* 모바일 알림 풀스크린 오버레이 (오른쪽에서 슬라이드) */}
+      {isNotiOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] bg-white flex flex-col animate-slide-in-right">
+            <div className="flex items-center gap-3 px-4 py-4 border-b-2 border-primary bg-white/95 backdrop-blur-sm flex-shrink-0">
+              <button type="button" onClick={() => setIsNotiOpen(false)} className="p-2 rounded-xl hover:bg-gray-4 text-primary transition-colors">
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <h2 className="text-xl font-black text-primary">알림</h2>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <Suspense fallback={<LoadingSpinner />}>
+                <NotiDrawerContent />
+              </Suspense>
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

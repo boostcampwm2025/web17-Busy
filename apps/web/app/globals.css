@@ -19,9 +19,19 @@
   }
 }
 
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 @theme {
   --animate-slide-up: slide-up 0.3s ease-out;
   --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-slide-in-right: slide-in-right 0.3s ease-out;
 
   --color-primary: #00214d;
   --color-accent-cyan: #00ebc7;
