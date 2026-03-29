@@ -10,30 +10,22 @@ import { NotiDrawerContent } from '@/components/noti';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function MobileNotiOverlay() {
-  const { isOpen, open, close } = useNotiOverlayStore();
+  const { isOpen, close } = useNotiOverlayStore();
   const [isVisible, setIsVisible] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const isAnimatingClose = useRef(false);
-  const isOpenRef = useRef(isOpen);
   const isVisibleRef = useRef(isVisible);
   const pathname = usePathname();
 
-  useEffect(() => {
-    isOpenRef.current = isOpen;
-  }, [isOpen]);
   useEffect(() => {
     isVisibleRef.current = isVisible;
   }, [isVisible]);
 
   // 스토어 참조를 ref로 유지 (클로저 stale 방지)
   const closeRef = useRef(close);
-  const openRef = useRef(open);
   useEffect(() => {
     closeRef.current = close;
   }, [close]);
-  useEffect(() => {
-    openRef.current = open;
-  }, [open]);
 
   const snapClose = () => {
     if (isAnimatingClose.current) return;
@@ -56,6 +48,14 @@ export default function MobileNotiOverlay() {
     if (isVisibleRef.current) snapCloseRef.current();
   }, [pathname]);
 
+  useEffect(() => {
+    const onPopState = () => {
+      if (isVisibleRef.current) snapCloseRef.current();
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
   // 스토어에서 isOpen = true가 되면 (벨 버튼 클릭) 패널 애니메이션 열기
   useEffect(() => {
     if (isOpen && !isVisibleRef.current) {
@@ -70,73 +70,6 @@ export default function MobileNotiOverlay() {
       );
     }
   }, [isOpen]);
-
-  // 문서 레벨 터치: 왼쪽 스와이프 → 패널 열기
-  useEffect(() => {
-    let startX = 0;
-    let startY = 0;
-    let isHorizontal: boolean | null = null;
-    let isOpenGesture = false;
-
-    const onStart = (e: TouchEvent) => {
-      if (isOpenRef.current || isVisibleRef.current) return;
-      // 캐러셀 영역 스와이프 제외
-      if ((e.target as HTMLElement).closest('[data-swipe-carousel]')) return;
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      isHorizontal = null;
-      isOpenGesture = false;
-    };
-
-    const onMove = (e: TouchEvent) => {
-      if (isOpenRef.current) return;
-      const dx = e.touches[0].clientX - startX;
-      const dy = e.touches[0].clientY - startY;
-
-      if (isHorizontal === null) {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
-        isHorizontal = Math.abs(dx) > Math.abs(dy);
-      }
-      if (!isHorizontal || dx >= 0) return;
-
-      isOpenGesture = true;
-      if (!isVisibleRef.current) setIsVisible(true);
-
-      const offset = Math.max(0, window.innerWidth + dx);
-      if (panelRef.current) {
-        panelRef.current.style.transition = 'none';
-        panelRef.current.style.transform = `translateX(${offset}px)`;
-      }
-    };
-
-    const onEnd = (e: TouchEvent) => {
-      if (!isOpenGesture) return;
-      const dx = e.changedTouches[0].clientX - startX;
-      if (dx < -(window.innerWidth * 0.3)) {
-        if (panelRef.current) {
-          panelRef.current.style.transition = 'transform 0.3s ease-out';
-          panelRef.current.style.transform = 'translateX(0)';
-        }
-        openRef.current();
-      } else {
-        if (panelRef.current) {
-          panelRef.current.style.transition = 'transform 0.3s ease-out';
-          panelRef.current.style.transform = 'translateX(100%)';
-        }
-        setTimeout(() => setIsVisible(false), 300);
-      }
-      isOpenGesture = false;
-    };
-
-    document.addEventListener('touchstart', onStart, { passive: true });
-    document.addEventListener('touchmove', onMove, { passive: true });
-    document.addEventListener('touchend', onEnd, { passive: true });
-    return () => {
-      document.removeEventListener('touchstart', onStart);
-      document.removeEventListener('touchmove', onMove);
-      document.removeEventListener('touchend', onEnd);
-    };
-  }, []);
 
   // 패널 터치: 오른쪽 스와이프 → 닫기
   const closeGesture = useRef({ startX: 0, startY: 0, isHorizontal: null as boolean | null });

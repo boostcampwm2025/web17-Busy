@@ -8,6 +8,9 @@ interface NotiOverlayStore {
 
 export const useNotiOverlayStore = create<NotiOverlayStore>((set) => ({
   isOpen: false,
-  open: () => set({ isOpen: true }),
+  open: () => {
+    set({ isOpen: true });
+    history.pushState({ vibrPanel: 'noti' }, '');
+  },
   close: () => set({ isOpen: false }),
 }));

@@ -40,6 +40,21 @@ export default function MobileBottomNav() {
     setIsSearchOpen(false);
   }, [pathname]);
 
+  // 열릴 때 히스토리 항목 추가 → 뒤로가기로 닫기 지원
+  useEffect(() => {
+    if (isSearchOpen) {
+      history.pushState({ panel: 'search' }, '');
+    }
+  }, [isSearchOpen]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      if (isSearchOpen) setIsSearchOpen(false);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [isSearchOpen]);
+
   const activeItem = pathname === '/' ? SidebarItemType.HOME : (pathname.split('/')[1] as string);
 
   const handleItemClick = useCallback(
