@@ -55,6 +55,14 @@ export default function MobileBottomNav() {
     return () => window.removeEventListener('popstate', onPopState);
   }, [isSearchOpen]);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isSearchOpen) setIsSearchOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isSearchOpen]);
+
   const activeItem = pathname === '/' ? SidebarItemType.HOME : (pathname.split('/')[1] as string);
 
   const handleItemClick = useCallback(

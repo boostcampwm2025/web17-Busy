@@ -56,6 +56,14 @@ export default function MobileNotiOverlay() {
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isVisibleRef.current) snapCloseRef.current();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   // 스토어에서 isOpen = true가 되면 (벨 버튼 클릭) 패널 애니메이션 열기
   useEffect(() => {
     if (isOpen && !isVisibleRef.current) {
