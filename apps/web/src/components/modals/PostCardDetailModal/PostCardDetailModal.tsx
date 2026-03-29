@@ -220,9 +220,10 @@ export const PostCardDetailModal = () => {
     <>
       {/* ── 모바일: 댓글 바텀시트 ── */}
       <div className="lg:hidden">
-        <div className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm animate-fade-in" onClick={handleClose} />
+        <div className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-sm animate-fade-in" onClick={handleClose} />
+
         <section
-          className="fixed inset-x-0 bottom-32 z-[9999] h-[70vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
+          className="fixed inset-x-0 bottom-0 z-[10002] h-[70vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
         >

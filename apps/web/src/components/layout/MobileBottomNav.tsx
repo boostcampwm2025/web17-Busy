@@ -106,7 +106,7 @@ export default function MobileBottomNav() {
 
   return (
     <>
-      <MobileBottomSheet isOpen={isSearchOpen} title="검색" onClose={() => setIsSearchOpen(false)} className="h-[70vh]">
+      <MobileBottomSheet isOpen={isSearchOpen} title="검색" onClose={() => setIsSearchOpen(false)} className="h-[90vh]">
         <Suspense fallback={<LoadingSpinner />}>
           <SearchDrawerContent enabled={isSearchOpen} />
         </Suspense>

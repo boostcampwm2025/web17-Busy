@@ -17,11 +17,11 @@ export default function MobileBottomSheet({ isOpen, title, onClose, className, c
   return createPortal(
     <>
       {/* 배경 딤 */}
-      <div className="fixed inset-x-0 top-0 bottom-32 lg:bottom-0 bg-primary/20 backdrop-blur-[2px] z-[9998] animate-fade-in" onClick={onClose} />
+      <div className="fixed inset-0 bg-primary/20 backdrop-blur-[2px] z-[10001] animate-fade-in" onClick={onClose} />
 
       {/* 시트 */}
       <section
-        className={`fixed inset-x-0 bottom-32 lg:bottom-0 z-[9999] max-h-[70vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up ${className ?? ''}`}
+        className={`fixed inset-x-0 bottom-0 z-[10002] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up ${className ?? ''}`}
       >
         {/* 드래그 핸들 */}
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
