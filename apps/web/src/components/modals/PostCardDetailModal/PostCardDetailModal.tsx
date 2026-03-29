@@ -223,7 +223,7 @@ export const PostCardDetailModal = () => {
         <div className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-sm animate-fade-in" onClick={handleClose} />
 
         <section
-          className="fixed inset-x-0 bottom-0 z-[10002] h-[70vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
+          className="fixed inset-x-0 bottom-0 z-[10002] h-[90vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
         >
@@ -245,7 +245,6 @@ export const PostCardDetailModal = () => {
             content={safePost.content}
             comments={reactions.comments}
             commentsLoading={reactions.commentsLoading}
-            hideAuthorRow
           />
 
           {/* 댓글 입력 */}
