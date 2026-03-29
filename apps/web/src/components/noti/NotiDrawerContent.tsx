@@ -53,10 +53,6 @@ export default function NotiDrawerContent() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-6 border-b-2 border-primary/10 flex items-center justify-between">
-        <h2 className="text-3xl font-black text-primary">알림</h2>
-      </div>
-
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">{renderBody()}</div>
     </div>
   );

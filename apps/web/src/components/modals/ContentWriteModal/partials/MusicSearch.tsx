@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Music as MusicIcon, Search, Sparkles } from 'lucide-react';
+import { useMemo, useState, useRef, useEffect } from 'react';
+import { Music as MusicIcon, Search, Sparkles, X } from 'lucide-react';
 
 import { ITUNES_SEARCH } from '@/constants';
 import { useItunesSearch, usePlaylistRecommendations, useYoutubeSearch, type PlaylistDetail } from '@/hooks';
@@ -29,6 +29,18 @@ const MIN_QUERY_HINT = `${ITUNES_SEARCH.MIN_QUERY_LENGTH}글자 이상 입력해
 
 export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen, onAddMusic, onAddPlaylist }: MusicSearchProps) => {
   const [mode, setMode] = useState<SearchMode>('music');
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, [isSearchOpen, setIsSearchOpen]);
 
   const itunes = useItunesSearch({
     query: searchQuery,
@@ -172,7 +184,7 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
   };
 
   return (
-    <div className="relative mb-6">
+    <div ref={containerRef} className="relative mb-6">
       <label htmlFor="musicQuery" className="text-sm font-bold text-gray-1 mb-2 block">
         음악 검색
       </label>
@@ -185,16 +197,28 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
           value={searchQuery}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
-          className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-primary text-primary placeholder:text-gray-2
+          className="w-full pl-10 pr-10 py-3 rounded-xl border-2 border-primary text-primary placeholder:text-gray-2
                      focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:border-accent-cyan transition-all font-medium"
         />
         <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-2" />
+        {searchQuery && (
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              setSearchQuery('');
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-gray-2 hover:bg-gray-1 flex items-center justify-center transition-colors"
+            aria-label="검색어 지우기"
+          >
+            <X className="w-3 h-3 text-white" />
+          </button>
+        )}
       </div>
 
       {isSearchOpen ? (
         <>
-          <button type="button" className="fixed inset-0 z-10" onClick={handleCloseDropdown} aria-label="close-search-dropdown" />
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-primary rounded-xl shadow-lg max-h-60 overflow-y-auto custom-scrollbar z-20 py-2">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-primary rounded-xl shadow-lg max-h-60 overflow-y-auto overscroll-contain custom-scrollbar z-20 py-2">
             {renderBody()}
           </div>
         </>

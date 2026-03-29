@@ -8,9 +8,10 @@ type MobileBottomSheetProps = PropsWithChildren<{
   isOpen: boolean;
   title: string;
   onClose: () => void;
+  className?: string;
 }>;
 
-export default function MobileBottomSheet({ isOpen, title, onClose, children }: MobileBottomSheetProps) {
+export default function MobileBottomSheet({ isOpen, title, onClose, className, children }: MobileBottomSheetProps) {
   if (!isOpen) return null;
 
   return createPortal(
@@ -19,7 +20,9 @@ export default function MobileBottomSheet({ isOpen, title, onClose, children }: 
       <div className="fixed inset-x-0 top-0 bottom-32 lg:bottom-0 bg-primary/20 backdrop-blur-[2px] z-[9998] animate-fade-in" onClick={onClose} />
 
       {/* 시트 */}
-      <section className="fixed inset-x-0 bottom-32 lg:bottom-0 z-[9999] max-h-[70vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up">
+      <section
+        className={`fixed inset-x-0 bottom-32 lg:bottom-0 z-[9999] max-h-[70vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up ${className ?? ''}`}
+      >
         {/* 드래그 핸들 */}
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
           <div className="w-10 h-1 rounded-full bg-gray-3" />
