@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo, useCallback, useState } from 'react';
+import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 import { QueueList, MiniPlayerBar, NowPlaying } from './index';
@@ -55,6 +55,29 @@ export default function RightPanel() {
   }, [isQueueOpen, closeModal, openModal]);
 
   const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
+  const isFullPlayerOpenRef = useRef(isFullPlayerOpen);
+  isFullPlayerOpenRef.current = isFullPlayerOpen;
+
+  // 뒤로가기 / ESC 로 닫기
+  useEffect(() => {
+    if (isFullPlayerOpen) history.pushState({ vibrFullPlayer: true }, '');
+  }, [isFullPlayerOpen]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      if (isFullPlayerOpenRef.current) setIsFullPlayerOpen(false);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullPlayerOpenRef.current) setIsFullPlayerOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   // 스와이프 다운으로 닫기
   const touchStartY = useRef(0);
