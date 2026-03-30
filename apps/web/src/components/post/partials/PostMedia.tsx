@@ -161,20 +161,54 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
       {/* 이미지 슬라이드 트랙 */}
       {isMulti ? (
         <div className="flex h-full w-[300%]" style={trackStyle}>
-          <div className="w-1/3 h-full flex-shrink-0">
-            <img src={prevUrl} alt="이전" className="w-full h-full object-cover" />
+          <div className="w-1/3 h-full flex-shrink-0 relative">
+            {variant === 'modal' ? (
+              <>
+                <img src={prevUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+                <img src={prevUrl} alt="이전" className="absolute inset-0 w-full h-full object-contain" />
+              </>
+            ) : (
+              <img src={prevUrl} alt="이전" className="w-full h-full object-cover" />
+            )}
           </div>
-          <div className="w-1/3 h-full flex-shrink-0">
-            <img
-              src={coverUrl}
-              alt={activeMusic?.title ?? 'cover'}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+          <div className="w-1/3 h-full flex-shrink-0 relative">
+            {variant === 'modal' ? (
+              <>
+                <img src={coverUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+                <img
+                  src={coverUrl}
+                  alt={activeMusic?.title ?? 'cover'}
+                  className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                />
+              </>
+            ) : (
+              <img
+                src={coverUrl}
+                alt={activeMusic?.title ?? 'cover'}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            )}
           </div>
-          <div className="w-1/3 h-full flex-shrink-0">
-            <img src={nextUrl} alt="다음" className="w-full h-full object-cover" />
+          <div className="w-1/3 h-full flex-shrink-0 relative">
+            {variant === 'modal' ? (
+              <>
+                <img src={nextUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+                <img src={nextUrl} alt="다음" className="absolute inset-0 w-full h-full object-contain" />
+              </>
+            ) : (
+              <img src={nextUrl} alt="다음" className="w-full h-full object-cover" />
+            )}
           </div>
         </div>
+      ) : variant === 'modal' ? (
+        <>
+          <img src={coverUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+          <img
+            src={coverUrl}
+            alt={activeMusic?.title ?? 'cover'}
+            className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+          />
+        </>
       ) : (
         <img
           src={coverUrl}
