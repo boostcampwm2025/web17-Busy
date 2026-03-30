@@ -67,10 +67,57 @@ export default function RightPanel() {
     }
   };
 
-  // 모바일: isFullPlayerOpen일 때 fixed 오버레이 / 데스크탑: 항상 static 패널
-  const panelClass = isFullPlayerOpen
-    ? 'flex flex-col bg-white fixed inset-x-0 top-0 bottom-32 z-[9999] animate-slide-up lg:static lg:z-auto lg:inset-auto lg:h-full lg:w-full lg:animate-none'
-    : 'hidden lg:flex flex-col h-full w-full bg-white';
+  const section = (
+    <section
+      className={
+        isFullPlayerOpen
+          ? 'lg:hidden flex flex-col bg-white fixed inset-0 z-[10001] animate-slide-up'
+          : 'hidden lg:flex flex-col h-full w-full bg-white'
+      }
+      onTouchStart={isFullPlayerOpen ? handleTouchStart : undefined}
+      onTouchMove={isFullPlayerOpen ? handleTouchMove : undefined}
+    >
+      {isFullPlayerOpen && (
+        <div className="flex items-center justify-between px-4 pt-3 pb-1 flex-shrink-0">
+          <div className="flex-1" />
+          <div className="w-10 h-1 rounded-full bg-gray-3" />
+          <div className="flex-1 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setIsFullPlayerOpen(false)}
+              className="p-2 rounded-full hover:bg-gray-4 text-primary transition-colors"
+              title="닫기"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <NowPlaying
+          currentMusic={currentMusic}
+          isPlaying={isPlaying}
+          canPrev={canPrev}
+          canNext={canNext}
+          onTogglePlay={handleTogglePlay}
+          onPrev={playPrev}
+          onNext={playNext}
+        />
+
+        <QueueList
+          queue={queue}
+          currentMusicId={currentMusic?.id ?? null}
+          onClear={clearQueue}
+          onRemove={removeFromQueue}
+          onMoveUp={moveUp}
+          onMoveDown={moveDown}
+          onMove={moveTo}
+          onSelect={selectMusic}
+        />
+      </div>
+    </section>
+  );
 
   return (
     <>
@@ -87,52 +134,7 @@ export default function RightPanel() {
         onOpenFullPlayer={() => setIsFullPlayerOpen(true)}
       />
 
-      <section
-        className={panelClass}
-        onTouchStart={isFullPlayerOpen ? handleTouchStart : undefined}
-        onTouchMove={isFullPlayerOpen ? handleTouchMove : undefined}
-      >
-        {/* 모바일 풀 플레이어 헤더 (핸들 + 닫기) */}
-        {isFullPlayerOpen && (
-          <div className="lg:hidden flex items-center justify-between px-4 pt-3 pb-1 flex-shrink-0">
-            <div className="flex-1" />
-            <div className="w-10 h-1 rounded-full bg-gray-3" />
-            <div className="flex-1 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setIsFullPlayerOpen(false)}
-                className="p-2 rounded-full hover:bg-gray-4 text-primary transition-colors"
-                title="닫기"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <NowPlaying
-            currentMusic={currentMusic}
-            isPlaying={isPlaying}
-            canPrev={canPrev}
-            canNext={canNext}
-            onTogglePlay={handleTogglePlay}
-            onPrev={playPrev}
-            onNext={playNext}
-          />
-
-          <QueueList
-            queue={queue}
-            currentMusicId={currentMusic?.id ?? null}
-            onClear={clearQueue}
-            onRemove={removeFromQueue}
-            onMoveUp={moveUp}
-            onMoveDown={moveDown}
-            onMove={moveTo}
-            onSelect={selectMusic}
-          />
-        </div>
-      </section>
+      {section}
     </>
   );
 }

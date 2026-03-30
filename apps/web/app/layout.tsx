@@ -76,7 +76,7 @@ export default function RootLayout({
 
               {/* 플레이어: 모바일 하단 스트립 / 데스크탑 우측 패널 */}
               <aside
-                className={`relative z-[10000] flex-shrink-0 min-w-0 w-full ${MINI_PLAYER_BAR_HEIGHT_HEIGHT} border-t-2 border-primary lg:z-auto lg:w-95 lg:h-full lg:border-t-0 lg:border-l-2`}
+                className={`relative flex-shrink-0 min-w-0 w-full ${MINI_PLAYER_BAR_HEIGHT_HEIGHT} border-t-2 border-primary lg:w-95 lg:h-full lg:border-t-0 lg:border-l-2`}
               >
                 <RightPanel />
               </aside>
