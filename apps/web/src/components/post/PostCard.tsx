@@ -16,11 +16,12 @@ interface PostCardProps {
   isPlayingGlobal: boolean;
 
   onPlay: (music: Music) => void;
+  onPlayAll?: () => void;
   onUserClick: (userId: string) => void;
   onOpenDetail: (post: Post) => void;
 }
 
-export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onUserClick, onOpenDetail }: PostCardProps) {
+export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onPlayAll, onUserClick, onOpenDetail }: PostCardProps) {
   const userId = useAuthStore((s) => s.userId);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { openModal } = useModalStore();
@@ -113,6 +114,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
         currentMusicId={currentMusicId}
         isPlayingGlobal={isPlayingGlobal}
         onPlay={onPlay}
+        onPlayAll={onPlayAll}
         onClickContainer={handleOpenDetail}
       />
 

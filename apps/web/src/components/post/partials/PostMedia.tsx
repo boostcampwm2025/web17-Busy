@@ -16,6 +16,8 @@ type Props = {
   isPlayingGlobal: boolean;
 
   onPlay: (music: Music) => void;
+  /** 커버 페이지 재생 버튼: 게시글 전체 음악 재생 */
+  onPlayAll?: () => void;
 
   /** 카드에서만: 컨테이너 클릭 시 상세 열기 */
   onClickContainer?: () => void;
@@ -43,7 +45,7 @@ const stylesByVariant: Record<Variant, { container: string; playBtn: string; inf
   },
 };
 
-export default function PostMedia({ post, variant, currentMusicId, isPlayingGlobal, onPlay, onClickContainer }: Props) {
+export default function PostMedia({ post, variant, currentMusicId, isPlayingGlobal, onPlay, onPlayAll, onClickContainer }: Props) {
   const { isMulti, activeMusic, coverUrl, isActivePlaying, prev, next, activeIndex, totalLength } = usePostMedia({
     post,
     currentMusicId,
@@ -72,6 +74,11 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
     e.stopPropagation();
     if (!activeMusic) return;
     onPlay(activeMusic);
+  };
+
+  const handlePlayAll = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onPlayAll?.();
   };
 
   const handlePrev = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -219,6 +226,13 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
 
       {/* 오버레이 (버튼, 배지, 음악 정보) */}
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/35 transition-colors">
+        {isCoverPage && post.musics.length > 0 && onPlayAll && (
+          <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+            <button type="button" onClick={handlePlayAll} className={styles.playBtn} title="전체 재생">
+              <Play className="w-6 h-6 ml-0.5" />
+            </button>
+          </div>
+        )}
         {!isCoverPage && activeMusic && (
           <div className="absolute inset-0 flex items-center justify-center opacity-100 md:group-hover:opacity-100 transition-opacity">
             <button type="button" onClick={handlePlay} className={styles.playBtn} title={isActivePlaying ? '일시정지' : '재생'}>
