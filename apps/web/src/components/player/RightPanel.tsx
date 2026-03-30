@@ -58,6 +58,15 @@ export default function RightPanel() {
   const isFullPlayerOpenRef = useRef(isFullPlayerOpen);
   isFullPlayerOpenRef.current = isFullPlayerOpen;
 
+  // 데스크탑 크기로 커지면 풀 플레이어 닫기
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024 && isFullPlayerOpenRef.current) setIsFullPlayerOpen(false);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   // 뒤로가기 / ESC 로 닫기
   useEffect(() => {
     if (isFullPlayerOpen) history.pushState({ vibrFullPlayer: true }, '');
