@@ -161,7 +161,7 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
       {/* 이미지 슬라이드 트랙 */}
       {isMulti ? (
         <div className="flex h-full w-[300%]" style={trackStyle}>
-          <div className="w-1/3 h-full flex-shrink-0 relative">
+          <div className="w-1/3 h-full flex-shrink-0 relative overflow-hidden">
             {variant === 'modal' ? (
               <>
                 <img src={prevUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
@@ -171,7 +171,7 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
               <img src={prevUrl} alt="이전" className="w-full h-full object-cover" />
             )}
           </div>
-          <div className="w-1/3 h-full flex-shrink-0 relative">
+          <div className="w-1/3 h-full flex-shrink-0 relative overflow-hidden">
             {variant === 'modal' ? (
               <>
                 <img src={coverUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
@@ -189,7 +189,7 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
               />
             )}
           </div>
-          <div className="w-1/3 h-full flex-shrink-0 relative">
+          <div className="w-1/3 h-full flex-shrink-0 relative overflow-hidden">
             {variant === 'modal' ? (
               <>
                 <img src={nextUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
