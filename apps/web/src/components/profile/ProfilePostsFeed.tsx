@@ -29,6 +29,10 @@ export default function ProfilePostsFeed({ userId, initialPostId }: Props) {
   const prevIsMobileRef = useRef(false);
   const didScrollRef = useRef(false);
 
+  // 스와이프 백 제스처
+  const pageRef = useRef<HTMLDivElement>(null);
+  const swipe = useRef({ startX: 0, startY: 0, isHorizontal: null as boolean | null });
+
   const fetchFn = useCallback(
     async (cursor?: string) => {
       const { items: previews, hasNext, nextCursor } = await getUserProfilePosts(userId, cursor);
@@ -71,8 +75,60 @@ export default function ProfilePostsFeed({ userId, initialPostId }: Props) {
   const handleUserClick = (uid: string) => router.push(`/profile/${uid}`);
   const handleOpenDetail = (post: Post) => openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, post });
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest('[data-swipe-carousel]')) return;
+    const t = e.touches[0];
+    if (!t) return;
+    swipe.current = { startX: t.clientX, startY: t.clientY, isHorizontal: null };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    if (!t) return;
+    const { startX, startY } = swipe.current;
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+
+    if (swipe.current.isHorizontal === null) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      swipe.current.isHorizontal = Math.abs(dx) > Math.abs(dy);
+    }
+    if (!swipe.current.isHorizontal || dx <= 0) return;
+
+    if (pageRef.current) {
+      pageRef.current.style.transition = 'none';
+      pageRef.current.style.transform = `translateX(${dx}px)`;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!swipe.current.isHorizontal) return;
+    const t = e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - swipe.current.startX;
+    if (dx > window.innerWidth * 0.3) {
+      if (pageRef.current) {
+        pageRef.current.style.transition = 'transform 0.3s ease-out';
+        pageRef.current.style.transform = 'translateX(100%)';
+      }
+      setTimeout(() => router.back(), 300);
+    } else {
+      if (pageRef.current) {
+        pageRef.current.style.transition = 'transform 0.3s ease-out';
+        pageRef.current.style.transform = 'translateX(0)';
+      }
+    }
+    swipe.current.isHorizontal = null;
+  };
+
   return (
-    <div className="flex-1 p-4 md:p-8 max-xs:px-0">
+    <div
+      ref={pageRef}
+      className="flex-1 p-4 md:p-8 max-xs:px-0"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="max-w-2xl mx-auto">
         <button
           type="button"
