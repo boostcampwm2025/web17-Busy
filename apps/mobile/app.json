@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "VIBR",
+    "slug": "vibr-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "vibr",
+    "userInterfaceStyle": "automatic",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vibr.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#000000"
+      },
+      "package": "com.vibr.app"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
