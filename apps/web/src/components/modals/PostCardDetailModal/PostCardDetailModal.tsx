@@ -4,9 +4,10 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { X } from 'lucide-react';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { PostHeader } from '../../post';
 import { useModalStore, MODAL_TYPES, usePlayerStore, usePostReactionOverridesStore, useAuthStore } from '@/stores';
+import useIsMobile from '@/hooks/useIsMobile';
 import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions } from '@/hooks';
 
 import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
@@ -71,6 +72,29 @@ export const PostCardDetailModal = () => {
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
   const profileImg = useMemo(() => coalesceImageSrc(safePost.author.profileImgUrl, DEFAULT_IMAGES.PROFILE), [safePost.author.profileImgUrl]);
+
+  // 데스크탑 → 모바일 리사이즈 시, 프로필 페이지에서 열린 모달이면 posts 피드 페이지로 전환
+  const pathname = usePathname();
+  const isMobile = useIsMobile();
+  const isMobileInitializedRef = useRef(false);
+  const prevIsMobileRef = useRef(false);
+  useEffect(() => {
+    if (!isMobileInitializedRef.current) {
+      isMobileInitializedRef.current = true;
+      prevIsMobileRef.current = isMobile;
+      return;
+    }
+    const prev = prevIsMobileRef.current;
+    prevIsMobileRef.current = isMobile;
+
+    if (!prev && isMobile && enabled && postId) {
+      const profileMatch = pathname.match(/^\/profile\/([^/]+)$/);
+      if (profileMatch) {
+        closeModal();
+        router.push(`/profile/${profileMatch[1]}/posts?postId=${postId}`);
+      }
+    }
+  }, [isMobile, enabled, pathname, postId, router, closeModal]);
 
   // 게시글 수정 관련 상태
   const [isEditing, setIsEditing] = useState(modalProps?.initialIsEditing === true);

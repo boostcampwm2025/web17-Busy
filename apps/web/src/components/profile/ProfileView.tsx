@@ -58,7 +58,7 @@ export default function ProfileView({ userId }: { userId: string }) {
   return (
     <div className="h-full flex flex-col mx-auto p-6 md:p-10 gap-y-4">
       <ProfileInfo profile={profile} loggedInUserId={loggedInUserId} />
-      <ProfilePosts posts={items} isMyProfile={isMyProfile} />
+      <ProfilePosts posts={items} isMyProfile={isMyProfile} userId={userId} />
       {errorMsg && (
         <div className="text-center">
           <p>{errorMsg}</p>
