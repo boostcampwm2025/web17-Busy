@@ -5,23 +5,6 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import Graph from 'graphology';
-import louvain from 'graphology-communities-louvain';
-
-interface InteractionRow {
-  sourceId: string;
-  sourcePartition: number | null;
-  targetType: string;
-  targetId: string;
-  targetPartition: number | null;
-  weight: number;
-}
-
-interface CommunityUpdate {
-  type: 'User' | 'Content';
-  id: string;
-  groupId: string;
-}
 
 @Injectable()
 export class AlgorithmService {
@@ -169,7 +152,7 @@ export class AlgorithmService {
         tx.run(
           `
           MATCH (n)
-          WHERE n.partition IS NOT NULL
+          WHERE (n:User OR n:Content) AND n.partition IS NOT NULL
           RETURN n.id AS id, labels(n)[0] AS label, n.partition AS groupId
           ORDER BY n.id
           SKIP $skip
@@ -258,7 +241,7 @@ export class AlgorithmService {
     }
   }
 
-  @Cron(CronExpression.EVERY_2_HOURS, { waitForCompletion: true })
+  @Cron(CronExpression.EVERY_HOUR, { waitForCompletion: true })
   async scheduledGroupingTask() {
     if (this.isGroupingRunning) {
       return;
@@ -268,7 +251,7 @@ export class AlgorithmService {
 
     try {
       await this.runUnifiedGrouping();
-      await this.runUnifiedGrouping();
+      await this.syncAllGroupsToRedis();
     } catch (error) {
       throw error;
     } finally {
