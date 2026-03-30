@@ -290,7 +290,7 @@ export const PostCardDetailModal = () => {
         aria-modal="true"
       >
         <div
-          className="bg-white w-full max-w-5xl h-full max-h-[85vh] rounded-2xl border-2 border-primary shadow-2xl flex flex-col md:flex-row overflow-hidden animate-scale-up"
+          className="bg-white w-full max-w-[1640px] h-full max-h-[85vh] rounded-2xl border-2 border-primary shadow-2xl flex flex-col md:flex-row overflow-hidden animate-scale-up"
           onClick={(e) => e.stopPropagation()}
         >
           {isLoading ? (
