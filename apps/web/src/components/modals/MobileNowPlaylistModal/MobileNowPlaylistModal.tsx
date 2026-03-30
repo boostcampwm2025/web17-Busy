@@ -59,7 +59,7 @@ function MobileQueueRow({ music, index, isCurrent, isFirst, isLast, onPlay, onRe
   );
 }
 
-export default function MobilePlayerModal() {
+export default function MobileNowPlaylistModal() {
   const { isOpen, modalType, closeModal } = useModalStore();
   const enabled = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
 

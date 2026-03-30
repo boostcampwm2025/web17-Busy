@@ -6,7 +6,7 @@ import {
   ContentWriteModal,
   PostCardDetailModal,
   LoginModal,
-  MobilePlayerModal,
+  MobileNowPlaylistModal,
   UserListModal,
   PlaylistDetailModal,
   PlaylistPickerModal,
@@ -56,7 +56,7 @@ export default function ModalContainer() {
       {modalType === MODAL_TYPES.POST_DETAIL && <PostCardDetailModal />}
 
       {/* 4. 모바일 재생목록 모달 */}
-      {modalType === MODAL_TYPES.MOBILE_QUEUE && <MobilePlayerModal />}
+      {modalType === MODAL_TYPES.MOBILE_QUEUE && <MobileNowPlaylistModal />}
 
       {/* 5. 팔로워 사용자 목록 모달 */}
       {modalType === MODAL_TYPES.FOLLOWER_USER && <UserListModal title="팔로워 목록" fetchFn={getFollowerUsers} />}
