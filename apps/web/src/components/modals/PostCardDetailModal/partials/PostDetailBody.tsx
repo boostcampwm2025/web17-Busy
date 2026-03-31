@@ -13,20 +13,25 @@ type Props = {
   content: string;
   comments: CommentItem[];
   commentsLoading: boolean;
+  hideAuthorRow?: boolean;
 };
 
-export default function PostDetailBody({ profileImg, nickname, content, comments, commentsLoading }: Props) {
+export default function PostDetailBody({ profileImg, nickname, content, comments, commentsLoading, hideAuthorRow }: Props) {
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
-      <div className="flex space-x-3">
-        <img src={profileImg} alt={nickname} className="w-9 h-9 rounded-full border border-primary/20 object-cover shrink-0" />
-        <div className="text-sm min-w-0">
-          <p className="font-bold text-primary mb-1">{nickname}</p>
-          <p className="text-primary/80 leading-relaxed font-medium whitespace-pre-wrap">{content}</p>
-        </div>
-      </div>
+      {!hideAuthorRow && (
+        <>
+          <div className="flex space-x-3">
+            <img src={profileImg} alt={nickname} className="w-9 h-9 rounded-full border border-primary/20 object-cover shrink-0" />
+            <div className="text-sm min-w-0">
+              <p className="font-bold text-primary mb-1">{nickname}</p>
+              <p className="text-primary/80 leading-relaxed font-medium whitespace-pre-wrap">{content}</p>
+            </div>
+          </div>
 
-      <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-100" />
+        </>
+      )}
 
       <div className="space-y-6">
         {commentsLoading ? (

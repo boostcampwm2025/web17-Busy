@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { X } from 'lucide-react';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { PostHeader } from '../../post';
 import { useModalStore, MODAL_TYPES, usePlayerStore, usePostReactionOverridesStore, useAuthStore } from '@/stores';
-import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions } from '@/hooks';
+import useIsMobile from '@/hooks/useIsMobile';
+import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions, useSwipeToDismiss } from '@/hooks';
 
 import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { LoadingSpinner, PostMedia } from '@/components';
@@ -70,6 +72,29 @@ export const PostCardDetailModal = () => {
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
   const profileImg = useMemo(() => coalesceImageSrc(safePost.author.profileImgUrl, DEFAULT_IMAGES.PROFILE), [safePost.author.profileImgUrl]);
+
+  // 데스크탑 → 모바일 리사이즈 시, 프로필 페이지에서 열린 모달이면 posts 피드 페이지로 전환
+  const pathname = usePathname();
+  const isMobile = useIsMobile();
+  const isMobileInitializedRef = useRef(false);
+  const prevIsMobileRef = useRef(false);
+  useEffect(() => {
+    if (!isMobileInitializedRef.current) {
+      isMobileInitializedRef.current = true;
+      prevIsMobileRef.current = isMobile;
+      return;
+    }
+    const prev = prevIsMobileRef.current;
+    prevIsMobileRef.current = isMobile;
+
+    if (!prev && isMobile && enabled && postId) {
+      const profileMatch = pathname.match(/^\/profile\/([^/]+)$/);
+      if (profileMatch) {
+        closeModal();
+        router.push(`/profile/${profileMatch[1]}/posts?postId=${postId}`);
+      }
+    }
+  }, [isMobile, enabled, pathname, postId, router, closeModal]);
 
   // 게시글 수정 관련 상태
   const [isEditing, setIsEditing] = useState(modalProps?.initialIsEditing === true);
@@ -206,10 +231,55 @@ export const PostCardDetailModal = () => {
     router.push(`/profile/${targetUserId}`);
   };
 
+  const { sheetRef, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeToDismiss(handleClose);
+
   return (
     <>
+      {/* ── 모바일: 댓글 바텀시트 ── */}
+      <div className="lg:hidden">
+        <div className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-sm animate-fade-in" onClick={handleClose} />
+
+        <section
+          ref={sheetRef}
+          className="fixed inset-x-0 bottom-0 z-[10002] h-[90vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* 핸들 + 닫기 버튼 */}
+          <div className="flex items-center justify-between px-4 pt-3 pb-1 flex-shrink-0">
+            <div className="flex-1" />
+            <div className="w-10 h-1 rounded-full bg-gray-3" />
+            <div className="flex-1 flex justify-end">
+              <button type="button" onClick={handleClose} className="p-2 rounded-full hover:bg-gray-4 text-primary transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* 댓글 목록 */}
+          <PostDetailBody
+            profileImg={profileImg}
+            nickname={safePost.author.nickname}
+            content={safePost.content}
+            comments={reactions.comments}
+            commentsLoading={reactions.commentsLoading}
+          />
+
+          {/* 댓글 입력 */}
+          <PostDetailCommentComposer
+            isAuthenticated={reactions.isAuthenticated}
+            isSubmitting={reactions.isSubmittingComment}
+            value={reactions.commentText}
+            onChange={reactions.setCommentText}
+            onSubmit={reactions.submitComment}
+          />
+        </section>
+      </div>
+
+      {/* ── 데스크탑: 기존 풀 모달 ── */}
       <div
-        className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
+        className="hidden lg:flex fixed inset-0 z-60 items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
         onClick={handleClose}
         role="dialog"
         aria-modal="true"
@@ -282,7 +352,6 @@ export const PostCardDetailModal = () => {
               onToggleLike={reactions.toggleLike}
               onOpenLikedUsers={() => setLikedUsersOpen(true)}
             />
-
             <PostDetailCommentComposer
               isAuthenticated={reactions.isAuthenticated}
               isSubmitting={reactions.isSubmittingComment}

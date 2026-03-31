@@ -47,7 +47,7 @@ export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 animate-fade-in">
+    <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 animate-fade-in">
       <div className="bg-white w-full max-w-2xl rounded-3xl shadow-[8px_8px_0px_0px_var(--color-primary)] border-2 border-primary flex flex-col max-h-[90vh] overflow-hidden transition-all">
         <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary bg-white z-10 shrink-0">
           <h2 className="text-xl font-black text-primary">새 게시물 만들기</h2>
@@ -76,7 +76,7 @@ export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
               내용
             </label>
             <textarea
-            id="postContent"
+              id="postContent"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="이 음악에 대한 이야기를 들려주세요..."
