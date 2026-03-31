@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 import { addLike, removeLike } from '@/src/api';
-import { useAuthStore, usePostReactionOverridesStore } from '@/src/stores';
+import { useAuthStore, usePlayerStore, usePostReactionOverridesStore } from '@/src/stores';
 import PostHeader from './partials/PostHeader';
 import PostMedia from './partials/PostMedia';
 import PostActions from './partials/PostActions';
@@ -34,6 +34,18 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
   const [likeSubmitting, setLikeSubmitting] = useState(false);
 
   const isOwner = post.author.id === userId;
+
+  const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const selectMusic = usePlayerStore((s) => s.selectMusic);
+
+  const handlePlayAll = useCallback(() => {
+    const musics = post.musics;
+    if (!musics.length) return;
+    const firstMusic = musics[0];
+    if (!firstMusic) return;
+    addToQueue(musics);
+    selectMusic(firstMusic);
+  }, [post.musics, addToQueue, selectMusic]);
 
   const postForActions = useMemo<Post>(
     () => ({ ...post, isLiked: optimisticLiked, likeCount: optimisticLikeCount, commentCount: baseCommentCount }),
@@ -79,6 +91,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
         currentMusicId={currentMusicId}
         isPlayingGlobal={isPlayingGlobal}
         onPlay={onPlay}
+        onPlayAll={handlePlayAll}
         onOpenDetail={() => onOpenDetail(postForActions)}
       />
       <PostActions

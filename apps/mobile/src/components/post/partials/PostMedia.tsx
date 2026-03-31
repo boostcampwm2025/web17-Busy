@@ -8,14 +8,15 @@ type Props = {
   currentMusicId: string | null;
   isPlayingGlobal: boolean;
   onPlay: (music: Music) => void;
+  onPlayAll?: () => void;
   onOpenDetail: () => void;
 };
 
-export default function PostMedia({ post, currentMusicId, isPlayingGlobal, onPlay, onOpenDetail }: Props) {
+export default function PostMedia({ post, currentMusicId, isPlayingGlobal, onPlay, onPlayAll, onOpenDetail }: Props) {
   const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
 
-  const { isMulti, activeMusic, coverUrl, isActivePlaying, activeIndex, setActiveIndex, totalLength } = usePostMedia({
+  const { isMulti, activeMusic, coverUrl, isActivePlaying, activeIndex, setActiveIndex } = usePostMedia({
     post,
     currentMusicId,
     isPlayingGlobal,
@@ -31,7 +32,7 @@ export default function PostMedia({ post, currentMusicId, isPlayingGlobal, onPla
   const isCoverPage = activeIndex === 0;
 
   return (
-    <TouchableOpacity activeOpacity={1} onPress={onOpenDetail} style={[styles.container, { width, height: width }]}>
+    <View style={[styles.container, { width, height: width }]}>
       {isMulti ? (
         <ScrollView
           ref={scrollRef}
@@ -43,29 +44,41 @@ export default function PostMedia({ post, currentMusicId, isPlayingGlobal, onPla
           style={{ width, height: width }}
         >
           {slides.map((url, i) => (
-            <Image key={i} source={{ uri: url || 'https://placehold.co/400x400' }} style={{ width, height: width }} resizeMode="cover" />
+            // 각 슬라이드에 탭 핸들러 부착 → ScrollView가 스와이프 제스처를 온전히 처리
+            <TouchableOpacity key={i} activeOpacity={1} onPress={onOpenDetail}>
+              <Image source={{ uri: url || 'https://placehold.co/400x400' }} style={{ width, height: width }} resizeMode="cover" />
+            </TouchableOpacity>
           ))}
         </ScrollView>
       ) : (
-        <Image source={{ uri: coverUrl }} style={{ width, height: width }} resizeMode="cover" />
+        <TouchableOpacity activeOpacity={1} onPress={onOpenDetail} style={{ width, height: width }}>
+          <Image source={{ uri: coverUrl }} style={{ width, height: width }} resizeMode="cover" />
+        </TouchableOpacity>
       )}
 
-      {/* 재생 버튼 - 커버 페이지가 아니고 음악이 있을 때 */}
+      {/* 커버 페이지: 음악이 있으면 전체 재생 버튼 */}
+      {isCoverPage && post.musics.length > 0 && onPlayAll && (
+        <TouchableOpacity style={styles.playBtn} onPress={onPlayAll} activeOpacity={0.8}>
+          <Text style={styles.playIcon}>▶</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* 개별 음악 슬라이드: 해당 곡 재생 버튼 */}
       {!isCoverPage && activeMusic && (
-        <TouchableOpacity
-          style={styles.playBtn}
-          onPress={(e) => {
-            e.stopPropagation?.();
-            onPlay(activeMusic);
-          }}
-          activeOpacity={0.8}
-        >
+        <TouchableOpacity style={styles.playBtn} onPress={() => onPlay(activeMusic)} activeOpacity={0.8}>
           <Text style={styles.playIcon}>{isActivePlaying ? '⏸' : '▶'}</Text>
         </TouchableOpacity>
       )}
 
-      {/* 음악 정보 */}
-      {activeMusic && (
+      {/* 커버 페이지: 전체 재생 배지 */}
+      {isCoverPage && post.musics.length > 0 && (
+        <View style={styles.infoBox}>
+          <Text style={styles.musicTitle}>전체 재생</Text>
+        </View>
+      )}
+
+      {/* 개별 음악 슬라이드: 곡 정보 */}
+      {!isCoverPage && activeMusic && (
         <View style={styles.infoBox}>
           <Text style={styles.musicTitle} numberOfLines={1}>
             {activeMusic.title}
@@ -91,7 +104,7 @@ export default function PostMedia({ post, currentMusicId, isPlayingGlobal, onPla
           <Text style={styles.badgeText}>{post.musics.length}곡</Text>
         </View>
       )}
-    </TouchableOpacity>
+    </View>
   );
 }
 
