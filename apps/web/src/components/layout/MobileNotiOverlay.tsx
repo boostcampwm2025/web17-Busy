@@ -83,6 +83,7 @@ export default function MobileNotiOverlay() {
   const closeGesture = useRef({ startX: 0, startY: 0, isHorizontal: null as boolean | null });
 
   const handlePanelTouchStart = (e: React.TouchEvent) => {
+    if (!e.touches[0]) return;
     closeGesture.current = {
       startX: e.touches[0].clientX,
       startY: e.touches[0].clientY,
@@ -92,6 +93,7 @@ export default function MobileNotiOverlay() {
 
   const handlePanelTouchMove = (e: React.TouchEvent) => {
     const { startX, startY } = closeGesture.current;
+    if (!e.touches[0]) return;
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
 
