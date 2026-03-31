@@ -13,7 +13,7 @@ export default function Header() {
   const openNoti = useNotiOverlayStore((s) => s.open);
 
   return (
-    <header className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b-2 border-primary px-6 py-4 flex items-center justify-between">
+    <header className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b-1 border-primary px-6 py-4 flex items-center justify-between">
       <h1 className="text-2xl font-black italic tracking-tighter text-primary uppercase">{pageTitle}</h1>
 
       {/* 모바일 전용 알림 버튼 */}
