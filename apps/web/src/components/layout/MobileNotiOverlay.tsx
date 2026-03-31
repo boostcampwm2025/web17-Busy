@@ -111,6 +111,7 @@ export default function MobileNotiOverlay() {
   };
 
   const handlePanelTouchEnd = (e: React.TouchEvent) => {
+    if (!e.changedTouches[0]) return;
     const dx = e.changedTouches[0].clientX - closeGesture.current.startX;
     if (dx > window.innerWidth * 0.3) {
       snapCloseRef.current();
