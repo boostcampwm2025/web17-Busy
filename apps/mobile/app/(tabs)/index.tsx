@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { FlatList, View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { FlatList, View, Text, ActivityIndicator, StyleSheet, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { getFeedPosts } from '@/src/api';
@@ -17,7 +17,7 @@ export default function FeedScreen() {
   const deletedPostId = usePostReactionOverridesStore((s) => s.deletedPostId);
   const clearDeletedPostId = usePostReactionOverridesStore((s) => s.clearDeletedPostId);
 
-  const { posts, setPosts, isInitialLoading, isLoading, errorMsg, loadMore } = useFeedInfiniteScroll({
+  const { posts, setPosts, isInitialLoading, isLoading, isRefreshing, errorMsg, loadMore, refresh } = useFeedInfiniteScroll({
     fetchFn: getFeedPosts,
   });
 
@@ -69,6 +69,7 @@ export default function FeedScreen() {
             onOpenDetail={handleOpenDetail}
           />
         )}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#fff" />}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={isLoading ? <ActivityIndicator color="#fff" style={styles.footer} /> : null}

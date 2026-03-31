@@ -12,6 +12,7 @@ export function useFeedInfiniteScroll({ fetchFn, resetKey }: UseFeedInfiniteScro
   const [cursors, setCursors] = useState<Cursor>({ following: undefined, trending: undefined, recent: undefined });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -83,14 +84,32 @@ export function useFeedInfiniteScroll({ fetchFn, resetKey }: UseFeedInfiniteScro
     void loadInitialData();
   }, [resetKey, reset, loadInitialData]);
 
+  const refresh = useCallback(async () => {
+    setIsRefreshing(true);
+    setPosts([]);
+    setHasNext(false);
+    setCursors({ following: undefined, trending: undefined, recent: undefined });
+    setErrorMsg(null);
+    try {
+      const data = await fetchFn();
+      updateScrollStates(data);
+    } catch {
+      setErrorMsg('오류가 발생했습니다.');
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [fetchFn, updateScrollStates]);
+
   return {
     posts,
     setPosts,
     hasNext,
     isLoading,
+    isRefreshing,
     isInitialLoading,
     errorMsg,
     loadMore,
+    refresh,
     reset,
   };
 }
