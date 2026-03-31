@@ -3,6 +3,7 @@
 import { PropsWithChildren } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { useSwipeToDismiss } from '@/hooks';
 
 type MobileBottomSheetProps = PropsWithChildren<{
   isOpen: boolean;
@@ -12,6 +13,8 @@ type MobileBottomSheetProps = PropsWithChildren<{
 }>;
 
 export default function MobileBottomSheet({ isOpen, title, onClose, className, children }: MobileBottomSheetProps) {
+  const { sheetRef, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeToDismiss(onClose);
+
   if (!isOpen) return null;
 
   return createPortal(
@@ -21,7 +24,11 @@ export default function MobileBottomSheet({ isOpen, title, onClose, className, c
 
       {/* 시트 */}
       <section
+        ref={sheetRef}
         className={`fixed inset-x-0 bottom-0 z-[10002] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up ${className ?? ''}`}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {/* 드래그 핸들 */}
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0">

@@ -8,7 +8,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { PostHeader } from '../../post';
 import { useModalStore, MODAL_TYPES, usePlayerStore, usePostReactionOverridesStore, useAuthStore } from '@/stores';
 import useIsMobile from '@/hooks/useIsMobile';
-import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions } from '@/hooks';
+import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions, useSwipeToDismiss } from '@/hooks';
 
 import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { LoadingSpinner, PostMedia } from '@/components';
@@ -231,14 +231,7 @@ export const PostCardDetailModal = () => {
     router.push(`/profile/${targetUserId}`);
   };
 
-  // 스와이프 다운으로 닫기 (모바일)
-  const touchStartY = useRef(0);
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0]?.clientY ?? 0;
-  };
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if ((e.touches[0]?.clientY ?? 0) - touchStartY.current > 80) handleClose();
-  };
+  const { sheetRef, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeToDismiss(handleClose);
 
   return (
     <>
@@ -247,9 +240,11 @@ export const PostCardDetailModal = () => {
         <div className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-sm animate-fade-in" onClick={handleClose} />
 
         <section
+          ref={sheetRef}
           className="fixed inset-x-0 bottom-0 z-[10002] h-[90vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {/* 핸들 + 닫기 버튼 */}
           <div className="flex items-center justify-between px-4 pt-3 pb-1 flex-shrink-0">
