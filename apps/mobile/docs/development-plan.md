@@ -18,7 +18,7 @@
   - `auth.ts`의 `googleExchange`, `spotifyExchange`에서 쓰던 `process.env.INTERNAL_API_URL`(서버 사이드 전용)을 `EXPO_PUBLIC_API_BASE_URL`로 교체
 
 - [x] 공유할 Zustand 스토어 이동 (`usePlayerStore`, `useAuthStore` 등)
-  - `useAuthStore`, `usePlayerStore`, `useModalStore`는 순수 Zustand 코드라 웹에서 그대로 복사해 `apps/mobile/src/stores/`에 배치
+  - `useAuthStore`, `usePlayerStore`, `useModalStore`, `usePostReactionOverridesStore`는 순수 Zustand 코드라 웹에서 그대로 복사해 `apps/mobile/src/stores/`에 배치
   - 의존성(`axios`, `zustand`, `expo-secure-store`, `@repo/dto`)을 `package.json`에 추가하고 `pnpm install` 실행
 
 - [x] 인증 흐름 구현 — 로그인 화면 + 토큰 저장 (`expo-secure-store`)
@@ -56,14 +56,29 @@ app/
 
 ## 3단계 — 화면 구현 순서
 
-| 순서 | 화면          | 웹 참조 파일                                        | 비고                      |
-| ---- | ------------- | --------------------------------------------------- | ------------------------- |
-| 1    | 피드          | `components/feed/FeedView.tsx`, `FeedList.tsx`      | 기본 카드 UI 패턴 확립    |
-| 2    | 미니 플레이어 | `components/player/MiniPlayerBar.tsx`               | 모든 탭 하단에 고정       |
-| 3    | 풀 플레이어   | `components/player/NowPlaying.tsx`, `QueueList.tsx` | 바텀시트 또는 모달로 구현 |
-| 4    | 검색          | `components/search/`                                | 피드 카드 컴포넌트 재사용 |
-| 5    | 프로필        | `components/profile/`                               | 상대적으로 독립적         |
-| 6    | 포스트 작성   | `components/modals/ContentWriteModal/`              | 복잡도 높아서 마지막      |
+| 순서 | 화면          | 웹 참조 파일                                        | 상태 | 비고                      |
+| ---- | ------------- | --------------------------------------------------- | ---- | ------------------------- |
+| 1    | 피드          | `components/feed/FeedView.tsx`, `FeedList.tsx`      | ✅   | 기본 카드 UI 패턴 확립    |
+| 2    | 미니 플레이어 | `components/player/MiniPlayerBar.tsx`               | ⬜   | 모든 탭 하단에 고정       |
+| 3    | 풀 플레이어   | `components/player/NowPlaying.tsx`, `QueueList.tsx` | ⬜   | 바텀시트 또는 모달로 구현 |
+| 4    | 검색          | `components/search/`                                | ⬜   | 피드 카드 컴포넌트 재사용 |
+| 5    | 프로필        | `components/profile/`                               | ⬜   | 상대적으로 독립적         |
+| 6    | 포스트 작성   | `components/modals/ContentWriteModal/`              | ⬜   | 복잡도 높아서 마지막      |
+
+### 피드 화면 구현 상세
+
+- [x] `src/utils/time.ts`, `src/utils/image.ts` — 웹에서 복사 (순수 함수)
+- [x] `src/constants/index.ts` — `DEFAULT_IMAGES` 정의
+- [x] `src/stores/usePostReactionOverridesStore.ts` — 웹에서 복사 (낙관적 업데이트용)
+- [x] `src/hooks/usePostMedia.ts` — 웹에서 복사 (슬라이드 상태 로직, 순수)
+- [x] `src/hooks/useFeedInfiniteScroll.ts` — RN용으로 새로 작성 (`useInView` → FlatList `onEndReached`)
+- [x] `src/components/post/partials/PostHeader.tsx` — 프로필 이미지, 닉네임, 더보기 메뉴 (수정/삭제)
+- [x] `src/components/post/partials/PostMedia.tsx` — 이미지 슬라이드 캐러셀, 재생 버튼, 음악 정보
+- [x] `src/components/post/partials/PostActions.tsx` — 좋아요, 댓글, 공유 버튼
+- [x] `src/components/post/partials/PostContentPreview.tsx` — 본문 3줄 미리보기
+- [x] `src/components/post/PostCard.tsx` — 낙관적 좋아요/취소 포함
+- [x] `app/(tabs)/index.tsx` — FlatList 기반 피드, 무한스크롤, 삭제 반영
+- [ ] 포스트 상세 화면 연결 (`onOpenDetail`) — 추후 구현 예정
 
 ---
 
