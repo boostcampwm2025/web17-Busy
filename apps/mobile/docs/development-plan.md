@@ -24,7 +24,7 @@
 - [x] 인증 흐름 구현 — 로그인 화면 + 토큰 저장 (`expo-secure-store`)
   - `app/(auth)/login.tsx` 생성: 현재는 `tmpLogin` 기반 임시 로그인 버튼, 추후 OAuth로 교체 예정
   - 로그인 성공 시 `saveToken()`으로 토큰을 `expo-secure-store`에 저장 후 `/(tabs)`로 이동
-  - `.env` 파일에 `EXPO_PUBLIC_API_BASE_URL=http://localhost:3002` 설정
+  - `.env` 파일에 `EXPO_PUBLIC_API_BASE_URL=http://{PC_IP}:3002/api` 설정
 
 ---
 
@@ -36,7 +36,7 @@ app/
   (auth)/
     login.tsx           ← 로그인 화면
   (tabs)/
-    _layout.tsx         ← 하단 탭 네비게이션
+    _layout.tsx         ← 하단 탭 네비게이션 + 미니 플레이어 오버레이
     index.tsx           ← 피드
     search.tsx          ← 검색
     profile.tsx         ← 프로필
@@ -49,8 +49,7 @@ app/
 
 - [x] 하단 탭 네비게이션 구성
   - `app/(tabs)/_layout.tsx`에 피드 / 검색 / 프로필 탭 구성
-  - `usePlayerStore`를 구독해 재생 중인 곡이 있을 때 탭바 높이를 키워 미니 플레이어 공간 확보 (3단계 미니 플레이어 구현 시 활용)
-  - 각 탭 화면(`index.tsx`, `search.tsx`, `profile.tsx`)은 placeholder로 생성
+  - 미니 플레이어를 탭바 바로 위에 절대 위치로 오버레이
 
 ---
 
@@ -59,7 +58,7 @@ app/
 | 순서 | 화면          | 웹 참조 파일                                        | 상태 | 비고                      |
 | ---- | ------------- | --------------------------------------------------- | ---- | ------------------------- |
 | 1    | 피드          | `components/feed/FeedView.tsx`, `FeedList.tsx`      | ✅   | 기본 카드 UI 패턴 확립    |
-| 2    | 미니 플레이어 | `components/player/MiniPlayerBar.tsx`               | ⬜   | 모든 탭 하단에 고정       |
+| 2    | 미니 플레이어 | `components/player/MiniPlayerBar.tsx`               | ✅   | 탭바 위 고정              |
 | 3    | 풀 플레이어   | `components/player/NowPlaying.tsx`, `QueueList.tsx` | ⬜   | 바텀시트 또는 모달로 구현 |
 | 4    | 검색          | `components/search/`                                | ⬜   | 피드 카드 컴포넌트 재사용 |
 | 5    | 프로필        | `components/profile/`                               | ⬜   | 상대적으로 독립적         |
@@ -71,14 +70,23 @@ app/
 - [x] `src/constants/index.ts` — `DEFAULT_IMAGES` 정의
 - [x] `src/stores/usePostReactionOverridesStore.ts` — 웹에서 복사 (낙관적 업데이트용)
 - [x] `src/hooks/usePostMedia.ts` — 웹에서 복사 (슬라이드 상태 로직, 순수)
-- [x] `src/hooks/useFeedInfiniteScroll.ts` — RN용으로 새로 작성 (`useInView` → FlatList `onEndReached`)
+- [x] `src/hooks/useFeedInfiniteScroll.ts` — RN용으로 새로 작성 (`useInView` → FlatList `onEndReached` + `RefreshControl`)
 - [x] `src/components/post/partials/PostHeader.tsx` — 프로필 이미지, 닉네임, 더보기 메뉴 (수정/삭제)
 - [x] `src/components/post/partials/PostMedia.tsx` — 이미지 슬라이드 캐러셀, 재생 버튼, 음악 정보
+  - 커버 이미지: 전체 재생 버튼 + "전체 재생" 배지 (웹 머지 내용 반영)
+  - 음악 슬라이드: 개별 곡 재생 버튼 + 곡 정보 배지
+  - `TouchableOpacity` → `View`로 교체해 FlatList와 스와이프 제스처 충돌 해결
 - [x] `src/components/post/partials/PostActions.tsx` — 좋아요, 댓글, 공유 버튼
 - [x] `src/components/post/partials/PostContentPreview.tsx` — 본문 3줄 미리보기
-- [x] `src/components/post/PostCard.tsx` — 낙관적 좋아요/취소 포함
-- [x] `app/(tabs)/index.tsx` — FlatList 기반 피드, 무한스크롤, 삭제 반영
+- [x] `src/components/post/PostCard.tsx` — 낙관적 좋아요/취소, 전체 재생(`addToQueue` + `selectMusic`) 포함
+- [x] `app/(tabs)/index.tsx` — FlatList 기반 피드, 무한스크롤, 당겨서 새로고침, 삭제 반영
 - [ ] 포스트 상세 화면 연결 (`onOpenDetail`) — 추후 구현 예정
+
+### 미니 플레이어 구현 상세
+
+- [x] `src/components/player/MiniPlayer.tsx` — 앨범 커버, 곡 정보, 재생/일시정지, 이전/다음 버튼
+- [x] `app/(tabs)/_layout.tsx` — 탭바 위 절대 위치로 MiniPlayer 오버레이
+- [ ] 풀 플레이어 연결 (`onOpenFullPlayer`) — 추후 구현 예정
 
 ---
 
