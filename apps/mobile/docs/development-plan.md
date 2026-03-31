@@ -11,9 +11,20 @@
 
 웹과 모바일이 API 클라이언트, Zustand 스토어를 공유할 수 있도록 `packages/`로 이동.
 
-- [ ] `apps/web/src/api/` → `packages/api/`로 이동 (또는 모바일에서 직접 참조)
-- [ ] 공유할 Zustand 스토어 이동 (`usePlayerStore`, `useAuthStore` 등)
-- [ ] 인증 흐름 구현 — 로그인 화면 + 토큰 저장 (`expo-secure-store`)
+- [x] `apps/web/src/api/` → `apps/mobile/src/api/`로 복사 후 모바일 전용 client 작성
+  - 웹의 `client.ts`는 `sessionStorage`와 웹 전용 스토어(`useModalStore`, `useSpotifyAuthStore` 등)에 강하게 의존해 있어 그대로 공유 불가
+  - `apps/mobile/src/api/client.ts`를 새로 작성: `sessionStorage` 대신 `expo-secure-store`로 토큰 저장/로드, 401 발생 시 모달 대신 `onSessionExpired` 콜백으로 처리
+  - `auth.ts`, `post.ts`, `playlist.ts` 등 나머지 API 함수들은 `internalClient`만 쓰는 순수한 코드라 웹에서 그대로 복사
+  - `auth.ts`의 `googleExchange`, `spotifyExchange`에서 쓰던 `process.env.INTERNAL_API_URL`(서버 사이드 전용)을 `EXPO_PUBLIC_API_BASE_URL`로 교체
+
+- [x] 공유할 Zustand 스토어 이동 (`usePlayerStore`, `useAuthStore` 등)
+  - `useAuthStore`, `usePlayerStore`, `useModalStore`는 순수 Zustand 코드라 웹에서 그대로 복사해 `apps/mobile/src/stores/`에 배치
+  - 의존성(`axios`, `zustand`, `expo-secure-store`, `@repo/dto`)을 `package.json`에 추가하고 `pnpm install` 실행
+
+- [x] 인증 흐름 구현 — 로그인 화면 + 토큰 저장 (`expo-secure-store`)
+  - `app/(auth)/login.tsx` 생성: 현재는 `tmpLogin` 기반 임시 로그인 버튼, 추후 OAuth로 교체 예정
+  - 로그인 성공 시 `saveToken()`으로 토큰을 `expo-secure-store`에 저장 후 `/(tabs)`로 이동
+  - `.env` 파일에 `EXPO_PUBLIC_API_BASE_URL=http://localhost:3002` 설정
 
 ---
 
@@ -31,8 +42,15 @@ app/
     profile.tsx         ← 프로필
 ```
 
-- [ ] 루트 레이아웃에서 로그인 여부에 따라 `(auth)` / `(tabs)` 분기
-- [ ] 하단 탭 네비게이션 구성
+- [x] 루트 레이아웃에서 로그인 여부에 따라 `(auth)` / `(tabs)` 분기
+  - `app/_layout.tsx`에서 앱 시작 시 `authMe()`를 호출해 토큰 유효 여부 확인
+  - 성공하면 `useAuthStore`에 인증 상태 저장 후 `/(tabs)`로, 실패하면 `/(auth)/login`으로 라우팅
+  - `setOnSessionExpired` 콜백 등록: 토큰 만료로 401이 발생하면 자동으로 로그인 화면으로 이동
+
+- [x] 하단 탭 네비게이션 구성
+  - `app/(tabs)/_layout.tsx`에 피드 / 검색 / 프로필 탭 구성
+  - `usePlayerStore`를 구독해 재생 중인 곡이 있을 때 탭바 높이를 키워 미니 플레이어 공간 확보 (3단계 미니 플레이어 구현 시 활용)
+  - 각 탭 화면(`index.tsx`, `search.tsx`, `profile.tsx`)은 placeholder로 생성
 
 ---
 
@@ -51,10 +69,10 @@ app/
 
 ## 공유 가능한 코드 목록
 
-| 경로                       | 공유 여부      | 비고                  |
-| -------------------------- | -------------- | --------------------- |
-| `packages/dto`             | 바로 사용 가능 | API 타입 정의         |
-| `apps/web/src/api/`        | 이동 후 공유   | fetch 로직            |
-| `apps/web/src/stores/`     | 이동 후 공유   | Zustand 스토어        |
-| `apps/web/src/hooks/`      | 일부 공유      | UI 의존 hooks 제외    |
-| `apps/web/src/components/` | 재사용 불가    | RN 전용으로 새로 작성 |
+| 경로                       | 공유 여부             | 비고                               |
+| -------------------------- | --------------------- | ---------------------------------- |
+| `packages/dto`             | 바로 사용 가능        | API 타입 정의                      |
+| `apps/web/src/api/`        | 복사 후 client만 교체 | fetch 로직은 재사용, client는 별도 |
+| `apps/web/src/stores/`     | 복사 후 그대로 사용   | 순수 Zustand, 웹 의존성 없음       |
+| `apps/web/src/hooks/`      | 일부 공유             | UI 의존 hooks 제외                 |
+| `apps/web/src/components/` | 재사용 불가           | RN 전용으로 새로 작성              |
