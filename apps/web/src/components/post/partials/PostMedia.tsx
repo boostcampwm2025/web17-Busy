@@ -67,8 +67,8 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
     if (i === 0) return post.coverImgUrl || '';
     return post.musics[i - 1]?.albumCoverUrl || post.coverImgUrl || '';
   };
-  const prevUrl = isMulti ? getSlideUrl(activeIndex - 1) : '';
-  const nextUrl = isMulti ? getSlideUrl(activeIndex + 1) : '';
+  const prevUrl = isMulti && activeIndex > 0 ? getSlideUrl(activeIndex - 1) : '';
+  const nextUrl = isMulti && activeIndex < totalLength - 1 ? getSlideUrl(activeIndex + 1) : '';
 
   const handlePlay = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -107,6 +107,9 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
     if (!isMulti || transitioning) return;
     const delta = (e.touches[0]?.clientX ?? 0) - touchStartX.current;
     if (Math.abs(delta) > 5) wasSwipeRef.current = true;
+    // 경계에서 해당 방향 스와이프 막기
+    if (activeIndex <= 0 && delta > 0) return;
+    if (activeIndex >= totalLength - 1 && delta < 0) return;
     setDragOffset(delta);
   };
 
@@ -124,7 +127,10 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
 
     setTransitioning(true);
 
-    if (delta < -threshold) {
+    const isAtStart = activeIndex <= 0;
+    const isAtEnd = activeIndex >= totalLength - 1;
+
+    if (delta < -threshold && !isAtEnd) {
       // 왼쪽 스와이프 → 다음
       setDragOffset(-containerWidth);
       setTimeout(() => {
@@ -132,7 +138,7 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
         setTransitioning(false);
         setDragOffset(0);
       }, 250);
-    } else if (delta > threshold) {
+    } else if (delta > threshold && !isAtStart) {
       // 오른쪽 스와이프 → 이전
       setDragOffset(containerWidth);
       setTimeout(() => {
@@ -169,14 +175,15 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
       {isMulti ? (
         <div className="flex h-full w-[300%]" style={trackStyle}>
           <div className="w-1/3 h-full flex-shrink-0 relative overflow-hidden">
-            {variant === 'modal' ? (
-              <>
-                <img src={prevUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
-                <img src={prevUrl} alt="이전" className="absolute inset-0 w-full h-full object-contain" />
-              </>
-            ) : (
-              <img src={prevUrl} alt="이전" className="w-full h-full object-cover" />
-            )}
+            {prevUrl &&
+              (variant === 'modal' ? (
+                <>
+                  <img src={prevUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+                  <img src={prevUrl} alt="이전" className="absolute inset-0 w-full h-full object-contain" />
+                </>
+              ) : (
+                <img src={prevUrl} alt="이전" className="w-full h-full object-cover" />
+              ))}
           </div>
           <div className="w-1/3 h-full flex-shrink-0 relative overflow-hidden">
             {variant === 'modal' ? (
@@ -197,14 +204,15 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
             )}
           </div>
           <div className="w-1/3 h-full flex-shrink-0 relative overflow-hidden">
-            {variant === 'modal' ? (
-              <>
-                <img src={nextUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
-                <img src={nextUrl} alt="다음" className="absolute inset-0 w-full h-full object-contain" />
-              </>
-            ) : (
-              <img src={nextUrl} alt="다음" className="w-full h-full object-cover" />
-            )}
+            {nextUrl &&
+              (variant === 'modal' ? (
+                <>
+                  <img src={nextUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+                  <img src={nextUrl} alt="다음" className="absolute inset-0 w-full h-full object-contain" />
+                </>
+              ) : (
+                <img src={nextUrl} alt="다음" className="w-full h-full object-cover" />
+              ))}
           </div>
         </div>
       ) : variant === 'modal' ? (
@@ -242,12 +250,16 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
         )}
         {isMulti && (
           <>
-            <button type="button" onClick={handlePrev} className={`${styles.navBtn} left-3`} title="이전">
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button type="button" onClick={handleNext} className={`${styles.navBtn} right-3`} title="다음">
-              <ChevronRight className="w-6 h-6" />
-            </button>
+            {activeIndex > 0 && (
+              <button type="button" onClick={handlePrev} className={`${styles.navBtn} left-3`} title="이전">
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+            {activeIndex < totalLength - 1 && (
+              <button type="button" onClick={handleNext} className={`${styles.navBtn} right-3`} title="다음">
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            )}
           </>
         )}
       </div>
