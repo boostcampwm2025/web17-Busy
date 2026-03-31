@@ -67,6 +67,8 @@ export const PostCardDetailModal = () => {
   });
 
   const playMusic = usePlayerStore((s) => s.playMusic);
+  const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const selectMusic = usePlayerStore((s) => s.selectMusic);
   const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
   const currentMusic = usePlayerStore((s) => s.currentMusic); // UX
   const isPlaying = usePlayerStore((s) => s.isPlaying);
@@ -158,6 +160,17 @@ export const PostCardDetailModal = () => {
     },
     [playMusic],
   );
+
+  // 커버 페이지: 게시글 전체 음악을 큐에 넣고 첫 번째 곡 재생
+  const handlePlayAll = useCallback(() => {
+    const musics = safePost.musics;
+    if (!musics.length) return;
+    const firstMusic = musics[0];
+    if (!firstMusic) return;
+    addToQueue(musics);
+    playedMusicIdsRef.current.add(firstMusic.id);
+    selectMusic(firstMusic);
+  }, [safePost.musics, addToQueue, selectMusic]);
 
   // listen time 누적(1초 tick)
   useEffect(() => {
@@ -290,7 +303,7 @@ export const PostCardDetailModal = () => {
         aria-modal="true"
       >
         <div
-          className="bg-white w-full max-w-5xl h-full max-h-[85vh] rounded-2xl border-2 border-primary shadow-2xl flex flex-col md:flex-row overflow-hidden animate-scale-up"
+          className="bg-white w-full max-w-[1640px] h-full max-h-[85vh] rounded-2xl border-2 border-primary shadow-2xl flex flex-col md:flex-row overflow-hidden animate-scale-up"
           onClick={(e) => e.stopPropagation()}
         >
           {isLoading ? (
@@ -300,7 +313,14 @@ export const PostCardDetailModal = () => {
               <div className="text-sm font-bold text-gray-500">{error}</div>
             </div>
           ) : (
-            <PostMedia post={safePost} variant="modal" currentMusicId={currentMusicId} isPlayingGlobal={isPlaying} onPlay={handlePlayFromPost} />
+            <PostMedia
+              post={safePost}
+              variant="modal"
+              currentMusicId={currentMusicId}
+              isPlayingGlobal={isPlaying}
+              onPlay={handlePlayFromPost}
+              onPlayAll={handlePlayAll}
+            />
           )}
 
           <div className="w-full md:w-105 flex flex-col bg-white border-l-2 border-primary flex-1 min-h-0">

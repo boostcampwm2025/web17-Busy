@@ -16,6 +16,8 @@ type Props = {
   isPlayingGlobal: boolean;
 
   onPlay: (music: Music) => void;
+  /** 커버 페이지 재생 버튼: 게시글 전체 음악 재생 */
+  onPlayAll?: () => void;
 
   /** 카드에서만: 컨테이너 클릭 시 상세 열기 */
   onClickContainer?: () => void;
@@ -43,7 +45,7 @@ const stylesByVariant: Record<Variant, { container: string; playBtn: string; inf
   },
 };
 
-export default function PostMedia({ post, variant, currentMusicId, isPlayingGlobal, onPlay, onClickContainer }: Props) {
+export default function PostMedia({ post, variant, currentMusicId, isPlayingGlobal, onPlay, onPlayAll, onClickContainer }: Props) {
   const { isMulti, activeMusic, coverUrl, isActivePlaying, prev, next, activeIndex, totalLength } = usePostMedia({
     post,
     currentMusicId,
@@ -65,13 +67,18 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
     if (i === 0) return post.coverImgUrl || '';
     return post.musics[i - 1]?.albumCoverUrl || post.coverImgUrl || '';
   };
-  const prevUrl = isMulti ? getSlideUrl(activeIndex - 1) : '';
-  const nextUrl = isMulti ? getSlideUrl(activeIndex + 1) : '';
+  const prevUrl = isMulti && activeIndex > 0 ? getSlideUrl(activeIndex - 1) : '';
+  const nextUrl = isMulti && activeIndex < totalLength - 1 ? getSlideUrl(activeIndex + 1) : '';
 
   const handlePlay = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!activeMusic) return;
     onPlay(activeMusic);
+  };
+
+  const handlePlayAll = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onPlayAll?.();
   };
 
   const handlePrev = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -100,6 +107,9 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
     if (!isMulti || transitioning) return;
     const delta = (e.touches[0]?.clientX ?? 0) - touchStartX.current;
     if (Math.abs(delta) > 5) wasSwipeRef.current = true;
+    // 경계에서 해당 방향 스와이프 막기
+    if (activeIndex <= 0 && delta > 0) return;
+    if (activeIndex >= totalLength - 1 && delta < 0) return;
     setDragOffset(delta);
   };
 
@@ -117,7 +127,10 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
 
     setTransitioning(true);
 
-    if (delta < -threshold) {
+    const isAtStart = activeIndex <= 0;
+    const isAtEnd = activeIndex >= totalLength - 1;
+
+    if (delta < -threshold && !isAtEnd) {
       // 왼쪽 스와이프 → 다음
       setDragOffset(-containerWidth);
       setTimeout(() => {
@@ -125,7 +138,7 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
         setTransitioning(false);
         setDragOffset(0);
       }, 250);
-    } else if (delta > threshold) {
+    } else if (delta > threshold && !isAtStart) {
       // 오른쪽 스와이프 → 이전
       setDragOffset(containerWidth);
       setTimeout(() => {
@@ -161,20 +174,56 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
       {/* 이미지 슬라이드 트랙 */}
       {isMulti ? (
         <div className="flex h-full w-[300%]" style={trackStyle}>
-          <div className="w-1/3 h-full flex-shrink-0">
-            <img src={prevUrl} alt="이전" className="w-full h-full object-cover" />
+          <div className="w-1/3 h-full flex-shrink-0 relative overflow-hidden">
+            {prevUrl &&
+              (variant === 'modal' ? (
+                <>
+                  <img src={prevUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+                  <img src={prevUrl} alt="이전" className="absolute inset-0 w-full h-full object-contain" />
+                </>
+              ) : (
+                <img src={prevUrl} alt="이전" className="w-full h-full object-cover" />
+              ))}
           </div>
-          <div className="w-1/3 h-full flex-shrink-0">
-            <img
-              src={coverUrl}
-              alt={activeMusic?.title ?? 'cover'}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+          <div className="w-1/3 h-full flex-shrink-0 relative overflow-hidden">
+            {variant === 'modal' ? (
+              <>
+                <img src={coverUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+                <img
+                  src={coverUrl}
+                  alt={activeMusic?.title ?? 'cover'}
+                  className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                />
+              </>
+            ) : (
+              <img
+                src={coverUrl}
+                alt={activeMusic?.title ?? 'cover'}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            )}
           </div>
-          <div className="w-1/3 h-full flex-shrink-0">
-            <img src={nextUrl} alt="다음" className="w-full h-full object-cover" />
+          <div className="w-1/3 h-full flex-shrink-0 relative overflow-hidden">
+            {nextUrl &&
+              (variant === 'modal' ? (
+                <>
+                  <img src={nextUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+                  <img src={nextUrl} alt="다음" className="absolute inset-0 w-full h-full object-contain" />
+                </>
+              ) : (
+                <img src={nextUrl} alt="다음" className="w-full h-full object-cover" />
+              ))}
           </div>
         </div>
+      ) : variant === 'modal' ? (
+        <>
+          <img src={coverUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+          <img
+            src={coverUrl}
+            alt={activeMusic?.title ?? 'cover'}
+            className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+          />
+        </>
       ) : (
         <img
           src={coverUrl}
@@ -185,6 +234,13 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
 
       {/* 오버레이 (버튼, 배지, 음악 정보) */}
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/35 transition-colors">
+        {isCoverPage && post.musics.length > 0 && onPlayAll && (
+          <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+            <button type="button" onClick={handlePlayAll} className={styles.playBtn} title="전체 재생">
+              <Play className="w-6 h-6 ml-0.5" />
+            </button>
+          </div>
+        )}
         {!isCoverPage && activeMusic && (
           <div className="absolute inset-0 flex items-center justify-center opacity-100 md:group-hover:opacity-100 transition-opacity">
             <button type="button" onClick={handlePlay} className={styles.playBtn} title={isActivePlaying ? '일시정지' : '재생'}>
@@ -194,12 +250,16 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
         )}
         {isMulti && (
           <>
-            <button type="button" onClick={handlePrev} className={`${styles.navBtn} left-3`} title="이전">
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button type="button" onClick={handleNext} className={`${styles.navBtn} right-3`} title="다음">
-              <ChevronRight className="w-6 h-6" />
-            </button>
+            {activeIndex > 0 && (
+              <button type="button" onClick={handlePrev} className={`${styles.navBtn} left-3`} title="이전">
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+            {activeIndex < totalLength - 1 && (
+              <button type="button" onClick={handleNext} className={`${styles.navBtn} right-3`} title="다음">
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            )}
           </>
         )}
       </div>
@@ -210,11 +270,18 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
         </div>
       )}
 
-      {activeMusic && (
-        <div className={`${styles.infoBox} max-w-[70%] md:max-w-[60%] min-w-0`}>
-          <TickerText text={activeMusic.title} className="text-sm md:text-base font-black text-primary" />
-          <TickerText text={activeMusic.artistName} className="text-xs font-bold text-gray-600" />
+      {isCoverPage && post.musics.length > 0 && onPlayAll ? (
+        <div className={`${styles.infoBox} min-w-0`}>
+          <span className="text-sm md:text-base font-black text-primary">전체 재생</span>
+          <p className="text-xs font-bold text-gray-600">{post.musics.length}곡</p>
         </div>
+      ) : (
+        activeMusic && (
+          <div className={`${styles.infoBox} max-w-[70%] md:max-w-[60%] min-w-0`}>
+            <TickerText text={activeMusic.title} className="text-sm md:text-base font-black text-primary" />
+            <TickerText text={activeMusic.artistName} className="text-xs font-bold text-gray-600" />
+          </div>
+        )
       )}
     </div>
   );

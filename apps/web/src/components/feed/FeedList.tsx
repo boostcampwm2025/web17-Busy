@@ -14,6 +14,8 @@ export default function FeedList({ posts }: FeedListProps) {
   const router = useRouter();
 
   const playMusic = usePlayerStore((s) => s.playMusic);
+  const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const selectMusic = usePlayerStore((s) => s.selectMusic);
   const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
@@ -21,6 +23,15 @@ export default function FeedList({ posts }: FeedListProps) {
 
   const handlePlay = (music: Music) => {
     playMusic(music);
+  };
+
+  const handlePlayAll = (post: Post) => {
+    const musics = post.musics;
+    if (!musics.length) return;
+    const firstMusic = musics[0];
+    if (!firstMusic) return;
+    addToQueue(musics);
+    selectMusic(firstMusic);
   };
 
   const handleUserClick = (userId: string) => {
@@ -40,6 +51,7 @@ export default function FeedList({ posts }: FeedListProps) {
               key={post.id}
               post={post}
               onPlay={handlePlay}
+              onPlayAll={() => handlePlayAll(post)}
               onUserClick={handleUserClick}
               onOpenDetail={handleOpenDetail}
               currentMusicId={currentMusicId}
