@@ -14,7 +14,7 @@ export default function LoginScreen() {
   const handleTmpLogin = async () => {
     setLoading(true);
     try {
-      const token = await tmpLogin('test-user-id');
+      const token = await tmpLogin('019be163-4b37-76ad-aeb3-6986a3489de6');
       await saveToken(token);
       const user = await authMe();
       setAuth({ userId: user.id, isAuthenticated: true });
