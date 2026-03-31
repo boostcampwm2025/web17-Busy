@@ -1,11 +1,12 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import {
   ContentWriteModal,
   PostCardDetailModal,
   LoginModal,
-  MobilePlayerModal,
+  MobileNowPlaylistModal,
   UserListModal,
   PlaylistDetailModal,
   PlaylistPickerModal,
@@ -14,7 +15,32 @@ import {
 import { getFollowerUsers, getFollowingUsers } from '@/api';
 
 export default function ModalContainer() {
-  const { isOpen, modalType, modalProps } = useModalStore();
+  const { isOpen, modalType, modalProps, closeModal } = useModalStore();
+  const closeModalRef = useRef(closeModal);
+  closeModalRef.current = closeModal;
+
+  // 모달 열릴 때 히스토리 항목 추가 → 뒤로가기로 닫기 지원
+  useEffect(() => {
+    if (isOpen) {
+      history.pushState({ vibrModal: modalType }, '');
+    }
+  }, [isOpen, modalType]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      if (useModalStore.getState().isOpen) closeModalRef.current();
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && useModalStore.getState().isOpen) closeModalRef.current();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -30,7 +56,7 @@ export default function ModalContainer() {
       {modalType === MODAL_TYPES.POST_DETAIL && <PostCardDetailModal />}
 
       {/* 4. 모바일 재생목록 모달 */}
-      {modalType === MODAL_TYPES.MOBILE_QUEUE && <MobilePlayerModal />}
+      {modalType === MODAL_TYPES.MOBILE_QUEUE && <MobileNowPlaylistModal />}
 
       {/* 5. 팔로워 사용자 목록 모달 */}
       {modalType === MODAL_TYPES.FOLLOWER_USER && <UserListModal title="팔로워 목록" fetchFn={getFollowerUsers} />}

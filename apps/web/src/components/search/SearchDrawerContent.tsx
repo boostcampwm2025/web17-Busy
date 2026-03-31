@@ -62,7 +62,6 @@ function SearchDrawerInner({ enabled = true }: Props) {
   return (
     <div className="flex flex-col h-full">
       <div className="p-6">
-        <h2 className="text-3xl font-black text-primary mb-6">검색</h2>
         <SearchInput value={query} onChange={setQuery} onClear={clearQuery} placeholder="음악 검색, 사용자 검색" />
       </div>
 

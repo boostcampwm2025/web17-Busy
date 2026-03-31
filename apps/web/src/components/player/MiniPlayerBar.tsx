@@ -24,6 +24,7 @@ interface MiniPlayerBarProps {
   onNext: () => void;
 
   onToggleQueue: () => void;
+  onOpenFullPlayer: () => void;
 }
 
 export default function MiniPlayerBar({
@@ -36,6 +37,7 @@ export default function MiniPlayerBar({
   onPrev,
   onNext,
   onToggleQueue,
+  onOpenFullPlayer,
 }: MiniPlayerBarProps) {
   const isPlayable = Boolean(currentMusic);
 
@@ -105,23 +107,25 @@ export default function MiniPlayerBar({
 
   return (
     <section className="relative z-20 flex lg:hidden h-full items-center gap-3 px-4 bg-white">
-      <div className="w-12 h-12 rounded border border-gray-3 overflow-hidden bg-gray-4 shrink-0">
-        {currentMusic ? <img src={currentMusic.albumCoverUrl} alt={currentMusic.title} className="w-full h-full object-cover" /> : null}
-      </div>
+      <button type="button" onClick={onOpenFullPlayer} className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="w-10 h-10 rounded border border-gray-3 overflow-hidden bg-gray-4 shrink-0">
+          {currentMusic ? <img src={currentMusic.albumCoverUrl} alt={currentMusic.title} className="w-full h-full object-cover" /> : null}
+        </div>
 
-      <div className="min-w-0 flex-1">
-        {currentMusic ? (
-          <>
-            <TickerText text={currentMusic.title} className="text-sm font-black text-primary" />
-            <TickerText text={currentMusic.artistName} className="text-xs font-bold text-gray-1" />
-          </>
-        ) : (
-          <>
-            <p className="text-sm font-black text-primary">재생 중인 음악 없음</p>
-            <p className="text-xs font-bold text-gray-1"> </p>
-          </>
-        )}
-      </div>
+        <div className="min-w-0 flex-1 text-left">
+          {currentMusic ? (
+            <>
+              <TickerText text={currentMusic.title} className="text-sm font-black text-primary" />
+              <TickerText text={currentMusic.artistName} className="text-xs font-bold text-gray-1" />
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-black text-primary">재생 중인 음악 없음</p>
+              <p className="text-xs font-bold text-gray-1"> </p>
+            </>
+          )}
+        </div>
+      </button>
 
       <div className="flex items-center gap-1 shrink-0">
         <button

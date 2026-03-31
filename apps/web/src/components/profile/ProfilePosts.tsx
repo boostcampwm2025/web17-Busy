@@ -1,14 +1,22 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { PostPreviewDto as PostPreview } from '@repo/dto';
 import { Heart, MessageCircle } from 'lucide-react';
+import useIsMobile from '@/hooks/useIsMobile';
 
-export default function ProfilePosts({ posts, isMyProfile }: { posts: PostPreview[]; isMyProfile: boolean }) {
+export default function ProfilePosts({ posts, isMyProfile, userId }: { posts: PostPreview[]; isMyProfile: boolean; userId: string }) {
+  const router = useRouter();
   const openModal = useModalStore((s) => s.openModal);
+  const isMobile = useIsMobile();
 
   const handleOpenDetail = (postId: string) => {
-    openModal(MODAL_TYPES.POST_DETAIL, { postId });
+    if (isMobile) {
+      router.push(`/profile/${userId}/posts?postId=${postId}`);
+    } else {
+      openModal(MODAL_TYPES.POST_DETAIL, { postId });
+    }
   };
 
   if (posts.length === 0)
