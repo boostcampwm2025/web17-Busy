@@ -41,6 +41,7 @@ interface PlayerActions {
   clearQueue: () => void;
   initializeQueue: (queue: Music[]) => void;
 
+  setIsPlaying: (v: boolean) => void;
   setVolume: (v: number) => void;
   setPlayError: (msg: string | null) => void;
 }
@@ -118,6 +119,10 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   volume: DEFAULT_VOLUME,
   playError: null,
+
+  setIsPlaying: (v) => {
+    set({ isPlaying: v });
+  },
 
   setVolume: (v) => {
     set({ volume: clamp01(Number(v)) });
