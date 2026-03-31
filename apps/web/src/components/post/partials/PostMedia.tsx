@@ -258,11 +258,18 @@ export default function PostMedia({ post, variant, currentMusicId, isPlayingGlob
         </div>
       )}
 
-      {activeMusic && (
-        <div className={`${styles.infoBox} max-w-[70%] md:max-w-[60%] min-w-0`}>
-          <TickerText text={activeMusic.title} className="text-sm md:text-base font-black text-primary" />
-          <TickerText text={activeMusic.artistName} className="text-xs font-bold text-gray-600" />
+      {isCoverPage && post.musics.length > 0 && onPlayAll ? (
+        <div className={`${styles.infoBox} min-w-0`}>
+          <span className="text-sm md:text-base font-black text-primary">전체 재생</span>
+          <p className="text-xs font-bold text-gray-600">{post.musics.length}곡</p>
         </div>
+      ) : (
+        activeMusic && (
+          <div className={`${styles.infoBox} max-w-[70%] md:max-w-[60%] min-w-0`}>
+            <TickerText text={activeMusic.title} className="text-sm md:text-base font-black text-primary" />
+            <TickerText text={activeMusic.artistName} className="text-xs font-bold text-gray-600" />
+          </div>
+        )
       )}
     </div>
   );
