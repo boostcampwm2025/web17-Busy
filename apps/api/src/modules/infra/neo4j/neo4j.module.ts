@@ -1,14 +1,11 @@
-import { Module, OnModuleDestroy, Inject } from '@nestjs/common';
+import { Global, Inject, Module, OnModuleDestroy } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import neo4j, { Driver } from 'neo4j-driver';
-import { AlgorithmService } from './algorithm.service';
-import { AlgorithmStreamConsumer } from './algorithm-stream.consumer';
 
+@Global()
 @Module({
   imports: [ConfigModule],
   providers: [
-    AlgorithmService,
-    AlgorithmStreamConsumer,
     {
       provide: 'NEO4J_DRIVER',
       useFactory: async (configService: ConfigService) => {
@@ -20,6 +17,13 @@ import { AlgorithmStreamConsumer } from './algorithm-stream.consumer';
       inject: [ConfigService],
     },
   ],
-  exports: [AlgorithmService, AlgorithmStreamConsumer],
+  exports: ['NEO4J_DRIVER'],
 })
-export class AlgorithmModule {}
+export class Neo4jInfraModule implements OnModuleDestroy {
+  constructor(@Inject('NEO4J_DRIVER') private readonly driver: Driver) {}
+
+  // 모듈이 종료될 때 드라이버 연결 해제
+  async onModuleDestroy() {
+    await this.driver.close();
+  }
+}
