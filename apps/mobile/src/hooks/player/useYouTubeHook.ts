@@ -47,15 +47,21 @@ export function useYouTubeHook() {
   useEffect(() => {
     if (!isYouTube || !isPlaying) return;
 
+    let pending = false;
+
     const timer = setInterval(async () => {
+      if (pending) return; // 이전 호출 아직 진행 중이면 스킵
       const ref = playerRef.current;
       if (!ref) return;
+      pending = true;
       try {
         const [current, dur] = await Promise.all([ref.getCurrentTime(), ref.getDuration()]);
         setPositionMs(Math.floor(current * 1000));
         if (dur > 0) setDurationMs(Math.floor(dur * 1000));
       } catch {
         // 플레이어 아직 준비 안 됨 — 무시
+      } finally {
+        pending = false;
       }
     }, 250);
 
