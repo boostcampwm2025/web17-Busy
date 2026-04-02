@@ -1,6 +1,7 @@
 export * from './auth';
 export * from './comment';
 export * from './follow';
+export * from './itunes';
 export * from './like';
 export * from './music';
 export * from './noti';
@@ -8,3 +9,4 @@ export * from './now-playlist';
 export * from './playlist';
 export * from './post';
 export * from './user';
+export * from './youtube';
