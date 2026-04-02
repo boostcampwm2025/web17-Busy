@@ -59,8 +59,8 @@ app/
 | ---- | ------------- | --------------------------------------------------- | ---- | ------------------------- |
 | 1    | 피드          | `components/feed/FeedView.tsx`, `FeedList.tsx`      | ✅   | 기본 카드 UI 패턴 확립    |
 | 2    | 미니 플레이어 | `components/player/MiniPlayerBar.tsx`               | ✅   | 탭바 위 고정              |
-| 3    | 풀 플레이어   | `components/player/NowPlaying.tsx`, `QueueList.tsx` | ⬜   | 바텀시트 또는 모달로 구현 |
-| 4    | 검색          | `components/search/`                                | ⬜   | 피드 카드 컴포넌트 재사용 |
+| 3    | 풀 플레이어   | `components/player/NowPlaying.tsx`, `QueueList.tsx` | ✅   | 바텀시트 또는 모달로 구현 |
+| 4    | 검색          | `components/search/`                                | ✅   | 피드 카드 컴포넌트 재사용 |
 | 5    | 프로필        | `components/profile/`                               | ⬜   | 상대적으로 독립적         |
 | 6    | 포스트 작성   | `components/modals/ContentWriteModal/`              | ⬜   | 복잡도 높아서 마지막      |
 
@@ -86,7 +86,34 @@ app/
 
 - [x] `src/components/player/MiniPlayer.tsx` — 앨범 커버, 곡 정보, 재생/일시정지, 이전/다음 버튼
 - [x] `app/(tabs)/_layout.tsx` — 탭바 위 절대 위치로 MiniPlayer 오버레이
-- [ ] 풀 플레이어 연결 (`onOpenFullPlayer`) — 추후 구현 예정
+- [x] 풀 플레이어 연결 (`onOpenFullPlayer`)
+
+### 풀 플레이어 구현 상세
+
+- [x] `src/stores/usePlayerStore.ts` — `setIsPlaying` 액션 추가 (YouTube 실제 재생 상태 → store 동기화)
+- [x] `src/hooks/player/useItunesHook.ts` — expo-av 기반 iTunes 재생 훅
+- [x] `src/hooks/player/useYouTubeHook.ts` — react-native-youtube-iframe 기반 YouTube 재생 훅
+  - 250ms 폴링으로 positionMs/durationMs 갱신 (pending 플래그로 리스너 누수 방지)
+  - onChangeState에서 store setIsPlaying 동기화
+- [x] `src/components/player/FullPlayer.tsx` — 슬라이더, 컨트롤, 재생목록, 비우기 버튼
+- [x] `app/(tabs)/_layout.tsx` — zIndex 방식으로 FullPlayer 오버레이
+  - YouTube 트랙 선택 시 파생 상태로 동기 오픈 (useEffect 지연 없음)
+  - opacity/translateY 사용 금지 (Android WebView 재생 차단/suspend 이슈)
+- [x] `useSafeAreaInsets` 적용으로 갤럭시 하단 네비게이션 바 가림 수정
+
+### 검색 화면 구현 상세
+
+- [x] `src/api/itunes.ts` — iTunes Search API 직접 호출 (인증 불필요)
+- [x] `src/api/youtube.ts` — YouTube Data API v3 직접 호출 (`EXPO_PUBLIC_YOUTUBE_API_KEY`)
+- [x] `src/mappers/` — `itunesSongToMusic`, `youtubeVideoToMusic` (RN용 HTML 엔티티 디코드)
+- [x] `src/hooks/useDebouncedValue.ts` — 범용 디바운스 훅
+- [x] `src/hooks/search/useItunesSearch.ts` — debounce + AbortController
+- [x] `src/hooks/search/useYoutubeSearch.ts` — debounce + 결과 캐시
+- [x] `src/hooks/search/useUserSearch.ts` — cursor 페이지네이션 + loadMore
+- [x] `src/hooks/search/useSearchScreen.ts` — 음원/유튜브/사용자 탭 통합
+- [x] `src/components/search/TrackItem.tsx` — 커버/썸네일, 곡 정보, 재생 버튼
+- [x] `src/components/search/UserItem.tsx` — 프로필, 팔로우/언팔로우 (Optimistic UI)
+- [x] `app/(tabs)/search.tsx` — 검색 입력, 탭 전환, FlatList 결과, 사용자 무한스크롤
 
 ---
 
