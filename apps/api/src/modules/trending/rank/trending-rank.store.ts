@@ -1,7 +1,7 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 
 @Injectable()
 export class TrendingRankStore {

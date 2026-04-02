@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRedisConnectionToken } from '@nestjs-modules/ioredis';
-import { Driver } from 'neo4j-driver';
 import { AlgorithmStreamConsumer } from './algorithm-stream.consumer';
 import { AlgorithmService } from './algorithm.service';
-import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 
 // --- Mocks ---
 const mockRedis = {

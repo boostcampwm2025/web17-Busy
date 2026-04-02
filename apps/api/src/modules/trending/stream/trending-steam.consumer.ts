@@ -2,7 +2,7 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import Redis from 'ioredis';
 import { TrendingRankStore } from '../rank/trending-rank.store';
-import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 import {
   TRENDING_AGGREGATION_INTERVAL,
   TRENDING_CONSUMER_GROUP_NAME,
@@ -13,7 +13,7 @@ import {
   StreamEntry,
   XAutoClaimReply,
   XReadGroupReply,
-} from 'src/infra/redis/redis-steam.type';
+} from 'src/modules/infra/redis/redis-steam.type';
 import { parseTrendingEvent } from '../internal/trending-event.parser';
 
 @Injectable()

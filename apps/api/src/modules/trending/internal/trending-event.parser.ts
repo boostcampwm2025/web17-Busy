@@ -1,4 +1,4 @@
-import { kvToObj } from 'src/infra/redis/redis-stream.util';
+import { kvToObj } from 'src/modules/infra/redis/redis-stream.util';
 import {
   TRENDING_WEIGHTS,
   TrendingInteractionType,

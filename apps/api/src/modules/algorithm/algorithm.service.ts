@@ -3,7 +3,7 @@ import neo4j, { Session, Driver } from 'neo4j-driver';
 import { GraphRelation } from './algorithm-stream.consumer';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
-import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()

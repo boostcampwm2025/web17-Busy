@@ -4,7 +4,7 @@ import type Redis from 'ioredis';
 
 import { CreateLogsReqDto, LogEventDto } from '@repo/dto';
 import { ConsentType } from '@repo/dto/values';
-import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 import { PrivacyService } from 'src/modules/privacy/privacy.service';
 
 const safeDateOrNull = (iso?: string): Date | null => {

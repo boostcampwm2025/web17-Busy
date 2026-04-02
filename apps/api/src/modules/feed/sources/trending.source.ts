@@ -2,7 +2,7 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Redis from 'ioredis';
-import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 import { Post } from 'src/modules/post/entities/post.entity';
 import { TrendingService } from 'src/modules/trending/trending.service';
 import { Repository } from 'typeorm';

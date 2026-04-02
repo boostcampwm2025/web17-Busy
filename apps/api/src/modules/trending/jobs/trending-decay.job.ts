@@ -6,7 +6,7 @@ import {
   TRENDING_DECAY_SCAN_BATCH_SIZE,
   TRENDING_MIN_SCORE,
 } from '../trending.constants';
-import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 import { TrendingRankStore } from '../rank/trending-rank.store';
 
 @Injectable()

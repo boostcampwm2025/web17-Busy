@@ -2,9 +2,12 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { AlgorithmService } from './algorithm.service';
-import { REDIS_KEYS } from 'src/infra/redis/redis-keys';
+import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { StreamEntry, XAutoClaimReply } from 'src/infra/redis/redis-steam.type';
+import {
+  StreamEntry,
+  XAutoClaimReply,
+} from 'src/modules/infra/redis/redis-steam.type';
 
 export interface GraphRelation {
   userId: string;
