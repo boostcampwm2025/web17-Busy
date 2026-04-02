@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Tabs } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePlayerStore } from '@/src/stores';
 import { MusicProvider } from '@repo/dto/values';
 import MiniPlayer from '@/src/components/player/MiniPlayer';
@@ -13,7 +14,8 @@ function TabIcon({ focused }: { focused: boolean }) {
 
 export default function TabsLayout() {
   const currentMusic = usePlayerStore((s) => s.currentMusic);
-  const TAB_BAR_HEIGHT = 56;
+  const { bottom: bottomInset } = useSafeAreaInsets();
+  const TAB_BAR_HEIGHT = 56 + bottomInset;
 
   // YouTube 트랙: FullPlayer를 동기적으로 열어야 함
   // useEffect로 열면 YoutubePlayer가 zIndex:0(hidden) 상태로 마운트 → IFrame API 초기화 실패
@@ -50,6 +52,7 @@ export default function TabsLayout() {
             backgroundColor: '#111',
             borderTopColor: '#222',
             height: TAB_BAR_HEIGHT,
+            paddingBottom: bottomInset,
           },
           tabBarActiveTintColor: '#fff',
           tabBarInactiveTintColor: '#555',
