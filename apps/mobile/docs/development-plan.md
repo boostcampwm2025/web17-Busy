@@ -61,7 +61,7 @@ app/
 | 2    | 미니 플레이어 | `components/player/MiniPlayerBar.tsx`               | ✅   | 탭바 위 고정              |
 | 3    | 풀 플레이어   | `components/player/NowPlaying.tsx`, `QueueList.tsx` | ✅   | 바텀시트 또는 모달로 구현 |
 | 4    | 검색          | `components/search/`                                | ✅   | 피드 카드 컴포넌트 재사용 |
-| 5    | 프로필        | `components/profile/`                               | ⬜   | 상대적으로 독립적         |
+| 5    | 프로필        | `components/profile/`                               | ✅   | 상대적으로 독립적         |
 | 6    | 포스트 작성   | `components/modals/ContentWriteModal/`              | ⬜   | 복잡도 높아서 마지막      |
 
 ### 피드 화면 구현 상세
@@ -114,6 +114,25 @@ app/
 - [x] `src/components/search/TrackItem.tsx` — 커버/썸네일, 곡 정보, 재생 버튼
 - [x] `src/components/search/UserItem.tsx` — 프로필, 팔로우/언팔로우 (Optimistic UI)
 - [x] `app/(tabs)/search.tsx` — 검색 입력, 탭 전환, FlatList 결과, 사용자 무한스크롤
+
+### 프로필 화면 구현 상세
+
+- [x] `app/(tabs)/profile.tsx` — 내 프로필 화면
+  - 아바타, 팔로워/팔로잉/게시물 통계 (팔로워·팔로잉 탭 시 `/follows` 이동)
+  - 닉네임·자기소개 인라인 편집 (ScrollView 기반으로 키보드 이슈 해결)
+  - 게시물 2열 그리드 (ScrollView + 수동 row 렌더링, 무한스크롤)
+  - 로그아웃 버튼 (토큰 삭제 → 로그인 화면 이동)
+- [x] `app/profile/[userId].tsx` — 다른 사용자 프로필 화면
+  - 팔로우/언팔로우 버튼 (Optimistic UI)
+  - 팔로워·팔로잉 통계 탭 → `/follows` 이동
+  - 게시물 2열 그리드 + 무한스크롤
+- [x] `app/follows.tsx` — 팔로워/팔로잉 목록 화면
+  - 수평 ScrollView 스와이프 + 탭 버튼으로 팔로워·팔로잉 전환
+  - `Animated.Value`로 스와이프에 따라 탭 인디케이터 실시간 이동
+  - 각 목록 팔로우/언팔로우 (Optimistic UI), 무한스크롤
+- [x] `src/components/search/UserItem.tsx` — 프로필 이동 연결
+  - 항목 탭 시 내 프로필이면 `/(tabs)/profile`, 타인이면 `/profile/[userId]`로 이동
+- [x] 피드 `PostHeader` — 작성자 탭 시 `/profile/[userId]` 이동 (기존 구현 활용)
 
 ---
 
