@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import type { SearchUserDto } from '@repo/dto';
 import { addFollow, removeFollow } from '@/src/api';
 import { useAuthStore } from '@/src/stores';
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function UserItem({ user, onFollowChange }: Props) {
+  const router = useRouter();
   const myId = useAuthStore((s) => s.userId);
   const isMe = myId === user.id;
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,8 +34,16 @@ export default function UserItem({ user, onFollowChange }: Props) {
     }
   };
 
+  const handleProfilePress = () => {
+    if (isMe) {
+      router.push('/(tabs)/profile' as any);
+    } else {
+      router.push(`/profile/${user.id}` as any);
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={handleProfilePress} activeOpacity={0.7}>
       <Image source={{ uri: user.profileImgUrl ?? DEFAULT_IMAGES.PROFILE }} style={styles.avatar} />
 
       <Text style={styles.nickname} numberOfLines={1}>
@@ -56,7 +66,7 @@ export default function UserItem({ user, onFollowChange }: Props) {
           </Text>
         </TouchableOpacity>
       )}
-    </View>
+    </TouchableOpacity>
   );
 }
 
