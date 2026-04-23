@@ -6,20 +6,7 @@ import { AlgorithmStreamConsumer } from './algorithm-stream.consumer';
 
 @Module({
   imports: [ConfigModule],
-  providers: [
-    AlgorithmService,
-    AlgorithmStreamConsumer,
-    {
-      provide: 'NEO4J_DRIVER',
-      useFactory: async (configService: ConfigService) => {
-        const uri = configService.getOrThrow<string>('NEO4J_URI');
-        const username = configService.getOrThrow<string>('NEO4J_USERNAME');
-        const password = configService.getOrThrow<string>('NEO4J_PASSWORD');
-        return neo4j.driver(uri, neo4j.auth.basic(username, password));
-      },
-      inject: [ConfigService],
-    },
-  ],
+  providers: [AlgorithmService, AlgorithmStreamConsumer],
   exports: [AlgorithmService, AlgorithmStreamConsumer],
 })
 export class AlgorithmModule {}
