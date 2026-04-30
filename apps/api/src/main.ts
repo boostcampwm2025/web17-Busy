@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { AllExceptionsFilter } from './common/filter/all-exception.filter';
+import { ApiLogInterceptor } from './common/interceptors/api-log.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalInterceptors(new ApiLogInterceptor());
   app.enableCors({
     origin: ['https://vibr.site', 'http://localhost:3001'],
     credentials: true,
