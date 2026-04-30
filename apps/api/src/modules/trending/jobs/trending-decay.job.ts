@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import {
   TRENDING_DECAY_FACTOR,
@@ -8,12 +8,25 @@ import {
 } from '../trending.constants';
 import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 import { TrendingRankStore } from '../rank/trending-rank.store';
+import { runJobs } from 'src/utils/job-executor';
 
 @Injectable()
 export class TrendingDecayJob {
+  private readonly logger = new Logger(TrendingDecayJob.name);
+
   constructor(private readonly rankStore: TrendingRankStore) {}
 
   @Cron(TRENDING_DECAY_INTERVAL, { waitForCompletion: true })
+  async doCronJob() {
+    await runJobs(
+      'Decay Trending Scores',
+      async () => {
+        await this.decayTrendingScores();
+      },
+      this.logger,
+    );
+  }
+
   async decayTrendingScores() {
     let cursor = '0';
 

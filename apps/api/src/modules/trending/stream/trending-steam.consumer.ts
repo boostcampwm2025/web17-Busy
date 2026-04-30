@@ -1,5 +1,5 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import Redis from 'ioredis';
 import { TrendingRankStore } from '../rank/trending-rank.store';
 import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
@@ -15,9 +15,12 @@ import {
   XReadGroupReply,
 } from 'src/modules/infra/redis/redis-steam.type';
 import { parseTrendingEvent } from '../internal/trending-event.parser';
+import { runJobs } from 'src/utils/job-executor';
 
 @Injectable()
 export class TrendingStreamConsumer implements OnModuleInit {
+  private readonly logger = new Logger(TrendingStreamConsumer.name);
+
   private readonly consumerName = `trending-${process.pid}`;
   private reclaimTick = 0;
   private readonly RECLAIM_INTERVAL_TICKS = 5;
@@ -46,6 +49,16 @@ export class TrendingStreamConsumer implements OnModuleInit {
   }
 
   @Cron(TRENDING_AGGREGATION_INTERVAL, { waitForCompletion: true })
+  async doCronJob() {
+    await runJobs(
+      'Update Trending Scores',
+      async () => {
+        await this.pollAndAggregateOnce();
+      },
+      this.logger,
+    );
+  }
+
   async pollAndAggregateOnce() {
     const res = (await this.redis.xreadgroup(
       'GROUP',

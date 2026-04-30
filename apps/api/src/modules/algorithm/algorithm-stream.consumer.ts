@@ -8,6 +8,7 @@ import {
   StreamEntry,
   XAutoClaimReply,
 } from 'src/modules/infra/redis/redis-steam.type';
+import { runJobs } from 'src/utils/job-executor';
 
 export interface GraphRelation {
   userId: string;
@@ -58,6 +59,16 @@ export class AlgorithmStreamConsumer implements OnModuleInit {
   }
 
   @Cron(CronExpression.EVERY_30_MINUTES, { waitForCompletion: true })
+  async doCronJob() {
+    await runJobs(
+      'Update Neo4j Data',
+      async () => {
+        await this.pollAndProcess();
+      },
+      this.logger,
+    );
+  }
+
   async pollAndProcess() {
     while (true) {
       const entries = await this.readNewEntriesOnce();

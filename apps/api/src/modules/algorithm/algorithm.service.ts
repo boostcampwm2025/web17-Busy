@@ -1,13 +1,15 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import neo4j, { Session, Driver } from 'neo4j-driver';
 import { GraphRelation } from './algorithm-stream.consumer';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { REDIS_KEYS } from 'src/modules/infra/redis/redis-keys';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { runJobs } from 'src/utils/job-executor';
 
 @Injectable()
 export class AlgorithmService {
+  private readonly logger = new Logger(AlgorithmService.name);
   private isGroupingRunning = false;
 
   constructor(
@@ -242,6 +244,16 @@ export class AlgorithmService {
   }
 
   @Cron(CronExpression.EVERY_HOUR, { waitForCompletion: true })
+  async doCronJob() {
+    await runJobs(
+      'Neo4j Grouping Nodes',
+      async () => {
+        await this.scheduledGroupingTask();
+      },
+      this.logger,
+    );
+  }
+
   async scheduledGroupingTask() {
     if (this.isGroupingRunning) {
       return;
