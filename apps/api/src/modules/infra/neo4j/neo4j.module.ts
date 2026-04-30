@@ -1,5 +1,13 @@
-import { Global, Inject, Module, OnModuleDestroy } from '@nestjs/common';
+import {
+  Global,
+  Inject,
+  Logger,
+  Module,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import neo4j, { Driver } from 'neo4j-driver';
 
 @Global()
@@ -19,8 +27,31 @@ import neo4j, { Driver } from 'neo4j-driver';
   ],
   exports: ['NEO4J_DRIVER'],
 })
-export class Neo4jInfraModule implements OnModuleDestroy {
+export class Neo4jInfraModule implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(Neo4jInfraModule.name);
+
   constructor(@Inject('NEO4J_DRIVER') private readonly driver: Driver) {}
+
+  async onModuleInit() {
+    // 모듈 초기화시에 헬스체크
+    await this.healthCheck();
+  }
+
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async healthCheck() {
+    const session = this.driver.session();
+    try {
+      await session.run('RETURN 1');
+      this.logger.log('neo4j connection is healthy');
+    } catch (e) {
+      this.logger.error(
+        `neo4j connection is not healthy, error: ${e.message}`,
+        e.stack,
+      );
+    } finally {
+      await session.close();
+    }
+  }
 
   // 모듈이 종료될 때 드라이버 연결 해제
   async onModuleDestroy() {
