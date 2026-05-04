@@ -27,15 +27,12 @@ import neo4j, { Driver } from 'neo4j-driver';
 
         try {
           await driver.verifyConnectivity();
-
           logger.log('Neo4j connection established');
-
-          return driver;
         } catch (err) {
           logger.error(`Connection error\n${err}\nCause: ${err.cause}`);
-          await driver.close();
-          return;
         }
+
+        return driver;
       },
       inject: [ConfigService],
     },
@@ -52,7 +49,7 @@ export class Neo4jInfraModule implements OnModuleInit, OnModuleDestroy {
     await this.healthCheck();
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async healthCheck() {
     try {
       await this.driver.verifyConnectivity();
@@ -62,6 +59,8 @@ export class Neo4jInfraModule implements OnModuleInit, OnModuleDestroy {
         `neo4j connection is not healthy, error: ${e.message}`,
         e.stack,
       );
+
+      // 재연결 로직 필요
     }
   }
 
