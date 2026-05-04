@@ -17,10 +17,25 @@ import neo4j, { Driver } from 'neo4j-driver';
     {
       provide: 'NEO4J_DRIVER',
       useFactory: async (configService: ConfigService) => {
+        const logger = new Logger(Neo4jInfraModule.name);
+
         const uri = configService.getOrThrow<string>('NEO4J_URI');
         const username = configService.getOrThrow<string>('NEO4J_USERNAME');
         const password = configService.getOrThrow<string>('NEO4J_PASSWORD');
-        return neo4j.driver(uri, neo4j.auth.basic(username, password));
+
+        const driver = neo4j.driver(uri, neo4j.auth.basic(username, password));
+
+        try {
+          await driver.verifyConnectivity();
+
+          logger.log('Neo4j connection established');
+
+          return driver;
+        } catch (err) {
+          logger.error(`Connection error\n${err}\nCause: ${err.cause}`);
+          await driver.close();
+          return;
+        }
       },
       inject: [ConfigService],
     },
@@ -39,17 +54,14 @@ export class Neo4jInfraModule implements OnModuleInit, OnModuleDestroy {
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async healthCheck() {
-    const session = this.driver.session();
     try {
-      await session.run('RETURN 1');
+      await this.driver.verifyConnectivity();
       this.logger.log('neo4j connection is healthy');
     } catch (e) {
       this.logger.error(
         `neo4j connection is not healthy, error: ${e.message}`,
         e.stack,
       );
-    } finally {
-      await session.close();
     }
   }
 
