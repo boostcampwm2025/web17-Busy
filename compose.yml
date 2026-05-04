@@ -22,7 +22,7 @@ services:
       - "7687:7687" # Bolt (애플리케이션 연결용)
     environment:
       NEO4J_AUTH: neo4j/12345678
-      NEO4JLABS_PLUGINS: '["graph-data-science"]'
+      NEO4J_PLUGINS: '["graph-data-science"]'
     volumes:
       - neo4j_data:/data
   redis:
