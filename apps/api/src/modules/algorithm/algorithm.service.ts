@@ -35,12 +35,12 @@ export class AlgorithmService {
             ON CREATE SET 
               r.weight = log.weight, 
               r.created_at = datetime(log.props.timestamp),
-              r.last_interacted_at = datetime()
-              r.expired_at = datetime() + duration({days: 10}
+              r.last_interacted_at = datetime(),
+              r.expired_at = datetime() + duration({days: 10})
             ON MATCH SET 
               r.weight = r.weight + log.weight,
-              r.last_interacted_at = datetime()
-              r.expired_at = datetime() + duration({days: 10}
+              r.last_interacted_at = datetime(),
+              r.expired_at = datetime() + duration({days: 10})
             SET r += log.props
           )
 
@@ -50,12 +50,12 @@ export class AlgorithmService {
             ON CREATE SET 
               r.weight = log.weight, 
               r.created_at = datetime(log.props.timestamp),
-              r.last_interacted_at = datetime()
-              r.expired_at = datetime() + duration({days: 10}
+              r.last_interacted_at = datetime(),
+              r.expired_at = datetime() + duration({days: 10})
             ON MATCH SET 
               r.weight = r.weight + log.weight,
-              r.last_interacted_at = datetime()
-              r.expired_at = datetime() + duration({days: 10}
+              r.last_interacted_at = datetime(),
+              r.expired_at = datetime() + duration({days: 10})
             SET r += log.props
           )
           `,
