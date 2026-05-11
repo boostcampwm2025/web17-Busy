@@ -95,7 +95,7 @@ export default function Sidebar() {
       handleCloseDrawer();
 
       if (type === SidebarItemType.USAGE) {
-        // openModal(MODAL_TYPES.USAGE);
+        openModal(MODAL_TYPES.USAGE);
         return;
       }
 

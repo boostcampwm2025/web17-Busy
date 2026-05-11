@@ -10,6 +10,7 @@ export const MODAL_TYPES = {
   PLAYLIST_DETAIL: 'PLAYLIST_DETAIL',
   PLAYLIST_PICKER: 'PLAYLIST_PICKER',
   PRIVACY_CONCENT: 'PRIVACY_CONCENT',
+  USAGE: 'USAGE',
 } as const;
 
 export type ModalType = (typeof MODAL_TYPES)[keyof typeof MODAL_TYPES] | null;
