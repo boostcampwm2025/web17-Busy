@@ -6,6 +6,7 @@ export const SidebarItemType = {
   HOME: 'home',
   SETTING: 'setting',
   CREATE: 'create',
+  USAGE: 'usage',
 } as const;
 
 export type SidebarItemTypeValues = (typeof SidebarItemType)[keyof typeof SidebarItemType];

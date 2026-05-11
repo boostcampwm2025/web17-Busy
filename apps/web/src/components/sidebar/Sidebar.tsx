@@ -94,6 +94,11 @@ export default function Sidebar() {
       // 일반 메뉴 아이템 클릭 시, 열려 있는 드로어를 닫고 페이지 이동/모달 오픈
       handleCloseDrawer();
 
+      if (type === SidebarItemType.USAGE) {
+        // openModal(MODAL_TYPES.USAGE);
+        return;
+      }
+
       if (needLogin(type) && !isAuthenticated) {
         openModal(MODAL_TYPES.LOGIN);
         return;

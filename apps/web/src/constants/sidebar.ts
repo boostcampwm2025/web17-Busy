@@ -1,4 +1,4 @@
-import { Bell, Box, Home, Search, Settings, User } from 'lucide-react';
+import { Bell, Box, Home, Search, Settings, User, HelpCircle } from 'lucide-react';
 import { SidebarItemType } from '@/types';
 
 export const menuItems = [
@@ -8,6 +8,7 @@ export const menuItems = [
   { type: SidebarItemType.ARCHIVE, icon: Box, label: '보관함' },
   { type: SidebarItemType.PROFILE, icon: User, label: '프로필' },
   { type: SidebarItemType.SETTING, icon: Settings, label: '설정' },
+  { type: SidebarItemType.USAGE, icon: HelpCircle, label: '도움말' },
 ];
 
 export const SIDEBAR_WIDTH_SHRINKED = 'w-20';
