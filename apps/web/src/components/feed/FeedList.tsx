@@ -44,7 +44,7 @@ export default function FeedList({ posts }: FeedListProps) {
 
   return (
     <div className="flex-1 p-4 md:p-8 max-xs:px-0">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-lg mx-auto">
         <div className="space-y-4">
           {posts.map((post) => (
             <PostCard
