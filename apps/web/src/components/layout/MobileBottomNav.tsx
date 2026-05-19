@@ -113,7 +113,7 @@ export default function MobileBottomNav() {
       </MobileBottomSheet>
 
       {/* 하단 네비게이션 바 (flex 흐름 안에 위치) */}
-      <nav className="lg:hidden relative z-[10000] w-full h-16 bg-white border-t-2 border-primary flex">
+      <nav className="lg:hidden relative z-[10000] w-full h-16 bg-white border-t-1 border-primary flex">
         {navItems.map(({ key, icon: Icon, label, special }) => {
           const isActive = key === activeItem || (key === SidebarItemType.SEARCH && isSearchOpen);
           return (
