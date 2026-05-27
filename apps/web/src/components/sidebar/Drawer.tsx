@@ -9,6 +9,7 @@ import { DRAWER_LEFT_EXPANDED, DRAWER_LEFT_SHRINKED } from '@/constants';
 type DrawerProps = PropsWithChildren<{
   isOpen: boolean;
   isSidebarExpanded: boolean;
+  title?: string;
 
   /** Suspense fallback (옵션) */
   loadingFallback?: ReactNode;
@@ -17,7 +18,7 @@ type DrawerProps = PropsWithChildren<{
   errorFallback?: ReactNode;
 }>;
 
-export default function Drawer({ isOpen, isSidebarExpanded, children, loadingFallback = <LoadingSpinner /> }: DrawerProps) {
+export default function Drawer({ isOpen, isSidebarExpanded, title, children, loadingFallback = <LoadingSpinner /> }: DrawerProps) {
   return (
     <div
       className={`
@@ -26,6 +27,11 @@ export default function Drawer({ isOpen, isSidebarExpanded, children, loadingFal
         ${isOpen ? 'translate-x-0' : '-translate-x-full opacity-0 pointer-events-none'}
       `}
     >
+      {title && (
+        <div className="px-6 py-4 border-b-2 border-primary flex-shrink-0">
+          <h2 className="text-xl font-black text-primary">{title}</h2>
+        </div>
+      )}
       <ErrorBoundary FallbackComponent={ErrorScreen}>
         <Suspense fallback={loadingFallback}>{children}</Suspense>
       </ErrorBoundary>

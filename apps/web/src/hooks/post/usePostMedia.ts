@@ -32,13 +32,13 @@ export function usePostMedia({ post, currentMusicId, isPlayingGlobal }: Args) {
 
   const prev = useCallback(() => {
     if (!isMulti) return;
-    setActiveIndex((prevIdx) => (prevIdx - 1 < 0 ? totalLength - 1 : prevIdx - 1));
-  }, [isMulti, post.musics.length]);
+    setActiveIndex((prevIdx) => (prevIdx <= 0 ? 0 : prevIdx - 1));
+  }, [isMulti]);
 
   const next = useCallback(() => {
     if (!isMulti) return;
-    setActiveIndex((prevIdx) => (prevIdx + 1) % totalLength);
-  }, [isMulti, post.musics.length]);
+    setActiveIndex((prevIdx) => (prevIdx >= totalLength - 1 ? totalLength - 1 : prevIdx + 1));
+  }, [isMulti, totalLength]);
 
   return {
     activeIndex,
