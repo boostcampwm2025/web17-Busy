@@ -21,6 +21,8 @@ export default function ProfilePostsFeed({ userId, initialPostId }: Props) {
   const router = useRouter();
   const openModal = useModalStore((s) => s.openModal);
   const playMusic = usePlayerStore((s) => s.playMusic);
+  const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const selectMusic = usePlayerStore((s) => s.selectMusic);
   const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
@@ -72,6 +74,14 @@ export default function ProfilePostsFeed({ userId, initialPostId }: Props) {
   }, [isMobile, userId, initialPostId, openModal, router]);
 
   const handlePlay = (music: Music) => playMusic(music);
+  const handlePlayAll = (post: Post) => {
+    const musics = post.musics;
+    if (!musics.length) return;
+    const firstMusic = musics[0];
+    if (!firstMusic) return;
+    addToQueue(musics);
+    selectMusic(firstMusic);
+  };
   const handleUserClick = (uid: string) => router.push(`/profile/${uid}`);
   const handleOpenDetail = (post: Post) => openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, post });
 
@@ -148,6 +158,7 @@ export default function ProfilePostsFeed({ userId, initialPostId }: Props) {
                 <PostCard
                   post={post}
                   onPlay={handlePlay}
+                  onPlayAll={() => handlePlayAll(post)}
                   onUserClick={handleUserClick}
                   onOpenDetail={handleOpenDetail}
                   currentMusicId={currentMusicId}

@@ -16,11 +16,12 @@ interface PostCardProps {
   isPlayingGlobal: boolean;
 
   onPlay: (music: Music) => void;
+  onPlayAll?: () => void;
   onUserClick: (userId: string) => void;
   onOpenDetail: (post: Post) => void;
 }
 
-export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onUserClick, onOpenDetail }: PostCardProps) {
+export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onPlayAll, onUserClick, onOpenDetail }: PostCardProps) {
   const userId = useAuthStore((s) => s.userId);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { openModal } = useModalStore();
@@ -106,15 +107,17 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
         <PostHeader post={post} isOwner={isOwner} onUserClick={onUserClick} onEditPost={isOwner ? openEditPostModal : undefined} />
       </div>
 
-      {/* 이미지: 패딩 없이 카드 너비 전체를 채움 (xs 미만에서는 FeedList px-0 덕분에 화면 끝까지) */}
-      <PostMedia
-        post={post}
-        variant="card"
-        currentMusicId={currentMusicId}
-        isPlayingGlobal={isPlayingGlobal}
-        onPlay={onPlay}
-        onClickContainer={handleOpenDetail}
-      />
+      <div className="xs:px-4 sm:px-6">
+        <PostMedia
+          post={post}
+          variant="card"
+          currentMusicId={currentMusicId}
+          isPlayingGlobal={isPlayingGlobal}
+          onPlay={onPlay}
+          onPlayAll={onPlayAll}
+          onClickContainer={handleOpenDetail}
+        />
+      </div>
 
       <div className="px-4 sm:px-6">
         <PostActions

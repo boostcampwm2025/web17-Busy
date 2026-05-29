@@ -230,12 +230,12 @@ export default function Sidebar() {
       </nav>
 
       {/* 1. 검색 */}
-      <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded}>
+      <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded} title="검색">
         <SearchDrawerContent enabled={isSearchOpen} />
       </Drawer>
 
       {/* 2. 알림 */}
-      <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded}>
+      <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded} title="알림">
         <NotiDrawerContent />
       </Drawer>
     </div>
