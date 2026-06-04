@@ -136,7 +136,14 @@ export default function Sidebar() {
   useEffect(() => {
     // 외부 영역 클릭 여부 판단 후 열린 드로어가 있다면 닫기
     const handleClickOutside = (event: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && activeDrawer) {
+      const target = event.target as HTMLElement;
+
+      // 포털로 띄워진 모달/오버레이 위 클릭은 바깥 클릭으로 보지 않음
+      // (sidebarRef DOM 밖이라 그냥 두면 드로어가 닫혀버림)
+      if (useModalStore.getState().isOpen) return;
+      if (target.closest('[data-drawer-keep]')) return;
+
+      if (sidebarRef.current && !sidebarRef.current.contains(target) && activeDrawer) {
         handleCloseDrawer();
       }
     };

@@ -38,7 +38,7 @@ export default function ConfirmOverlay({
   if (!open) return null;
 
   const overlay = (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30" onClick={onCancel}>
+    <div data-drawer-keep className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30" onClick={onCancel}>
       <div
         ref={ref}
         className="w-[280px] bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] p-4"
