@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { CheckCheck, Trash2 } from 'lucide-react';
 import NotiItem from './NotiItem';
 import { toNotiView } from './noti.mapper';
 import { NotiView } from './noti.types';
@@ -59,16 +60,22 @@ export default function NotiDrawerContent() {
   return (
     <div className="flex flex-col h-full">
       {hasNotis && (
-        <div className="flex justify-end gap-2 px-3 py-2 border-b border-gray-200">
+        <div className="flex justify-end gap-4 px-3 py-2">
           <button
             type="button"
             onClick={() => readAllNotis()}
             disabled={!hasUnread}
-            className="text-s text-gray-500 hover:text-primary disabled:opacity-40 disabled:cursor-default transition-colors"
+            className="flex items-center gap-1 rounded-full bg-primary/80 px-3 py-1 text-s text-white hover:bg-primary disabled:opacity-40 disabled:cursor-default disabled:hover:bg-primary/85 transition-colors"
           >
+            <CheckCheck className="w-4 h-4" />
             모두 읽음
           </button>
-          <button type="button" onClick={() => deleteAllNotis()} className="text-s text-gray-500 hover:text-red-500 transition-colors">
+          <button
+            type="button"
+            onClick={() => deleteAllNotis()}
+            className="flex items-center gap-1 rounded-full border border-gray-3 px-3 py-1 text-s text-gray-1 hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
             모두 삭제
           </button>
         </div>
