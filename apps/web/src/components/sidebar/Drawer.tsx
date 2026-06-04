@@ -28,7 +28,8 @@ export default function Drawer({ isOpen, isSidebarExpanded, title, children, loa
       `}
     >
       {title && (
-        <div className="px-6 py-4 border-b-2 border-primary flex-shrink-0">
+        // 높이를 중앙 Header(h-16)와 맞춰 하단 구분선 위치를 정렬 (폰트 크기는 유지)
+        <div className="px-6 h-16 flex items-center border-b-2 border-primary flex-shrink-0">
           <h2 className="text-xl font-black text-primary">{title}</h2>
         </div>
       )}
