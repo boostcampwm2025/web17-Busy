@@ -15,6 +15,8 @@ export default function NotiDrawerContent() {
   const rawNotis = useNotiStore((s) => s.notis);
   const notiFetchStatus = useNotiStore((s) => s.status);
   const readNoti = useNotiStore((s) => s.readNoti);
+  const readAllNotis = useNotiStore((s) => s.readAllNotis);
+  const deleteAllNotis = useNotiStore((s) => s.deleteAllNotis);
   const errorMessage = useNotiStore((s) => s.errorMessage);
 
   const notis = useMemo(() => {
@@ -51,8 +53,26 @@ export default function NotiDrawerContent() {
     );
   };
 
+  const hasNotis = notis.length > 0;
+  const hasUnread = notis.some((noti) => !noti.isRead);
+
   return (
     <div className="flex flex-col h-full">
+      {hasNotis && (
+        <div className="flex justify-end gap-2 px-3 py-2 border-b border-gray-200">
+          <button
+            type="button"
+            onClick={() => readAllNotis()}
+            disabled={!hasUnread}
+            className="text-s text-gray-500 hover:text-primary disabled:opacity-40 disabled:cursor-default transition-colors"
+          >
+            모두 읽음
+          </button>
+          <button type="button" onClick={() => deleteAllNotis()} className="text-s text-gray-500 hover:text-red-500 transition-colors">
+            모두 삭제
+          </button>
+        </div>
+      )}
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">{renderBody()}</div>
     </div>
   );
