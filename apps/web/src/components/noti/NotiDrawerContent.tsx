@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { CheckCheck, Trash2 } from 'lucide-react';
 import NotiItem from './NotiItem';
 import { toNotiView } from './noti.mapper';
@@ -8,6 +8,7 @@ import { NotiView } from './noti.types';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { useRouter } from 'next/navigation';
 import { useNotiStore } from '@/stores/useNotiStore';
+import ConfirmOverlay from '@/components/ConfirmOverlay';
 
 export default function NotiDrawerContent() {
   const openModal = useModalStore((s) => s.openModal);
@@ -18,6 +19,7 @@ export default function NotiDrawerContent() {
   const readNoti = useNotiStore((s) => s.readNoti);
   const readAllNotis = useNotiStore((s) => s.readAllNotis);
   const deleteAllNotis = useNotiStore((s) => s.deleteAllNotis);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const errorMessage = useNotiStore((s) => s.errorMessage);
 
   const notis = useMemo(() => {
@@ -72,7 +74,7 @@ export default function NotiDrawerContent() {
           </button>
           <button
             type="button"
-            onClick={() => deleteAllNotis()}
+            onClick={() => setConfirmOpen(true)}
             className="flex items-center gap-1 rounded-full border border-gray-3 px-3 py-1 text-s text-gray-1 hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors"
           >
             <Trash2 className="w-4 h-4" />
@@ -81,6 +83,18 @@ export default function NotiDrawerContent() {
         </div>
       )}
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">{renderBody()}</div>
+
+      <ConfirmOverlay
+        open={confirmOpen}
+        title="알림을 모두 삭제할까요?"
+        confirmLabel="삭제"
+        cancelLabel="취소"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          setConfirmOpen(false);
+          deleteAllNotis();
+        }}
+      />
     </div>
   );
 }
