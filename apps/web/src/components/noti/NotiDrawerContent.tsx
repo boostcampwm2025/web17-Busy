@@ -42,6 +42,10 @@ export default function NotiDrawerContent() {
     openModal(MODAL_TYPES.POST_DETAIL, { postId: noti.relatedId });
   };
 
+  const handleMarkRead = (noti: NotiView) => {
+    if (!noti.isRead) readNoti(noti.id);
+  };
+
   const renderBody = () => {
     if (notiFetchStatus === 'no-login') return <div className="p-6 text-m text-gray-400">로그인 후 확인해 주세요.</div>;
     if (notiFetchStatus === 'loading') return <div className="p-6 text-m text-gray-400">불러오는 중...</div>;
@@ -50,7 +54,7 @@ export default function NotiDrawerContent() {
     return (
       <div className="space-y-4 p-2">
         {notis.map((noti) => (
-          <NotiItem key={noti.id} noti={noti} onClick={handleClickNoti} />
+          <NotiItem key={noti.id} noti={noti} onClick={handleClickNoti} onMarkRead={handleMarkRead} />
         ))}
       </div>
     );
