@@ -155,6 +155,18 @@ export default function Sidebar() {
     };
   }, [activeDrawer, handleCloseDrawer]);
 
+  useEffect(() => {
+    // ESC 키로 열린 드로어 닫기 (모달이 열려 있으면 모달 닫기가 우선)
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      if (useModalStore.getState().isOpen) return;
+      if (activeDrawer) handleCloseDrawer();
+    };
+
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [activeDrawer, handleCloseDrawer]);
+
   return (
     <div className="flex h-full relative z-30" ref={sidebarRef}>
       {/* 메뉴 버튼 영역 */}
@@ -243,7 +255,7 @@ export default function Sidebar() {
 
       {/* 2. 알림 */}
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded} title="알림">
-        <NotiDrawerContent />
+        <NotiDrawerContent onNavigate={handleCloseDrawer} />
       </Drawer>
     </div>
   );
