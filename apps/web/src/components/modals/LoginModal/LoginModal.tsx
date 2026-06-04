@@ -4,7 +4,7 @@ import React from 'react';
 import { useModalStore } from '@/stores/useModalStore';
 import { X } from 'lucide-react';
 import { getAuthErrorMessage } from '@/hooks/auth/client/authErrorMessage';
-import { GoogleLoginButton } from './loginButtons';
+import { GoogleLoginButton, TmpLoginButton } from './loginButtons';
 
 type LoginModalProps = {
   authError?: string;
@@ -38,6 +38,7 @@ export const LoginModal = () => {
           )}
           <GoogleLoginButton />
           {/* <SpotifyLoginButton /> */}
+          {process.env.NODE_ENV !== 'production' && <TmpLoginButton />}
         </div>
       </div>
     </div>
