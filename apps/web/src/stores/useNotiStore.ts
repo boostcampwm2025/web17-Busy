@@ -47,6 +47,8 @@ export const useNotiStore = create<NotiStore>((set) => ({
   },
 
   readNoti: async (notiId: string) => {
+    const prev = useNotiStore.getState().notis;
+
     set((state) => {
       const updated = state.notis.map((n) => (n.id === notiId ? { ...n, isRead: true } : n));
       return {
@@ -59,6 +61,7 @@ export const useNotiStore = create<NotiStore>((set) => ({
       await markNotiRead(notiId);
     } catch (e) {
       console.error((e as Error).message);
+      set({ notis: prev, unreadCount: prev.filter((n) => !n.isRead).length });
     }
   },
 
