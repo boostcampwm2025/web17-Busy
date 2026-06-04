@@ -2,12 +2,14 @@
 
 import React from 'react';
 import { Check } from 'lucide-react';
-import NotiActorHoverCard from './NotiActorHoverCard';
+import { useRouter } from 'next/navigation';
 import { NotiView } from './noti.types';
 import { DEFAULT_IMAGES } from '@/constants';
 import { coalesceImageSrc } from '@/utils';
 
 function NotiItem({ noti, onClick, onMarkRead }: { noti: NotiView; onClick: (noti: NotiView) => void; onMarkRead: (noti: NotiView) => void }) {
+  const router = useRouter();
+
   const containerBase = 'group/item relative flex justify-between items-center gap-4 p-3 rounded-xl cursor-pointer transition-colors';
 
   // 읽음/안읽음 차이를 확실히
@@ -34,7 +36,16 @@ function NotiItem({ noti, onClick, onMarkRead }: { noti: NotiView; onClick: (not
       {/* 본문 */}
       <div className="flex-1 min-w-0 pt-0.5">
         <p className="text-sm text-primary leading-snug wrap-break-word">
-          <NotiActorHoverCard nickname={noti.actorNickname} profileImgUrl={noti.actorProfileImgUrl} userId={noti.actorUserId} /> {noti.messageBody}
+          <span
+            className="cursor-pointer font-semibold text-primary hover:underline"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/profile/${noti.actorUserId}`);
+            }}
+          >
+            {noti.actorNickname}
+          </span>{' '}
+          {noti.messageBody}
         </p>
 
         <p className="text-[10px] text-gray-400 font-bold mt-1.5">{noti.createdAtText}</p>
