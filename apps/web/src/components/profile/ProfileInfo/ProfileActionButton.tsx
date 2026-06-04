@@ -43,14 +43,16 @@ export default function ProfileActionButton({
 
   // 내 프로필이면 -> 프로필 페이지에서는 리캡 생성 버튼, 모달에서는 버튼 필요 x
   if (isMyProfile) {
-    return renderIn === 'modal' ? null : (
-      <button
-        title="프로필 리캡 생성"
-        className="text-sm xs:text-base px-4 xs:px-6 py-2 rounded-full bg-accent-yellow/90 border-2 border-primary text-primary font-bold hover:bg-accent-yellow hover:shadow-[2px_2px_0px_0px_#00214D] transition-all"
-      >
-        Recap
-      </button>
-    );
+    // 리캡 생성 버튼 임시 비활성화 (주석 처리)
+    // return renderIn === 'modal' ? null : (
+    //   <button
+    //     title="프로필 리캡 생성"
+    //     className="text-sm xs:text-base px-4 xs:px-6 py-2 rounded-full bg-accent-yellow/90 border-2 border-primary text-primary font-bold hover:bg-accent-yellow hover:shadow-[2px_2px_0px_0px_#00214D] transition-all"
+    //   >
+    //     Recap
+    //   </button>
+    // );
+    return null;
   }
 
   // isFollowing === true -> [팔로잉] 버튼, 누르면 팔로우 취소 요청
