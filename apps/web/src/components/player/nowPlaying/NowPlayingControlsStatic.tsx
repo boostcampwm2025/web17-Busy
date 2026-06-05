@@ -59,7 +59,7 @@ function NowPlayingControlsStaticBase({
         disabled={!enabled}
         className={
           enabled
-            ? 'w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#00ebc7]'
+            ? 'w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center transition-all hover:shadow-[3px_3px_0px_0px_#00ebc7]'
             : 'w-12 h-12 rounded-full bg-gray-2 text-white flex items-center justify-center cursor-not-allowed'
         }
         title={isPlaying ? '일시정지' : '재생'}
