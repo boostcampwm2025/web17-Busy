@@ -44,7 +44,11 @@ function NowPlayingControlsStaticBase({
         }}
         disabled={enabled && !canPrev}
         title={canPrev ? '이전 곡' : '이전 곡 없음'}
-        className={enabled ? 'text-primary disabled:opacity-50 disabled:cursor-not-allowed' : 'text-gray-2 cursor-not-allowed'}
+        className={
+          enabled
+            ? 'text-primary p-2 rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed'
+            : 'text-gray-2 cursor-not-allowed'
+        }
       >
         <SkipBack className="w-6 h-6" />
       </button>
@@ -76,7 +80,11 @@ function NowPlayingControlsStaticBase({
         }}
         disabled={enabled && !canNext}
         title={canNext ? '다음 곡' : '다음 곡 없음'}
-        className={enabled ? 'text-primary disabled:opacity-50 disabled:cursor-not-allowed' : 'text-gray-2 cursor-not-allowed'}
+        className={
+          enabled
+            ? 'text-primary p-2 rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed'
+            : 'text-gray-2 cursor-not-allowed'
+        }
       >
         <SkipForward className="w-6 h-6" />
       </button>

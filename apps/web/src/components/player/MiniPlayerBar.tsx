@@ -133,7 +133,7 @@ export default function MiniPlayerBar({
           onClick={handlePrevClick}
           disabled={!canPrev}
           title={canPrev ? '이전 곡' : '이전 곡 없음'}
-          className="p-2 text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 text-primary rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipBack className="w-5 h-5" />
         </button>
@@ -143,7 +143,7 @@ export default function MiniPlayerBar({
           onClick={handleTogglePlayClick}
           disabled={!isPlayable}
           title={!isPlayable ? '재생할 음악이 없습니다' : isPlaying ? '일시정지' : '재생'}
-          className="p-2 rounded-full bg-primary text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 rounded-full bg-primary text-white transition-all hover:shadow-[2px_2px_0px_0px_#00ebc7] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
         </button>
@@ -153,7 +153,7 @@ export default function MiniPlayerBar({
           onClick={handleNextClick}
           disabled={!canNext}
           title={canNext ? '다음 곡' : '다음 곡 없음'}
-          className="p-2 text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 text-primary rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipForward className="w-5 h-5" />
         </button>
@@ -168,12 +168,22 @@ export default function MiniPlayerBar({
           <ListPlus className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handlePostClick} title={'추천 글 작성'} className="p-2 text-primary hidden sm:block">
-          <Plus className="w-5 h-5" />
+        <button
+          type="button"
+          onClick={handleSaveClick}
+          title={'보관함에 추가'}
+          className="p-2 rounded-lg border border-transparent text-primary transition-all hover:bg-white hover:border-accent-cyan hover:shadow-[2px_2px_0px_0px_#00ebc7] hidden sm:block"
+        >
+          <Box className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handleSaveClick} title={'보관함에 추가'} className="p-2 text-primary hidden sm:block">
-          <Box className="w-5 h-5" />
+        <button
+          type="button"
+          onClick={handlePostClick}
+          title={'추천 글 작성'}
+          className="p-2 rounded-lg border border-transparent text-primary transition-all hover:bg-white hover:border-accent-pink hover:shadow-[2px_2px_0px_0px_#ff5470] hidden sm:block"
+        >
+          <Plus className="w-5 h-5" />
         </button>
       </div>
     </section>
