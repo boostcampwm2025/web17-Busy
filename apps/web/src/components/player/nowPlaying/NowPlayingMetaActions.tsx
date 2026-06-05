@@ -41,7 +41,7 @@ function NowPlayingMetaActionsBase({ currentMusic, playError, onPost, onSave }: 
           <button
             type="button"
             onClick={onSave}
-            title="보관함에 음악 추가"
+            title="보관함에 추가"
             className="flex items-center gap-1 px-3 py-1.5 rounded-full border-2 border-primary text-primary font-bold text-xs cursor-pointer transition-all hover:shadow-[2px_2px_0px_0px_#00ebc7]"
           >
             <Box className="w-4 h-4" />
@@ -51,7 +51,7 @@ function NowPlayingMetaActionsBase({ currentMusic, playError, onPost, onSave }: 
           <button
             type="button"
             onClick={onPost}
-            title="컨텐츠 작성"
+            title="추천 글 작성"
             className="flex items-center gap-1 px-3 py-1.5 rounded-full border-2 border-primary bg-accent-pink text-white font-bold text-xs cursor-pointer transition-all hover:shadow-[2px_2px_0px_0px_#00ebc7]"
           >
             <Plus className="w-4 h-4" />

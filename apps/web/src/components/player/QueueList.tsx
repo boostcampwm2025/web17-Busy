@@ -80,7 +80,7 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
             type="button"
             onClick={handleArchive}
             disabled={isEmpty}
-            title={'보관함 플레이리스트 저장'}
+            title={'재생목록을 보관함에 추가'}
             className="p-2 bg-white border-2 border-primary rounded-md transition-all enabled:hover:shadow-[2px_2px_0px_0px_#00ebc7] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Box className="w-4 h-4" />
@@ -90,7 +90,7 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
             type="button"
             onClick={handleAdd}
             disabled={isEmpty}
-            title={'새로운 컨텐츠 작성'}
+            title={'재생목록으로 추천 글 작성'}
             className="p-2 bg-accent-pink text-white border-2 border-primary rounded-md transition-all enabled:hover:shadow-[2px_2px_0px_0px_#00ebc7] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-4 h-4" />
