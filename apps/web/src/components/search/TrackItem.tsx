@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Play, Plus } from 'lucide-react';
+import { Box, Plus } from 'lucide-react';
 
 import { useModalStore, MODAL_TYPES } from '@/stores';
 import { useMusicActions } from '@/hooks';
@@ -43,7 +43,7 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
   const isVideo = mode === 'video';
 
   return (
-    <div className="w-full flex items-center p-3 rounded-xl hover:bg-gray-4 transition-colors">
+    <div onClick={handlePlayClick} title="재생" className="w-full flex items-center p-3 rounded-xl cursor-pointer hover:bg-gray-4 transition-colors">
       <div
         className={`${isVideo ? 'h-14 aspect-video' : 'h-12 aspect-square'} mr-4 shrink-0 rounded-lg overflow-hidden border border-gray-3 bg-gray-4`}
       >
@@ -58,18 +58,12 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
       <div className="flex items-center gap-2 ml-3">
         <button
           type="button"
-          onClick={handlePlayClick}
-          title="재생"
-          className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4"
-        >
-          <Play className="w-4 h-4" />
-        </button>
-
-        <button
-          type="button"
-          onClick={handleArchiveClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleArchiveClick();
+          }}
           title="보관함 선택 추가"
-          className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
+          className="p-2 rounded-lg border border-gray-3 text-primary transition-all hover:bg-white hover:shadow-[2px_2px_0px_0px_#00ebc7]
                      disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Box className="w-4 h-4" />
@@ -77,9 +71,12 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
 
         <button
           type="button"
-          onClick={handleWriteClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleWriteClick();
+          }}
           title="컨텐츠 작성"
-          className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
+          className="p-2 rounded-lg border border-gray-3 text-primary transition-all hover:bg-white hover:shadow-[2px_2px_0px_0px_#00ebc7]
                      disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-4 h-4" />
