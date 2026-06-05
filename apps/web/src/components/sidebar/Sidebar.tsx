@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState, lazy, useEffect, useRef, useCallback } from 'react';
-import { LogIn, LogOut, Menu, PlusCircle } from 'lucide-react';
+import { LogIn, LogOut, Menu, Plus } from 'lucide-react';
 
 import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
@@ -225,7 +225,7 @@ export default function Sidebar() {
             `}
               title="생성"
             >
-              <PlusCircle className="sidebar-icon" />
+              <Plus className="sidebar-icon" />
               {isExpanded && <span className="ml-4 font-bold text-sm md:text-base whitespace-nowrap overflow-hidden">생성</span>}
             </button>
           </div>

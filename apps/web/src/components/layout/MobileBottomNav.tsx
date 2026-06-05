@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, lazy, Suspense, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Box, PlusCircle, Search, User } from 'lucide-react';
+import { Home, Box, Plus, Search, User } from 'lucide-react';
 
 import { SidebarItemType } from '@/types';
 import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
@@ -21,7 +21,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { key: SidebarItemType.HOME, icon: Home, label: '홈' },
   { key: SidebarItemType.ARCHIVE, icon: Box, label: '보관함' },
-  { key: 'create', icon: PlusCircle, label: '생성', special: true },
+  { key: 'create', icon: Plus, label: '생성', special: true },
   { key: SidebarItemType.SEARCH, icon: Search, label: '검색' },
   { key: SidebarItemType.PROFILE, icon: User, label: '프로필' },
 ];

@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Play, PlusCircle } from 'lucide-react';
+import { Box, Play, Plus } from 'lucide-react';
 
 import { useModalStore, MODAL_TYPES } from '@/stores';
 import { useMusicActions } from '@/hooks';
@@ -82,7 +82,7 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
           className="p-2 rounded-lg border border-gray-3 bg-white text-primary hover:bg-gray-4
                      disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <PlusCircle className="w-4 h-4" />
+          <Plus className="w-4 h-4" />
         </button>
       </div>
     </div>
