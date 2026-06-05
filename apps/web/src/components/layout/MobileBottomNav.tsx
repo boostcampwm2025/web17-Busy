@@ -21,7 +21,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { key: SidebarItemType.HOME, icon: Home, label: '홈' },
   { key: SidebarItemType.ARCHIVE, icon: Box, label: '보관함' },
-  { key: 'create', icon: Plus, label: '생성', special: true },
+  { key: 'create', icon: Plus, label: '추천', special: true },
   { key: SidebarItemType.SEARCH, icon: Search, label: '검색' },
   { key: SidebarItemType.PROFILE, icon: User, label: '프로필' },
 ];

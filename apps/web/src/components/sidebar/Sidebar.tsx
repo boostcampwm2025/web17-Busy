@@ -223,10 +223,10 @@ export default function Sidebar() {
               bg-primary text-white hover:bg-secondary hover:shadow-[2px_2px_0px_0px_#00ebc7]
               ${!isExpanded && 'justify-center'}
             `}
-              title="생성"
+              title="추천"
             >
               <Plus className="sidebar-icon" />
-              {isExpanded && <span className="ml-4 font-bold text-sm md:text-base whitespace-nowrap overflow-hidden">생성</span>}
+              {isExpanded && <span className="ml-4 font-bold text-sm md:text-base whitespace-nowrap overflow-hidden">추천</span>}
             </button>
           </div>
         </div>
