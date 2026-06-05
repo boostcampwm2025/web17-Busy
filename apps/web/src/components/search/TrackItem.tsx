@@ -62,7 +62,7 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
             e.stopPropagation();
             handleArchiveClick();
           }}
-          title="보관함 선택 추가"
+          title="보관함에 추가"
           className="p-2 rounded-lg border border-gray-3 text-primary transition-all hover:bg-white hover:shadow-[2px_2px_0px_0px_#00ebc7]
                      disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -75,7 +75,7 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
             e.stopPropagation();
             handleWriteClick();
           }}
-          title="컨텐츠 작성"
+          title="추천 글 작성"
           className="p-2 rounded-lg border border-gray-3 text-primary transition-all hover:bg-white hover:shadow-[2px_2px_0px_0px_#00ebc7]
                      disabled:opacity-50 disabled:cursor-not-allowed"
         >

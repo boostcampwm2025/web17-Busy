@@ -28,7 +28,7 @@ export default function ArchiveViewHeader() {
         onClick={onCreateNewPlaylist}
       >
         <Plus className="w-5 h-5 mr-2" />
-        <span>즉시 추가하기</span>
+        <span>플레이리스트 추가</span>
       </button>
     </div>
   );

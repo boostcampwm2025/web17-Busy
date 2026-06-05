@@ -103,7 +103,7 @@ export default function MiniPlayerBar({
     await addMusicToArchive(currentMusic);
   };
 
-  const queueTitle = isQueueOpen ? '재생목록 닫기' : '재생목록 열기';
+  const queueTitle = isQueueOpen ? '현재 재생목록 닫기' : '현재 재생목록 열기';
 
   return (
     <section className="relative z-20 flex lg:hidden h-full items-center gap-3 px-4 bg-white">
@@ -168,11 +168,11 @@ export default function MiniPlayerBar({
           <ListPlus className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handlePostClick} title={'컨텐츠 생성'} className="p-2 text-primary hidden sm:block">
+        <button type="button" onClick={handlePostClick} title={'추천 글 작성'} className="p-2 text-primary hidden sm:block">
           <Plus className="w-5 h-5" />
         </button>
 
-        <button type="button" onClick={handleSaveClick} title={'보관함 선택 후 추가'} className="p-2 text-primary hidden sm:block">
+        <button type="button" onClick={handleSaveClick} title={'보관함에 추가'} className="p-2 text-primary hidden sm:block">
           <Box className="w-5 h-5" />
         </button>
       </div>
