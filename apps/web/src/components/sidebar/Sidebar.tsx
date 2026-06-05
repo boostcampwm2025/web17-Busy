@@ -220,7 +220,7 @@ export default function Sidebar() {
               onClick={handleOpenWriteModal}
               className={`
               flex items-center p-3 rounded-xl transition-all duration-150 mb-2
-              bg-primary text-white hover:bg-secondary hover:shadow-[2px_2px_0px_0px_#00ebc7]
+              bg-primary text-white hover:bg-accent-pink hover:shadow-[2px_2px_0px_0px_#00ebc7]
               ${!isExpanded && 'justify-center'}
             `}
               title="추천"
