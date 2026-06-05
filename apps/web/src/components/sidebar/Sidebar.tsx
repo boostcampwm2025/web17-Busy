@@ -202,7 +202,6 @@ export default function Sidebar() {
               className={`
               flex items-center p-3 rounded-xl transition-all duration-150 mb-2
               bg-primary text-white hover:bg-secondary hover:shadow-[2px_2px_0px_0px_#00ebc7]
-              ${!isExpanded && 'justify-center'}
             `}
               title="생성"
             >
@@ -217,7 +216,7 @@ export default function Sidebar() {
           type="button"
           onClick={handleOpenLoginModal}
           disabled={isLoading}
-          className={`flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed ${!isExpanded && 'justify-center'}`}
+          className="flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed"
           title={isAuthenticated ? '로그아웃' : '로그인'}
         >
           {isAuthenticated ? <LogOut className="sidebar-icon" /> : <LogIn className="sidebar-icon" />}
