@@ -2,7 +2,7 @@
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import React, { memo } from 'react';
-import { PlusCircle, FolderPlus } from 'lucide-react';
+import { Box, Plus } from 'lucide-react';
 import { TickerText } from '@/components';
 
 type Props = {
@@ -40,22 +40,22 @@ function NowPlayingMetaActionsBase({ currentMusic, playError, onPost, onSave }: 
         <div className="flex items-center justify-center gap-2 mb-3">
           <button
             type="button"
-            onClick={onPost}
-            title="컨텐츠 작성"
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-white font-bold text-xs opacity-50 cursor-not-allowed"
+            onClick={onSave}
+            title="보관함에 음악 추가"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full border-2 border-primary text-primary font-bold text-xs cursor-pointer transition-all hover:shadow-[2px_2px_0px_0px_#00ebc7]"
           >
-            <PlusCircle className="w-4 h-4" />
-            게시
+            <Box className="w-4 h-4" />
+            저장
           </button>
 
           <button
             type="button"
-            onClick={onSave}
-            title="보관함에 음악 추가"
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full border-2 border-primary text-primary font-bold text-xs opacity-50 cursor-not-allowed"
+            onClick={onPost}
+            title="컨텐츠 작성"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full border-2 border-primary bg-accent-pink text-white font-bold text-xs cursor-pointer transition-all hover:shadow-[2px_2px_0px_0px_#00ebc7]"
           >
-            <FolderPlus className="w-4 h-4" />
-            저장
+            <Plus className="w-4 h-4" />
+            게시
           </button>
         </div>
       )}
