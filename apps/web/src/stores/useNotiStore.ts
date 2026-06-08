@@ -1,4 +1,4 @@
-import { fetchNotis, markNotiRead } from '@/api';
+import { deleteAllNotis, fetchNotis, markAllNotiRead, markNotiRead } from '@/api';
 import type { NotiResponseDto } from '@repo/dto';
 import { create } from 'zustand';
 
@@ -14,6 +14,8 @@ interface NotiStore {
   setFetchStatus: (status: NotiFetchState) => void;
   updateNotis: () => Promise<void>;
   readNoti: (notiId: string) => Promise<void>;
+  readAllNotis: () => Promise<void>;
+  deleteAllNotis: () => Promise<void>;
 }
 
 export const useNotiStore = create<NotiStore>((set) => ({
@@ -45,6 +47,8 @@ export const useNotiStore = create<NotiStore>((set) => ({
   },
 
   readNoti: async (notiId: string) => {
+    const prev = useNotiStore.getState().notis;
+
     set((state) => {
       const updated = state.notis.map((n) => (n.id === notiId ? { ...n, isRead: true } : n));
       return {
@@ -57,6 +61,38 @@ export const useNotiStore = create<NotiStore>((set) => ({
       await markNotiRead(notiId);
     } catch (e) {
       console.error((e as Error).message);
+      set({ notis: prev, unreadCount: prev.filter((n) => !n.isRead).length });
+    }
+  },
+
+  readAllNotis: async () => {
+    const prev = useNotiStore.getState().notis;
+    if (prev.every((n) => n.isRead)) return;
+
+    set({
+      notis: prev.map((n) => (n.isRead ? n : { ...n, isRead: true })),
+      unreadCount: 0,
+    });
+
+    try {
+      await markAllNotiRead();
+    } catch (e) {
+      console.error((e as Error).message);
+      set({ notis: prev, unreadCount: prev.filter((n) => !n.isRead).length });
+    }
+  },
+
+  deleteAllNotis: async () => {
+    const prev = useNotiStore.getState().notis;
+    if (prev.length === 0) return;
+
+    set({ notis: [], unreadCount: 0 });
+
+    try {
+      await deleteAllNotis();
+    } catch (e) {
+      console.error((e as Error).message);
+      set({ notis: prev, unreadCount: prev.filter((n) => !n.isRead).length });
     }
   },
 }));
