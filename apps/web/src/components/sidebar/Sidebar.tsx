@@ -136,7 +136,14 @@ export default function Sidebar() {
   useEffect(() => {
     // 외부 영역 클릭 여부 판단 후 열린 드로어가 있다면 닫기
     const handleClickOutside = (event: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && activeDrawer) {
+      const target = event.target as HTMLElement;
+
+      // 포털로 띄워진 모달/오버레이 위 클릭은 바깥 클릭으로 보지 않음
+      // (sidebarRef DOM 밖이라 그냥 두면 드로어가 닫혀버림)
+      if (useModalStore.getState().isOpen) return;
+      if (target.closest('[data-drawer-keep]')) return;
+
+      if (sidebarRef.current && !sidebarRef.current.contains(target) && activeDrawer) {
         handleCloseDrawer();
       }
     };
@@ -146,6 +153,18 @@ export default function Sidebar() {
       // 언마운트 시 이벤트 리스너 정리
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, [activeDrawer, handleCloseDrawer]);
+
+  useEffect(() => {
+    // ESC 키로 열린 드로어 닫기 (모달이 열려 있으면 모달 닫기가 우선)
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      if (useModalStore.getState().isOpen) return;
+      if (activeDrawer) handleCloseDrawer();
+    };
+
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
   }, [activeDrawer, handleCloseDrawer]);
 
   return (
@@ -236,7 +255,7 @@ export default function Sidebar() {
 
       {/* 2. 알림 */}
       <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded} title="알림">
-        <NotiDrawerContent />
+        <NotiDrawerContent onNavigate={handleCloseDrawer} />
       </Drawer>
     </div>
   );

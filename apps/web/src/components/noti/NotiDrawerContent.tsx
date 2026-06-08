@@ -8,7 +8,7 @@ import { MODAL_TYPES, useModalStore } from '@/stores';
 import { useRouter } from 'next/navigation';
 import { useNotiStore } from '@/stores/useNotiStore';
 
-export default function NotiDrawerContent() {
+export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => void }) {
   const openModal = useModalStore((s) => s.openModal);
   const router = useRouter();
 
@@ -30,6 +30,7 @@ export default function NotiDrawerContent() {
     }
 
     if (noti.relatedType === 'user') {
+      onNavigate?.();
       router.push(`/profile/${noti.relatedId}`);
       return;
     }
