@@ -65,7 +65,7 @@
 }
 
 @utility sidebar-icon {
-  @apply w-6 aspect-square;
+  @apply w-6 aspect-square shrink-0;
 }
 
 * {
