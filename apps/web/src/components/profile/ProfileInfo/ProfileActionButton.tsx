@@ -23,6 +23,13 @@ export default function ProfileActionButton({
 }: ProfileActionButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
+  // ⚠️ 리캡 기능 구현 이후 삭제 예정 - '준비중' 안내 임시 처리
+  const [showRecapHint, setShowRecapHint] = useState(false);
+  const handleRecapClick = useCallback(() => {
+    setShowRecapHint(true);
+    setTimeout(() => setShowRecapHint(false), 1800);
+  }, []);
+
   const isLoggedIn = !!loggedInUserId;
   const isMyProfile = loggedInUserId === profileUserId;
 
@@ -44,12 +51,22 @@ export default function ProfileActionButton({
   // 내 프로필이면 -> 프로필 페이지에서는 리캡 생성 버튼, 모달에서는 버튼 필요 x
   if (isMyProfile) {
     return renderIn === 'modal' ? null : (
-      <button
-        title="프로필 리캡 생성"
-        className="text-sm xs:text-base px-4 xs:px-6 py-2 rounded-full bg-accent-yellow/90 border-2 border-primary text-primary font-bold hover:bg-accent-yellow hover:shadow-[2px_2px_0px_0px_#00214D] transition-all"
-      >
-        Recap
-      </button>
+      <div className="relative">
+        {/* ⚠️ 리캡 기능 구현 이후 삭제 예정 - 클릭 시 '준비중' 둥실 안내 */}
+        {showRecapHint && (
+          // 바깥: 가로 중앙 정렬 / 안쪽: 위로 둥실 떠오르며 페이드아웃 (transform 충돌 방지)
+          <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1">
+            <span className="block whitespace-nowrap text-sm font-bold text-primary animate-float-up">🚧 준비중!</span>
+          </span>
+        )}
+        <button
+          onClick={handleRecapClick} // ⚠️ 리캡 기능 구현 이후 실제 리캡 생성 핸들러로 교체
+          title="프로필 리캡 생성"
+          className="text-sm xs:text-base px-4 xs:px-6 py-2 rounded-full bg-accent-yellow/90 border-2 border-primary text-primary font-bold hover:bg-accent-yellow hover:shadow-[2px_2px_0px_0px_#00214D] transition-all"
+        >
+          Recap
+        </button>
+      </div>
     );
   }
 

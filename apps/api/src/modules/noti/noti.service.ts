@@ -133,6 +133,13 @@ export class NotiService {
     await this.notiRepo.update({ id: notiId }, { isRead: true });
   }
 
+  async readAllNotis(userId: string): Promise<void> {
+    await this.notiRepo.update(
+      { receiver: { id: userId }, isRead: false },
+      { isRead: true },
+    );
+  }
+
   async deleteNoti(userId: string, notiId: string): Promise<void> {
     const noti = await this.notiRepo.findOne({
       where: { id: notiId },
@@ -145,6 +152,10 @@ export class NotiService {
       throw new ForbiddenException('이 알림의 수신자가 아닙니다.');
 
     await this.notiRepo.delete({ id: notiId });
+  }
+
+  async deleteAllNotis(userId: string): Promise<void> {
+    await this.notiRepo.delete({ receiver: { id: userId } });
   }
 
   private async toNotiResponseDto(noti: Noti): Promise<NotiResponseDto> {

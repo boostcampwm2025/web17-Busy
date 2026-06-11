@@ -58,7 +58,7 @@ export default function RootLayout({
         <NotiPollingGate />
 
         <ToastProvider>
-          <div className="flex h-screen">
+          <div className="flex h-dvh overflow-hidden">
             {/* 좌측 사이드바 (데스크탑 전용) */}
             <div className="hidden lg:flex h-full">
               <Sidebar />
