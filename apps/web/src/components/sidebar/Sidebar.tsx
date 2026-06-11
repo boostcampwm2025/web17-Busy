@@ -7,6 +7,7 @@ import { LogIn, LogOut, Menu, Plus } from 'lucide-react';
 import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
 import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
+import { useResizable } from '@/hooks';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
@@ -42,6 +43,13 @@ export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeItem, setActiveItem] = useState<SidebarItemTypeValues>(initialActiveItem);
   const [activeDrawer, setActiveDrawer] = useState<SidebarItemTypeValues | null>(null);
+
+  // 드로어 너비 드래그 조절 (검색·알림 드로어가 동일 너비 공유)
+  const {
+    width: drawerWidth,
+    isDragging: isDrawerResizing,
+    onPointerDown: onDrawerResizePointerDown,
+  } = useResizable({ defaultWidth: 384, min: 256, max: 600, direction: 'right', storageKey: 'vibr:drawerWidth' });
 
   // 사이드바 영역 클릭 여부 관리
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -249,12 +257,26 @@ export default function Sidebar() {
       </nav>
 
       {/* 1. 검색 */}
-      <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded} title="검색">
+      <Drawer
+        isOpen={isSearchOpen}
+        isSidebarExpanded={isExpanded}
+        title="검색"
+        width={drawerWidth}
+        isResizing={isDrawerResizing}
+        onResizePointerDown={onDrawerResizePointerDown}
+      >
         <SearchDrawerContent enabled={isSearchOpen} />
       </Drawer>
 
       {/* 2. 알림 */}
-      <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded} title="알림">
+      <Drawer
+        isOpen={isNotificationOpen}
+        isSidebarExpanded={isExpanded}
+        title="알림"
+        width={drawerWidth}
+        isResizing={isDrawerResizing}
+        onResizePointerDown={onDrawerResizePointerDown}
+      >
         <NotiDrawerContent onNavigate={handleCloseDrawer} />
       </Drawer>
     </div>
