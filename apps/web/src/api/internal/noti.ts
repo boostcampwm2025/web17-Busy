@@ -8,3 +8,11 @@ export async function fetchNotis() {
 export async function markNotiRead(notiId: string) {
   await internalClient.patch(`/noti/${notiId}`);
 }
+
+export async function markAllNotiRead() {
+  await internalClient.patch('/noti');
+}
+
+export async function deleteAllNotis() {
+  await internalClient.delete('/noti');
+}
