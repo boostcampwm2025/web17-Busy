@@ -22,7 +22,7 @@ function MenuButton({ type, Icon, label, onClick, isActive, shouldShowSpan, chil
       title={label}
       onClick={handleClick}
       className={`relative w-full flex items-center p-3 rounded-xl transition-all duration-200
-                  border-2 ${!shouldShowSpan && 'justify-center'} ${
+                  border-2 ${
                     isActive
                       ? 'bg-white border-primary shadow-[2px_2px_0px_0px_#00214D]'
                       : 'border-transparent hover:bg-gray-4 hover:border-primary/30'

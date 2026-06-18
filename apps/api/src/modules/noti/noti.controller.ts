@@ -21,6 +21,21 @@ export class NotiController {
   }
 
   @UseGuards(AuthGuard)
+  @Patch()
+  async readAll(@UserId() userId: string) {
+    await this.notiService.readAllNotis(userId);
+    return { ok: true };
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete()
+  async deleteAll(@UserId() userId: string) {
+    await this.notiService.deleteAllNotis(userId);
+
+    return { ok: true };
+  }
+
+  @UseGuards(AuthGuard)
   @Patch(':id')
   async readNoti(@UserId() userId: string, @Param('id') notiId: string) {
     await this.notiService.readNoti(userId, notiId);

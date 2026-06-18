@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import { Header, Sidebar, RightPanel, ModalContainer, LoadingSpinner, MobileBottomNav } from '@/components';
+import { Header, Sidebar, ResizableRightPanel, ModalContainer, LoadingSpinner, MobileBottomNav } from '@/components';
 import MobileNotiOverlay from '@/components/layout/MobileNotiOverlay';
 import { Suspense } from 'react';
 import NotiPollingGate from '@/components/noti/NotiPollingGate';
@@ -31,8 +31,6 @@ export const viewport: Viewport = {
   themeColor: '#111111',
 };
 
-const MINI_PLAYER_BAR_HEIGHT_HEIGHT = 'h-16';
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -60,7 +58,7 @@ export default function RootLayout({
         <NotiPollingGate />
 
         <ToastProvider>
-          <div className="flex h-screen">
+          <div className="flex h-dvh overflow-hidden">
             {/* 좌측 사이드바 (데스크탑 전용) */}
             <div className="hidden lg:flex h-full">
               <Sidebar />
@@ -74,12 +72,8 @@ export default function RootLayout({
                 <main className="flex-1 overflow-y-auto min-w-0">{children}</main>
               </div>
 
-              {/* 플레이어: 모바일 하단 스트립 / 데스크탑 우측 패널 */}
-              <aside
-                className={`relative flex-shrink-0 min-w-0 w-full ${MINI_PLAYER_BAR_HEIGHT_HEIGHT} border-t-1 border-primary lg:w-95 lg:h-full lg:border-t-0 lg:border-l-2`}
-              >
-                <RightPanel />
-              </aside>
+              {/* 플레이어: 모바일 하단 스트립 / 데스크탑 우측 패널 (너비 드래그 조절) */}
+              <ResizableRightPanel />
 
               {/* 모바일 하단 네비게이션 (flex 흐름 안에서 자연스럽게 맨 아래) */}
               <MobileBottomNav />

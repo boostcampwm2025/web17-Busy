@@ -14,3 +14,4 @@ export * from './playlist';
 export * from './post';
 export * from './privacy';
 export * from './useSwipeToDismiss';
+export * from './useResizable';

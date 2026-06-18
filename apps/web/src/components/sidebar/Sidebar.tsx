@@ -2,11 +2,12 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState, lazy, useEffect, useRef, useCallback } from 'react';
-import { LogIn, LogOut, Menu, PlusCircle } from 'lucide-react';
+import { LogIn, LogOut, Menu, Plus } from 'lucide-react';
 
 import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
 import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
+import { useResizable } from '@/hooks';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
@@ -42,6 +43,13 @@ export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeItem, setActiveItem] = useState<SidebarItemTypeValues>(initialActiveItem);
   const [activeDrawer, setActiveDrawer] = useState<SidebarItemTypeValues | null>(null);
+
+  // 드로어 너비 드래그 조절 (검색·알림 드로어가 동일 너비 공유)
+  const {
+    width: drawerWidth,
+    isDragging: isDrawerResizing,
+    onPointerDown: onDrawerResizePointerDown,
+  } = useResizable({ defaultWidth: 384, min: 256, max: 600, direction: 'right', storageKey: 'vibr:drawerWidth' });
 
   // 사이드바 영역 클릭 여부 관리
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -136,7 +144,14 @@ export default function Sidebar() {
   useEffect(() => {
     // 외부 영역 클릭 여부 판단 후 열린 드로어가 있다면 닫기
     const handleClickOutside = (event: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && activeDrawer) {
+      const target = event.target as HTMLElement;
+
+      // 포털로 띄워진 모달/오버레이 위 클릭은 바깥 클릭으로 보지 않음
+      // (sidebarRef DOM 밖이라 그냥 두면 드로어가 닫혀버림)
+      if (useModalStore.getState().isOpen) return;
+      if (target.closest('[data-drawer-keep]')) return;
+
+      if (sidebarRef.current && !sidebarRef.current.contains(target) && activeDrawer) {
         handleCloseDrawer();
       }
     };
@@ -146,6 +161,18 @@ export default function Sidebar() {
       // 언마운트 시 이벤트 리스너 정리
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, [activeDrawer, handleCloseDrawer]);
+
+  useEffect(() => {
+    // ESC 키로 열린 드로어 닫기 (모달이 열려 있으면 모달 닫기가 우선)
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      if (useModalStore.getState().isOpen) return;
+      if (activeDrawer) handleCloseDrawer();
+    };
+
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
   }, [activeDrawer, handleCloseDrawer]);
 
   return (
@@ -201,13 +228,12 @@ export default function Sidebar() {
               onClick={handleOpenWriteModal}
               className={`
               flex items-center p-3 rounded-xl transition-all duration-150 mb-2
-              bg-primary text-white hover:bg-secondary hover:shadow-[2px_2px_0px_0px_#00ebc7]
-              ${!isExpanded && 'justify-center'}
+              bg-primary text-white hover:bg-accent-pink hover:shadow-[2px_2px_0px_0px_#00ebc7]
             `}
-              title="생성"
+              title="추천"
             >
-              <PlusCircle className="sidebar-icon" />
-              {isExpanded && <span className="ml-4 font-bold text-sm md:text-base whitespace-nowrap overflow-hidden">생성</span>}
+              <Plus className="sidebar-icon" />
+              {isExpanded && <span className="ml-4 font-bold text-sm md:text-base whitespace-nowrap overflow-hidden">추천</span>}
             </button>
           </div>
         </div>
@@ -217,7 +243,7 @@ export default function Sidebar() {
           type="button"
           onClick={handleOpenLoginModal}
           disabled={isLoading}
-          className={`flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed ${!isExpanded && 'justify-center'}`}
+          className="flex items-center p-6 disabled:opacity-60 disabled:cursor-not-allowed"
           title={isAuthenticated ? '로그아웃' : '로그인'}
         >
           {isAuthenticated ? <LogOut className="sidebar-icon" /> : <LogIn className="sidebar-icon" />}
@@ -230,13 +256,27 @@ export default function Sidebar() {
       </nav>
 
       {/* 1. 검색 */}
-      <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded} title="검색">
+      <Drawer
+        isOpen={isSearchOpen}
+        isSidebarExpanded={isExpanded}
+        title="검색"
+        width={drawerWidth}
+        isResizing={isDrawerResizing}
+        onResizePointerDown={onDrawerResizePointerDown}
+      >
         <SearchDrawerContent enabled={isSearchOpen} />
       </Drawer>
 
       {/* 2. 알림 */}
-      <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded} title="알림">
-        <NotiDrawerContent />
+      <Drawer
+        isOpen={isNotificationOpen}
+        isSidebarExpanded={isExpanded}
+        title="알림"
+        width={drawerWidth}
+        isResizing={isDrawerResizing}
+        onResizePointerDown={onDrawerResizePointerDown}
+      >
+        <NotiDrawerContent onNavigate={handleCloseDrawer} />
       </Drawer>
     </div>
   );
