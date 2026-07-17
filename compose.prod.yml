@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ${ECR_REGISTRY}/busy-fe:latest
+    image: ${ECR_REGISTRY}/vibr-web:latest
     platform: linux/arm64
     container_name: vibr-web
     env_file: .env.web
@@ -27,7 +27,7 @@ services:
     restart: unless-stopped
 
   api:
-    image: ${ECR_REGISTRY}/busy-be:latest
+    image: ${ECR_REGISTRY}/vibr-api:latest
     platform: linux/arm64
     container_name: vibr-api
     env_file: .env

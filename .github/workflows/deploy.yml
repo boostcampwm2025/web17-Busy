@@ -30,8 +30,8 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build --platform linux/arm64 -t $ECR_REGISTRY/busy-fe:latest -f apps/web/Dockerfile .
-          docker push $ECR_REGISTRY/busy-fe:latest
+          docker build --platform linux/arm64 -t $ECR_REGISTRY/vibr-web:latest -f apps/web/Dockerfile .
+          docker push $ECR_REGISTRY/vibr-web:latest
 
   # --- Backend 이미지 빌드 & ECR 푸시 ---
   build-backend:
@@ -54,8 +54,8 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build --platform linux/arm64 -t $ECR_REGISTRY/busy-be:latest -f apps/api/Dockerfile .
-          docker push $ECR_REGISTRY/busy-be:latest
+          docker build --platform linux/arm64 -t $ECR_REGISTRY/vibr-api:latest -f apps/api/Dockerfile .
+          docker push $ECR_REGISTRY/vibr-api:latest
 
   # --- EC2에 배포 ---
   deploy:
