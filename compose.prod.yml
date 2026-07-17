@@ -76,7 +76,7 @@ services:
     restart: unless-stopped
 
   neo4j:
-    image: neo4j:5.15
+    image: neo4j:5.26
     platform: linux/arm64
     container_name: vibr-neo4j
     environment:
