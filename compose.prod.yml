@@ -19,8 +19,11 @@ services:
     image: ${ECR_REGISTRY}/busy-fe:latest
     platform: linux/arm64
     container_name: vibr-web
+    env_file: .env.web
     environment:
       NODE_ENV: production
+      # SSR·OAuth 교환 등 서버 사이드에서 백엔드 직접 호출용 (nginx 미경유)
+      INTERNAL_API_URL: http://api:3000/api
     restart: unless-stopped
 
   api:
@@ -73,7 +76,7 @@ services:
     restart: unless-stopped
 
   neo4j:
-    image: neo4j:5.26
+    image: neo4j:5.15
     platform: linux/arm64
     container_name: vibr-neo4j
     environment:

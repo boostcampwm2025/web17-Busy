@@ -3,7 +3,7 @@ import { GOOGLE_AUTH_QUERY_KEYS, GOOGLE_COOKIE_KEYS } from '@/hooks/auth/config/
 import { APP_ACCESS_TOKEN_HASH_KEY } from '@/constants/auth';
 import { googleExchange } from '@/api';
 
-const APP_ORIGIN = process.env.NEXT_PUBLIC_APP_ORIGIN;
+const APP_ORIGIN = process.env.APP_ORIGIN;
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;

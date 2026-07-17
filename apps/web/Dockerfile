@@ -15,8 +15,6 @@ COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
 COPY turbo.json turbo.json
-ARG NEXT_PUBLIC_SPOTIFY_API_BASE_URL
-ENV NEXT_PUBLIC_SPOTIFY_API_BASE_URL=$NEXT_PUBLIC_SPOTIFY_API_BASE_URL
 RUN pnpm turbo run build --filter=web...
 
 # 3. Runner 단계
