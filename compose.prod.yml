@@ -53,7 +53,7 @@ services:
       TZ: "Asia/Seoul"
     command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci" ]
     volumes:
-      - mysql-data:/var/lib/mysql
+      - /data/mysql:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
       interval: 5s
@@ -67,7 +67,7 @@ services:
     container_name: vibr-redis
     command: [ "redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}" ]
     volumes:
-      - redis-data:/data
+      - /data/redis:/data
     healthcheck:
       test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
       interval: 5s
@@ -82,10 +82,5 @@ services:
     environment:
       NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
     volumes:
-      - neo4j-data:/data
+      - /data/neo4j:/data
     restart: unless-stopped
-
-volumes:
-  mysql-data:
-  redis-data:
-  neo4j-data:
