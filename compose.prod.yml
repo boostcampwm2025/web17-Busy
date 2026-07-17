@@ -1,0 +1,88 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    platform: linux/arm64
+    container_name: vibr-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - web
+      - api
+    restart: unless-stopped
+
+  web:
+    image: ${ECR_REGISTRY}/busy-fe:latest
+    platform: linux/arm64
+    container_name: vibr-web
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+
+  api:
+    image: ${ECR_REGISTRY}/busy-be:latest
+    platform: linux/arm64
+    container_name: vibr-api
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_started
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.4
+    platform: linux/arm64
+    container_name: vibr-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: "vibr"
+      TZ: "Asia/Seoul"
+    command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci" ]
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:8.4-alpine
+    platform: linux/arm64
+    container_name: vibr-redis
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}" ]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  neo4j:
+    image: neo4j:5.26
+    platform: linux/arm64
+    container_name: vibr-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
+    volumes:
+      - neo4j-data:/data
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  redis-data:
+  neo4j-data:
