@@ -65,8 +65,11 @@ export class AuthController {
   }
 
   @Post('spotify/exchange')
-  async exchange(@Body() { code, verifier }: ExchangeTokenDto) {
-    const spotifyTokens = await this.authService.exchange(code, verifier);
+  async spotifyExchange(@Body() { code, verifier }: ExchangeTokenDto) {
+    const spotifyTokens = await this.authService.spotifyExchange(
+      code,
+      verifier,
+    );
 
     // 프론트 callback이 appJwt를 기대한다면(추후 정리),
     // 여기서도 appJwt 발급을 하려면 아래 2줄을 활성화하면 됨.
