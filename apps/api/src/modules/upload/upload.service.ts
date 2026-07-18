@@ -6,17 +6,12 @@ import { v7 as uuidV7 } from 'uuid';
 @Injectable()
 export class UploadService {
   private s3Client: S3Client;
-  private readonly bucketName = process.env.NCP_BUCKET_NAME;
+  private readonly bucketName = process.env.AWS_S3_BUCKET_NAME;
+  private readonly region = process.env.AWS_REGION ?? 'ap-northeast-2';
 
   constructor() {
-    this.s3Client = new S3Client({
-      region: 'kr-standard',
-      endpoint: 'https://kr.object.ncloudstorage.com',
-      credentials: {
-        accessKeyId: process.env.NCP_ACCESS_KEY!,
-        secretAccessKey: process.env.NCP_SECRET_KEY!,
-      },
-    });
+    // 자격증명은 SDK 기본 체인이 해결: 로컬은 env 키, EC2(프로덕션)는 인스턴스 IAM 롤
+    this.s3Client = new S3Client({ region: this.region });
   }
 
   async uploadPostImage(file: Express.Multer.File): Promise<string> {
@@ -24,17 +19,17 @@ export class UploadService {
       const imageBuffer = await this.transformImage(file.buffer);
       const fileName = `posts/${uuidV7()}.jpeg`;
 
+      // 퍼블릭 read는 버킷 정책(bucket policy)으로 처리 — 최신 S3 버킷은 ACL이 비활성(Bucket owner enforced)이라 ACL 미사용
       await this.s3Client.send(
         new PutObjectCommand({
           Bucket: this.bucketName,
           Key: fileName,
           Body: imageBuffer,
-          ACL: 'public-read',
           ContentType: 'image/jpeg',
         }),
       );
 
-      return `https://kr.object.ncloudstorage.com/${this.bucketName}/${fileName}`;
+      return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${fileName}`;
     } catch (error) {
       console.error('Image Upload Error:', error);
       throw new InternalServerErrorException('이미지 업로드에 실패했습니다.');
