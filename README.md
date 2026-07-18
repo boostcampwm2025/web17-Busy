@@ -126,21 +126,11 @@ pnpm format
 
 ### Infrastructure
 
-![Naver Cloud Platform](https://img.shields.io/badge/naver_cloud_platform-%2303C75A.svg?style=for-the-badge&logo=naver&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-%23232F3E.svg?style=for-the-badge&logo=amazonwebservices&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
 
 <br>
-
-## ☁️ 인프라 아키텍처
-
-<img width="1755" alt="image" src="https://github.com/user-attachments/assets/a6d78da1-46b1-45be-839f-86bd284028b1" />
-
-<br>
-
-자세한 내용은 [배포/인프라 설계서](https://github.com/boostcampwm2025/web17-Busy/wiki/%EB%B0%B0%ED%8F%AC---%EC%9D%B8%ED%94%84%EB%9D%BC)를 참고해주세요.
-
----
 
 ## 🌟 팀원 소개
 
