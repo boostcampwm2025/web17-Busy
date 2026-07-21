@@ -1,59 +1,103 @@
-name: Deploy to Each Account ECR
+name: Build and Deploy
 
 on:
   push:
     branches: [ main ]
 
+env:
+  AWS_REGION: ap-northeast-2
+
 jobs:
-  # --- Account A: Frontend 배포 ---
-  deploy-frontend:
-    runs-on: ubuntu-latest
+  # --- Frontend 이미지 빌드 & ECR 푸시 ---
+  # ARM EC2(Graviton)용이므로 네이티브 ARM 러너에서 빌드 (public 레포 무료)
+  build-frontend:
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials (Account A)
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_A }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_A }}
-          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to ECR (Account A)
-        id: login-ecr-a
+      - name: Login to ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Fetch SSL Certificates from SSM
-        run: |
-          aws ssm get-parameter --name "/vibr/ssl/fullchain" --with-decryption --query "Parameter.Value" --output text > server.crt
-          aws ssm get-parameter --name "/vibr/ssl/privkey" --with-decryption --query "Parameter.Value" --output text > server.key
-      
       - name: Build and Push FE Image
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr-a.outputs.registry }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/busy-fe:latest -f apps/web/Dockerfile .
-          docker push $ECR_REGISTRY/busy-fe:latest
+          docker build --platform linux/arm64 -t $ECR_REGISTRY/vibr-web:latest -f apps/web/Dockerfile .
+          docker push $ECR_REGISTRY/vibr-web:latest
 
-  # --- Account B: Backend 배포 ---
-  deploy-backend:
-    runs-on: ubuntu-latest
+  # --- Backend 이미지 빌드 & ECR 푸시 ---
+  build-backend:
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials (Account B)
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_B }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_B }}
-          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to ECR (Account B)
-        id: login-ecr-b
+      - name: Login to ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push BE Image
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr-b.outputs.registry }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/busy-be:latest -f apps/api/Dockerfile .
-          docker push $ECR_REGISTRY/busy-be:latest
+          docker build --platform linux/arm64 -t $ECR_REGISTRY/vibr-api:latest -f apps/api/Dockerfile .
+          docker push $ECR_REGISTRY/vibr-api:latest
+
+  # --- EC2에 배포 ---
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [ build-frontend, build-backend ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Copy compose & nginx config to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "compose.prod.yml,nginx/nginx.conf"
+          target: vibr
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          AWS_REGION: ${{ env.AWS_REGION }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: ECR_REGISTRY,AWS_REGION
+          script: |
+            set -e
+            cd ~/vibr
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+            docker compose -f compose.prod.yml pull web api
+            docker compose -f compose.prod.yml up -d
+            docker image prune -f

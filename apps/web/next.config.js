@@ -19,8 +19,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'kr.object.ncloudstorage.com',
-        pathname: `/${process.env.NCP_BUCKET_NAME}/**`,
+        hostname: `*.s3.${process.env.AWS_REGION ?? 'ap-northeast-2'}.amazonaws.com`,
       },
     ],
   },

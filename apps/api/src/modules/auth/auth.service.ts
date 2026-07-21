@@ -24,7 +24,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async exchange(
+  async spotifyExchange(
     code: string,
     verifier: string,
   ): Promise<{
@@ -49,11 +49,11 @@ export class AuthService {
     });
 
     if (!res.ok) {
-      const errorText = await res.text(); // google error body
+      const errorText = await res.text();
       this.logger.warn(
-        `Google token exchange failed: ${res.status} ${errorText}`,
+        `Spotify token exchange failed: ${res.status} ${errorText}`,
       );
-      throw new UnauthorizedException('Google Token 교환에 실패했습니다.');
+      throw new UnauthorizedException('Spotify Token 교환에 실패했습니다.');
     }
 
     const spotifyTokenResponse = (await res.json()) as SpotifyTokenResponse;
@@ -127,7 +127,10 @@ export class AuthService {
     });
 
     if (!res.ok) {
-      this.logger.warn(`Google token exchange failed: ${res.status}`);
+      const errorText = await res.text();
+      this.logger.warn(
+        `Google token exchange failed: ${res.status} ${errorText}`,
+      );
       throw new UnauthorizedException('Google Token 교환에 실패했습니다.');
     }
 
