@@ -83,17 +83,23 @@ export default function MobileNotiOverlay() {
   const closeGesture = useRef({ startX: 0, startY: 0, isHorizontal: null as boolean | null });
 
   const handlePanelTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+
     closeGesture.current = {
-      startX: e.touches[0].clientX,
-      startY: e.touches[0].clientY,
+      startX: touch.clientX,
+      startY: touch.clientY,
       isHorizontal: null,
     };
   };
 
   const handlePanelTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+
     const { startX, startY } = closeGesture.current;
-    const dx = e.touches[0].clientX - startX;
-    const dy = e.touches[0].clientY - startY;
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
 
     if (closeGesture.current.isHorizontal === null) {
       if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
@@ -109,7 +115,10 @@ export default function MobileNotiOverlay() {
   };
 
   const handlePanelTouchEnd = (e: React.TouchEvent) => {
-    const dx = e.changedTouches[0].clientX - closeGesture.current.startX;
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+
+    const dx = touch.clientX - closeGesture.current.startX;
     if (dx > window.innerWidth * 0.3) {
       snapCloseRef.current();
     } else {
