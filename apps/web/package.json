@@ -13,6 +13,7 @@
   "dependencies": {
     "@repo/dto": "workspace:*",
     "@tailwindcss/postcss": "^4.1.18",
+    "@tanstack/react-query": "^5.101.4",
     "axios": "^1.13.2",
     "lucide-react": "^0.562.0",
     "next": "16.0.10",

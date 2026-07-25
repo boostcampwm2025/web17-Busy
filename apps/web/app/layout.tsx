@@ -11,6 +11,7 @@ import { PrivacyConsentGate } from '@/hooks';
 import { AuthBootstrap } from '@/hooks/auth/client/AuthBootstrap';
 import AuthLoginQueryHandler from '@/hooks/auth/client/AuthLoginQueryHandler';
 import SpotifyTokenFromHash from '@/hooks/auth/client/SpotifyTokenFromHash';
+import QueryProvider from '@/components/QueryProvider';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',
@@ -46,43 +47,45 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <PwaRegister />
-        <PwaInstallBanner />
-        <SpotifyTokenFromHash />
-        <Suspense fallback={<LoadingSpinner />}>
-          <AuthLoginQueryHandler />
-        </Suspense>
-        <ModalContainer />
-        <AuthBootstrap />
-        <PrivacyConsentGate />
-        <NotiPollingGate />
+        <QueryProvider>
+          <PwaRegister />
+          <PwaInstallBanner />
+          <SpotifyTokenFromHash />
+          <Suspense fallback={<LoadingSpinner />}>
+            <AuthLoginQueryHandler />
+          </Suspense>
+          <ModalContainer />
+          <AuthBootstrap />
+          <PrivacyConsentGate />
+          <NotiPollingGate />
 
-        <ToastProvider>
-          <div className="flex h-dvh overflow-hidden">
-            {/* 좌측 사이드바 (데스크탑 전용) */}
-            <div className="hidden lg:flex h-full">
-              <Sidebar />
-            </div>
-
-            {/* 모바일: flex-col(위→아래), 데스크탑: flex-row(좌→우) */}
-            <div className="flex flex-1 flex-col lg:flex-row min-h-0">
-              {/* 중앙 컨텐츠 */}
-              <div className="flex-1 flex flex-col min-h-0 min-w-0">
-                <Header />
-                <main className="flex-1 overflow-y-auto min-w-0">{children}</main>
+          <ToastProvider>
+            <div className="flex h-dvh overflow-hidden">
+              {/* 좌측 사이드바 (데스크탑 전용) */}
+              <div className="hidden lg:flex h-full">
+                <Sidebar />
               </div>
 
-              {/* 플레이어: 모바일 하단 스트립 / 데스크탑 우측 패널 (너비 드래그 조절) */}
-              <ResizableRightPanel />
+              {/* 모바일: flex-col(위→아래), 데스크탑: flex-row(좌→우) */}
+              <div className="flex flex-1 flex-col lg:flex-row min-h-0">
+                {/* 중앙 컨텐츠 */}
+                <div className="flex-1 flex flex-col min-h-0 min-w-0">
+                  <Header />
+                  <main className="flex-1 overflow-y-auto min-w-0">{children}</main>
+                </div>
 
-              {/* 모바일 하단 네비게이션 (flex 흐름 안에서 자연스럽게 맨 아래) */}
-              <MobileBottomNav />
+                {/* 플레이어: 모바일 하단 스트립 / 데스크탑 우측 패널 (너비 드래그 조절) */}
+                <ResizableRightPanel />
+
+                {/* 모바일 하단 네비게이션 (flex 흐름 안에서 자연스럽게 맨 아래) */}
+                <MobileBottomNav />
+              </div>
             </div>
-          </div>
 
-          {/* 모바일 알림 오버레이 (스와이프 제스처 포함) */}
-          <MobileNotiOverlay />
-        </ToastProvider>
+            {/* 모바일 알림 오버레이 (스와이프 제스처 포함) */}
+            <MobileNotiOverlay />
+          </ToastProvider>
+        </QueryProvider>
       </body>
     </html>
   );
