@@ -1,19 +1,20 @@
 import { ConfirmOverlay } from '@/components';
-import { useModalStore, usePlayerStore, usePlaylistRefreshStore } from '@/stores';
+import { useModalStore, usePlayerStore } from '@/stores';
 import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic, GetPlaylistDetailResDto } from '@repo/dto';
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES, MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
-import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist, getPlaylistDetail } from '@/api';
+import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist, getPlaylistDetail, queryKeys } from '@/api';
 import { reorder } from '@/utils';
 import { toast } from 'react-toastify';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
+  const queryClient = useQueryClient();
   const { closeModal } = useModalStore();
 
   const addToQueue = usePlayerStore((s) => s.addToQueue);
   const selectMusic = usePlayerStore((s) => s.selectMusic);
-  const bumpPlaylistRefresh = usePlaylistRefreshStore((s) => s.bump);
 
   const [playlist, setPlaylist] = useState<GetPlaylistDetailResDto | null>(null);
   const [songs, setSongs] = useState<SavedMusic[]>([]);
@@ -39,6 +40,11 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     initialFetchPlaylist();
   }, [playlistId]);
 
+  const invalidatePlaylistQueries = async () => {
+    await queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.playlists.detail(playlistId) });
+  };
+
   const onPlayTotalSongs = () => {
     if (songs.length > 0) {
       addToQueue(songs);
@@ -58,7 +64,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     try {
       const songIds = nextSongs.map((s) => s.id);
       await changeMusicOrderOfPlaylist(playlistId, songIds); // playlist.id?
-      bumpPlaylistRefresh();
+      await invalidatePlaylistQueries();
     } catch (e) {
       toast.error('변경사항 반영에 실패했습니다.');
       console.error(e);
@@ -101,7 +107,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
       // 낙관적 업데이트 x - song id가 필요해서 안 됨
       const { addedMusics } = await addMusicsToPlaylist(playlistId, [song]);
       setSongs([...songs, ...addedMusics]);
-      bumpPlaylistRefresh();
+      await invalidatePlaylistQueries();
     } catch (e) {
       toast.error('곡 추가에 실패했습니다.');
       console.error(e);
@@ -132,7 +138,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
       await editTitleOfPlaylist(playlistId, nextTitle);
       setPlaylist({ ...playlist, title: nextTitle });
       setIsEditingTitle(false);
-      bumpPlaylistRefresh();
+      await invalidatePlaylistQueries();
     } catch (e) {
       toast.error('플레이리스트 이름 변경에 실패했습니다.');
       console.error(e);
@@ -199,7 +205,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
             try {
               setConfirmOpen(false);
               await deletePlaylist(playlistId);
-              bumpPlaylistRefresh();
+              await invalidatePlaylistQueries();
               closeModal();
             } catch (e) {
               toast.error('플레이리스트 삭제에 실패했습니다.');
