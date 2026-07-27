@@ -26,6 +26,7 @@ export default function ProfileView({ userId }: { userId: string }) {
   );
 
   const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
+    queryKey: ['profile', 'posts', userId, isMyProfile ? nonce : 'static'],
     fetchFn: fetchProfilePosts,
     resetKey: isMyProfile ? String(nonce) : undefined,
   });

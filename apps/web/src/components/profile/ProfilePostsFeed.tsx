@@ -44,7 +44,10 @@ export default function ProfilePostsFeed({ userId, initialPostId }: Props) {
     [userId],
   );
 
-  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn });
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
+    queryKey: ['profile', 'posts', 'full', userId],
+    fetchFn,
+  });
 
   // 초기 로드 완료 후 클릭했던 게시글로 스크롤
   useEffect(() => {

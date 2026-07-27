@@ -34,7 +34,10 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
     [profileUserId, fetchFn],
   );
 
-  const { items, setItems, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({ fetchFn: fetchUsers });
+  const { items, setItems, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
+    queryKey: ['user-list', title, profileUserId],
+    fetchFn: fetchUsers,
+  });
 
   /** 팔로우/언팔로우 후 사용자 목록 및 프로필 정보(팔로잉 수) 상태 업데이트 함수 */
   const handleFollowActionComplete = (updatedUserId: string, prevIsFollowing: boolean) => {
