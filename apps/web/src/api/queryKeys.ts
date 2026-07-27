@@ -6,7 +6,7 @@ export const queryKeys = {
   },
   playlists: {
     all: ['playlists'] as const,
-    detail: (playlistId: string) => ['playlist', playlistId] as const,
+    detail: (playlistId: string) => ['playlists', 'detail', playlistId] as const,
   },
   posts: {
     feed: (params?: QueryParams) => (params ? (['feed', params] as const) : (['feed'] as const)),

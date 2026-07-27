@@ -3,21 +3,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useModalStore } from '@/stores/useModalStore';
-import { getAllPlaylists, addMusicsToPlaylist, createNewPlaylist } from '@/api';
+import { addMusicsToPlaylist, createNewPlaylist, queryKeys } from '@/api';
 import { DEFAULT_IMAGES } from '@/constants';
 import { coalesceImageSrc } from '@/utils';
 
 import type { MusicRequestDto, MusicResponseDto as Music } from '@repo/dto';
 import { LoadingSpinner } from '@/components';
-
-type PlaylistBrief = {
-  id: string;
-  title: string;
-  tracksCount: number;
-  firstAlbumCoverUrl: string;
-};
+import { usePlaylistsQuery } from '@/hooks';
 
 const toMusicRequestDto = (m: Music): MusicRequestDto => ({
   id: m.id,
@@ -41,13 +36,12 @@ const dedupeById = (musics: Music[]): Music[] => {
 };
 
 export default function PlaylistPickerModal() {
+  const queryClient = useQueryClient();
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
   const enabled = isOpen && modalType === 'PLAYLIST_PICKER';
 
   const musics = enabled ? (modalProps?.musics as Music[] | undefined) : undefined;
-
-  const [playlists, setPlaylists] = useState<PlaylistBrief[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { data: playlists = [], isLoading, isFetching, isError } = usePlaylistsQuery({ enabled });
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -61,34 +55,14 @@ export default function PlaylistPickerModal() {
 
     if (!musics || musics.length === 0) {
       closeModal();
-      return;
-    }
-
-    let alive = true;
-
-    const run = async () => {
-      setIsLoading(true);
+    } else {
       setErrorMsg(null);
-
-      try {
-        const list = await getAllPlaylists();
-        if (!alive) return;
-        setPlaylists(list);
-      } catch {
-        if (!alive) return;
-        setPlaylists([]);
-        setErrorMsg('플레이리스트 목록을 불러오지 못했습니다.');
-      } finally {
-        if (alive) setIsLoading(false);
-      }
-    };
-
-    void run();
-
-    return () => {
-      alive = false;
-    };
+    }
   }, [enabled, musics, closeModal]);
+
+  useEffect(() => {
+    if (isError) setErrorMsg('플레이리스트 목록을 불러오지 못했습니다.');
+  }, [isError]);
 
   const handleSaveResultToast = (addedCount: number) => {
     if (addedCount === 0) toast.info('이미 플레이리스트에 있는 곡이에요.');
@@ -102,6 +76,7 @@ export default function PlaylistPickerModal() {
     const req = unique.map(toMusicRequestDto);
 
     const res = await addMusicsToPlaylist(playlistId, req);
+    await queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
 
     const addedCount = Array.isArray(res.addedMusics) ? res.addedMusics.length : 0;
     handleSaveResultToast(addedCount);
@@ -133,6 +108,7 @@ export default function PlaylistPickerModal() {
 
     try {
       const created = await createNewPlaylist();
+      await queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
       await saveToPlaylist(created.id);
     } catch {
       setErrorMsg('새 플레이리스트를 만들지 못했습니다.');
@@ -143,11 +119,11 @@ export default function PlaylistPickerModal() {
   };
 
   const emptyText = useMemo(() => {
-    if (isLoading) return null;
+    if (isLoading || isFetching) return null;
     if (errorMsg) return null;
     if (playlists.length === 0) return '플레이리스트가 없습니다.';
     return null;
-  }, [isLoading, errorMsg, playlists.length]);
+  }, [errorMsg, isFetching, isLoading, playlists.length]);
 
   if (!enabled) return null;
 
@@ -177,7 +153,7 @@ export default function PlaylistPickerModal() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
-          {isLoading ? (
+          {isLoading || (isFetching && playlists.length === 0) ? (
             <div className="py-6">
               <LoadingSpinner />
             </div>
