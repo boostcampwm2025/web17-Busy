@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GetCommentsResDto, UserDto } from '@repo/dto';
 
-import { addLike, removeLike, getComments, createComment } from '@/api/internal';
+import { getComments, createComment } from '@/api/internal';
 import { authMe } from '@/api/internal/auth';
 import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
+import { getOptimisticLikeState, usePostLikeMutation } from './use-post-like-mutation';
 
 type CommentItem = GetCommentsResDto['comments'][number];
 
@@ -71,9 +72,10 @@ const getEffectivePollMs = (base: number) => {
 export default function usePostReactions({ enabled, postId, initialIsLiked, initialLikeCount, pollMs = 5000 }: Options): Result {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const [isLiked, setIsLiked] = useState(initialIsLiked);
-  const [likeCount, setLikeCount] = useState(initialLikeCount);
-  const [isSubmittingLike, setIsSubmittingLike] = useState(false);
+  const likeOverride = usePostReactionOverridesStore((s) => s.likesByPostId[postId]);
+  const isLiked = likeOverride?.isLiked ?? initialIsLiked;
+  const likeCount = likeOverride?.likeCount ?? initialLikeCount;
+  const likeMutation = usePostLikeMutation({ postId });
 
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
@@ -132,18 +134,9 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     setCommentsLoading(false);
 
     setIsSubmittingComment(false);
-    setIsSubmittingLike(false);
 
     clearTimer();
   }, [postId, clearTimer, applyComments]);
-
-  /**
-   * like 초기값 동기화는 postId 단위로만 반영
-   */
-  useEffect(() => {
-    setIsLiked(initialIsLiked);
-    setLikeCount(initialLikeCount);
-  }, [postId, initialIsLiked, initialLikeCount]);
 
   // 내 정보 로드(댓글 optimistic author + 로그인 여부)
   useEffect(() => {
@@ -263,38 +256,9 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
   // 좋아요 토글(Detail -> Feed 동기화 포함)
   const toggleLike = useCallback(async () => {
     if (!isAuthenticated) return;
-    if (isSubmittingLike) return;
-
-    const prevLiked = isLiked;
-    const prevCount = likeCount;
-
-    const nextLiked = !prevLiked;
-    const nextCount = prevCount + (nextLiked ? 1 : -1);
-
-    setIsSubmittingLike(true);
-    setIsLiked(nextLiked);
-    setLikeCount(nextCount);
-
-    usePostReactionOverridesStore.getState().setLikeOverride(postId, {
-      isLiked: nextLiked,
-      likeCount: nextCount,
-    });
-
-    try {
-      if (nextLiked) await addLike({ postId });
-      else await removeLike(postId);
-    } catch {
-      setIsLiked(prevLiked);
-      setLikeCount(prevCount);
-
-      usePostReactionOverridesStore.getState().setLikeOverride(postId, {
-        isLiked: prevLiked,
-        likeCount: prevCount,
-      });
-    } finally {
-      setIsSubmittingLike(false);
-    }
-  }, [isAuthenticated, isSubmittingLike, isLiked, likeCount, postId]);
+    if (likeMutation.isPending) return;
+    await likeMutation.mutateAsync(getOptimisticLikeState({ isLiked, likeCount }));
+  }, [isAuthenticated, isLiked, likeCount, likeMutation]);
 
   // 댓글 작성(optimistic + 성공 시 refetch)
   const submitComment = useCallback(async () => {
@@ -346,7 +310,7 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     isLiked,
     likeCount,
     toggleLike,
-    isSubmittingLike,
+    isSubmittingLike: likeMutation.isPending,
 
     comments,
     commentsLoading,
