@@ -44,15 +44,18 @@ export const PostCardDetailModal = () => {
 
   const setContentOverride = usePostReactionOverridesStore((s) => s.setContentOverride);
   const likeOverride = usePostReactionOverridesStore((s) => (postId ? s.likesByPostId[postId] : undefined));
+  const commentOverride = usePostReactionOverridesStore((s) => (postId ? s.commentsByPostId[postId] : undefined));
 
   const initialIsLiked = likeOverride?.isLiked ?? post?.isLiked ?? passedPost?.isLiked ?? false;
   const initialLikeCount = likeOverride?.likeCount ?? post?.likeCount ?? passedPost?.likeCount ?? 0;
+  const initialCommentCount = commentOverride?.commentCount ?? post?.commentCount ?? passedPost?.commentCount ?? 0;
 
   const reactions = usePostReactions({
     enabled: Boolean(enabled && postId),
     postId: postId ?? '',
     initialIsLiked,
     initialLikeCount,
+    initialCommentCount,
   });
 
   const [likedUsersOpen, setLikedUsersOpen] = useState(false);
