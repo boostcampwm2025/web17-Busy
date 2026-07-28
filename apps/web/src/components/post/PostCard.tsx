@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { PostHeader, PostMedia, PostActions, PostContentPreview } from './index';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
-import { addLike, removeLike } from '@/api';
+import { getOptimisticLikeState, usePostLikeMutation } from '@/hooks';
 import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
 import { useModalStore, useAuthStore, MODAL_TYPES } from '@/stores';
 
@@ -27,7 +27,6 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
   const { openModal } = useModalStore();
 
   const likeOverride = usePostReactionOverridesStore((s) => s.likesByPostId[post.id]);
-  const setLikeOverride = usePostReactionOverridesStore((s) => s.setLikeOverride);
 
   // 댓글 카운트 override 추가
   const commentOverride = usePostReactionOverridesStore((s) => s.commentsByPostId[post.id]);
@@ -35,66 +34,29 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
 
   const baseLiked = Boolean(likeOverride?.isLiked ?? post.isLiked);
   const baseLikeCount = likeOverride?.likeCount ?? post.likeCount;
-
-  const [optimisticLiked, setOptimisticLiked] = useState(baseLiked);
-  const [optimisticLikeCount, setOptimisticLikeCount] = useState(baseLikeCount);
-  const [likeSubmitting, setLikeSubmitting] = useState(false);
   const isOwner = post.author.id === userId;
+  const likeMutation = usePostLikeMutation({
+    postId: post.id,
+  });
 
   const postForActions: Post = useMemo(
     () => ({
       ...post,
-      isLiked: optimisticLiked,
-      likeCount: optimisticLikeCount,
+      isLiked: baseLiked,
+      likeCount: baseLikeCount,
       // 댓글 카운트도 store 반영값 사용
       commentCount: baseCommentCount,
     }),
-    [post, optimisticLiked, optimisticLikeCount, baseCommentCount],
+    [post, baseLiked, baseLikeCount, baseCommentCount],
   );
-
-  /**
-   * 핵심: override/서버값 변경 시 로컬 optimistic도 동기화
-   * - Detail에서 눌러서 store가 바뀌어도 카드가 즉시 따라감
-   */
-  useEffect(() => {
-    setOptimisticLiked(baseLiked);
-    setOptimisticLikeCount(baseLikeCount);
-    setLikeSubmitting(false);
-  }, [post.id, baseLiked, baseLikeCount]);
 
   const handleOpenDetail = useCallback(() => onOpenDetail(postForActions), [onOpenDetail, postForActions]);
 
   const handleToggleLike = useCallback(async () => {
     if (!isAuthenticated) return;
-    if (likeSubmitting) return;
-
-    const prevLiked = optimisticLiked;
-    const prevCount = optimisticLikeCount;
-
-    const nextLiked = !prevLiked;
-    const nextCount = prevCount + (nextLiked ? 1 : -1);
-
-    setLikeSubmitting(true);
-
-    // optimistic (로컬)
-    setOptimisticLiked(nextLiked);
-    setOptimisticLikeCount(nextCount);
-
-    // optimistic (전역)
-    setLikeOverride(post.id, { isLiked: nextLiked, likeCount: nextCount });
-
-    try {
-      if (nextLiked) await addLike({ postId: post.id });
-      else await removeLike(post.id);
-    } catch {
-      // rollback
-      setOptimisticLiked(prevLiked);
-      setOptimisticLikeCount(prevCount);
-      setLikeOverride(post.id, { isLiked: prevLiked, likeCount: prevCount });
-    } finally {
-      setLikeSubmitting(false);
-    }
-  }, [isAuthenticated, likeSubmitting, optimisticLiked, optimisticLikeCount, post.id, setLikeOverride]);
+    if (likeMutation.isPending) return;
+    await likeMutation.mutateAsync(getOptimisticLikeState({ isLiked: baseLiked, likeCount: baseLikeCount }));
+  }, [baseLikeCount, baseLiked, isAuthenticated, likeMutation]);
 
   const openEditPostModal = useCallback(() => {
     openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, initialIsEditing: true, initialEditingContent: post.content });
@@ -124,7 +86,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
           post={postForActions}
           onClickLike={handleToggleLike}
           onClickComment={handleOpenDetail}
-          disabledLike={!isAuthenticated || likeSubmitting}
+          disabledLike={!isAuthenticated || likeMutation.isPending}
         />
 
         <PostContentPreview content={post.content} onClickMore={handleOpenDetail} />
