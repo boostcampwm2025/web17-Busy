@@ -26,6 +26,7 @@ export default function FeedView({ initialPost }: FeedViewProps) {
   }, [initialPost, openModal]);
 
   const { posts, setPosts, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
+    queryKey: ['feed', String(nonce), initialPost?.id ?? 'default'],
     fetchFn: getFeedPosts,
     resetKey: String(nonce),
     initialData: initialPost ? [initialPost] : [],

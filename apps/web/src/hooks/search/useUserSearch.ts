@@ -62,8 +62,10 @@ export default function useUserSearch({
   );
 
   const { items, hasNext, isLoading, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll<SearchUser>({
+    queryKey: ['search', 'users', trimmedQuery, limit],
     fetchFn,
     resetKey: canFetch ? trimmedQuery : '',
+    enabled: canFetch,
   });
 
   const status: SearchStatus = useMemo(() => {
