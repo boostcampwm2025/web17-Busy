@@ -1,11 +1,14 @@
 'use client';
 
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GetCommentsResDto, UserDto } from '@repo/dto';
 
-import { getComments, createComment } from '@/api/internal';
+import { getComments, queryKeys } from '@/api';
 import { authMe } from '@/api/internal/auth';
 import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
+import { setPostPatchInCaches } from './post-cache-updaters';
+import { usePostCommentMutation } from './use-post-comment-mutation';
 import { getOptimisticLikeState, usePostLikeMutation } from './use-post-like-mutation';
 
 type CommentItem = GetCommentsResDto['comments'][number];
@@ -16,6 +19,7 @@ type Options = {
 
   initialIsLiked: boolean;
   initialLikeCount: number;
+  initialCommentCount: number;
 
   /** 기본 5000ms */
   pollMs?: number;
@@ -42,34 +46,14 @@ type Result = {
   refetchComments: () => Promise<void>;
 };
 
-const nowIso = () => new Date().toISOString();
-
-const safeComments = (v: unknown): CommentItem[] => {
-  if (!v || typeof v !== 'object') return [];
-  const list = (v as any).comments;
-  if (!Array.isArray(list)) return [];
-  return list as CommentItem[];
-};
-
-const isTmp = (id: string) => id.startsWith('tmp-');
-
-const mergeComments = (server: CommentItem[], local: CommentItem[]) => {
-  const tmp = local.filter((c) => isTmp(c.id));
-  if (tmp.length === 0) return server;
-
-  const serverIds = new Set(server.map((c) => c.id));
-  const remainingTmp = tmp.filter((c) => !serverIds.has(c.id));
-
-  return [...server, ...remainingTmp];
-};
-
 const getEffectivePollMs = (base: number) => {
-  const hidden = typeof document !== 'undefined' && document.visibilityState === 'hidden';
-  if (hidden) return Math.max(base * 6, 30000);
+  const isHidden = typeof document !== 'undefined' && document.visibilityState === 'hidden';
+  if (isHidden) return Math.max(base * 6, 30000);
   return base;
 };
 
-export default function usePostReactions({ enabled, postId, initialIsLiked, initialLikeCount, pollMs = 5000 }: Options): Result {
+export default function usePostReactions({ enabled, postId, initialIsLiked, initialLikeCount, initialCommentCount, pollMs = 5000 }: Options): Result {
+  const queryClient = useQueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const likeOverride = usePostReactionOverridesStore((s) => s.likesByPostId[postId]);
@@ -77,23 +61,36 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
   const likeCount = likeOverride?.likeCount ?? initialLikeCount;
   const likeMutation = usePostLikeMutation({ postId });
 
-  const [comments, setComments] = useState<CommentItem[]>([]);
-  const [commentsLoading, setCommentsLoading] = useState(false);
-
   const [commentText, setCommentText] = useState('');
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-
-  const [commentCount, setCommentCount] = useState(0);
-
-  // 최신 comments를 항상 참조하기 위한 ref (setState updater 내부에서 다른 setState 호출 방지)
-  const commentsRef = useRef<CommentItem[]>([]);
-  useEffect(() => {
-    commentsRef.current = comments;
-  }, [comments]);
+  const [commentCount, setCommentCount] = useState(initialCommentCount);
 
   const meRef = useRef<UserDto | null>(null);
   const timerRef = useRef<number | null>(null);
   const onlineRef = useRef<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
+  const {
+    data: commentsData,
+    isLoading: isCommentsLoading,
+    refetch: refetchCommentsQuery,
+  } = useQuery({
+    queryKey: queryKeys.posts.comments(postId),
+    queryFn: () => getComments(postId),
+    enabled,
+  });
+
+  const comments = commentsData?.comments ?? [];
+
+  const syncCommentCount = useCallback(
+    (count: number) => {
+      setCommentCount(count);
+      usePostReactionOverridesStore.getState().setCommentOverride(postId, { commentCount: count });
+      setPostPatchInCaches(queryClient, postId, { commentCount: count });
+    },
+    [postId, queryClient],
+  );
+
+  const commentMutation = usePostCommentMutation({ postId, onCommentCountChange: setCommentCount });
+  const isSubmittingComment = commentMutation.isPending;
 
   const clearTimer = useCallback(() => {
     if (!timerRef.current) return;
@@ -101,57 +98,38 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     timerRef.current = null;
   }, []);
 
-  const setGlobalCommentCount = useCallback(
-    (count: number) => {
-      // store가 없거나 미구현이면 여기서 타입 에러가 날 수 있음(스토어 확장 필요)
-      usePostReactionOverridesStore.getState().setCommentOverride(postId, { commentCount: count });
-    },
-    [postId],
-  );
+  useEffect(() => {
+    if (!enabled) return;
+    if (!commentsData) return;
+
+    syncCommentCount(comments.length);
+  }, [enabled, comments.length, commentsData, syncCommentCount]);
 
   /**
-   * comments/카운트/스토어를 "한 번에" 맞추는 헬퍼
-   * - setComments(updater) 안에서 setState/store set을 호출하지 않도록 분리
-   */
-  const applyComments = useCallback(
-    (next: CommentItem[]) => {
-      commentsRef.current = next;
-      setComments(next);
-
-      const nextCount = next.length;
-      setCommentCount(nextCount);
-      setGlobalCommentCount(nextCount);
-    },
-    [setGlobalCommentCount],
-  );
-
-  /**
-   * postId가 바뀔 때만 전체 리셋
+   * postId가 바뀔 때만 입력/타이머 상태를 초기화한다.
+   * 댓글 목록 자체는 postId 기반 query cache가 source of truth로 관리한다.
    */
   useEffect(() => {
-    applyComments([]);
+    setCommentCount(initialCommentCount);
     setCommentText('');
-    setCommentsLoading(false);
-
-    setIsSubmittingComment(false);
 
     clearTimer();
-  }, [postId, clearTimer, applyComments]);
+  }, [postId, initialCommentCount, clearTimer]);
 
   // 내 정보 로드(댓글 optimistic author + 로그인 여부)
   useEffect(() => {
     if (!enabled) return;
 
-    let alive = true;
+    let isAlive = true;
 
     const run = async () => {
       try {
         const me = await authMe();
-        if (!alive) return;
+        if (!isAlive) return;
         meRef.current = me;
         setIsAuthenticated(true);
       } catch {
-        if (!alive) return;
+        if (!isAlive) return;
         meRef.current = null;
         setIsAuthenticated(false);
       }
@@ -160,7 +138,7 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     void run();
 
     return () => {
-      alive = false;
+      isAlive = false;
     };
   }, [enabled, postId]);
 
@@ -168,41 +146,8 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     if (!enabled) return;
     if (!onlineRef.current) return;
 
-    const data = await getComments(postId);
-    const server = safeComments(data);
-
-    const merged = mergeComments(server, commentsRef.current);
-    applyComments(merged);
-  }, [enabled, postId, applyComments]);
-
-  // 최초 댓글 로드
-  useEffect(() => {
-    if (!enabled) return;
-
-    let alive = true;
-
-    const run = async () => {
-      if (!onlineRef.current) return;
-
-      setCommentsLoading(true);
-      try {
-        const data = await getComments(postId);
-        if (!alive) return;
-
-        const server = safeComments(data);
-        const merged = mergeComments(server, commentsRef.current);
-        applyComments(merged);
-      } finally {
-        if (alive) setCommentsLoading(false);
-      }
-    };
-
-    void run();
-
-    return () => {
-      alive = false;
-    };
-  }, [enabled, postId, applyComments]);
+    await refetchCommentsQuery();
+  }, [enabled, refetchCommentsQuery]);
 
   // 댓글 폴링(모달 열린 동안만)
   useEffect(() => {
@@ -217,7 +162,7 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
 
       timerRef.current = window.setTimeout(() => {
         // 입력 중/전송 중이면 skip
-        if (commentText.trim().length > 0 || isSubmittingComment) {
+        if (commentText.trim().length > 0 || commentMutation.isPending) {
           schedule();
           return;
         }
@@ -251,7 +196,7 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
     };
-  }, [enabled, pollMs, commentText, isSubmittingComment, refetchComments, clearTimer]);
+  }, [enabled, pollMs, commentText, commentMutation.isPending, refetchComments, clearTimer]);
 
   // 좋아요 토글(Detail -> Feed 동기화 포함)
   const toggleLike = useCallback(async () => {
@@ -260,10 +205,10 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     await likeMutation.mutateAsync(getOptimisticLikeState({ isLiked, likeCount }));
   }, [isAuthenticated, isLiked, likeCount, likeMutation]);
 
-  // 댓글 작성(optimistic + 성공 시 refetch)
+  // 댓글 작성(optimistic + 실패 시 rollback)
   const submitComment = useCallback(async () => {
     if (!isAuthenticated) return;
-    if (isSubmittingComment) return;
+    if (commentMutation.isPending) return;
 
     const content = commentText.trim();
     if (!content) return;
@@ -271,38 +216,14 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     const me = meRef.current;
     if (!me) return;
 
-    const tmpId = `tmp-${Date.now()}`;
-
-    const optimistic: CommentItem = {
-      id: tmpId,
-      content,
-      createdAt: nowIso(),
-      author: me,
-    };
-
-    setIsSubmittingComment(true);
     setCommentText('');
 
-    // optimistic append
-    applyComments([...commentsRef.current, optimistic]);
-
     try {
-      const res = await createComment({ postId, content });
-
-      // tmp id -> server id
-      const replaced = commentsRef.current.map((c) => (c.id === tmpId ? { ...c, id: res.id } : c));
-      applyComments(replaced);
-
-      // 정합성 보정 + 동시 댓글 반영
-      await refetchComments();
+      await commentMutation.mutateAsync({ content, author: me, currentCommentCount: commentCount });
     } catch {
-      // rollback
-      const rolled = commentsRef.current.filter((c) => c.id !== tmpId);
-      applyComments(rolled);
-    } finally {
-      setIsSubmittingComment(false);
+      // mutation onError에서 comments cache와 댓글 수를 rollback한다.
     }
-  }, [isAuthenticated, isSubmittingComment, commentText, postId, refetchComments, applyComments]);
+  }, [isAuthenticated, commentMutation, commentText, commentCount]);
 
   return {
     isAuthenticated,
@@ -313,7 +234,7 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     isSubmittingLike: likeMutation.isPending,
 
     comments,
-    commentsLoading,
+    commentsLoading: isCommentsLoading,
 
     commentText,
     setCommentText,

@@ -1,6 +1,6 @@
 type QueryParams = Readonly<Record<string, string | number | boolean | null | undefined>>;
 
-const profilePostsKey = ['profilePosts'] as const;
+const profilePostsKey = ['profile', 'posts'] as const;
 
 export const queryKeys = {
   auth: {
