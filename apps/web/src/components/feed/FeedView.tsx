@@ -8,7 +8,7 @@ import LoadingSpinner from '../LoadingSpinner';
 import FeedList from './FeedList';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 
-import { useFeedRefreshStore } from '@/stores';
+import { queryKeys } from '@/api';
 import { PostResponseDto } from '@repo/dto';
 
 interface FeedViewProps {
@@ -17,7 +17,6 @@ interface FeedViewProps {
 
 export default function FeedView({ initialPost }: FeedViewProps) {
   const openModal = useModalStore((s) => s.openModal);
-  const nonce = useFeedRefreshStore((s) => s.nonce);
 
   useEffect(() => {
     if (initialPost) {
@@ -26,9 +25,8 @@ export default function FeedView({ initialPost }: FeedViewProps) {
   }, [initialPost, openModal]);
 
   const { posts, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
-    queryKey: ['feed', String(nonce), initialPost?.id ?? 'default'],
+    queryKey: queryKeys.posts.feed(initialPost ? { initialPostId: initialPost.id } : undefined),
     fetchFn: getFeedPosts,
-    resetKey: String(nonce),
     initialData: initialPost ? [initialPost] : [],
   });
 

@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { getUser, getUserProfilePosts } from '@/api';
+import { getUser, getUserProfilePosts, queryKeys } from '@/api';
 import { useInfiniteScroll } from '@/hooks';
-import { useAuthStore, useFeedRefreshStore, useProfileStore } from '@/stores';
+import { useAuthStore, useProfileStore } from '@/stores';
 import { ProfileSkeleton } from '../skeleton';
 import { ProfileInfo } from './ProfileInfo';
 import ProfilePosts from './ProfilePosts';
@@ -13,7 +13,6 @@ export default function ProfileView({ userId }: { userId: string }) {
   const loggedInUserId = useAuthStore((s) => s.userId);
   const { profile, setProfile } = useProfileStore();
 
-  const nonce = useFeedRefreshStore((s) => s.nonce);
   const isMyProfile = loggedInUserId === userId;
 
   /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
@@ -26,9 +25,8 @@ export default function ProfileView({ userId }: { userId: string }) {
   );
 
   const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
-    queryKey: ['profile', 'posts', userId, isMyProfile ? nonce : 'static'],
+    queryKey: queryKeys.posts.profile(userId),
     fetchFn: fetchProfilePosts,
-    resetKey: isMyProfile ? String(nonce) : undefined,
   });
   const [renderError, setRenderError] = useState<Error | null>(null);
 

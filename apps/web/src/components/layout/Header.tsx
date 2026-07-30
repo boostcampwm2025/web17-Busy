@@ -1,22 +1,23 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import { Bell } from 'lucide-react';
 
+import { queryKeys } from '@/api';
 import { useNotiStore } from '@/stores/useNotiStore';
 import { useNotiOverlayStore } from '@/stores/useNotiOverlayStore';
-import { useFeedRefreshStore } from '@/stores';
 
 export default function Header() {
+  const queryClient = useQueryClient();
   const pathname = usePathname();
   const router = useRouter();
   const unreadNotiCount = useNotiStore((s) => s.unreadCount);
   const openNoti = useNotiOverlayStore((s) => s.open);
-  const bumpFeed = useFeedRefreshStore((s) => s.bump);
 
   const handleLogoClick = () => {
     if (pathname === '/') {
-      bumpFeed();
+      void queryClient.invalidateQueries({ queryKey: queryKeys.posts.feed() });
     } else {
       router.push('/');
     }

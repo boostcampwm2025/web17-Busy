@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
 import { useMusicActions, type PlaylistDetail } from '@/hooks';
 import { createPost } from '@/api';
 import { DEFAULT_IMAGES } from '@/constants';
 import { reorder } from '@/utils';
-import { useFeedRefreshStore } from '@/stores';
+import { invalidatePostListCaches } from './post-cache-updaters';
 
 type Options = {
   /**
@@ -75,6 +76,7 @@ const toMusicPayload = (m: Music) => ({
 });
 
 export const useContentWrite = ({ initialMusic, initialMusics, onSuccess }: Options): Return => {
+  const queryClient = useQueryClient();
   const { ensureMusicInDb } = useMusicActions();
 
   const [selectedMusics, setSelectedMusics] = useState<Music[]>(() => toInitialSelected(initialMusics, initialMusic));
@@ -169,9 +171,7 @@ export const useContentWrite = ({ initialMusic, initialMusics, onSuccess }: Opti
     if (customCoverFile) fd.append('coverImgUrl', customCoverFile);
 
     await createPost(fd);
-
-    // 피드 무한스크롤 초기화/재조회 트리거
-    useFeedRefreshStore.getState().bump();
+    invalidatePostListCaches(queryClient);
 
     onSuccess();
   };
