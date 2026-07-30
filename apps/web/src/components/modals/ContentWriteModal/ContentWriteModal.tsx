@@ -5,7 +5,7 @@ import { useModalStore } from '@/stores';
 import { CoverImgUploader, MusicSearch, SelectedMusicList } from './index';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
-import { useContentWrite } from '@/hooks';
+import { useContentWrite } from '@/hooks/post/useContentWrite';
 import { toast } from 'react-toastify';
 
 type Props = {
