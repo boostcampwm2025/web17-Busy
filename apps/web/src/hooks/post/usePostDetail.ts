@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PostResponseDto as Post } from '@repo/dto';
-import { getPostDetail } from '@/api/internal/post';
+import { getPostDetail, queryKeys } from '@/api';
+import { setPostPatchInCaches } from './post-cache-updaters';
 
 type Params = {
   enabled: boolean;
@@ -18,75 +20,37 @@ type Result = {
 };
 
 export function usePostDetail({ enabled, postId, passedPost }: Params): Result {
+  const queryClient = useQueryClient();
   const matchedPost = useMemo(() => {
     if (!postId || !passedPost) return null;
     return passedPost.id === postId ? passedPost : null;
   }, [postId, passedPost]);
 
-  const [post, setPost] = useState<Post | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const query = useQuery({
+    queryKey: queryKeys.posts.detail(postId ?? ''),
+    queryFn: () => {
+      if (!postId) throw new Error('postId is missing');
+      return getPostDetail(postId);
+    },
+    enabled: Boolean(enabled && postId),
+    initialData: matchedPost ?? undefined,
+  });
 
-  const requestIdRef = useRef(0);
+  const updatePostContent = useCallback(
+    (newContent: string) => {
+      if (!postId) return;
+      setPostPatchInCaches(queryClient, postId, { content: newContent });
+    },
+    [postId, queryClient],
+  );
 
-  const updatePostContent = (newContent: string) => {
-    setPost((prev) => {
-      if (!prev) return null;
-      return { ...prev, content: newContent };
-    });
+  if (!enabled) return { post: null, isLoading: false, error: null, updatePostContent };
+  if (!postId) return { post: null, isLoading: false, error: 'postId is missing', updatePostContent };
+
+  return {
+    post: query.data ?? null,
+    isLoading: query.isLoading,
+    error: query.error instanceof Error ? query.error.message : null,
+    updatePostContent,
   };
-
-  useEffect(() => {
-    if (!enabled) {
-      setPost(null);
-      setIsLoading(false);
-      setError(null);
-      return;
-    }
-
-    if (!postId) {
-      setPost(null);
-      setIsLoading(false);
-      setError('postId is missing');
-      return;
-    }
-
-    // passedPost가 정확히 일치하면 즉시 사용 (fetch skip)
-    if (matchedPost) {
-      setPost(matchedPost);
-      setIsLoading(false);
-      setError(null);
-      return;
-    }
-
-    // postId 기준으로 항상 새 요청 보장
-    setPost(null);
-    setError(null);
-    setIsLoading(true);
-
-    const myReqId = ++requestIdRef.current;
-
-    const run = async () => {
-      try {
-        const detail = await getPostDetail(postId);
-        if (requestIdRef.current !== myReqId) return;
-
-        setPost(detail);
-        setError(null);
-      } catch (e) {
-        if (requestIdRef.current !== myReqId) return;
-
-        setPost(null);
-        setError(e instanceof Error ? e.message : 'failed to fetch post detail');
-      } finally {
-        if (requestIdRef.current === myReqId) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    void run();
-  }, [enabled, postId, matchedPost]);
-
-  return { post, isLoading, error, updatePostContent };
 }

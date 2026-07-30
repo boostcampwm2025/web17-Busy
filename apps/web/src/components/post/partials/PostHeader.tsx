@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { MoreHorizontal } from 'lucide-react';
 import { coalesceImageSrc, formatRelativeTime } from '@/utils';
 import type { PostResponseDto } from '@repo/dto';
 import { DEFAULT_IMAGES } from '@/constants';
-import { usePostReactionOverridesStore } from '@/stores';
 import { showConfirmToast } from '@/components/ConfirmToast';
 import { deletePost } from '@/api';
 import { toast } from 'react-toastify';
+import { invalidatePostListCaches, removePostFromCaches } from '@/hooks/post/post-cache-updaters';
 
 type Props = {
   post: PostResponseDto;
@@ -19,13 +20,12 @@ type Props = {
 };
 
 export default function PostHeader({ post, isOwner, onUserClick, onEditPost, onDeletePost }: Props) {
+  const queryClient = useQueryClient();
   const createdAtText = formatRelativeTime(post.createdAt);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-
-  const setDeletedPostId = usePostReactionOverridesStore((s) => s.setDeletedPostId);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -65,8 +65,9 @@ export default function PostHeader({ post, isOwner, onUserClick, onEditPost, onD
       try {
         await deletePost(post.id);
         toast.success('삭제했습니다.');
+        removePostFromCaches(queryClient, post.id);
         onDeletePost?.();
-        setDeletedPostId(post.id); // 삭제한 게시글 id 등록 (피드에 반영)
+        invalidatePostListCaches(queryClient);
       } catch (error) {
         toast.error('삭제 실패! 다시 시도해주세요.');
       }

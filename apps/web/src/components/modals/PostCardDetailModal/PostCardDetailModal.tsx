@@ -42,7 +42,6 @@ export const PostCardDetailModal = () => {
   const isOwner = userId === post?.author.id;
   const safePost = post ?? passedPost ?? EMPTY_POST;
 
-  const setContentOverride = usePostReactionOverridesStore((s) => s.setContentOverride);
   const likeOverride = usePostReactionOverridesStore((s) => (postId ? s.likesByPostId[postId] : undefined));
   const commentOverride = usePostReactionOverridesStore((s) => (postId ? s.commentsByPostId[postId] : undefined));
 
@@ -120,8 +119,7 @@ export const PostCardDetailModal = () => {
       toast.success('게시글을 수정했습니다.');
       setIsEditing(false);
 
-      updatePostContent(editedContent); // 게시글 상세 데이터 갱신
-      setContentOverride(postId, { content: editedContent }); // 피드 게시글 데이터 갱신 위한 상태 업데이트
+      updatePostContent(editedContent);
     } catch (err) {
       toast.error('게시글 수정에 실패했습니다.');
       console.error('게시글 수정 실패:', err);
