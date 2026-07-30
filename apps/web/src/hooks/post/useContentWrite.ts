@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
-import { useMusicActions, type PlaylistDetail } from '@/hooks';
+import useMusicActions from '../useMusicActions';
+import type { PlaylistDetail } from '../playlist/usePlaylistRecommendations';
 import { createPost } from '@/api';
 import { DEFAULT_IMAGES } from '@/constants';
 import { reorder } from '@/utils';
