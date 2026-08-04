@@ -1,6 +1,7 @@
 import { internalClient } from './client';
+import type { NotiResponseDto } from '@repo/dto';
 
-export async function fetchNotis() {
+export async function fetchNotis(): Promise<NotiResponseDto[]> {
   const { data } = await internalClient.get('/noti');
   return data;
 }
