@@ -5,14 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Bell } from 'lucide-react';
 
 import { queryKeys } from '@/api';
-import { useNotiStore } from '@/stores/useNotiStore';
 import { useNotiOverlayStore } from '@/stores/useNotiOverlayStore';
+import { useNotificationsQuery } from '@/hooks';
 
 export default function Header() {
   const queryClient = useQueryClient();
   const pathname = usePathname();
   const router = useRouter();
-  const unreadNotiCount = useNotiStore((s) => s.unreadCount);
+  const { unreadCount: unreadNotiCount } = useNotificationsQuery();
   const openNoti = useNotiOverlayStore((s) => s.open);
 
   const handleLogoClick = () => {

@@ -7,14 +7,13 @@ import { LogIn, LogOut, Menu, Plus } from 'lucide-react';
 import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
 import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
-import { useResizable } from '@/hooks';
+import { useNotificationsQuery, useResizable } from '@/hooks';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
 import { NotiDrawerContent } from '../noti';
 
 import { performLogout } from '@/hooks/auth/client/logout';
-import { useNotiStore } from '@/stores/useNotiStore';
 
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
 const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);
@@ -31,7 +30,7 @@ export default function Sidebar() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
 
-  const unreadNotiCount = useNotiStore((s) => s.unreadCount);
+  const { unreadCount: unreadNotiCount } = useNotificationsQuery();
 
   const initialActiveItem = useMemo<SidebarItemTypeValues>(() => {
     if (pathname === '/') {
