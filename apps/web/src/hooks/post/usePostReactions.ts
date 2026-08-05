@@ -2,11 +2,11 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { GetCommentsResDto, UserDto } from '@repo/dto';
+import type { GetCommentsResDto } from '@repo/dto';
 
-import { getComments, queryKeys } from '@/api';
-import { authMe } from '@/api/internal/auth';
+import { authMe, getComments, queryKeys } from '@/api';
 import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
+import { AUTH_ME_STALE_TIME_MS } from '../auth/client/useAuthMe';
 import { setPostPatchInCaches } from './post-cache-updaters';
 import { usePostCommentMutation } from './use-post-comment-mutation';
 import { getOptimisticLikeState, usePostLikeMutation } from './use-post-like-mutation';
@@ -54,7 +54,6 @@ const getEffectivePollMs = (base: number) => {
 
 export default function usePostReactions({ enabled, postId, initialIsLiked, initialLikeCount, initialCommentCount, pollMs = 5000 }: Options): Result {
   const queryClient = useQueryClient();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const likeOverride = usePostReactionOverridesStore((s) => s.likesByPostId[postId]);
   const isLiked = likeOverride?.isLiked ?? initialIsLiked;
@@ -64,9 +63,18 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
   const [commentText, setCommentText] = useState('');
   const [commentCount, setCommentCount] = useState(initialCommentCount);
 
-  const meRef = useRef<UserDto | null>(null);
   const timerRef = useRef<number | null>(null);
   const onlineRef = useRef<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
+  const { data: me = null } = useQuery({
+    queryKey: queryKeys.auth.me,
+    queryFn: authMe,
+    enabled,
+    retry: false,
+    staleTime: AUTH_ME_STALE_TIME_MS,
+  });
+
+  const isAuthenticated = enabled && Boolean(me);
 
   const {
     data: commentsData,
@@ -115,32 +123,6 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
 
     clearTimer();
   }, [postId, initialCommentCount, clearTimer]);
-
-  // 내 정보 로드(댓글 optimistic author + 로그인 여부)
-  useEffect(() => {
-    if (!enabled) return;
-
-    let isAlive = true;
-
-    const run = async () => {
-      try {
-        const me = await authMe();
-        if (!isAlive) return;
-        meRef.current = me;
-        setIsAuthenticated(true);
-      } catch {
-        if (!isAlive) return;
-        meRef.current = null;
-        setIsAuthenticated(false);
-      }
-    };
-
-    void run();
-
-    return () => {
-      isAlive = false;
-    };
-  }, [enabled, postId]);
 
   const refetchComments = useCallback(async () => {
     if (!enabled) return;
@@ -213,7 +195,6 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     const content = commentText.trim();
     if (!content) return;
 
-    const me = meRef.current;
     if (!me) return;
 
     setCommentText('');
@@ -223,7 +204,7 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     } catch {
       // mutation onError에서 comments cache와 댓글 수를 rollback한다.
     }
-  }, [isAuthenticated, commentMutation, commentText, commentCount]);
+  }, [isAuthenticated, commentMutation, commentText, commentCount, me]);
 
   return {
     isAuthenticated,
