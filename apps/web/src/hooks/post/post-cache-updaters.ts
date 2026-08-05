@@ -1,9 +1,15 @@
-import type { QueryClient } from '@tanstack/react-query';
+import type { QueryClient, QueryKey } from '@tanstack/react-query';
 import type { PostResponseDto as Post } from '@repo/dto';
 
 import { queryKeys } from '@/api';
 
 type PostPatch = Partial<Pick<Post, 'isLiked' | 'likeCount' | 'commentCount' | 'content'>>;
+type QueryCacheSnapshotEntry = [QueryKey, unknown];
+
+export type QueryCacheSnapshot = QueryCacheSnapshotEntry[];
+
+const getPostCacheKeys = (postId: string): QueryKey[] => [queryKeys.posts.detail(postId), queryKeys.posts.feed(), queryKeys.posts.profiles];
+const getPostListCacheKeys = (): QueryKey[] => [queryKeys.posts.feed(), queryKeys.posts.profiles];
 
 export const applyPostPatchToUnknown = (value: unknown, postId: string, patch: PostPatch): unknown => {
   if (!value || typeof value !== 'object') return value;
@@ -82,31 +88,42 @@ export const removePostFromUnknown = (value: unknown, postId: string): unknown =
   return value;
 };
 
+const getQueryCacheSnapshot = (queryClient: QueryClient, queryKey: QueryKey): QueryCacheSnapshot => queryClient.getQueriesData({ queryKey });
+
+export const getPostCacheSnapshot = (queryClient: QueryClient, postId: string): QueryCacheSnapshot =>
+  getPostCacheKeys(postId).flatMap((queryKey) => getQueryCacheSnapshot(queryClient, queryKey));
+
+export const restoreQueryCacheSnapshot = (queryClient: QueryClient, snapshot: QueryCacheSnapshot) => {
+  snapshot.forEach(([queryKey, data]) => {
+    queryClient.setQueryData(queryKey, data);
+  });
+};
+
 export const cancelPostCaches = async (queryClient: QueryClient, postId: string) => {
-  await queryClient.cancelQueries({ queryKey: queryKeys.posts.detail(postId) });
-  await queryClient.cancelQueries({ queryKey: queryKeys.posts.feed() });
-  await queryClient.cancelQueries({ queryKey: queryKeys.posts.profiles });
+  await Promise.all(getPostCacheKeys(postId).map((queryKey) => queryClient.cancelQueries({ queryKey })));
 };
 
 export const setPostPatchInCaches = (queryClient: QueryClient, postId: string, patch: PostPatch) => {
-  queryClient.setQueryData(queryKeys.posts.detail(postId), (current) => applyPostPatchToUnknown(current, postId, patch));
-  queryClient.setQueriesData({ queryKey: queryKeys.posts.feed() }, (current) => applyPostPatchToUnknown(current, postId, patch));
-  queryClient.setQueriesData({ queryKey: queryKeys.posts.profiles }, (current) => applyPostPatchToUnknown(current, postId, patch));
+  getPostCacheKeys(postId).forEach((queryKey) => {
+    queryClient.setQueriesData({ queryKey }, (current) => applyPostPatchToUnknown(current, postId, patch));
+  });
 };
 
 export const removePostFromCaches = (queryClient: QueryClient, postId: string) => {
   queryClient.setQueryData(queryKeys.posts.detail(postId), undefined);
-  queryClient.setQueriesData({ queryKey: queryKeys.posts.feed() }, (current) => removePostFromUnknown(current, postId));
-  queryClient.setQueriesData({ queryKey: queryKeys.posts.profiles }, (current) => removePostFromUnknown(current, postId));
+  getPostListCacheKeys().forEach((queryKey) => {
+    queryClient.setQueriesData({ queryKey }, (current) => removePostFromUnknown(current, postId));
+  });
 };
 
 export const invalidatePostCaches = (queryClient: QueryClient, postId: string) => {
-  void queryClient.invalidateQueries({ queryKey: queryKeys.posts.detail(postId) });
-  void queryClient.invalidateQueries({ queryKey: queryKeys.posts.feed() });
-  void queryClient.invalidateQueries({ queryKey: queryKeys.posts.profiles });
+  getPostCacheKeys(postId).forEach((queryKey) => {
+    void queryClient.invalidateQueries({ queryKey });
+  });
 };
 
 export const invalidatePostListCaches = (queryClient: QueryClient) => {
-  void queryClient.invalidateQueries({ queryKey: queryKeys.posts.feed() });
-  void queryClient.invalidateQueries({ queryKey: queryKeys.posts.profiles });
+  getPostListCacheKeys().forEach((queryKey) => {
+    void queryClient.invalidateQueries({ queryKey });
+  });
 };

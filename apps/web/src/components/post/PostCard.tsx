@@ -1,12 +1,11 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { PostHeader, PostMedia, PostActions, PostContentPreview } from './index';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
-import { getOptimisticLikeState, usePostLikeMutation } from '@/hooks';
-import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
+import { usePostLikeMutation } from '@/hooks';
 import { useModalStore, useAuthStore, MODAL_TYPES } from '@/stores';
 
 interface PostCardProps {
@@ -26,37 +25,18 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { openModal } = useModalStore();
 
-  const likeOverride = usePostReactionOverridesStore((s) => s.likesByPostId[post.id]);
-
-  // 댓글 카운트 override 추가
-  const commentOverride = usePostReactionOverridesStore((s) => s.commentsByPostId[post.id]);
-  const baseCommentCount = commentOverride?.commentCount ?? post.commentCount;
-
-  const baseLiked = Boolean(likeOverride?.isLiked ?? post.isLiked);
-  const baseLikeCount = likeOverride?.likeCount ?? post.likeCount;
   const isOwner = post.author.id === userId;
   const likeMutation = usePostLikeMutation({
     postId: post.id,
   });
 
-  const postForActions: Post = useMemo(
-    () => ({
-      ...post,
-      isLiked: baseLiked,
-      likeCount: baseLikeCount,
-      // 댓글 카운트도 store 반영값 사용
-      commentCount: baseCommentCount,
-    }),
-    [post, baseLiked, baseLikeCount, baseCommentCount],
-  );
-
-  const handleOpenDetail = useCallback(() => onOpenDetail(postForActions), [onOpenDetail, postForActions]);
+  const handleOpenDetail = useCallback(() => onOpenDetail(post), [onOpenDetail, post]);
 
   const handleToggleLike = useCallback(async () => {
     if (!isAuthenticated) return;
     if (likeMutation.isPending) return;
-    await likeMutation.mutateAsync(getOptimisticLikeState({ isLiked: baseLiked, likeCount: baseLikeCount }));
-  }, [baseLikeCount, baseLiked, isAuthenticated, likeMutation]);
+    await likeMutation.mutateAsync({ isLiked: post.isLiked, likeCount: post.likeCount });
+  }, [isAuthenticated, likeMutation, post.isLiked, post.likeCount]);
 
   const openEditPostModal = useCallback(() => {
     openModal(MODAL_TYPES.POST_DETAIL, { postId: post.id, initialIsEditing: true, initialEditingContent: post.content });
@@ -83,7 +63,7 @@ export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay
 
       <div className="px-4 sm:px-6">
         <PostActions
-          post={postForActions}
+          post={post}
           onClickLike={handleToggleLike}
           onClickComment={handleOpenDetail}
           disabledLike={!isAuthenticated || likeMutation.isPending}
