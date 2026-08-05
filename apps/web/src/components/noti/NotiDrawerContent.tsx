@@ -7,26 +7,19 @@ import { toNotiView } from './noti.mapper';
 import { NotiView } from './noti.types';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { useRouter } from 'next/navigation';
-import { useNotiStore } from '@/stores/useNotiStore';
 import ConfirmOverlay from '@/components/ConfirmOverlay';
+import { useNotificationMutations, useNotificationsQuery } from '@/hooks';
 
 export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => void }) {
   const openModal = useModalStore((s) => s.openModal);
   const router = useRouter();
 
-  const rawNotis = useNotiStore((s) => s.notis);
-  const notiFetchStatus = useNotiStore((s) => s.status);
-  const readNoti = useNotiStore((s) => s.readNoti);
-  const readAllNotis = useNotiStore((s) => s.readAllNotis);
-  const deleteAllNotis = useNotiStore((s) => s.deleteAllNotis);
+  const { notifications: rawNotis, status: notiFetchStatus, errorMessage } = useNotificationsQuery();
+  const { readNoti, readAllNotis, deleteAllNotis, isReadingAllNotis, isDeletingAllNotis } = useNotificationMutations();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const errorMessage = useNotiStore((s) => s.errorMessage);
 
   const notis = useMemo(() => {
-    return rawNotis
-      .map(toNotiView)
-      .slice()
-      .sort((a, b) => new Date(b.createdAtIso).getTime() - new Date(a.createdAtIso).getTime());
+    return rawNotis.map(toNotiView).sort((a, b) => new Date(b.createdAtIso).getTime() - new Date(a.createdAtIso).getTime());
   }, [rawNotis]);
 
   const handleClickNoti = (noti: NotiView) => {
@@ -71,7 +64,7 @@ export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => v
           <button
             type="button"
             onClick={() => readAllNotis()}
-            disabled={!hasUnread}
+            disabled={!hasUnread || isReadingAllNotis}
             className="flex items-center gap-1 rounded-full bg-primary/80 px-3 py-1 text-s text-white hover:bg-primary disabled:opacity-40 disabled:cursor-default disabled:hover:bg-primary/85 transition-colors"
           >
             <CheckCheck className="w-4 h-4" />
@@ -80,6 +73,7 @@ export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => v
           <button
             type="button"
             onClick={() => setConfirmOpen(true)}
+            disabled={isDeletingAllNotis}
             className="flex items-center gap-1 rounded-full border border-gray-3 px-3 py-1 text-s text-gray-1 hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors"
           >
             <Trash2 className="w-4 h-4" />

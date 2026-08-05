@@ -3,14 +3,10 @@ import './globals.css';
 import { Header, Sidebar, ResizableRightPanel, ModalContainer, LoadingSpinner, MobileBottomNav } from '@/components';
 import MobileNotiOverlay from '@/components/layout/MobileNotiOverlay';
 import { Suspense } from 'react';
-import NotiPollingGate from '@/components/noti/NotiPollingGate';
 import PwaInstallBanner from '@/components/PwaInstallBanner';
-import PwaRegister from '@/components/PwaRegister';
+import RootClientEffects from '@/components/RootClientEffects';
 import ToastProvider from '@/components/ToastContainer';
-import { PrivacyConsentGate } from '@/hooks';
-import { AuthBootstrap } from '@/hooks/auth/client/AuthBootstrap';
 import AuthLoginQueryHandler from '@/hooks/auth/client/AuthLoginQueryHandler';
-import SpotifyTokenFromHash from '@/hooks/auth/client/SpotifyTokenFromHash';
 import QueryProvider from '@/components/QueryProvider';
 
 export const metadata: Metadata = {
@@ -48,16 +44,12 @@ export default function RootLayout({
       </head>
       <body>
         <QueryProvider>
-          <PwaRegister />
+          <RootClientEffects />
           <PwaInstallBanner />
-          <SpotifyTokenFromHash />
           <Suspense fallback={<LoadingSpinner />}>
             <AuthLoginQueryHandler />
           </Suspense>
           <ModalContainer />
-          <AuthBootstrap />
-          <PrivacyConsentGate />
-          <NotiPollingGate />
 
           <ToastProvider>
             <div className="flex h-dvh overflow-hidden">
