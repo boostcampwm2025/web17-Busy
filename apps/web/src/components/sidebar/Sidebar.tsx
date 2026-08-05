@@ -275,7 +275,7 @@ export default function Sidebar() {
         isResizing={isDrawerResizing}
         onResizePointerDown={onDrawerResizePointerDown}
       >
-        <NotiDrawerContent onNavigate={handleCloseDrawer} />
+        {isNotificationOpen && <NotiDrawerContent onNavigate={handleCloseDrawer} />}
       </Drawer>
     </div>
   );

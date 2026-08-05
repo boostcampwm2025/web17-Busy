@@ -19,10 +19,7 @@ export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => v
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const notis = useMemo(() => {
-    return rawNotis
-      .map(toNotiView)
-      .slice()
-      .sort((a, b) => new Date(b.createdAtIso).getTime() - new Date(a.createdAtIso).getTime());
+    return rawNotis.map(toNotiView).sort((a, b) => new Date(b.createdAtIso).getTime() - new Date(a.createdAtIso).getTime());
   }, [rawNotis]);
 
   const handleClickNoti = (noti: NotiView) => {

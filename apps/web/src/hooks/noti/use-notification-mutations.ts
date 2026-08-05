@@ -9,72 +9,56 @@ type Context = {
   previousNotifications: NotiResponseDto[] | undefined;
 };
 
-const setNotifications = (current: NotiResponseDto[] | undefined, updater: (notifications: NotiResponseDto[]) => NotiResponseDto[]) =>
-  updater(current ?? []);
+type OptimisticUpdater<TVariables> = (notifications: NotiResponseDto[], variables: TVariables) => NotiResponseDto[];
 
 export function useNotificationMutations() {
   const queryClient = useQueryClient();
   const notificationsKey = queryKeys.notifications.all;
 
+  const updateNotifications = async <TVariables>(variables: TVariables, updater: OptimisticUpdater<TVariables>) => {
+    await queryClient.cancelQueries({ queryKey: notificationsKey });
+
+    const previousNotifications = queryClient.getQueryData<NotiResponseDto[]>(notificationsKey);
+
+    queryClient.setQueryData<NotiResponseDto[]>(notificationsKey, (current) => updater(current ?? [], variables));
+
+    return { previousNotifications } satisfies Context;
+  };
+
+  const rollbackNotifications = (context: Context | undefined) => {
+    queryClient.setQueryData(notificationsKey, context?.previousNotifications ?? []);
+  };
+
+  const invalidateNotifications = () => {
+    void queryClient.invalidateQueries({ queryKey: notificationsKey });
+  };
+
   const readNotiMutation = useMutation({
     mutationFn: markNotiRead,
-    onMutate: async (notiId) => {
-      await queryClient.cancelQueries({ queryKey: notificationsKey });
-
-      const previousNotifications = queryClient.getQueryData<NotiResponseDto[]>(notificationsKey);
-
-      queryClient.setQueryData<NotiResponseDto[]>(notificationsKey, (current) =>
-        setNotifications(current, (notifications) => notifications.map((noti) => (noti.id === notiId ? { ...noti, isRead: true } : noti))),
-      );
-
-      return { previousNotifications } satisfies Context;
-    },
+    onMutate: (notiId) =>
+      updateNotifications(notiId, (notifications, id) => notifications.map((noti) => (noti.id === id ? { ...noti, isRead: true } : noti))),
     onError: (_error, _notiId, context) => {
-      queryClient.setQueryData(notificationsKey, context?.previousNotifications ?? []);
+      rollbackNotifications(context);
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: notificationsKey });
-    },
+    onSettled: invalidateNotifications,
   });
 
   const readAllNotisMutation = useMutation({
     mutationFn: markAllNotiRead,
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: notificationsKey });
-
-      const previousNotifications = queryClient.getQueryData<NotiResponseDto[]>(notificationsKey);
-
-      queryClient.setQueryData<NotiResponseDto[]>(notificationsKey, (current) =>
-        setNotifications(current, (notifications) => notifications.map((noti) => (noti.isRead ? noti : { ...noti, isRead: true }))),
-      );
-
-      return { previousNotifications } satisfies Context;
-    },
+    onMutate: () => updateNotifications(undefined, (notifications) => notifications.map((noti) => (noti.isRead ? noti : { ...noti, isRead: true }))),
     onError: (_error, _variables, context) => {
-      queryClient.setQueryData(notificationsKey, context?.previousNotifications ?? []);
+      rollbackNotifications(context);
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: notificationsKey });
-    },
+    onSettled: invalidateNotifications,
   });
 
   const deleteAllNotisMutation = useMutation({
     mutationFn: deleteAllNotis,
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: notificationsKey });
-
-      const previousNotifications = queryClient.getQueryData<NotiResponseDto[]>(notificationsKey);
-
-      queryClient.setQueryData<NotiResponseDto[]>(notificationsKey, []);
-
-      return { previousNotifications } satisfies Context;
-    },
+    onMutate: () => updateNotifications(undefined, () => []),
     onError: (_error, _variables, context) => {
-      queryClient.setQueryData(notificationsKey, context?.previousNotifications ?? []);
+      rollbackNotifications(context);
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: notificationsKey });
-    },
+    onSettled: invalidateNotifications,
   });
 
   return {
