@@ -1,8 +1,8 @@
 'use client';
 
-import { addFollow, removeFollow } from '@/api';
 import { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useProfileFollowMutation } from '@/hooks';
 
 const SmallSpinner = () => <div className="h-5 w-5 mx-2.5 my-0.5 animate-spin rounded-full border-2 border-gray-300 border-t-black" />;
 
@@ -11,7 +11,7 @@ interface ProfileActionButtonProps {
   profileUserId: string;
   isFollowing: boolean;
   renderIn: 'page' | 'modal';
-  onFollowActionComplete: () => void; // 팔로우 상태 업데이트 함수
+  onFollowActionComplete?: () => void;
 }
 
 export default function ProfileActionButton({
@@ -21,13 +21,13 @@ export default function ProfileActionButton({
   renderIn = 'page',
   onFollowActionComplete,
 }: ProfileActionButtonProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutate: follow, isPending: isFollowPending } = useProfileFollowMutation();
 
   // ⚠️ 리캡 기능 구현 이후 삭제 예정 - '준비중' 안내 임시 처리
-  const [showRecapHint, setShowRecapHint] = useState(false);
+  const [isRecapHintVisible, setIsRecapHintVisible] = useState(false);
   const handleRecapClick = useCallback(() => {
-    setShowRecapHint(true);
-    setTimeout(() => setShowRecapHint(false), 1800);
+    setIsRecapHintVisible(true);
+    setTimeout(() => setIsRecapHintVisible(false), 1800);
   }, []);
 
   const isLoggedIn = !!loggedInUserId;
@@ -36,24 +36,26 @@ export default function ProfileActionButton({
   const BUTTON_TEXT = isFollowing ? '팔로잉' : '팔로우';
 
   /** 팔로우 액션 처리 핸들러 (서버 요청 -> 상태 업데이트) */
-  const handleFollowAction = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      isFollowing ? await removeFollow(profileUserId) : await addFollow(profileUserId);
-      onFollowActionComplete();
-    } catch {
-      toast.error(`요청 처리에 실패했습니다.`);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [profileUserId, isFollowing, onFollowActionComplete]);
+  const handleFollowAction = useCallback(() => {
+    follow(
+      {
+        targetUserId: profileUserId,
+        viewerUserId: loggedInUserId,
+        wasFollowing: isFollowing,
+      },
+      {
+        onSuccess: () => onFollowActionComplete?.(),
+        onError: () => toast.error(`요청 처리에 실패했습니다.`),
+      },
+    );
+  }, [follow, profileUserId, loggedInUserId, isFollowing, onFollowActionComplete]);
 
   // 내 프로필이면 -> 프로필 페이지에서는 리캡 생성 버튼, 모달에서는 버튼 필요 x
   if (isMyProfile) {
     return renderIn === 'modal' ? null : (
       <div className="relative">
         {/* ⚠️ 리캡 기능 구현 이후 삭제 예정 - 클릭 시 '준비중' 둥실 안내 */}
-        {showRecapHint && (
+        {isRecapHintVisible && (
           // 바깥: 가로 중앙 정렬 / 안쪽: 위로 둥실 떠오르며 페이드아웃 (transform 충돌 방지)
           <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1">
             <span className="block whitespace-nowrap text-sm font-bold text-primary animate-float-up">🚧 준비중!</span>
@@ -76,12 +78,12 @@ export default function ProfileActionButton({
       <button
         onClick={handleFollowAction}
         title="팔로우 취소"
-        disabled={!isLoggedIn || isLoading}
+        disabled={!isLoggedIn || isFollowPending}
         className={`${
           renderIn === 'page' ? 'text-sm xs:text-base px-4 xs:px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'
         } flex items-center justify-center bg-transparent border-gray-2 text-gray-1 border-2 font-bold hover:bg-gray-4 transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
       >
-        {isLoading ? <SmallSpinner /> : BUTTON_TEXT}
+        {isFollowPending ? <SmallSpinner /> : BUTTON_TEXT}
       </button>
     );
   }
@@ -91,12 +93,12 @@ export default function ProfileActionButton({
     <button
       onClick={handleFollowAction}
       title="팔로우"
-      disabled={!isLoggedIn || isLoading}
+      disabled={!isLoggedIn || isFollowPending}
       className={`${
         renderIn === 'page' ? 'text-sm xs:text-base px-4 xs:px-6 py-2 rounded-full' : 'px-4 py-1.5 rounded-lg text-sm'
       } flex items-center justify-center bg-primary/90 text-white border-2 border-primary font-bold hover:bg-primary transition-colors disabled:bg-primary/30 disabled:border-primary/50`}
     >
-      {isLoading ? <SmallSpinner /> : BUTTON_TEXT}
+      {isFollowPending ? <SmallSpinner /> : BUTTON_TEXT}
     </button>
   );
 }

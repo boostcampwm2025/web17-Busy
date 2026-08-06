@@ -1,6 +1,10 @@
 import { internalClient } from './client';
 import type { GetUserDto as Profile, SearchUsersResDto, UpdateProfileDto } from '@repo/dto';
 
+type UpdateProfileResult = {
+  success: boolean;
+};
+
 /** [GET] 사용자 프로필 정보 요청 */
 export const getUser = async (userId: string): Promise<Profile> => {
   const { data } = await internalClient.get<Profile>(`/user/${userId}`);
@@ -16,7 +20,7 @@ export const searchUsers = async (q: string, cursor?: string, limit?: number): P
 };
 
 /** [PATCH] 프로필 수정 */
-export const updateProfile = async (profile: UpdateProfileDto): Promise<Profile> => {
-  const { data } = await internalClient.patch<Profile>('/user', profile);
+export const updateProfile = async (profile: UpdateProfileDto): Promise<UpdateProfileResult> => {
+  const { data } = await internalClient.patch<UpdateProfileResult>('/user', profile);
   return data;
 };

@@ -14,5 +14,6 @@ export * from './playlist';
 export * from './post';
 export * from './privacy';
 export * from './noti';
+export * from './profile';
 export * from './useSwipeToDismiss';
 export * from './useResizable';
