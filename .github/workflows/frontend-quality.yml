@@ -63,3 +63,63 @@ jobs:
 
       - name: Run web lint audit
         run: pnpm -C apps/web lint || true
+
+  web-unit-test:
+    name: Web Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run web unit tests
+        run: pnpm -C apps/web test
+
+  web-e2e-smoke:
+    name: Web E2E Smoke
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared DTO package
+        run: pnpm dto
+
+      - name: Install Playwright Chromium
+        run: pnpm -C apps/web exec playwright install --with-deps chromium
+
+      - name: Run web e2e smoke
+        run: pnpm -C apps/web test:e2e
