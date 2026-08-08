@@ -1,18 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { Pencil, Check, X } from 'lucide-react';
 import ProfileActionButton from './ProfileActionButton';
 import FollowStats from './FollowStats';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
-import { useProfileStore } from '@/stores';
 import { GetUserDto as Profile } from '@repo/dto';
 import { EditTextarea, EditInput } from './ProfileInputs';
-import { updateProfile } from '@/api';
+import { useUpdateProfileMutation } from '@/hooks';
 
 export default function ProfileInfo({ profile, loggedInUserId }: { profile: Profile; loggedInUserId: string | null }) {
-  const toggleFollow = useProfileStore((s) => s.toggleFollow);
-  const updateProfileInfo = useProfileStore((s) => s.updateProfileInfo);
+  const updateProfileMutation = useUpdateProfileMutation(profile.id);
 
   const isOwner = loggedInUserId === profile.id;
   const [isEditing, setIsEditing] = useState(false);
@@ -21,12 +19,25 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
     bio: profile.bio || '',
   });
 
-  const handleSave = async () => {
-    await updateProfile({
-      nickname: editForm.nickname,
-      bio: editForm.bio,
+  useEffect(() => {
+    if (isEditing) return;
+
+    setEditForm({
+      nickname: profile.nickname || '',
+      bio: profile.bio || '',
     });
-    updateProfileInfo({
+  }, [isEditing, profile.bio, profile.id, profile.nickname]);
+
+  const handleNicknameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEditForm((current) => ({ ...current, nickname: event.target.value }));
+  };
+
+  const handleBioChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setEditForm((current) => ({ ...current, bio: event.target.value }));
+  };
+
+  const handleSave = async () => {
+    await updateProfileMutation.mutateAsync({
       nickname: editForm.nickname,
       bio: editForm.bio,
     });
@@ -35,6 +46,10 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
 
   const handleCancel = () => {
     setIsEditing(false);
+  };
+
+  const handleStartEditing = () => {
+    setIsEditing(true);
   };
 
   const { nickname, profileImgUrl, bio, followerCount, followingCount, isFollowing } = profile;
@@ -55,7 +70,7 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
                 <div className="w-48 md:w-60">
                   <EditInput
                     value={editForm.nickname}
-                    onChange={(e: any) => setEditForm({ ...editForm, nickname: e.target.value })}
+                    onChange={handleNicknameChange}
                     className="text-xl md:text-2xl font-black text-center md:text-left"
                   />
                 </div>
@@ -75,7 +90,7 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
                   </div>
                 ) : (
                   <button
-                    onClick={() => setIsEditing(true)}
+                    onClick={handleStartEditing}
                     className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-full transition-all"
                     aria-label="프로필 수정"
                   >
@@ -84,13 +99,7 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
                 ))}
             </div>
             {/* 리캡 생성/팔로우 버튼 */}
-            <ProfileActionButton
-              loggedInUserId={loggedInUserId}
-              profileUserId={profile.id}
-              isFollowing={isFollowing}
-              renderIn="page"
-              onFollowActionComplete={toggleFollow}
-            />
+            <ProfileActionButton loggedInUserId={loggedInUserId} profileUserId={profile.id} isFollowing={isFollowing} renderIn="page" />
           </div>
 
           {/* 팔로우/팔로잉 사용자 정보 */}
@@ -99,7 +108,7 @@ export default function ProfileInfo({ profile, loggedInUserId }: { profile: Prof
           {/* 프로필 소개란 */}
           <div className="relative mt-4 md:mt-0 max-w-md lg:max-w-lg mx-auto md:mx-0">
             {isEditing ? (
-              <EditTextarea value={editForm.bio} onChange={(e: any) => setEditForm({ ...editForm, bio: e.target.value })} />
+              <EditTextarea value={editForm.bio} onChange={handleBioChange} />
             ) : (
               <p className="text-primary font-medium text-sm xs:text-base whitespace-pre-wrap leading-relaxed text-center md:text-justify">
                 {bio || (isOwner ? '자기소개를 입력해주세요.' : '')}
