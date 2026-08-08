@@ -6,7 +6,7 @@ import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/d
 
 import { useRouter, usePathname } from 'next/navigation';
 import { PostHeader } from '../../post';
-import { useModalStore, MODAL_TYPES, usePlayerStore, usePostReactionOverridesStore, useAuthStore } from '@/stores';
+import { useModalStore, MODAL_TYPES, usePlayerStore, useAuthStore } from '@/stores';
 import useIsMobile from '@/hooks/useIsMobile';
 import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions, useSwipeToDismiss } from '@/hooks';
 
@@ -42,12 +42,9 @@ export const PostCardDetailModal = () => {
   const isOwner = userId === post?.author.id;
   const safePost = post ?? passedPost ?? EMPTY_POST;
 
-  const likeOverride = usePostReactionOverridesStore((s) => (postId ? s.likesByPostId[postId] : undefined));
-  const commentOverride = usePostReactionOverridesStore((s) => (postId ? s.commentsByPostId[postId] : undefined));
-
-  const initialIsLiked = likeOverride?.isLiked ?? post?.isLiked ?? passedPost?.isLiked ?? false;
-  const initialLikeCount = likeOverride?.likeCount ?? post?.likeCount ?? passedPost?.likeCount ?? 0;
-  const initialCommentCount = commentOverride?.commentCount ?? post?.commentCount ?? passedPost?.commentCount ?? 0;
+  const initialIsLiked = post?.isLiked ?? passedPost?.isLiked ?? false;
+  const initialLikeCount = post?.likeCount ?? passedPost?.likeCount ?? 0;
+  const initialCommentCount = post?.commentCount ?? passedPost?.commentCount ?? 0;
 
   const reactions = usePostReactions({
     enabled: Boolean(enabled && postId),

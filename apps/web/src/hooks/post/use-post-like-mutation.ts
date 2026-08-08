@@ -4,8 +4,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PostResponseDto as Post } from '@repo/dto';
 
 import { addLike, queryKeys, removeLike } from '@/api';
-import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
-import { cancelPostCaches, invalidatePostCaches, setPostPatchInCaches } from './post-cache-updaters';
+import {
+  cancelPostCaches,
+  getPostCacheSnapshot,
+  invalidatePostCaches,
+  restoreQueryCacheSnapshot,
+  setPostPatchInCaches,
+  type QueryCacheSnapshot,
+} from './post-cache-updaters';
 
 type LikeState = Pick<Post, 'isLiked' | 'likeCount'>;
 
@@ -14,7 +20,7 @@ type Options = {
 };
 
 type Context = {
-  previousOverride: LikeState | undefined;
+  previousPostCaches: QueryCacheSnapshot;
 };
 
 const getNextLikeState = ({ isLiked, likeCount }: LikeState): LikeState => {
@@ -29,26 +35,26 @@ export const usePostLikeMutation = ({ postId }: Options) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (next: LikeState) => {
+    mutationFn: async (current: LikeState) => {
+      const next = getNextLikeState(current);
+
       if (next.isLiked) await addLike({ postId });
       else await removeLike(postId);
     },
-    onMutate: async (next) => {
+    onMutate: async (current) => {
       await cancelPostCaches(queryClient, postId);
 
-      const previousOverride = usePostReactionOverridesStore.getState().likesByPostId[postId];
+      const previousPostCaches = getPostCacheSnapshot(queryClient, postId);
+      const next = getNextLikeState(current);
 
-      usePostReactionOverridesStore.getState().setLikeOverride(postId, next);
       setPostPatchInCaches(queryClient, postId, next);
 
-      return { previousOverride } satisfies Context;
+      return { previousPostCaches } satisfies Context;
     },
-    onError: (_error, _next, context) => {
-      if (context?.previousOverride) {
-        usePostReactionOverridesStore.getState().setLikeOverride(postId, context.previousOverride);
-      } else {
-        usePostReactionOverridesStore.getState().clearLikeOverride(postId);
-      }
+    onError: (_error, _current, context) => {
+      if (!context) return;
+
+      restoreQueryCacheSnapshot(queryClient, context.previousPostCaches);
     },
     onSettled: () => {
       invalidatePostCaches(queryClient, postId);
@@ -56,5 +62,3 @@ export const usePostLikeMutation = ({ postId }: Options) => {
     },
   });
 };
-
-export const getOptimisticLikeState = getNextLikeState;

@@ -4,17 +4,19 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { GetCommentsResDto, UserDto } from '@repo/dto';
 
 import { createComment, queryKeys } from '@/api';
-import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
-import { cancelPostCaches, invalidatePostCaches, setPostPatchInCaches } from './post-cache-updaters';
+import {
+  cancelPostCaches,
+  getPostCacheSnapshot,
+  invalidatePostCaches,
+  restoreQueryCacheSnapshot,
+  setPostPatchInCaches,
+  type QueryCacheSnapshot,
+} from './post-cache-updaters';
 
 type CommentItem = GetCommentsResDto['comments'][number];
-type CommentOverride = {
-  commentCount: number;
-};
 
 type Options = {
   postId: string;
-  onCommentCountChange: (count: number) => void;
 };
 
 type Variables = {
@@ -26,8 +28,7 @@ type Variables = {
 type Context = {
   tmpId: string;
   previousComments: GetCommentsResDto | undefined;
-  previousOverride: CommentOverride | undefined;
-  previousCommentCount: number;
+  previousPostCaches: QueryCacheSnapshot;
 };
 
 const nowIso = () => new Date().toISOString();
@@ -39,27 +40,8 @@ const createOptimisticComment = ({ tmpId, content, author }: Pick<Variables, 'co
   author,
 });
 
-export const usePostCommentMutation = ({ postId, onCommentCountChange }: Options) => {
+export const usePostCommentMutation = ({ postId }: Options) => {
   const queryClient = useQueryClient();
-
-  const applyCommentCount = (count: number) => {
-    onCommentCountChange(count);
-    usePostReactionOverridesStore.getState().setCommentOverride(postId, { commentCount: count });
-    setPostPatchInCaches(queryClient, postId, { commentCount: count });
-  };
-
-  const restoreCommentCount = (count: number, previousOverride: CommentOverride | undefined) => {
-    const restoredCount = previousOverride?.commentCount ?? count;
-
-    onCommentCountChange(restoredCount);
-    setPostPatchInCaches(queryClient, postId, { commentCount: restoredCount });
-
-    if (previousOverride) {
-      usePostReactionOverridesStore.getState().setCommentOverride(postId, previousOverride);
-    } else {
-      usePostReactionOverridesStore.getState().clearCommentOverride(postId);
-    }
-  };
 
   return useMutation({
     mutationFn: async ({ content }: Variables) => createComment({ postId, content }),
@@ -69,7 +51,7 @@ export const usePostCommentMutation = ({ postId, onCommentCountChange }: Options
 
       const commentsKey = queryKeys.posts.comments(postId);
       const previousComments = queryClient.getQueryData<GetCommentsResDto>(commentsKey);
-      const previousOverride = usePostReactionOverridesStore.getState().commentsByPostId[postId];
+      const previousPostCaches = getPostCacheSnapshot(queryClient, postId);
       const tmpId = `tmp-${Date.now()}`;
       const optimistic = createOptimisticComment({ tmpId, content, author });
 
@@ -77,13 +59,12 @@ export const usePostCommentMutation = ({ postId, onCommentCountChange }: Options
         comments: [...(current?.comments ?? []), optimistic],
       }));
 
-      applyCommentCount(currentCommentCount + 1);
+      setPostPatchInCaches(queryClient, postId, { commentCount: currentCommentCount + 1 });
 
       return {
         tmpId,
         previousComments,
-        previousOverride,
-        previousCommentCount: currentCommentCount,
+        previousPostCaches,
       } satisfies Context;
     },
     onSuccess: (res, _variables, context) => {
@@ -101,7 +82,7 @@ export const usePostCommentMutation = ({ postId, onCommentCountChange }: Options
       if (!context) return;
 
       queryClient.setQueryData<GetCommentsResDto>(queryKeys.posts.comments(postId), context.previousComments ?? { comments: [] });
-      restoreCommentCount(context.previousCommentCount, context.previousOverride);
+      restoreQueryCacheSnapshot(queryClient, context.previousPostCaches);
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.posts.comments(postId) });

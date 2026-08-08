@@ -5,11 +5,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GetCommentsResDto } from '@repo/dto';
 
 import { authMe, getComments, queryKeys } from '@/api';
-import { usePostReactionOverridesStore } from '@/stores/usePostReactionOverridesStore';
 import { AUTH_ME_STALE_TIME_MS } from '../auth/client/useAuthMe';
 import { setPostPatchInCaches } from './post-cache-updaters';
 import { usePostCommentMutation } from './use-post-comment-mutation';
-import { getOptimisticLikeState, usePostLikeMutation } from './use-post-like-mutation';
+import { usePostLikeMutation } from './use-post-like-mutation';
 
 type CommentItem = GetCommentsResDto['comments'][number];
 
@@ -41,8 +40,6 @@ type Result = {
   submitComment: () => Promise<void>;
   isSubmittingComment: boolean;
 
-  commentCount: number;
-
   refetchComments: () => Promise<void>;
 };
 
@@ -55,13 +52,9 @@ const getEffectivePollMs = (base: number) => {
 export default function usePostReactions({ enabled, postId, initialIsLiked, initialLikeCount, initialCommentCount, pollMs = 5000 }: Options): Result {
   const queryClient = useQueryClient();
 
-  const likeOverride = usePostReactionOverridesStore((s) => s.likesByPostId[postId]);
-  const isLiked = likeOverride?.isLiked ?? initialIsLiked;
-  const likeCount = likeOverride?.likeCount ?? initialLikeCount;
   const likeMutation = usePostLikeMutation({ postId });
 
   const [commentText, setCommentText] = useState('');
-  const [commentCount, setCommentCount] = useState(initialCommentCount);
 
   const timerRef = useRef<number | null>(null);
   const onlineRef = useRef<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
@@ -87,18 +80,9 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
   });
 
   const comments = commentsData?.comments ?? [];
+  const currentCommentCount = commentsData ? comments.length : initialCommentCount;
 
-  const syncCommentCount = useCallback(
-    (count: number) => {
-      setCommentCount(count);
-      usePostReactionOverridesStore.getState().setCommentOverride(postId, { commentCount: count });
-      setPostPatchInCaches(queryClient, postId, { commentCount: count });
-    },
-    [postId, queryClient],
-  );
-
-  const commentMutation = usePostCommentMutation({ postId, onCommentCountChange: setCommentCount });
-  const isSubmittingComment = commentMutation.isPending;
+  const commentMutation = usePostCommentMutation({ postId });
 
   const clearTimer = useCallback(() => {
     if (!timerRef.current) return;
@@ -110,19 +94,18 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     if (!enabled) return;
     if (!commentsData) return;
 
-    syncCommentCount(comments.length);
-  }, [enabled, comments.length, commentsData, syncCommentCount]);
+    setPostPatchInCaches(queryClient, postId, { commentCount: comments.length });
+  }, [enabled, comments.length, commentsData, postId, queryClient]);
 
   /**
    * postId가 바뀔 때만 입력/타이머 상태를 초기화한다.
    * 댓글 목록 자체는 postId 기반 query cache가 source of truth로 관리한다.
    */
   useEffect(() => {
-    setCommentCount(initialCommentCount);
     setCommentText('');
 
     clearTimer();
-  }, [postId, initialCommentCount, clearTimer]);
+  }, [postId, clearTimer]);
 
   const refetchComments = useCallback(async () => {
     if (!enabled) return;
@@ -184,8 +167,8 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
   const toggleLike = useCallback(async () => {
     if (!isAuthenticated) return;
     if (likeMutation.isPending) return;
-    await likeMutation.mutateAsync(getOptimisticLikeState({ isLiked, likeCount }));
-  }, [isAuthenticated, isLiked, likeCount, likeMutation]);
+    await likeMutation.mutateAsync({ isLiked: initialIsLiked, likeCount: initialLikeCount });
+  }, [isAuthenticated, initialIsLiked, initialLikeCount, likeMutation]);
 
   // 댓글 작성(optimistic + 실패 시 rollback)
   const submitComment = useCallback(async () => {
@@ -200,17 +183,17 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     setCommentText('');
 
     try {
-      await commentMutation.mutateAsync({ content, author: me, currentCommentCount: commentCount });
+      await commentMutation.mutateAsync({ content, author: me, currentCommentCount });
     } catch {
       // mutation onError에서 comments cache와 댓글 수를 rollback한다.
     }
-  }, [isAuthenticated, commentMutation, commentText, commentCount, me]);
+  }, [isAuthenticated, commentMutation, commentText, currentCommentCount, me]);
 
   return {
     isAuthenticated,
 
-    isLiked,
-    likeCount,
+    isLiked: initialIsLiked,
+    likeCount: initialLikeCount,
     toggleLike,
     isSubmittingLike: likeMutation.isPending,
 
@@ -220,9 +203,8 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
     commentText,
     setCommentText,
     submitComment,
-    isSubmittingComment,
+    isSubmittingComment: commentMutation.isPending,
 
-    commentCount,
     refetchComments,
   };
 }
