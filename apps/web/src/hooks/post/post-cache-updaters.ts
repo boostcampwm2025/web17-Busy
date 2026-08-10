@@ -110,7 +110,7 @@ export const setPostPatchInCaches = (queryClient: QueryClient, postId: string, p
 };
 
 export const removePostFromCaches = (queryClient: QueryClient, postId: string) => {
-  queryClient.setQueryData(queryKeys.posts.detail(postId), undefined);
+  queryClient.removeQueries({ queryKey: queryKeys.posts.detail(postId), exact: true });
   getPostListCacheKeys().forEach((queryKey) => {
     queryClient.setQueriesData({ queryKey }, (current) => removePostFromUnknown(current, postId));
   });
