@@ -11,6 +11,14 @@ type Context = {
 
 type OptimisticUpdater<TVariables> = (notifications: NotiResponseDto[], variables: TVariables) => NotiResponseDto[];
 
+export const markNotificationReadInCache = (notifications: NotiResponseDto[], id: string): NotiResponseDto[] =>
+  notifications.map((noti) => (noti.id === id ? { ...noti, isRead: true } : noti));
+
+export const markAllNotificationsReadInCache = (notifications: NotiResponseDto[]): NotiResponseDto[] =>
+  notifications.map((noti) => (noti.isRead ? noti : { ...noti, isRead: true }));
+
+export const clearNotificationsInCache = (): NotiResponseDto[] => [];
+
 export function useNotificationMutations() {
   const queryClient = useQueryClient();
   const notificationsKey = queryKeys.notifications.all;
@@ -35,8 +43,7 @@ export function useNotificationMutations() {
 
   const readNotiMutation = useMutation({
     mutationFn: markNotiRead,
-    onMutate: (notiId) =>
-      updateNotifications(notiId, (notifications, id) => notifications.map((noti) => (noti.id === id ? { ...noti, isRead: true } : noti))),
+    onMutate: (notiId) => updateNotifications(notiId, markNotificationReadInCache),
     onError: (_error, _notiId, context) => {
       rollbackNotifications(context);
     },
@@ -45,7 +52,7 @@ export function useNotificationMutations() {
 
   const readAllNotisMutation = useMutation({
     mutationFn: markAllNotiRead,
-    onMutate: () => updateNotifications(undefined, (notifications) => notifications.map((noti) => (noti.isRead ? noti : { ...noti, isRead: true }))),
+    onMutate: () => updateNotifications(undefined, markAllNotificationsReadInCache),
     onError: (_error, _variables, context) => {
       rollbackNotifications(context);
     },
@@ -54,7 +61,7 @@ export function useNotificationMutations() {
 
   const deleteAllNotisMutation = useMutation({
     mutationFn: deleteAllNotis,
-    onMutate: () => updateNotifications(undefined, () => []),
+    onMutate: () => updateNotifications(undefined, clearNotificationsInCache),
     onError: (_error, _variables, context) => {
       rollbackNotifications(context);
     },
