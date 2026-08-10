@@ -1,5 +1,11 @@
 import type { NotiResponseDto } from '@repo/dto';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/api/internal/noti', () => ({
+  deleteAllNotis: vi.fn(),
+  markAllNotiRead: vi.fn(),
+  markNotiRead: vi.fn(),
+}));
 
 import { clearNotificationsInCache, markAllNotificationsReadInCache, markNotificationReadInCache } from './use-notification-mutations';
 
