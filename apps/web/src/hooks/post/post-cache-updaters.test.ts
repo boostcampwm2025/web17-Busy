@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { queryKeys } from '@/api';
+import { queryKeys } from '@/api/queryKeys';
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
 import { getPostCacheSnapshot, removePostFromCaches, restoreQueryCacheSnapshot, setPostPatchInCaches } from './post-cache-updaters';

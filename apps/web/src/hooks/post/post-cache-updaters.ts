@@ -1,7 +1,7 @@
 import type { QueryClient, QueryKey } from '@tanstack/react-query';
 import type { PostResponseDto as Post } from '@repo/dto';
 
-import { queryKeys } from '@/api';
+import { queryKeys } from '@/api/queryKeys';
 
 type PostPatch = Partial<Pick<Post, 'isLiked' | 'likeCount' | 'commentCount' | 'content'>>;
 type QueryCacheSnapshotEntry = [QueryKey, unknown];

@@ -1,7 +1,7 @@
 import type { GetUserDto as Profile } from '@repo/dto';
 import { describe, expect, it } from 'vitest';
 
-import { queryKeys } from '@/api';
+import { queryKeys } from '@/api/queryKeys';
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
 import { applyFollowResultToProfileCaches, patchProfileInCache } from './profile-cache-updaters';

@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { queryKeys } from '@/api';
+import { queryKeys } from '@/api/queryKeys';
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
 import { usePostLikeMutation } from './use-post-like-mutation';
@@ -13,11 +13,8 @@ const apiMocks = vi.hoisted(() => ({
   removeLike: vi.fn(),
 }));
 
-vi.mock('@/api', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/api')>();
-
+vi.mock('@/api/internal/like', () => {
   return {
-    ...actual,
     addLike: apiMocks.addLike,
     removeLike: apiMocks.removeLike,
   };

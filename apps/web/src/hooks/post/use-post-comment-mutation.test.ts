@@ -4,7 +4,7 @@ import { renderHook } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { queryKeys } from '@/api';
+import { queryKeys } from '@/api/queryKeys';
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
 import { usePostCommentMutation } from './use-post-comment-mutation';
@@ -13,11 +13,8 @@ const apiMocks = vi.hoisted(() => ({
   createComment: vi.fn(),
 }));
 
-vi.mock('@/api', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/api')>();
-
+vi.mock('@/api/internal/comment', () => {
   return {
-    ...actual,
     createComment: apiMocks.createComment,
   };
 });

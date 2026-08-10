@@ -3,7 +3,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { NotiResponseDto } from '@repo/dto';
 
-import { deleteAllNotis, markAllNotiRead, markNotiRead, queryKeys } from '@/api';
+import { deleteAllNotis, markAllNotiRead, markNotiRead } from '@/api/internal/noti';
+import { queryKeys } from '@/api/queryKeys';
 
 type Context = {
   previousNotifications: NotiResponseDto[] | undefined;
