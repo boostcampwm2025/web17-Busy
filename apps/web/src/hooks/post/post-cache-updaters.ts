@@ -1,7 +1,7 @@
 import type { QueryClient, QueryKey } from '@tanstack/react-query';
 import type { PostResponseDto as Post } from '@repo/dto';
 
-import { queryKeys } from '@/api';
+import { queryKeys } from '@/api/queryKeys';
 
 type PostPatch = Partial<Pick<Post, 'isLiked' | 'likeCount' | 'commentCount' | 'content'>>;
 type QueryCacheSnapshotEntry = [QueryKey, unknown];
@@ -110,7 +110,7 @@ export const setPostPatchInCaches = (queryClient: QueryClient, postId: string, p
 };
 
 export const removePostFromCaches = (queryClient: QueryClient, postId: string) => {
-  queryClient.setQueryData(queryKeys.posts.detail(postId), undefined);
+  queryClient.removeQueries({ queryKey: queryKeys.posts.detail(postId), exact: true });
   getPostListCacheKeys().forEach((queryKey) => {
     queryClient.setQueriesData({ queryKey }, (current) => removePostFromUnknown(current, postId));
   });

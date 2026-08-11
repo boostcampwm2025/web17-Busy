@@ -3,7 +3,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PostResponseDto as Post } from '@repo/dto';
 
-import { addLike, queryKeys, removeLike } from '@/api';
+import { addLike, removeLike } from '@/api/internal/like';
+import { queryKeys } from '@/api/queryKeys';
 import {
   cancelPostCaches,
   getPostCacheSnapshot,

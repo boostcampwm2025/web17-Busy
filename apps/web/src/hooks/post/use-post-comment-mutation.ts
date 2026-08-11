@@ -3,7 +3,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { GetCommentsResDto, UserDto } from '@repo/dto';
 
-import { createComment, queryKeys } from '@/api';
+import { createComment } from '@/api/internal/comment';
+import { queryKeys } from '@/api/queryKeys';
 import {
   cancelPostCaches,
   getPostCacheSnapshot,

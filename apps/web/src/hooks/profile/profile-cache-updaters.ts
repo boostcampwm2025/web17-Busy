@@ -1,7 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query';
 import type { GetUserDto as Profile } from '@repo/dto';
 
-import { queryKeys } from '@/api';
+import { queryKeys } from '@/api/queryKeys';
 
 type ProfilePatch = Partial<Pick<Profile, 'nickname' | 'profileImgUrl' | 'bio' | 'followerCount' | 'followingCount' | 'isFollowing'>>;
 
