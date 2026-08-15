@@ -49,11 +49,18 @@ pnpm -C apps/web measure:search
 
 The measurement spec uses real browser input timing and Playwright network events with a controlled iTunes mock endpoint.
 Outputs are written to a local-only measurement directory.
+The command also writes PNG line charts for cumulative requests and in-flight requests.
 
 Adjust the sample size:
 
 ```bash
 SEARCH_MEASUREMENT_SESSIONS=50 pnpm -C apps/web measure:search
+```
+
+Adjust the measurement window or mock response delay:
+
+```bash
+SEARCH_MEASUREMENT_WINDOW_MS=3000 SEARCH_MEASUREMENT_MOCK_DELAY_MS=900 pnpm -C apps/web measure:search
 ```
 
 Do not use repeated real iTunes API calls for this measurement. Apple documents an approximate Search API limit of 20 calls per minute, so repeated measurements must use the controlled mock endpoint.
