@@ -1,7 +1,7 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
-  "globalEnv": ["CI"],
+  "globalEnv": ["CI", "SEARCH_MEASUREMENT", "SEARCH_MEASUREMENT_SESSIONS"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
