@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { searchItunesSongs } from '@/api';
-import { itunesSongToMusic } from '@/mappers';
-import { useDebouncedValue } from '@/hooks';
-import { ITUNES_SEARCH } from '@/constants';
-import { SearchStatus } from '@/types';
 import type { MusicResponseDto as Music } from '@repo/dto';
+import { searchItunesSongs } from '@/api/itunes/searchSongs';
+import { ITUNES_SEARCH } from '@/constants/search';
+import { itunesSongToMusic } from '@/mappers/itunesSongToMusic';
+import type { SearchStatus } from '@/types/search';
+import useDebouncedValue from '@/hooks/useDebouncedValue';
 
 type Options = {
   query: string;
@@ -61,7 +61,7 @@ export default function useItunesSearch({
     setStatus('loading');
     setErrorMessage(null);
 
-    let alive = true;
+    let isAlive = true;
 
     const run = async () => {
       try {
@@ -74,12 +74,12 @@ export default function useItunesSearch({
 
         const mapped = filterPlayable(data.results.map(itunesSongToMusic));
 
-        if (!alive) return;
+        if (!isAlive) return;
 
         setResults(mapped);
         setStatus(mapped.length > 0 ? 'success' : 'empty');
       } catch (e) {
-        if (!alive) return;
+        if (!isAlive) return;
 
         const err = e as { name?: string; message?: string };
         if (err?.name === 'AbortError') return;
@@ -93,7 +93,7 @@ export default function useItunesSearch({
     void run();
 
     return () => {
-      alive = false;
+      isAlive = false;
       controller.abort();
     };
   }, [enabled, trimmedQuery, minQueryLength, limit, country]);
