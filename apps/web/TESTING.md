@@ -65,6 +65,29 @@ SEARCH_MEASUREMENT_WINDOW_MS=3000 SEARCH_MEASUREMENT_MOCK_DELAY_MS=900 pnpm -C a
 
 Do not use repeated real iTunes API calls for this measurement. Apple documents an approximate Search API limit of 20 calls per minute, so repeated measurements must use the controlled mock endpoint.
 
+Run profile posts request measurement:
+
+```bash
+pnpm -C apps/web measure:profile-posts
+```
+
+The measurement loads `/profile/:userId/posts` and then opens the post detail modal, counting profile list and post detail API requests separately.
+Backend responses are stubbed with Playwright route interception, so no API server or database is required.
+
+Select the mode. `baseline` records the current structure and `current` records the structure after the N+1 fix:
+
+```bash
+PROFILE_POSTS_MEASUREMENT_MODE=current pnpm -C apps/web measure:profile-posts
+```
+
+Each mode writes its own raw and summary files, and `report.md` is rebuilt as a comparison as soon as both modes exist.
+
+Adjust the sample size, page size, or mock latency:
+
+```bash
+PROFILE_POSTS_MEASUREMENT_SESSIONS=20 PROFILE_POSTS_MEASUREMENT_PAGE_SIZE=12 PROFILE_POSTS_MEASUREMENT_MOCK_DELAY_MS=120 pnpm -C apps/web measure:profile-posts
+```
+
 ## Test Utilities
 
 Use `src/test/render-with-query-client.ts` when testing components or hooks that need TanStack Query.
