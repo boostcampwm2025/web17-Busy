@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
-import { getUserProfilePosts, getPostDetail } from '@/api';
+import { getUserProfilePosts, getPostDetail, queryKeys } from '@/api';
 import { useInfiniteScroll } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
 import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
@@ -45,7 +45,7 @@ export default function ProfilePostsFeed({ userId, initialPostId }: Props) {
   );
 
   const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
-    queryKey: ['profile', 'posts', 'full', userId],
+    queryKey: queryKeys.posts.profileFull(userId),
     fetchFn,
   });
 
