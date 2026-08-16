@@ -6,6 +6,13 @@ import type { PostResponseDto as Post } from '@repo/dto';
 import { getPostDetail, queryKeys } from '@/api';
 import { setPostPatchInCaches } from './post-cache-updaters';
 
+/**
+ * 목록에서 넘겨받은 게시글을 `initialData`로 쓸 때 즉시 재조회되지 않도록 하는 값.
+ * 게시글 수정/삭제와 좋아요/댓글 mutation은 cache를 직접 patch하거나 invalidate하므로,
+ * 이 값이 사용자 동작 결과의 반영을 늦추지는 않는다.
+ */
+export const POST_DETAIL_STALE_TIME_MS = 60 * 1000;
+
 type Params = {
   enabled: boolean;
   postId?: string;
@@ -34,6 +41,7 @@ export function usePostDetail({ enabled, postId, passedPost }: Params): Result {
     },
     enabled: Boolean(enabled && postId),
     initialData: matchedPost ?? undefined,
+    staleTime: POST_DETAIL_STALE_TIME_MS,
   });
 
   const updatePostContent = useCallback(
