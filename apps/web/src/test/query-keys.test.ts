@@ -18,4 +18,16 @@ describe('queryKeys', () => {
     expect(queryKeys.posts.comments('post-1')).toEqual(['postComments', 'post-1']);
     expect(queryKeys.posts.likedUsers('post-1')).toEqual(['postLikedUsers', 'post-1']);
   });
+
+  it('separates the profile grid key from the profile full-post feed key', () => {
+    expect(queryKeys.posts.profileFull('user-1')).toEqual(['profile', 'posts', 'full', 'user-1']);
+    expect(queryKeys.posts.profileFull('user-1')).not.toEqual(queryKeys.posts.profile('user-1'));
+  });
+
+  it('keeps both profile post keys under the shared profiles prefix', () => {
+    const prefix = queryKeys.posts.profiles;
+
+    expect(queryKeys.posts.profile('user-1').slice(0, prefix.length)).toEqual([...prefix]);
+    expect(queryKeys.posts.profileFull('user-1').slice(0, prefix.length)).toEqual([...prefix]);
+  });
 });
