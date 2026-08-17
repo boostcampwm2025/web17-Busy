@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
-import { getUserProfilePosts, getPostDetail, queryKeys } from '@/api';
+import { getUserProfileFeedPosts, queryKeys } from '@/api';
 import { useInfiniteScroll } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
 import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
@@ -35,14 +35,7 @@ export default function ProfilePostsFeed({ userId, initialPostId }: Props) {
   const pageRef = useRef<HTMLDivElement>(null);
   const swipe = useRef({ startX: 0, startY: 0, isHorizontal: null as boolean | null });
 
-  const fetchFn = useCallback(
-    async (cursor?: string) => {
-      const { items: previews, hasNext, nextCursor } = await getUserProfilePosts(userId, cursor);
-      const fullPosts = await Promise.all(previews.map((p) => getPostDetail(p.postId)));
-      return { items: fullPosts, hasNext, nextCursor };
-    },
-    [userId],
-  );
+  const fetchFn = useCallback((cursor?: string) => getUserProfileFeedPosts(userId, cursor), [userId]);
 
   const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
     queryKey: queryKeys.posts.profileFull(userId),
