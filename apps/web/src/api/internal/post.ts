@@ -1,4 +1,4 @@
-import type { FeedResponseDto as Feed, PostResponseDto as Post, FindByUserDto, Cursor } from '@repo/dto';
+import type { FeedResponseDto as Feed, PostResponseDto as Post, FindByUserDto, FindByUserFeedDto, Cursor } from '@repo/dto';
 import { internalClient } from './client';
 
 const DEFAULT_FEED_LIMIT = 12;
@@ -11,9 +11,18 @@ export const getFeedPosts = async (cursors?: Cursor, limit = DEFAULT_FEED_LIMIT)
   return data;
 };
 
-/** [GET] 특정 사용자 게시물 목록 조회 함수 (커서 페이지네이션) */
+/** [GET] 특정 사용자 게시물 목록 조회 함수 (프로필 격자용, 커서 페이지네이션) */
 export const getUserProfilePosts = async (userId: string, cursor?: string, limit = DEFAULT_FEED_LIMIT) => {
   const { data } = await internalClient.get<FindByUserDto>(`/post/user/${userId}`, { params: { limit, cursor } });
+  return { items: data.posts, hasNext: data.hasNext, nextCursor: data.nextCursor };
+};
+
+/**
+ * [GET] 특정 사용자 게시물 목록 조회 함수 (프로필 피드용, 커서 페이지네이션)
+ * 카드 렌더링에 필요한 전체 게시글을 반환하므로 항목마다 상세를 다시 조회하지 않는다.
+ */
+export const getUserProfileFeedPosts = async (userId: string, cursor?: string, limit = DEFAULT_FEED_LIMIT) => {
+  const { data } = await internalClient.get<FindByUserFeedDto>(`/post/user/${userId}/feed`, { params: { limit, cursor } });
   return { items: data.posts, hasNext: data.hasNext, nextCursor: data.nextCursor };
 };
 

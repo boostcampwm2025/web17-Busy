@@ -116,7 +116,7 @@ const buildMusic = (postId: string, index: number) => ({
   durationMs: 180000,
 });
 
-/** 백엔드 `/post/user/:userId`가 반환하는 경량 미리보기 */
+/** 백엔드 `/post/user/:userId`가 반환하는 경량 미리보기. 프로필 격자용 */
 const buildPreview = (postId: string) => ({
   postId,
   coverImgUrl: 'https://placehold.co/600x400/png?text=Post+Here!',
@@ -125,7 +125,7 @@ const buildPreview = (postId: string) => ({
   isMoreThanOneMusic: true,
 });
 
-/** 백엔드 `/post/:postId`가 반환하는 전체 게시글 */
+/** 백엔드 `/post/:postId`와 `/post/user/:userId/feed`가 반환하는 전체 게시글 */
 const buildPost = (postId: string, userId: string) => ({
   id: postId,
   author: buildAuthor(userId),
@@ -185,8 +185,12 @@ const routePostApis = async (page: Page) => {
     await delayMock();
 
     if (kind === 'profile-list') {
-      const userId = pathname.split('/api/post/user/')[1] ?? '';
-      const posts = Array.from({ length: PAGE_SIZE }, (_, index) => buildPreview(postIdFor(userId, index)));
+      const [userId = ''] = (pathname.split('/api/post/user/')[1] ?? '').split('/');
+      // `/feed`는 카드 렌더링에 필요한 전체 게시글을, 격자용 경로는 경량 미리보기를 반환한다.
+      const isFeed = pathname.endsWith('/feed');
+      const posts = Array.from({ length: PAGE_SIZE }, (_, index) =>
+        isFeed ? buildPost(postIdFor(userId, index), userId) : buildPreview(postIdFor(userId, index)),
+      );
 
       await route.fulfill(jsonResponse({ posts, hasNext: false }));
       return;
