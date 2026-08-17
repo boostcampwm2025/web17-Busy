@@ -22,6 +22,7 @@ import {
   MusicRequestDto,
   UpdatePostRequestDto,
   FindByUserDto,
+  FindByUserFeedDto,
 } from '@repo/dto';
 
 import { AuthGuard } from 'src/common/guards/auth.guard';
@@ -113,5 +114,25 @@ export class PostController {
         `데이터를 불러오는 데 실패했습니다. 에러 메시지: ${error.message}`,
       );
     }
+  }
+
+  /**
+   * 프로필 피드용 목록 조회. 카드 렌더링에 필요한 전체 게시글을 반환한다.
+   * `isLiked`를 채워야 하므로 격자용 `/user/:userId`와 달리 viewer 정보가 필요하다.
+   */
+  @UseGuards(AuthOptionalGuard)
+  @Get('/user/:userId/feed')
+  async getFeedByUserId(
+    @UserId() requestUserId: string | null,
+    @Param('userId') userId: string,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('cursor') cursor?: string,
+  ): Promise<FindByUserFeedDto> {
+    return await this.postService.getFeedByUserId(
+      userId,
+      limit,
+      cursor,
+      requestUserId,
+    );
   }
 }
