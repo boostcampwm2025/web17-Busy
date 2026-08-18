@@ -9,6 +9,8 @@ services:
       MYSQL_DATABASE: "vibr"
       TZ: "Asia/Seoul"
     command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci" ]
+    volumes:
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p1234" ]
       interval: 5s
@@ -24,6 +26,7 @@ services:
       NEO4J_AUTH: neo4j/12345678
     volumes:
       - neo4j_data:/data
+      - neo4j_logs:/logs
   redis:
     image: redis:8.4-alpine
     command: [ "redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}" ]
@@ -37,6 +40,11 @@ services:
       timeout: 3s
       retries: 10
 
+# 이미지가 VOLUME으로 선언한 경로는 named 볼륨을 붙이지 않으면
+# 컨테이너를 재생성할 때마다 새 익명 볼륨이 생겨 데이터가 사라지고 고아 볼륨이 쌓인다.
+# mysql:/var/lib/mysql, neo4j:/data + /logs, redis:/data 가 해당된다.
 volumes:
   redis-data:
   neo4j_data:
+  neo4j_logs:
+  mysql_data:

@@ -13,6 +13,9 @@ node_modules
 .env.test.local
 .env.production.local
 
+# Local compose override (개인 환경별 포트 등)
+compose.local.yml
+
 # Testing
 coverage
 test-results
