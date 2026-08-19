@@ -15,6 +15,7 @@
     "test:e2e:ui": "playwright test --ui",
     "measure:search": "SEARCH_MEASUREMENT=1 playwright test e2e/search-pipeline-measurement.spec.ts --project=chromium",
     "measure:profile-posts": "PROFILE_POSTS_MEASUREMENT=1 playwright test e2e/profile-posts-measurement.spec.ts --project=chromium",
+    "measure:infinite-scroll": "INFINITE_SCROLL_MEASUREMENT=1 playwright test e2e/infinite-scroll-measurement.spec.ts --project=chromium",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
