@@ -9,11 +9,14 @@ const numberFromEnv = (name: string, fallback: number) => {
 
 const shouldRun = process.env.INFINITE_SCROLL_MEASUREMENT === '1';
 
+/** 개선 전 기준 회차에 예약된 이름 */
+const BASELINE_MODE = 'baseline';
+
 /**
- * baseline: loadMore가 300ms를 먼저 기다린 뒤 다음 페이지를 요청하고, 중복 호출 가드가 그 지연 앞에 있는 현재 구조
- * current: 지연을 요청과 병렬로 돌리고 in-flight 가드를 사용 시점으로 옮긴 개선 구조
+ * 측정 회차를 구분하는 라벨. 결과 파일 이름과 비교 표의 행 이름이 된다.
+ * `baseline`은 개선 전 기준 회차로 예약되어 있고, 이후 회차는 자유롭게 붙인다(`after-388` 등).
  */
-const MODE = process.env.INFINITE_SCROLL_MEASUREMENT_MODE === 'current' ? 'current' : 'baseline';
+const MODE = (process.env.INFINITE_SCROLL_MEASUREMENT_MODE ?? '').trim().replace(/[^a-zA-Z0-9._-]/g, '-') || BASELINE_MODE;
 
 const SESSION_COUNT = numberFromEnv('INFINITE_SCROLL_MEASUREMENT_SESSIONS', 10);
 /** 한 세션에서 스크롤로 채울 추가 페이지 수. 총 페이지 수는 이 값 + 1 이다. */
@@ -33,7 +36,7 @@ const OUTPUT_DIR = path.resolve(process.cwd(), '../../coverage/local-notes/measu
 
 const TRANSPARENT_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 
-type MeasurementMode = 'baseline' | 'current';
+type MeasurementMode = string;
 /** initial: 페이지 진입 시 첫 페이지 로드 / scroll: 센티넬 노출로 발생한 추가 페이지 로드 */
 type Phase = 'initial' | 'scroll';
 
@@ -510,6 +513,29 @@ const readSummaryIfExists = async (mode: MeasurementMode): Promise<ModeSummary |
   }
 };
 
+/** 지금까지 기록된 모든 회차를 읽어 baseline을 맨 앞에 두고 나머지는 이름순으로 정렬한다. */
+const readAllSummaries = async (latest: ModeSummary): Promise<ModeSummary[]> => {
+  let fileNames: string[] = [];
+
+  try {
+    fileNames = await fs.readdir(OUTPUT_DIR);
+  } catch {
+    return [latest];
+  }
+
+  const modes = fileNames.map((name) => /^summary-(.+)\.json$/.exec(name)?.[1]).filter((mode): mode is string => Boolean(mode));
+
+  const summaries = await Promise.all(modes.map((mode) => (mode === latest.mode ? Promise.resolve(latest) : readSummaryIfExists(mode))));
+
+  return summaries
+    .filter((summary): summary is ModeSummary => summary !== null)
+    .sort((a, b) => {
+      if (a.mode === BASELINE_MODE) return -1;
+      if (b.mode === BASELINE_MODE) return 1;
+      return a.mode.localeCompare(b.mode);
+    });
+};
+
 const reductionPercent = (before: number, after: number) => {
   if (before === 0) return 0;
   return round2(((before - after) / before) * 100);
@@ -518,9 +544,11 @@ const reductionPercent = (before: number, after: number) => {
 const summaryRow = (summary: ModeSummary) =>
   `| ${summary.mode} | ${summary.expectedScrollRequests} | ${summary.averageScrollRequests} | ${summary.medianScrollRequests} | ${summary.p90ScrollRequests} | ${summary.requestWasteRatio}x | ${summary.averageDuplicateRequests} | ${summary.duplicateSessionRatio}% | ${summary.medianGapMs} | ${summary.medianLoadDurationMs} | ${summary.averageLoadDurationMs} |`;
 
-const buildReport = (baseline: ModeSummary | null, current: ModeSummary | null): string => {
+const buildReport = (summaries: ModeSummary[], latest: ModeSummary): string => {
   const generatedAt = new Date().toISOString();
-  const reference = current ?? baseline;
+  const baseline = summaries.find((summary) => summary.mode === BASELINE_MODE) ?? null;
+  const current = latest.mode === BASELINE_MODE ? null : latest;
+  const reference = latest;
 
   const lines = [
     '# Infinite Scroll Measurement Report',
@@ -528,11 +556,11 @@ const buildReport = (baseline: ModeSummary | null, current: ModeSummary | null):
     '## Scope',
     '',
     `- Generated at: ${generatedAt}`,
-    `- Sessions per mode: ${reference?.sessionCount ?? 0}`,
-    `- Pages per session: ${reference?.totalPages ?? TOTAL_PAGES} (1 on entry + ${reference?.scrollPages ?? SCROLL_PAGES} by scrolling)`,
-    `- Page size (list limit): ${reference?.pageSize ?? PAGE_SIZE}`,
-    `- Mock API response delay: ${reference?.mockApiDelayMs ?? MOCK_API_DELAY_MS}ms`,
-    `- Spinner delay inside the hook: ${reference?.spinnerDelayMs ?? SPINNER_DELAY_MS}ms`,
+    `- Sessions per mode: ${reference.sessionCount}`,
+    `- Pages per session: ${reference.totalPages} (1 on entry + ${reference.scrollPages} by scrolling)`,
+    `- Page size (list limit): ${reference.pageSize}`,
+    `- Mock API response delay: ${reference.mockApiDelayMs}ms`,
+    `- Spinner delay inside the hook: ${reference.spinnerDelayMs}ms`,
     '- Backend: controlled mock endpoints via Playwright route interception',
     '- Screen: `/profile/:userId/posts`, which drives `useInfiniteScroll` -> `useInfiniteQueryScroll`',
     '- A session scrolls the sentinel into view repeatedly until every page is rendered',
@@ -543,8 +571,7 @@ const buildReport = (baseline: ModeSummary | null, current: ModeSummary | null):
     '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
   ];
 
-  if (baseline) lines.push(summaryRow(baseline));
-  if (current) lines.push(summaryRow(current));
+  summaries.forEach((summary) => lines.push(summaryRow(summary)));
 
   lines.push('');
   lines.push('## Interpretation');
@@ -552,7 +579,7 @@ const buildReport = (baseline: ModeSummary | null, current: ModeSummary | null):
 
   if (baseline && current) {
     lines.push(
-      `- Page requests needed to fill ${baseline.scrollPages} scrolled pages changed by ${reductionPercent(baseline.averageScrollRequests, current.averageScrollRequests)}% (${baseline.averageScrollRequests} -> ${current.averageScrollRequests}, ideal ${baseline.expectedScrollRequests}).`,
+      `- \`${baseline.mode}\` -> \`${current.mode}\`: page requests needed to fill ${baseline.scrollPages} scrolled pages changed by ${reductionPercent(baseline.averageScrollRequests, current.averageScrollRequests)}% (${baseline.averageScrollRequests} -> ${current.averageScrollRequests}, ideal ${baseline.expectedScrollRequests}).`,
     );
     lines.push(
       `- Duplicate page requests per session changed from ${baseline.averageDuplicateRequests} to ${current.averageDuplicateRequests}; sessions containing at least one duplicate changed from ${baseline.duplicateSessionRatio}% to ${current.duplicateSessionRatio}%.`,
@@ -576,7 +603,7 @@ const buildReport = (baseline: ModeSummary | null, current: ModeSummary | null):
     lines.push(
       `- Filling all ${baseline.totalPages} pages by scrolling takes ${baseline.averageLoadDurationMs}ms on average (median ${baseline.medianLoadDurationMs}ms, p90 ${baseline.p90LoadDurationMs}ms).`,
     );
-    lines.push('- The `current` mode has not been measured yet. Run it after the loadMore fix lands.');
+    lines.push('- No follow-up mode has been recorded yet. Re-run with `INFINITE_SCROLL_MEASUREMENT_MODE` set to label the next round.');
   }
 
   lines.push('');
@@ -612,10 +639,9 @@ const writeMeasurementFiles = async (sessions: SessionSummary[], events: Request
     fs.writeFile(path.join(OUTPUT_DIR, `summary-${MODE}.csv`), toCsv(sessions)),
   ]);
 
-  const baseline = MODE === 'baseline' ? summary : await readSummaryIfExists('baseline');
-  const current = MODE === 'current' ? summary : await readSummaryIfExists('current');
+  const summaries = await readAllSummaries(summary);
 
-  await fs.writeFile(path.join(OUTPUT_DIR, 'report.md'), buildReport(baseline, current));
+  await fs.writeFile(path.join(OUTPUT_DIR, 'report.md'), buildReport(summaries, summary));
 };
 
 test.skip(!shouldRun, 'Run with INFINITE_SCROLL_MEASUREMENT=1 pnpm -C apps/web measure:infinite-scroll');
