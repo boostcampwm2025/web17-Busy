@@ -29,7 +29,7 @@ const createWrapper = (queryClient: ReturnType<typeof createTestQueryClient>) =>
   return TestQueryClientProvider;
 };
 
-// 실제 래퍼 훅(useInfiniteScroll, useFeedInfiniteScroll)과 같이 모듈 스코프에 둔다.
+// 실제 어댑터 훅(useInfiniteScroll)과 같이 모듈 스코프에 둔다.
 // 렌더마다 새 참조를 넘기면 queryItems가 매번 새 배열이 되어 setItems effect가 멈추지 않는다.
 const QUERY_KEY = ['infinite-scroll-test'];
 const selectItems = (page: TestPage) => page.items;
