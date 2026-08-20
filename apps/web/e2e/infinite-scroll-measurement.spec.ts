@@ -25,8 +25,11 @@ const SCROLL_PAGES = numberFromEnv('INFINITE_SCROLL_MEASUREMENT_PAGES', 5);
 const PAGE_SIZE = numberFromEnv('INFINITE_SCROLL_MEASUREMENT_PAGE_SIZE', 12);
 const MOCK_API_DELAY_MS = numberFromEnv('INFINITE_SCROLL_MEASUREMENT_MOCK_DELAY_MS', 120);
 
-/** apps/web/src/hooks/use-infinite-query-scroll.ts의 SCROLL_SPINNER_DELAY_MS */
-const SPINNER_DELAY_MS = 300;
+/**
+ * 측정 시점에 훅이 요청 앞에 두고 있던 고정 지연. #387에서 제거되어 0이다.
+ * 이전 회차 summary에는 당시 값(300)이 그대로 기록되어 있어 비교에 쓸 수 있다.
+ */
+const SPINNER_DELAY_MS = 0;
 const TOTAL_PAGES = SCROLL_PAGES + 1;
 const TARGET_CARDS = TOTAL_PAGES * PAGE_SIZE;
 /** 페이지가 늘지 않는 상황에서 무한 루프에 빠지지 않도록 둔 상한 */
@@ -611,7 +614,7 @@ const buildReport = (summaries: ModeSummary[], latest: ModeSummary): string => {
   lines.push('');
   lines.push('- `hasNext` stays true until the last mock page, so the sentinel remains mounted exactly as it does in production.');
   lines.push(
-    '- The spinner delay runs before the request in the baseline structure, so one page costs `delay + network`. Running them in parallel saves `min(delay, network)`, which depends on the mock delay used here.',
+    '- In the baseline structure a fixed delay ran before the request, so one page cost `delay + network`. The delay was removed in #387 because the spinner it was meant to hold is not gated on the fetch state, so one page now costs `network` alone.',
   );
   lines.push(
     '- Duplicate detection compares the cursor of every scroll-phase request in a session; two requests for the same cursor count as one duplicate.',
