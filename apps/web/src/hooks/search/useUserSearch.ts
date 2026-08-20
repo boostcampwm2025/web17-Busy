@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react';
 
 import { useInfiniteScroll, useDebouncedValue } from '@/hooks';
 import { ITUNES_SEARCH } from '@/constants';
-import { searchUsers } from '@/api';
+import { queryKeys, searchUsers } from '@/api';
 import { SearchStatus } from '@/types';
 import type { SearchUsersResDto } from '@repo/dto';
 
@@ -62,7 +62,7 @@ export default function useUserSearch({
   );
 
   const { items, hasNext, isLoading, isInitialLoading, initialError, errorMsg, ref } = useInfiniteScroll<SearchUser>({
-    queryKey: ['search', 'users', trimmedQuery, limit],
+    queryKey: queryKeys.search.users(trimmedQuery, limit),
     fetchFn,
     enabled: canFetch,
   });
