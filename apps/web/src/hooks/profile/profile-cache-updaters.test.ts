@@ -79,4 +79,45 @@ describe('profile cache updaters', () => {
       followingCount: 0,
     });
   });
+
+  it('applies the follow result to every cached page of an open user list', () => {
+    const queryClient = createTestQueryClient();
+
+    queryClient.setQueryData(queryKeys.users.list('팔로워', 'profile-user'), {
+      pages: [
+        { items: [{ id: 'target-user', isFollowing: false }], hasNext: true },
+        { items: [{ id: 'other-user', isFollowing: false }], hasNext: false },
+      ],
+      pageParams: [undefined, 'cursor-1'],
+    });
+
+    applyFollowResultToProfileCaches(queryClient, {
+      targetUserId: 'target-user',
+      viewerUserId: 'viewer-user',
+      wasFollowing: false,
+    });
+
+    expect(queryClient.getQueryData(queryKeys.users.list('팔로워', 'profile-user'))).toMatchObject({
+      pages: [{ items: [{ id: 'target-user', isFollowing: true }] }, { items: [{ id: 'other-user', isFollowing: false }] }],
+    });
+  });
+
+  it('applies the follow result to follower and following lists at the same time', () => {
+    const queryClient = createTestQueryClient();
+    const followerKey = queryKeys.users.list('팔로워', 'profile-user');
+    const followingKey = queryKeys.users.list('팔로잉', 'profile-user');
+    const createList = () => ({ pages: [{ items: [{ id: 'target-user', isFollowing: true }], hasNext: false }], pageParams: [undefined] });
+
+    queryClient.setQueryData(followerKey, createList());
+    queryClient.setQueryData(followingKey, createList());
+
+    applyFollowResultToProfileCaches(queryClient, {
+      targetUserId: 'target-user',
+      viewerUserId: 'viewer-user',
+      wasFollowing: true,
+    });
+
+    expect(queryClient.getQueryData(followerKey)).toMatchObject({ pages: [{ items: [{ isFollowing: false }] }] });
+    expect(queryClient.getQueryData(followingKey)).toMatchObject({ pages: [{ items: [{ isFollowing: false }] }] });
+  });
 });

@@ -1,60 +1,62 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useInfiniteQuery, useQueryClient, type QueryKey } from '@tanstack/react-query';
+import { useInfiniteQuery, type QueryKey } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 
-const EMPTY_ITEMS: never[] = [];
+const EMPTY_PAGES: never[] = [];
 
-interface Params<TItem, TCursor, TPage> {
+/** 목록 API가 맞춰야 하는 응답 계약. 커서 형태는 목록마다 다를 수 있다(피드는 복합 커서). */
+interface InfiniteResponse<TItem, TCursor> {
+  items: TItem[];
+  hasNext: boolean;
+  nextCursor?: TCursor;
+}
+
+interface Params<TItem, TCursor> {
+  fetchFn: (cursor?: TCursor, limit?: number) => Promise<InfiniteResponse<TItem, TCursor>>;
+  /** 목록마다 고유해야 한다. 값이 바뀌면 새 query가 되어 목록이 처음부터 다시 로드된다. */
   queryKey: QueryKey;
-  fetchPage: (cursor?: TCursor) => Promise<TPage>;
-  selectItems: (page: TPage) => TItem[];
-  getHasNext: (page: TPage) => boolean;
-  getNextCursor: (page: TPage) => TCursor | undefined;
   enabled?: boolean;
+  /** 서버 응답보다 앞에 놓을 항목. 첫 렌더 값으로 고정된다. */
   initialItems?: TItem[];
+  /** 렌더마다 새 참조를 넘기면 목록이 매번 다시 계산된다. 모듈 스코프에 두고 넘긴다. */
   dedupeItems?: (items: TItem[]) => TItem[];
 }
 
-export default function useInfiniteQueryScroll<TItem, TCursor, TPage>({
+/**
+ * 커서 기반 무한 스크롤. 센티넬 관측, 다음 페이지 요청, 목록 파생을 함께 담당한다.
+ * 목록 API는 응답을 `InfiniteResponse` 형태로 맞춰 넘긴다(`api/internal/post.ts` 참고).
+ */
+export default function useInfiniteScroll<TItem, TCursor = string>({
+  fetchFn,
   queryKey,
-  fetchPage,
-  selectItems,
-  getHasNext,
-  getNextCursor,
   enabled = true,
   initialItems,
   dedupeItems,
-}: Params<TItem, TCursor, TPage>) {
-  const queryClient = useQueryClient();
+}: Params<TItem, TCursor>) {
   const { ref, inView: isInView } = useInView({ threshold: 0.8, rootMargin: '200px' });
+  // 첫 렌더의 initialItems를 고정한다. 이후 호출부가 새 배열을 넘겨도 목록이 흔들리지 않는다.
   const [initialItemsSnapshot] = useState<TItem[]>(() => initialItems ?? []);
-  const [items, setItems] = useState<TItem[]>(initialItemsSnapshot);
 
-  const query = useInfiniteQuery<TPage, Error, TPage[], QueryKey, TCursor | undefined>({
+  const query = useInfiniteQuery<InfiniteResponse<TItem, TCursor>, Error, InfiniteResponse<TItem, TCursor>[], QueryKey, TCursor | undefined>({
     queryKey,
-    queryFn: ({ pageParam }) => fetchPage(pageParam as TCursor | undefined),
+    queryFn: ({ pageParam }) => fetchFn(pageParam as TCursor | undefined),
     initialPageParam: undefined,
-    getNextPageParam: (lastPage) => (getHasNext(lastPage) ? getNextCursor(lastPage) : undefined),
+    getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.nextCursor : undefined),
     enabled,
     select: (data) => data.pages,
   });
 
-  const pages = query.data ?? EMPTY_ITEMS;
+  const pages = query.data ?? EMPTY_PAGES;
 
-  const queryItems = useMemo(() => {
-    const merged = [...initialItemsSnapshot, ...pages.flatMap(selectItems)];
+  // query cache에서 바로 파생시킨다. 로컬 state로 복사하면 cache와 어긋날 수 있다.
+  const items = useMemo(() => {
+    const merged = [...initialItemsSnapshot, ...pages.flatMap((page) => page.items)];
     return dedupeItems ? dedupeItems(merged) : merged;
-  }, [dedupeItems, initialItemsSnapshot, pages, selectItems]);
+  }, [dedupeItems, initialItemsSnapshot, pages]);
 
-  useEffect(() => {
-    setItems(queryItems);
-  }, [queryItems]);
-
-  const lastPage = pages.at(-1);
   const hasNext = query.hasNextPage;
-  const nextCursor = lastPage ? getNextCursor(lastPage) : undefined;
   const initialError = query.isError && pages.length === 0 ? query.error : null;
   const errorMsg = query.isError ? '오류가 발생했습니다.' : null;
 
@@ -83,21 +85,13 @@ export default function useInfiniteQueryScroll<TItem, TCursor, TPage>({
     void loadMore();
   }, [isInView, loadMore, pages.length]);
 
-  const reset = useCallback(() => {
-    setItems(initialItemsSnapshot);
-    void queryClient.resetQueries({ queryKey });
-  }, [initialItemsSnapshot, queryClient, queryKey]);
-
   return {
     items,
-    setItems,
     hasNext,
-    nextCursor,
     isLoading: query.isFetchingNextPage,
     isInitialLoading: query.isLoading,
     initialError,
     errorMsg,
     ref,
-    reset,
   };
 }

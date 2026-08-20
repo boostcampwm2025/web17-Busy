@@ -8,7 +8,7 @@ export const getFeedPosts = async (cursors?: Cursor, limit = DEFAULT_FEED_LIMIT)
   const { data } = await internalClient.get<Feed>('/feed', {
     params: { limit, followingCursor: cursors?.following, trendingCursor: cursors?.trending, recentCursor: cursors?.recent },
   });
-  return data;
+  return { items: data.posts, hasNext: data.hasNext, nextCursor: data.nextCursor };
 };
 
 /** [GET] 특정 사용자 게시물 목록 조회 함수 (프로필 격자용, 커서 페이지네이션) */
