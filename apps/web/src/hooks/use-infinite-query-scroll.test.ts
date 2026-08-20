@@ -36,7 +36,7 @@ const selectItems = (page: TestPage) => page.items;
 const getHasNext = (page: TestPage) => page.hasNext;
 const getNextCursor = (page: TestPage) => page.nextCursor;
 
-const renderInfiniteScroll = (fetchPage: (cursor?: string) => Promise<TestPage>) =>
+const renderInfiniteScroll = (fetchPage: (cursor?: string) => Promise<TestPage>, queryClient = createTestQueryClient()) =>
   renderHook(
     () =>
       useInfiniteQueryScroll<string, string, TestPage>({
@@ -46,7 +46,7 @@ const renderInfiniteScroll = (fetchPage: (cursor?: string) => Promise<TestPage>)
         getHasNext,
         getNextCursor,
       }),
-    { wrapper: createWrapper(createTestQueryClient()) },
+    { wrapper: createWrapper(queryClient) },
   );
 
 describe('useInfiniteQueryScroll', () => {
@@ -102,5 +102,34 @@ describe('useInfiniteQueryScroll', () => {
 
     expect(requestedCursors).toEqual([undefined, '1', '2']);
     expect(new Set(requestedCursors).size).toBe(requestedCursors.length);
+  });
+
+  it('derives items from the query cache instead of copying them into local state', async () => {
+    const queryClient = createTestQueryClient();
+    const { result } = renderInfiniteScroll(fetchPage, queryClient);
+
+    await waitFor(() => {
+      expect(result.current.items).toHaveLength(TOTAL_PAGES);
+    });
+
+    // cache가 목록의 유일한 출처임을 고정한다. 동기화되지 않는 복사본이 다시 생기면 여기서 깨진다.
+    queryClient.setQueryData(QUERY_KEY, (current: { pages: TestPage[]; pageParams: unknown[] }) => ({
+      ...current,
+      pages: current.pages.map((page) => ({ ...page, items: page.items.map((item) => `${item}-patched`) })),
+    }));
+
+    await waitFor(() => {
+      expect(result.current.items.every((item) => item.endsWith('-patched'))).toBe(true);
+    });
+  });
+
+  it('does not expose a setter for the item list', async () => {
+    const { result } = renderInfiniteScroll(fetchPage);
+
+    await waitFor(() => {
+      expect(result.current.items).toHaveLength(TOTAL_PAGES);
+    });
+
+    expect(result.current).not.toHaveProperty('setItems');
   });
 });
