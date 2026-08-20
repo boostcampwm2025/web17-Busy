@@ -33,6 +33,16 @@ describe('queryKeys', () => {
     expect(queryKeys.users.list('팔로잉', 'user-1').slice(0, prefix.length)).toEqual([...prefix]);
   });
 
+  it('separates user search results by query and limit', () => {
+    const prefix = queryKeys.search.all;
+
+    expect(queryKeys.search.users('jane', 10)).toEqual(['search', 'users', 'jane', 10]);
+    expect(queryKeys.search.users('jane', 10)).not.toEqual(queryKeys.search.users('john', 10));
+    // limit이 페이지 경계를 바꾸므로 같은 검색어라도 다른 결과다.
+    expect(queryKeys.search.users('jane', 10)).not.toEqual(queryKeys.search.users('jane', 20));
+    expect(queryKeys.search.users('jane', 10).slice(0, prefix.length)).toEqual([...prefix]);
+  });
+
   it('keeps both profile post keys under the shared profiles prefix', () => {
     const prefix = queryKeys.posts.profiles;
 

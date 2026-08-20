@@ -3,6 +3,7 @@ import { notificationQueryKeys } from './notifications';
 import { playlistQueryKeys } from './playlists';
 import { postQueryKeys } from './posts';
 import { profileQueryKeys } from './profiles';
+import { searchQueryKeys } from './search';
 import { userQueryKeys } from './users';
 
 export const queryKeys = {
@@ -11,5 +12,6 @@ export const queryKeys = {
   playlists: playlistQueryKeys,
   posts: postQueryKeys,
   profiles: profileQueryKeys,
+  search: searchQueryKeys,
   users: userQueryKeys,
 } as const;
