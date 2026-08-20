@@ -40,11 +40,19 @@ const applyFollowPatchToUnknown = (value: unknown, userId: string, isFollowing: 
 };
 
 /**
- * 열려 있는 팔로워/팔로잉 목록에 팔로우 결과를 반영한다.
+ * 팔로우 상태를 담은 사용자 목록 cache들. 무한 스크롤 구조가 같아 한 walker로 처리한다.
+ * 사용자 검색 결과도 포함해야 검색에서 팔로우한 상태가 재검색·드로어 재개봉 후에도 남는다.
+ */
+const USER_LIST_PREFIXES = [queryKeys.users.lists, queryKeys.search.userLists];
+
+/**
+ * 열려 있는 팔로워/팔로잉 목록과 사용자 검색 결과에 팔로우 결과를 반영한다.
  * 목록을 로컬 state로 복사해 고치면 다음 페이지가 도착할 때 되돌아가므로 cache를 직접 갱신한다.
  */
 export const setFollowStateInUserListCaches = (queryClient: QueryClient, userId: string, isFollowing: boolean) => {
-  queryClient.setQueriesData({ queryKey: queryKeys.users.lists }, (current) => applyFollowPatchToUnknown(current, userId, isFollowing));
+  for (const queryKey of USER_LIST_PREFIXES) {
+    queryClient.setQueriesData({ queryKey }, (current) => applyFollowPatchToUnknown(current, userId, isFollowing));
+  }
 };
 
 export const patchProfileInCache = (queryClient: QueryClient, userId: string, patch: ProfilePatch | ((profile: Profile) => ProfilePatch)) => {

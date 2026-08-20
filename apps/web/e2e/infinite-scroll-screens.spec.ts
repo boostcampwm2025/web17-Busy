@@ -217,6 +217,44 @@ test.describe('무한 스크롤 소비 화면', () => {
     );
   });
 
+  /**
+   * 검색 결과의 팔로우 상태는 로컬 override가 아니라 query cache에서 내려온다.
+   * 따라서 버튼이 뒤집히는 것 자체가 mutation의 cache patch가 검색 캐시까지 닿았다는 증거다.
+   */
+  test('검색 결과에서 팔로우하면 mutation이 검색 캐시를 갱신해 버튼이 바뀐다', async ({ page }) => {
+    const followedIds: string[] = [];
+
+    await routeAmbientApis(page, { id: VIEWER_ID });
+    await routeUserApis(page);
+
+    await page.route('**/api/follow', async (route) => {
+      const body = route.request().postDataJSON() as { otherUserId?: string } | null;
+      if (route.request().method() === 'POST' && body?.otherUserId) followedIds.push(body.otherUserId);
+      await delayed();
+      await route.fulfill(json({ success: true }));
+    });
+
+    await page.goto('/');
+    await page.getByTitle('검색').first().click();
+
+    const input = page.getByPlaceholder('음악 검색, 사용자 검색');
+    await expect(input).toBeVisible({ timeout: 30_000 });
+
+    await page.getByTitle('사용자 검색 탭').click();
+    await input.pressSequentially('유저', { delay: 40 });
+
+    const firstRow = page
+      .locator('div')
+      .filter({ hasText: /^유저 0-0팔로우$/ })
+      .last();
+    await expect(firstRow).toBeVisible({ timeout: 30_000 });
+
+    await firstRow.getByRole('button', { name: '팔로우', exact: true }).click();
+
+    await expect(page.getByRole('button', { name: '팔로우 중' })).toBeVisible({ timeout: 10_000 });
+    expect(followedIds).toEqual(['user-0-0']);
+  });
+
   test('팔로워 모달에서 팔로우한 상태가 다음 페이지 로드 후에도 유지된다', async ({ page }) => {
     const followedIds: string[] = [];
 

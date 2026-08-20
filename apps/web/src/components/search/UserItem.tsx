@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 import type { SearchUsersResDto } from '@repo/dto';
 
-import { addFollow, removeFollow } from '@/api';
+import { useProfileFollowMutation } from '@/hooks';
 import { coalesceImageSrc } from '@/utils';
 import { DEFAULT_IMAGES } from '@/constants';
 
@@ -14,43 +14,30 @@ type Props = {
   user: SearchUser;
   disabledFollow: boolean;
 
-  /** 현재 로그인 사용자 여부 */
-  isMe: boolean;
-
-  /** 상위 상태 동기화(Optimistic UI 포함) */
-  onFollowChange: (userId: string, next: boolean) => void;
+  /** 현재 로그인 사용자 id. 팔로우 mutation의 viewer이자 내 계정 판별에 쓴다. */
+  meId: string | null;
 };
 
-export default function UserItem({ user, disabledFollow, isMe, onFollowChange }: Props) {
+export default function UserItem({ user, disabledFollow, meId }: Props) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate: follow, isPending: isSubmitting } = useProfileFollowMutation();
+
+  const isMe = user.id === meId;
 
   const handleGoProfile = () => {
     router.push(`/profile/${user.id}`);
   };
 
-  const handleToggleFollow = async () => {
+  /** 팔로우 결과는 mutation이 query cache에 반영하므로 목록이 자동으로 갱신된다. */
+  const handleToggleFollow = () => {
     if (isMe) return;
     if (disabledFollow) return;
     if (isSubmitting) return;
 
-    const next = !user.isFollowing;
-
-    // Optimistic: 먼저 UI 반영(스크롤/재렌더에도 유지되도록 상위 상태 갱신)
-    onFollowChange(user.id, next);
-
-    setIsSubmitting(true);
-
-    try {
-      if (next) await addFollow(user.id);
-      else await removeFollow(user.id);
-    } catch {
-      // 실패 시 원복
-      onFollowChange(user.id, !next);
-      // TODO(BE): 토스트/메시지 UX 확정
-    } finally {
-      setIsSubmitting(false);
-    }
+    follow(
+      { targetUserId: user.id, viewerUserId: meId, wasFollowing: user.isFollowing },
+      { onError: () => toast.error('요청 처리에 실패했습니다.') },
+    );
   };
 
   const containerClassName = isMe
