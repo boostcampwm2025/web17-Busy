@@ -15,23 +15,15 @@ type Props = {
 
   meId: string | null;
   isAuthenticated: boolean;
-
-  /** userId -> isFollowing override */
-  followOverrides: Map<string, boolean>;
-  onFollowChange: (userId: string, next: boolean) => void;
 };
 
-function UserSearchResults({ users, hasNext, isLoadingMore, loadMoreRef, meId, isAuthenticated, followOverrides, onFollowChange }: Props) {
+function UserSearchResults({ users, hasNext, isLoadingMore, loadMoreRef, meId, isAuthenticated }: Props) {
   return (
     <div className="space-y-1">
-      {users.map((u) => {
-        const override = followOverrides.get(u.id);
-        const isFollowing = override ?? u.isFollowing;
-
-        return (
-          <UserItem key={u.id} user={{ ...u, isFollowing }} isMe={u.id === meId} disabledFollow={!isAuthenticated} onFollowChange={onFollowChange} />
-        );
-      })}
+      {/* 팔로우 상태는 query cache에서 내려온 값을 그대로 쓴다. 로컬 override를 두면 cache와 어긋난다. */}
+      {users.map((u) => (
+        <UserItem key={u.id} user={u} meId={meId} disabledFollow={!isAuthenticated} />
+      ))}
 
       {hasNext ? <div ref={loadMoreRef} /> : null}
 

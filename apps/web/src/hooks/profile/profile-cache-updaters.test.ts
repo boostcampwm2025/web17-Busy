@@ -120,4 +120,64 @@ describe('profile cache updaters', () => {
     expect(queryClient.getQueryData(followerKey)).toMatchObject({ pages: [{ items: [{ isFollowing: false }] }] });
     expect(queryClient.getQueryData(followingKey)).toMatchObject({ pages: [{ items: [{ isFollowing: false }] }] });
   });
+
+  it('applies the follow result to cached user search results', () => {
+    const queryClient = createTestQueryClient();
+    const searchKey = queryKeys.search.users('target', 10);
+
+    queryClient.setQueryData(searchKey, {
+      pages: [{ items: [{ id: 'target-user', isFollowing: false }], hasNext: false }],
+      pageParams: [undefined],
+    });
+
+    applyFollowResultToProfileCaches(queryClient, {
+      targetUserId: 'target-user',
+      viewerUserId: 'viewer-user',
+      wasFollowing: false,
+    });
+
+    // 검색 결과를 갱신하지 않으면 재검색·드로어 재개봉 시 stale한 isFollowing이 다시 노출된다.
+    expect(queryClient.getQueryData(searchKey)).toMatchObject({ pages: [{ items: [{ isFollowing: true }] }] });
+  });
+
+  it('applies one follow to the profile, the open user list, and the search results together', () => {
+    const queryClient = createTestQueryClient();
+    const listKey = queryKeys.users.list('팔로워', 'profile-user');
+    const searchKey = queryKeys.search.users('target', 10);
+    const createList = () => ({ pages: [{ items: [{ id: 'target-user', isFollowing: false }], hasNext: false }], pageParams: [undefined] });
+
+    queryClient.setQueryData(queryKeys.profiles.detail('target-user'), createProfile({ id: 'target-user', followerCount: 7, isFollowing: false }));
+    queryClient.setQueryData(listKey, createList());
+    queryClient.setQueryData(searchKey, createList());
+
+    applyFollowResultToProfileCaches(queryClient, {
+      targetUserId: 'target-user',
+      viewerUserId: 'viewer-user',
+      wasFollowing: false,
+    });
+
+    // 검색에서 팔로우해도 세 캐시가 한 번에 맞춰져야 화면 사이 상태가 어긋나지 않는다.
+    expect(queryClient.getQueryData(queryKeys.profiles.detail('target-user'))).toMatchObject({ isFollowing: true, followerCount: 8 });
+    expect(queryClient.getQueryData(listKey)).toMatchObject({ pages: [{ items: [{ isFollowing: true }] }] });
+    expect(queryClient.getQueryData(searchKey)).toMatchObject({ pages: [{ items: [{ isFollowing: true }] }] });
+  });
+
+  it('applies the follow result to search results cached under different queries and limits', () => {
+    const queryClient = createTestQueryClient();
+    const byQuery = queryKeys.search.users('tar', 10);
+    const byLimit = queryKeys.search.users('target', 20);
+    const createResults = () => ({ pages: [{ items: [{ id: 'target-user', isFollowing: false }], hasNext: false }], pageParams: [undefined] });
+
+    queryClient.setQueryData(byQuery, createResults());
+    queryClient.setQueryData(byLimit, createResults());
+
+    applyFollowResultToProfileCaches(queryClient, {
+      targetUserId: 'target-user',
+      viewerUserId: 'viewer-user',
+      wasFollowing: false,
+    });
+
+    expect(queryClient.getQueryData(byQuery)).toMatchObject({ pages: [{ items: [{ isFollowing: true }] }] });
+    expect(queryClient.getQueryData(byLimit)).toMatchObject({ pages: [{ items: [{ isFollowing: true }] }] });
+  });
 });

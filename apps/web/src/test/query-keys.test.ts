@@ -43,6 +43,15 @@ describe('queryKeys', () => {
     expect(queryKeys.search.users('jane', 10).slice(0, prefix.length)).toEqual([...prefix]);
   });
 
+  it('keeps every user search result under one prefix regardless of query and limit', () => {
+    // 팔로우 상태는 검색어·limit과 무관하게 모든 사용자 검색 결과에 함께 반영돼야 한다.
+    const prefix = queryKeys.search.userLists;
+
+    expect(prefix).toEqual(['search', 'users']);
+    expect(queryKeys.search.users('jane', 10).slice(0, prefix.length)).toEqual([...prefix]);
+    expect(queryKeys.search.users('john', 20).slice(0, prefix.length)).toEqual([...prefix]);
+  });
+
   it('keeps both profile post keys under the shared profiles prefix', () => {
     const prefix = queryKeys.posts.profiles;
 
