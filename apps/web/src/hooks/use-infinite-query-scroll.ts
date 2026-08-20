@@ -5,7 +5,6 @@ import { useInfiniteQuery, useQueryClient, type QueryKey } from '@tanstack/react
 import { useInView } from 'react-intersection-observer';
 
 const EMPTY_ITEMS: never[] = [];
-const SCROLL_SPINNER_DELAY_MS = 300;
 
 interface Params<TItem, TCursor, TPage> {
   queryKey: QueryKey;
@@ -17,8 +16,6 @@ interface Params<TItem, TCursor, TPage> {
   initialItems?: TItem[];
   dedupeItems?: (items: TItem[]) => TItem[];
 }
-
-const delay = () => new Promise((resolve) => window.setTimeout(resolve, SCROLL_SPINNER_DELAY_MS));
 
 export default function useInfiniteQueryScroll<TItem, TCursor, TPage>({
   queryKey,
@@ -63,7 +60,7 @@ export default function useInfiniteQueryScroll<TItem, TCursor, TPage>({
 
   // query는 렌더마다 새 객체라 의존성에 두면 loadMore가 매 렌더 새 참조가 되고, 아래 effect가 매 렌더 재실행된다.
   const fetchNextPage = query.fetchNextPage;
-  // isFetchingNextPage는 검사 시점과 사용 시점 사이에 지연이 끼어 가드 역할을 하지 못한다.
+  // 요청 상태(isFetchingNextPage)는 갱신 시점이 늦어 가드로 쓸 수 없다. ref로 동기적으로 잠근다.
   const isLoadingMoreRef = useRef(false);
 
   const loadMore = useCallback(async () => {
@@ -73,7 +70,6 @@ export default function useInfiniteQueryScroll<TItem, TCursor, TPage>({
     isLoadingMoreRef.current = true;
 
     try {
-      await delay();
       await fetchNextPage();
     } finally {
       isLoadingMoreRef.current = false;
