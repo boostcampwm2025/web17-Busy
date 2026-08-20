@@ -24,7 +24,7 @@ export default function FeedView({ initialPost }: FeedViewProps) {
     }
   }, [initialPost, openModal]);
 
-  const { posts, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useFeedInfiniteScroll({
     queryKey: queryKeys.posts.feed(initialPost ? { initialPostId: initialPost.id } : undefined),
     fetchFn: getFeedPosts,
     initialData: initialPost ? [initialPost] : [],
@@ -34,7 +34,7 @@ export default function FeedView({ initialPost }: FeedViewProps) {
 
   return (
     <>
-      <FeedList posts={posts} />
+      <FeedList posts={items} />
       {errorMsg && (
         <div className="text-center">
           <p>{errorMsg}</p>

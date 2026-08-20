@@ -9,6 +9,7 @@ import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, type MouseEvent } from 'react';
 import { useInfiniteScroll } from '@/hooks';
+import { queryKeys } from '@/api';
 
 interface UserListModalProps {
   title: string;
@@ -31,16 +32,10 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
     [profileUserId, fetchFn],
   );
 
-  const { items, setItems, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
-    queryKey: ['user-list', title, profileUserId],
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
+    queryKey: queryKeys.users.list(title, profileUserId),
     fetchFn: fetchUsers,
   });
-
-  /** 팔로우/언팔로우 후 사용자 목록 상태 업데이트 함수 */
-  const handleFollowActionComplete = (updatedUserId: string) => {
-    // 모달의 사용자 목록 로컬 상태 업데이트
-    setItems((prevItems) => prevItems.map((user) => (user.id === updatedUserId ? { ...user, isFollowing: !user.isFollowing } : user)));
-  };
 
   /** 프로필 클릭 시 해당 프로필 페이지 내비게이션 함수 */
   const handleProfileClick = (profileUserId: string) => {
@@ -97,13 +92,8 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
                       </div>
 
                       {/* 사용자별 액션 버튼 */}
-                      <ProfileActionButton
-                        loggedInUserId={loggedInUserId}
-                        profileUserId={user.id}
-                        isFollowing={user.isFollowing}
-                        renderIn="modal"
-                        onFollowActionComplete={() => handleFollowActionComplete(user.id)}
-                      />
+                      {/* 팔로우 결과는 mutation이 query cache에 반영하므로 목록이 자동으로 갱신된다. */}
+                      <ProfileActionButton loggedInUserId={loggedInUserId} profileUserId={user.id} isFollowing={user.isFollowing} renderIn="modal" />
                     </li>
                   );
                 })}

@@ -11,16 +11,9 @@ interface ProfileActionButtonProps {
   profileUserId: string;
   isFollowing: boolean;
   renderIn: 'page' | 'modal';
-  onFollowActionComplete?: () => void;
 }
 
-export default function ProfileActionButton({
-  loggedInUserId,
-  profileUserId,
-  isFollowing,
-  renderIn = 'page',
-  onFollowActionComplete,
-}: ProfileActionButtonProps) {
+export default function ProfileActionButton({ loggedInUserId, profileUserId, isFollowing, renderIn = 'page' }: ProfileActionButtonProps) {
   const { mutate: follow, isPending: isFollowPending } = useProfileFollowMutation();
 
   // ⚠️ 리캡 기능 구현 이후 삭제 예정 - '준비중' 안내 임시 처리
@@ -35,7 +28,7 @@ export default function ProfileActionButton({
 
   const BUTTON_TEXT = isFollowing ? '팔로잉' : '팔로우';
 
-  /** 팔로우 액션 처리 핸들러 (서버 요청 -> 상태 업데이트) */
+  /** 팔로우 액션 처리 핸들러 (서버 요청 -> query cache 갱신은 mutation이 담당) */
   const handleFollowAction = useCallback(() => {
     follow(
       {
@@ -44,11 +37,10 @@ export default function ProfileActionButton({
         wasFollowing: isFollowing,
       },
       {
-        onSuccess: () => onFollowActionComplete?.(),
         onError: () => toast.error(`요청 처리에 실패했습니다.`),
       },
     );
-  }, [follow, profileUserId, loggedInUserId, isFollowing, onFollowActionComplete]);
+  }, [follow, profileUserId, loggedInUserId, isFollowing]);
 
   // 내 프로필이면 -> 프로필 페이지에서는 리캡 생성 버튼, 모달에서는 버튼 필요 x
   if (isMyProfile) {
