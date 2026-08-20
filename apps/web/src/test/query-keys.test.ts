@@ -24,6 +24,15 @@ describe('queryKeys', () => {
     expect(queryKeys.posts.profileFull('user-1')).not.toEqual(queryKeys.posts.profile('user-1'));
   });
 
+  it('separates follower and following lists while keeping them under one prefix', () => {
+    const prefix = queryKeys.users.lists;
+
+    expect(queryKeys.users.list('팔로워', 'user-1')).toEqual(['user-list', '팔로워', 'user-1']);
+    expect(queryKeys.users.list('팔로워', 'user-1')).not.toEqual(queryKeys.users.list('팔로잉', 'user-1'));
+    expect(queryKeys.users.list('팔로워', 'user-1').slice(0, prefix.length)).toEqual([...prefix]);
+    expect(queryKeys.users.list('팔로잉', 'user-1').slice(0, prefix.length)).toEqual([...prefix]);
+  });
+
   it('keeps both profile post keys under the shared profiles prefix', () => {
     const prefix = queryKeys.posts.profiles;
 
