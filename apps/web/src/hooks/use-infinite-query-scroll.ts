@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useInfiniteQuery, useQueryClient, type QueryKey } from '@tanstack/react-query';
+import { useInfiniteQuery, type QueryKey } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 
 const EMPTY_ITEMS: never[] = [];
@@ -27,10 +27,9 @@ export default function useInfiniteQueryScroll<TItem, TCursor, TPage>({
   initialItems,
   dedupeItems,
 }: Params<TItem, TCursor, TPage>) {
-  const queryClient = useQueryClient();
   const { ref, inView: isInView } = useInView({ threshold: 0.8, rootMargin: '200px' });
+  // 첫 렌더의 initialItems를 고정한다. 이후 호출부가 새 배열을 넘겨도 목록이 흔들리지 않는다.
   const [initialItemsSnapshot] = useState<TItem[]>(() => initialItems ?? []);
-  const [items, setItems] = useState<TItem[]>(initialItemsSnapshot);
 
   const query = useInfiniteQuery<TPage, Error, TPage[], QueryKey, TCursor | undefined>({
     queryKey,
@@ -43,18 +42,13 @@ export default function useInfiniteQueryScroll<TItem, TCursor, TPage>({
 
   const pages = query.data ?? EMPTY_ITEMS;
 
-  const queryItems = useMemo(() => {
+  // query cache에서 바로 파생시킨다. 로컬 state로 복사하면 cache와 어긋날 수 있다.
+  const items = useMemo(() => {
     const merged = [...initialItemsSnapshot, ...pages.flatMap(selectItems)];
     return dedupeItems ? dedupeItems(merged) : merged;
   }, [dedupeItems, initialItemsSnapshot, pages, selectItems]);
 
-  useEffect(() => {
-    setItems(queryItems);
-  }, [queryItems]);
-
-  const lastPage = pages.at(-1);
   const hasNext = query.hasNextPage;
-  const nextCursor = lastPage ? getNextCursor(lastPage) : undefined;
   const initialError = query.isError && pages.length === 0 ? query.error : null;
   const errorMsg = query.isError ? '오류가 발생했습니다.' : null;
 
@@ -83,21 +77,13 @@ export default function useInfiniteQueryScroll<TItem, TCursor, TPage>({
     void loadMore();
   }, [isInView, loadMore, pages.length]);
 
-  const reset = useCallback(() => {
-    setItems(initialItemsSnapshot);
-    void queryClient.resetQueries({ queryKey });
-  }, [initialItemsSnapshot, queryClient, queryKey]);
-
   return {
     items,
-    setItems,
     hasNext,
-    nextCursor,
     isLoading: query.isFetchingNextPage,
     isInitialLoading: query.isLoading,
     initialError,
     errorMsg,
     ref,
-    reset,
   };
 }
