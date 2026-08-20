@@ -12,9 +12,8 @@ interface InfiniteResponse<T> {
 
 interface UseInfiniteScrollParams<T> {
   fetchFn: (cursor?: string, limit?: number) => Promise<InfiniteResponse<T>>;
-  queryKey?: QueryKey;
-  /** query 변경 등으로 목록을 초기화해야 할 때 사용 */
-  resetKey?: string;
+  /** 목록마다 고유해야 한다. 값이 바뀌면 새 query가 되어 목록이 처음부터 다시 로드된다. */
+  queryKey: QueryKey;
   enabled?: boolean;
 }
 
@@ -22,9 +21,9 @@ const selectItems = <T>(page: InfiniteResponse<T>) => page.items;
 const getHasNext = <T>(page: InfiniteResponse<T>) => page.hasNext;
 const getNextCursor = <T>(page: InfiniteResponse<T>) => page.nextCursor;
 
-export default function useInfiniteScroll<T>({ fetchFn, queryKey, resetKey, enabled = true }: UseInfiniteScrollParams<T>) {
+export default function useInfiniteScroll<T>({ fetchFn, queryKey, enabled = true }: UseInfiniteScrollParams<T>) {
   return useInfiniteQueryScroll<T, string, InfiniteResponse<T>>({
-    queryKey: queryKey ?? ['infinite-scroll', resetKey ?? 'default'],
+    queryKey,
     fetchPage: fetchFn,
     selectItems,
     getHasNext,
