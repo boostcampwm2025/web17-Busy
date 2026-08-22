@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { LikedUserDto } from '@repo/dto';
+
 import { getLikedUsers } from '@/api/internal';
+import { queryKeys } from '@/api/queryKeys';
 
 type Result = {
   users: LikedUserDto[];
@@ -11,43 +13,31 @@ type Result = {
   refetch: () => void;
 };
 
+const EMPTY_USERS: LikedUserDto[] = [];
+const ERROR_MESSAGE = '좋아요 목록을 불러오지 못했습니다.';
+
+/**
+ * 게시글의 좋아요 사용자 목록.
+ *
+ * `usePostLikeMutation`이 좋아요/취소 때마다 `queryKeys.posts.likedUsers`를 invalidate한다.
+ * 이 훅이 같은 key를 구독해야 그 invalidate가 실제 재조회로 이어진다.
+ */
 export default function useLikedUsers({ enabled, postId }: { enabled: boolean; postId: string }): Result {
-  const [users, setUsers] = useState<LikedUserDto[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [tick, setTick] = useState(0);
+  const isEnabled = enabled && Boolean(postId);
 
-  const refetch = () => setTick((v) => v + 1);
+  const query = useQuery({
+    queryKey: queryKeys.posts.likedUsers(postId),
+    queryFn: () => getLikedUsers(postId),
+    enabled: isEnabled,
+    // 목록에 '다시 시도' 버튼이 있다. 재시도로 에러 표시가 늦어지지 않게 한다.
+    retry: false,
+  });
 
-  useEffect(() => {
-    if (!enabled) return;
-    if (!postId) return;
-
-    let alive = true;
-
-    const run = async () => {
-      setIsLoading(true);
-      setErrorMsg(null);
-
-      try {
-        const data = await getLikedUsers(postId);
-        if (!alive) return;
-        setUsers(Array.isArray(data) ? data : []);
-      } catch {
-        if (!alive) return;
-        setUsers([]);
-        setErrorMsg('좋아요 목록을 불러오지 못했습니다.');
-      } finally {
-        if (alive) setIsLoading(false);
-      }
-    };
-
-    void run();
-
-    return () => {
-      alive = false;
-    };
-  }, [enabled, postId, tick]);
-
-  return { users, isLoading, errorMsg, refetch };
+  return {
+    // 재조회가 실패하면 이전 목록을 남기지 않는다. 화면은 에러와 '다시 시도'만 보여준다.
+    users: query.isError ? EMPTY_USERS : (query.data ?? EMPTY_USERS),
+    isLoading: isEnabled && query.isPending,
+    errorMsg: query.isError ? ERROR_MESSAGE : null,
+    refetch: () => void query.refetch(),
+  };
 }
