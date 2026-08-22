@@ -17,12 +17,27 @@ export const patchPlaylistDetailInCache = (queryClient: QueryClient, playlistId:
   });
 };
 
+/** 낙관적 갱신 직전에 진행 중인 재조회를 멈춘다. 응답이 늦게 도착해 갱신을 덮어쓰는 것을 막는다. */
+export const cancelPlaylistDetailQueries = (queryClient: QueryClient, playlistId: string) =>
+  queryClient.cancelQueries({ queryKey: queryKeys.playlists.detail(playlistId) });
+
+/** 낙관적 갱신 전 상태. 실패하면 이 값으로 되돌린다. */
+export const getPlaylistDetailSnapshot = (queryClient: QueryClient, playlistId: string) =>
+  queryClient.getQueryData<PlaylistDetail>(queryKeys.playlists.detail(playlistId));
+
 /**
- * 낙관적 갱신이 실패했을 때 서버 값을 다시 읽어 온다.
- * 로컬 state와 달리 cache는 모달을 닫아도 남으므로, 틀린 값을 그대로 두면 다음에 열 때도 보인다.
+ * 낙관적 갱신을 되돌린다.
+ * cache는 모달을 닫아도 남으므로, 실패한 값을 그대로 두면 다음에 열 때도 보인다.
  */
-export const invalidatePlaylistDetailCache = (queryClient: QueryClient, playlistId: string) =>
-  queryClient.invalidateQueries({ queryKey: queryKeys.playlists.detail(playlistId) });
+export const restorePlaylistDetailSnapshot = (queryClient: QueryClient, playlistId: string, snapshot: PlaylistDetail | undefined) => {
+  queryClient.setQueryData(queryKeys.playlists.detail(playlistId), snapshot);
+};
+
+/** 편집 결과를 서버 값으로 확정한다. 목록의 곡 수·커버도 함께 바뀌므로 상세와 목록을 같이 무효화한다. */
+export const invalidatePlaylistCaches = (queryClient: QueryClient, playlistId: string) => {
+  void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.detail(playlistId) });
+};
 
 /**
  * 삭제된 플레이리스트의 상세 cache를 버린다.
