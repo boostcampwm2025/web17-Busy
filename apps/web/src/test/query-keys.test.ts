@@ -69,6 +69,14 @@ describe('queryKeys', () => {
     expect(queryKeys.search.youtube('jazz')).not.toEqual(queryKeys.search.youtube('rock'));
   });
 
+  it('keeps the recent consents key under the consents prefix', () => {
+    const prefix = queryKeys.consents.all;
+
+    expect(prefix).toEqual(['consents']);
+    expect(queryKeys.consents.recent).toEqual(['consents', 'recent']);
+    expect(queryKeys.consents.recent.slice(0, prefix.length)).toEqual([...prefix]);
+  });
+
   it('keeps external search keys apart from user search keys', () => {
     const userPrefix = queryKeys.search.userLists;
 
