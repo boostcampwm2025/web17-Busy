@@ -11,6 +11,13 @@ export type QueryCacheSnapshot = QueryCacheSnapshotEntry[];
 const getPostCacheKeys = (postId: string): QueryKey[] => [queryKeys.posts.detail(postId), queryKeys.posts.feed(), queryKeys.posts.profiles];
 const getPostListCacheKeys = (): QueryKey[] => [queryKeys.posts.feed(), queryKeys.posts.profiles];
 
+/**
+ * 게시글 cache는 형태마다 식별자 필드가 다르다.
+ * 피드·상세·모바일 프로필 피드는 `PostResponseDto`라 `id`를, 프로필 격자는 `PostPreviewDto`라 `postId`를 쓴다.
+ * 한쪽만 보면 다른 쪽 cache에서 아무 항목도 찾지 못한 채 조용히 통과한다.
+ */
+const isTargetPost = (record: Record<string, unknown>, postId: string) => record.id === postId || record.postId === postId;
+
 export const applyPostPatchToUnknown = (value: unknown, postId: string, patch: PostPatch): unknown => {
   if (!value || typeof value !== 'object') return value;
 
@@ -20,7 +27,7 @@ export const applyPostPatchToUnknown = (value: unknown, postId: string, patch: P
 
   const record = value as Record<string, unknown>;
 
-  if (record.id === postId) {
+  if (isTargetPost(record, postId)) {
     return { ...record, ...patch };
   }
 
@@ -52,8 +59,8 @@ export const removePostFromUnknown = (value: unknown, postId: string): unknown =
   if (!value || typeof value !== 'object') return value;
 
   if (Array.isArray(value)) {
+    // 대상 항목은 아래에서 undefined로 돌아오므로, 여기서는 그 결과만 걸러낸다.
     return value.reduce<unknown[]>((acc, item) => {
-      if (item && typeof item === 'object' && (item as Record<string, unknown>).id === postId) return acc;
       const next = removePostFromUnknown(item, postId);
       if (next !== undefined) acc.push(next);
       return acc;
@@ -62,7 +69,7 @@ export const removePostFromUnknown = (value: unknown, postId: string): unknown =
 
   const record = value as Record<string, unknown>;
 
-  if (record.id === postId) return undefined;
+  if (isTargetPost(record, postId)) return undefined;
 
   if (Array.isArray(record.posts)) {
     return {
