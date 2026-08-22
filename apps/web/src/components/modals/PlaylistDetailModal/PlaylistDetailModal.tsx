@@ -4,22 +4,30 @@ import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic } 
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES, MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
 import { Header, SearchDropdown, SongList, Toolbar } from './components';
-import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist, queryKeys } from '@/api';
-import { invalidatePlaylistDetailCache, patchPlaylistDetailInCache, removePlaylistDetailCache, usePlaylistDetailQuery } from '@/hooks';
+import {
+  useAddPlaylistSongMutation,
+  useDeletePlaylistMutation,
+  usePlaylistDetailQuery,
+  usePlaylistSongsMutation,
+  useRenamePlaylistMutation,
+} from '@/hooks';
 import { reorder } from '@/utils';
 import { toast } from 'react-toastify';
-import { useQueryClient } from '@tanstack/react-query';
 
 export default function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
-  const queryClient = useQueryClient();
   const { closeModal } = useModalStore();
 
   const addToQueue = usePlayerStore((s) => s.addToQueue);
   const selectMusic = usePlayerStore((s) => s.selectMusic);
 
   const { data: playlist, isError } = usePlaylistDetailQuery(playlistId);
-  // 로컬 state로 복사하지 않는다. 편집 결과는 cache를 갱신해 여기로 되돌아온다.
+  // 로컬 state로 복사하지 않는다. 편집 결과는 mutation이 cache를 갱신해 여기로 되돌아온다.
   const songs: SavedMusic[] = playlist?.musics ?? [];
+
+  const { mutate: replaceSongs } = usePlaylistSongsMutation({ playlistId });
+  const { mutate: addSong } = useAddPlaylistSongMutation({ playlistId });
+  const { mutate: renamePlaylist } = useRenamePlaylistMutation({ playlistId });
+  const { mutate: removePlaylist } = useDeletePlaylistMutation({ playlistId, onDeleted: closeModal });
 
   const [selectedSongIds, setSelectedSongIds] = useState<Set<string>>(new Set());
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -32,14 +40,6 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     if (!isError) return;
     toast.error('플레이리스트 정보를 불러오지 못했습니다.');
   }, [isError]);
-
-  /** 낙관적으로 고친 곡 목록을 서버 값으로 되돌린다. cache는 모달을 닫아도 남으므로 실패를 방치하지 않는다. */
-  const rollbackPlaylistDetail = () => invalidatePlaylistDetailCache(queryClient, playlistId);
-
-  const invalidatePlaylistQueries = async () => {
-    await queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
-    await invalidatePlaylistDetailCache(queryClient, playlistId);
-  };
 
   const onPlayTotalSongs = () => {
     if (songs.length > 0) {
@@ -56,36 +56,23 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     setSelectedSongIds(newSelected);
   };
 
-  const requestChangeOrder = async (nextSongs: SavedMusic[]) => {
-    try {
-      const songIds = nextSongs.map((s) => s.id);
-      await changeMusicOrderOfPlaylist(playlistId, songIds); // playlist.id?
-      await invalidatePlaylistQueries();
-    } catch (e) {
-      toast.error('변경사항 반영에 실패했습니다.');
-      console.error(e);
-      await rollbackPlaylistDetail();
-    }
+  /** 낙관적 반영과 실패 시 롤백은 mutation이 담당한다. 여기서는 바뀐 목록만 넘긴다. */
+  const requestChangeOrder = (nextSongs: SavedMusic[]) => {
+    replaceSongs(nextSongs, { onError: () => toast.error('변경사항 반영에 실패했습니다.') });
   };
 
-  const deleteSelectedSongs = async () => {
-    // 낙관적 업데이트
+  const deleteSelectedSongs = () => {
     const nextSongs = songs.filter((s) => !selectedSongIds.has(s.id));
-    patchPlaylistDetailInCache(queryClient, playlistId, { musics: nextSongs });
     setSelectedSongIds(new Set());
 
-    await requestChangeOrder(nextSongs);
+    requestChangeOrder(nextSongs);
   };
 
-  const moveSong = async (index: number, direction: 'up' | 'down') => {
-    // 낙관적 업데이트
-    const nextSongs = reorder(songs, index, direction);
-    patchPlaylistDetailInCache(queryClient, playlistId, { musics: nextSongs });
-
-    await requestChangeOrder(nextSongs);
+  const moveSong = (index: number, direction: 'up' | 'down') => {
+    requestChangeOrder(reorder(songs, index, direction));
   };
 
-  const moveSongTo = async (from: number, to: number) => {
+  const moveSongTo = (from: number, to: number) => {
     if (from === to) return;
     if (from < 0 || from >= songs.length) return;
     if (to < 0 || to >= songs.length) return;
@@ -95,20 +82,11 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     if (!item) return;
     nextSongs.splice(to, 0, item);
 
-    patchPlaylistDetailInCache(queryClient, playlistId, { musics: nextSongs });
-    await requestChangeOrder(nextSongs);
+    requestChangeOrder(nextSongs);
   };
 
-  const handleAddSong = async (song: UnsavedMusic) => {
-    try {
-      // 낙관적 업데이트 x - song id가 필요해서 안 됨
-      const { addedMusics } = await addMusicsToPlaylist(playlistId, [song]);
-      patchPlaylistDetailInCache(queryClient, playlistId, { musics: [...songs, ...addedMusics] });
-      await invalidatePlaylistQueries();
-    } catch (e) {
-      toast.error('곡 추가에 실패했습니다.');
-      console.error(e);
-    }
+  const handleAddSong = (song: UnsavedMusic) => {
+    addSong(song, { onError: () => toast.error('곡 추가에 실패했습니다.') });
   };
 
   const startRename = () => {
@@ -121,7 +99,7 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
     return title.trim().length <= MAX_PLAYLIST_TITLE_LENGTH;
   };
 
-  const commitRename = async () => {
+  const commitRename = () => {
     if (!playlist) return;
     if (isInvalidTitle) return;
 
@@ -131,15 +109,9 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
       setDraftTitle(playlist.title);
       return;
     }
-    try {
-      await editTitleOfPlaylist(playlistId, nextTitle);
-      patchPlaylistDetailInCache(queryClient, playlistId, { title: nextTitle });
-      setIsEditingTitle(false);
-      await invalidatePlaylistQueries();
-    } catch (e) {
-      toast.error('플레이리스트 이름 변경에 실패했습니다.');
-      console.error(e);
-    }
+
+    setIsEditingTitle(false);
+    renamePlaylist(nextTitle, { onError: () => toast.error('플레이리스트 이름 변경에 실패했습니다.') });
   };
 
   const cancelRename = () => {
@@ -198,18 +170,9 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
           confirmLabel="삭제"
           cancelLabel="취소"
           onCancel={() => setConfirmOpen(false)}
-          onConfirm={async () => {
-            try {
-              setConfirmOpen(false);
-              await deletePlaylist(playlistId);
-              // 상세 cache를 버리기 전에 모달을 닫는다. 구독자가 남아 있으면 없어진 플레이리스트를 다시 조회한다.
-              closeModal();
-              await queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
-              removePlaylistDetailCache(queryClient, playlistId);
-            } catch (e) {
-              toast.error('플레이리스트 삭제에 실패했습니다.');
-              console.error(e);
-            }
+          onConfirm={() => {
+            setConfirmOpen(false);
+            removePlaylist(undefined, { onError: () => toast.error('플레이리스트 삭제에 실패했습니다.') });
           }}
         />
       </div>
