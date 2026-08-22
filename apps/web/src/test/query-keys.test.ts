@@ -58,4 +58,21 @@ describe('queryKeys', () => {
     expect(queryKeys.posts.profile('user-1').slice(0, prefix.length)).toEqual([...prefix]);
     expect(queryKeys.posts.profileFull('user-1').slice(0, prefix.length)).toEqual([...prefix]);
   });
+
+  it('separates external search results by every parameter that changes them', () => {
+    expect(queryKeys.search.itunes('jazz', 20, 'KR')).toEqual(['search', 'itunes', 'jazz', 20, 'KR']);
+    expect(queryKeys.search.itunes('jazz', 20, 'KR')).not.toEqual(queryKeys.search.itunes('rock', 20, 'KR'));
+    expect(queryKeys.search.itunes('jazz', 20, 'KR')).not.toEqual(queryKeys.search.itunes('jazz', 30, 'KR'));
+    expect(queryKeys.search.itunes('jazz', 20, 'KR')).not.toEqual(queryKeys.search.itunes('jazz', 20, 'US'));
+
+    expect(queryKeys.search.youtube('jazz')).toEqual(['search', 'youtube', 'jazz']);
+    expect(queryKeys.search.youtube('jazz')).not.toEqual(queryKeys.search.youtube('rock'));
+  });
+
+  it('keeps external search keys apart from user search keys', () => {
+    const userPrefix = queryKeys.search.userLists;
+
+    expect(queryKeys.search.itunes('jazz', 20, 'KR').slice(0, userPrefix.length)).not.toEqual([...userPrefix]);
+    expect(queryKeys.search.youtube('jazz').slice(0, userPrefix.length)).not.toEqual([...userPrefix]);
+  });
 });
