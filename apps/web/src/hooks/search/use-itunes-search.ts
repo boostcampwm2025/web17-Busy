@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { searchItunesSongs } from '@/api/itunes/searchSongs';
+import { queryKeys } from '@/api/queryKeys';
 import { ITUNES_SEARCH } from '@/constants/search';
 import { itunesSongToMusic } from '@/mappers/itunesSongToMusic';
-import type { SearchStatus } from '@/types/search';
-import useDebouncedValue from '@/hooks/useDebouncedValue';
+
+import { useExternalSearchQuery, type ExternalSearchResult } from './use-external-search-query';
 
 type Options = {
   query: string;
@@ -16,13 +15,6 @@ type Options = {
   minQueryLength?: number;
   limit?: number;
   country?: typeof ITUNES_SEARCH.COUNTRY;
-};
-
-type Result = {
-  status: SearchStatus;
-  results: Music[];
-  errorMessage: string | null;
-  trimmedQuery: string;
 };
 
 const filterPlayable = (musics: Music[]): Music[] => musics.filter((m) => m.trackUri.trim().length > 0);
@@ -34,69 +26,17 @@ export default function useItunesSearch({
   minQueryLength = ITUNES_SEARCH.MIN_QUERY_LENGTH,
   limit = ITUNES_SEARCH.DEFAULT_LIMIT,
   country = ITUNES_SEARCH.COUNTRY,
-}: Options): Result {
-  const debounced = useDebouncedValue(query, debounceMs);
-  const trimmedQuery = useMemo(() => debounced.trim(), [debounced]);
+}: Options): ExternalSearchResult {
+  return useExternalSearchQuery({
+    query,
+    enabled,
+    debounceMs,
+    minQueryLength,
+    buildQueryKey: (trimmedQuery) => queryKeys.search.itunes(trimmedQuery, limit, country),
+    fetchResults: async (trimmedQuery, signal) => {
+      const data = await searchItunesSongs({ keyword: trimmedQuery, limit, country, signal });
 
-  const [status, setStatus] = useState<SearchStatus>('idle');
-  const [results, setResults] = useState<Music[]>([]);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const abortRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    abortRef.current?.abort();
-    abortRef.current = null;
-
-    if (!enabled || trimmedQuery.length === 0 || trimmedQuery.length < minQueryLength) {
-      setStatus('idle');
-      setResults([]);
-      setErrorMessage(null);
-      return;
-    }
-
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    setStatus('loading');
-    setErrorMessage(null);
-
-    let isAlive = true;
-
-    const run = async () => {
-      try {
-        const data = await searchItunesSongs({
-          keyword: trimmedQuery,
-          limit,
-          country,
-          signal: controller.signal,
-        });
-
-        const mapped = filterPlayable(data.results.map(itunesSongToMusic));
-
-        if (!isAlive) return;
-
-        setResults(mapped);
-        setStatus(mapped.length > 0 ? 'success' : 'empty');
-      } catch (e) {
-        if (!isAlive) return;
-
-        const err = e as { name?: string; message?: string };
-        if (err?.name === 'AbortError') return;
-
-        setResults([]);
-        setStatus('error');
-        setErrorMessage(err?.message ?? '검색 중 오류가 발생했습니다.');
-      }
-    };
-
-    void run();
-
-    return () => {
-      isAlive = false;
-      controller.abort();
-    };
-  }, [enabled, trimmedQuery, minQueryLength, limit, country]);
-
-  return { status, results, errorMessage, trimmedQuery };
+      return filterPlayable(data.results.map(itunesSongToMusic));
+    },
+  });
 }
