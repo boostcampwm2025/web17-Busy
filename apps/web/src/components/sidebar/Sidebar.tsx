@@ -6,7 +6,8 @@ import { LogIn, LogOut, Menu, Plus } from 'lucide-react';
 
 import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
-import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
+import { useModalStore, MODAL_TYPES } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useNotificationsQuery, useResizable } from '@/hooks';
 
 import Drawer from './Drawer';
@@ -26,9 +27,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const { openModal } = useModalStore();
-  const userId = useAuthStore((s) => s.userId);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isLoading = useAuthStore((s) => s.isLoading);
+  const { userId, isAuthenticated, isLoading } = useAuthMe();
 
   const { unreadCount: unreadNotiCount } = useNotificationsQuery();
 
