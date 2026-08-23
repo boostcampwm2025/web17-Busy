@@ -16,13 +16,12 @@ import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
 import { LoadingSpinner, PostMedia } from '@/components';
 import { coalesceImageSrc } from '@/utils';
 import { toast } from 'react-toastify';
-import { updatePost } from '@/api';
+import { useUpdatePostMutation } from '@/hooks/post/use-post-mutations';
 
 import { PostDetailBody, PostDetailActions, PostDetailCommentComposer, LikedUsersOverlay } from './partials';
 
 // UX 로그
-import { enqueueLog } from '@/utils/logQueue';
-import { makePostDetailLog } from '@/api/internal/logging';
+import { enqueuePostDetailSummary } from '@/hooks/post/post-detail-log';
 
 export const PostCardDetailModal = () => {
   const { userId } = useAuthMe();
@@ -43,7 +42,8 @@ export const PostCardDetailModal = () => {
     if (!postId) closeModal();
   }, [enabled, postId, closeModal]);
 
-  const { post, isLoading, error, updatePostContent } = usePostDetail({ enabled, postId, passedPost });
+  const { post, isLoading, error } = usePostDetail({ enabled, postId, passedPost });
+  const updatePostMutation = useUpdatePostMutation({ postId: postId ?? '' });
   const isOwner = userId === post?.author.id;
   const safePost = post ?? passedPost ?? EMPTY_POST;
 
@@ -117,11 +117,9 @@ export const PostCardDetailModal = () => {
 
     setIsSaving(true);
     try {
-      await updatePost(postId, { content: editedContent });
+      await updatePostMutation.mutateAsync(editedContent);
       toast.success('게시글을 수정했습니다.');
       setIsEditing(false);
-
-      updatePostContent(editedContent);
     } catch (err) {
       toast.error('게시글 수정에 실패했습니다.');
       console.error('게시글 수정 실패:', err);
@@ -211,14 +209,7 @@ export const PostCardDetailModal = () => {
     const playedMusicCount = playedMusicIdsRef.current.size;
     const listenMsByMusic = listenMsByMusicRef.current;
 
-    enqueueLog(
-      makePostDetailLog({
-        postId,
-        dwellMs,
-        playedMusicCount,
-        listenMsByMusic,
-      }),
-    );
+    enqueuePostDetailSummary({ postId, dwellMs, playedMusicCount, listenMsByMusic });
   }, [userId, postId]);
 
   // emitOnce 가드 (중복 2회 기록 방지)
