@@ -37,7 +37,10 @@ const dedupeById = (musics: Music[]): Music[] => {
 
 export default function PlaylistPickerModal() {
   const queryClient = useQueryClient();
-  const { isOpen, modalType, modalProps, closeModal } = useModalStore();
+  const isOpen = useModalStore((s) => s.isOpen);
+  const modalType = useModalStore((s) => s.modalType);
+  const modalProps = useModalStore((s) => s.modalProps);
+  const closeModal = useModalStore((s) => s.closeModal);
   const enabled = isOpen && modalType === 'PLAYLIST_PICKER';
 
   const musics = enabled ? (modalProps?.musics as Music[] | undefined) : undefined;
