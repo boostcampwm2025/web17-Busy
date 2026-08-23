@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { NotiResponseDto } from '@repo/dto';
 
 import { fetchNotis, queryKeys } from '@/api';
-import { useAuthStore } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 export type NotificationFetchStatus = 'no-login' | 'loading' | 'success' | 'error';
 
@@ -17,8 +17,7 @@ const EMPTY_NOTIFICATIONS: NotiResponseDto[] = [];
 const DEFAULT_ERROR_MESSAGE = '알림을 불러오지 못했습니다.';
 
 export function useNotificationsQuery({ refetchIntervalMs }: Options = {}) {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isAuthLoading = useAuthStore((s) => s.isLoading);
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuthMe();
   const isEnabled = isAuthenticated && !isAuthLoading;
 
   const query = useQuery({
