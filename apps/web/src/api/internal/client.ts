@@ -1,8 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 import { getAppAccessToken } from '@/api/auth-token';
-import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { clearClientSession } from '@/hooks/auth/client/logout';
 
 type AuthMeta = {
   hadAuth: boolean;
@@ -14,16 +12,22 @@ type AuthedConfig = InternalAxiosRequestConfig & {
 };
 
 const AUTH_ME_PATH = '/user/me';
-const SESSION_EXPIRED_CODE = 'session_expired';
+export const SESSION_EXPIRED_CODE = 'session_expired';
 
 const isAuthMeRequest = (cfg?: AuthedConfig): boolean => {
   const url = cfg?.url ?? '';
   return url === AUTH_ME_PATH || url.endsWith(AUTH_ME_PATH);
 };
 
-const isLoginModalOpen = (): boolean => {
-  const s = useModalStore.getState();
-  return s.isOpen && s.modalType === MODAL_TYPES.LOGIN;
+/**
+ * utility 계층인 이 파일이 store/business를 직접 알지 않도록, 세션 만료 처리는
+ * 등록된 콜백에 위임한다. 실제 등록은 component 계층(RootClientEffects)이 한다.
+ */
+type SessionExpiredHandler = () => void;
+let onSessionExpired: SessionExpiredHandler | null = null;
+
+export const registerSessionExpiredHandler = (handler: SessionExpiredHandler) => {
+  onSessionExpired = handler;
 };
 
 /**
@@ -108,11 +112,7 @@ internalClient.interceptors.response.use(
     if (handling401) throw error;
     handling401 = true;
 
-    clearClientSession();
-
-    if (!isLoginModalOpen()) {
-      useModalStore.getState().openModal(MODAL_TYPES.LOGIN, { authError: SESSION_EXPIRED_CODE });
-    }
+    onSessionExpired?.();
 
     window.setTimeout(() => {
       handling401 = false;
