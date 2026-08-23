@@ -1,8 +1,11 @@
 'use client';
 
-import { MODAL_TYPES, useModalStore, usePlayerStore } from '@/stores';
+import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import type { CreateMusicReqDto, MusicResponseDto as Music } from '@repo/dto';
 import { createMusic } from '@/api/internal/music';
+import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api/internal/logging';
+import { enqueueLog } from '@/utils/logQueue';
 
 const isUuid = (v: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 
@@ -15,7 +18,10 @@ const toCreateMusicReqDto = (m: Music): CreateMusicReqDto => ({
   durationMs: m.durationMs,
 });
 
-const normalizeToArray = (v: Music | Music[]): Music[] => (Array.isArray(v) ? v : [v]);
+/** DB upsert로 id가 바뀌기 전에 남긴다. 사용자가 실제로 고른 트랙 id가 기록돼야 한다. */
+const logMusicIds = (tracks: Music[], make: typeof makePostAddMusicLog) => {
+  enqueueLog(make({ musicIds: tracks.map((track) => track.id) }));
+};
 
 /**
  * NOTE:
@@ -57,6 +63,8 @@ export default function useMusicActions() {
 
   /** 작성 모달(단일): DB에 보장 후 initialMusic으로 전달 */
   const openWriteModalWithMusic = async (track: Music) => {
+    logMusicIds([track], makePostAddMusicLog);
+
     const [ensured] = await ensureMusicsInDb([track]);
     if (!ensured) return;
     openModal(MODAL_TYPES.WRITE, { initialMusics: [ensured] });
@@ -64,6 +72,8 @@ export default function useMusicActions() {
 
   /** 보관함 저장(단일): music DB에 보장 후 플레이리스트 선택 모달 오픈 */
   const addMusicToArchive = async (track: Music) => {
+    logMusicIds([track], makeArchiveAddMusicLog);
+
     const [ensured] = await ensureMusicsInDb([track]);
     if (!ensured) return;
     openModal(MODAL_TYPES.PLAYLIST_PICKER, { musics: [ensured] });
@@ -71,6 +81,8 @@ export default function useMusicActions() {
 
   /** 작성 모달(큐 전체) */
   const openWriteModalWithQueue = async (tracks: Music[]) => {
+    logMusicIds(tracks, makePostAddMusicLog);
+
     const ensured = await ensureMusicsInDb(tracks);
     if (ensured.length === 0) return;
     openModal(MODAL_TYPES.WRITE, { initialMusics: ensured });
@@ -78,6 +90,8 @@ export default function useMusicActions() {
 
   /** 보관함 저장(큐 전체) */
   const addQueueToArchive = async (tracks: Music[]) => {
+    logMusicIds(tracks, makeArchiveAddMusicLog);
+
     const ensured = await ensureMusicsInDb(tracks);
     if (ensured.length === 0) return;
     openModal(MODAL_TYPES.PLAYLIST_PICKER, { musics: ensured });
