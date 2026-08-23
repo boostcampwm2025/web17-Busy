@@ -10,7 +10,8 @@ import { NotiDrawerContent } from '@/components/noti';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function MobileNotiOverlay() {
-  const { isOpen, close } = useNotiOverlayStore();
+  const isOpen = useNotiOverlayStore((s) => s.isOpen);
+  const close = useNotiOverlayStore((s) => s.close);
   const [isVisible, setIsVisible] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const isAnimatingClose = useRef(false);
