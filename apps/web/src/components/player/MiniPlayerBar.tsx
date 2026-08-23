@@ -48,7 +48,7 @@ export default function MiniPlayerBar({
    * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
    */
   const { isAuthenticated } = useAuthMe();
-  const { openModal } = useModalStore();
+  const openModal = useModalStore((s) => s.openModal);
 
   /** 보관함 추가와 컨텐츠 생성을 위한 함수  */
   const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();

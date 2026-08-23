@@ -15,7 +15,10 @@ import {
 import { getFollowerUsers, getFollowingUsers } from '@/api';
 
 export default function ModalContainer() {
-  const { isOpen, modalType, modalProps, closeModal } = useModalStore();
+  const isOpen = useModalStore((s) => s.isOpen);
+  const modalType = useModalStore((s) => s.modalType);
+  const modalProps = useModalStore((s) => s.modalProps);
+  const closeModal = useModalStore((s) => s.closeModal);
   const closeModalRef = useRef(closeModal);
   closeModalRef.current = closeModal;
 

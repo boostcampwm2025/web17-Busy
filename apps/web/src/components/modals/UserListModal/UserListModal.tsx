@@ -4,7 +4,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { ProfileActionButton } from '@/components/profile';
 import { DEFAULT_IMAGES } from '@/constants';
 import type { GetUserFollowDto } from '@repo/dto';
-import { useModalStore } from '@/stores';
+import { useModalStore } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -18,7 +18,8 @@ interface UserListModalProps {
 }
 
 export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
-  const { modalProps, closeModal } = useModalStore();
+  const modalProps = useModalStore((s) => s.modalProps);
+  const closeModal = useModalStore((s) => s.closeModal);
   const { profileUserId }: { profileUserId: string } = modalProps;
 
   const router = useRouter();

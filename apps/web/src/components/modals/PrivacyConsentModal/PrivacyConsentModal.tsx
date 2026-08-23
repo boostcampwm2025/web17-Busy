@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 import { PrivacyConsentForm } from './PrivacyConsentForm';
 
 export const PrivacyConsentModal = () => {
-  const { closeModal } = useModalStore();
+  const closeModal = useModalStore((s) => s.closeModal);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">

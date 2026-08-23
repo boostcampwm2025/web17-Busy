@@ -2,7 +2,7 @@
 
 import { Box, Plus } from 'lucide-react';
 
-import { useModalStore, MODAL_TYPES } from '@/stores';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useMusicActions } from '@/hooks';
 import { ContentSearchMode } from '@/types';
 import type { MusicResponseDto as Music } from '@repo/dto';
@@ -15,7 +15,7 @@ interface TrackItemProps {
 }
 
 export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProps) {
-  const { openModal } = useModalStore();
+  const openModal = useModalStore((s) => s.openModal);
 
   /** 재생 / 작성 모달 / 보관함 선택 */
   const { addMusicToPlayer, openWriteModalWithMusic, addMusicToArchive } = useMusicActions();

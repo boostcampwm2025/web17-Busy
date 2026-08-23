@@ -1,5 +1,6 @@
 import { ConfirmOverlay } from '@/components';
-import { useModalStore, usePlayerStore } from '@/stores';
+import { useModalStore } from '@/stores/useModalStore';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic } from '@repo/dto';
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES, MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
@@ -15,7 +16,7 @@ import { reorder } from '@/utils';
 import { toast } from 'react-toastify';
 
 export default function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
-  const { closeModal } = useModalStore();
+  const closeModal = useModalStore((s) => s.closeModal);
 
   const addToQueue = usePlayerStore((s) => s.addToQueue);
   const selectMusic = usePlayerStore((s) => s.selectMusic);

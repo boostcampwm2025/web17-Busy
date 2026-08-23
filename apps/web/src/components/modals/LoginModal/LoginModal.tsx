@@ -11,7 +11,8 @@ type LoginModalProps = {
 };
 
 export const LoginModal = () => {
-  const { closeModal, modalProps } = useModalStore();
+  const closeModal = useModalStore((s) => s.closeModal);
+  const modalProps = useModalStore((s) => s.modalProps);
   const { authError } = (modalProps ?? {}) as LoginModalProps;
   const errorMessage = authError ? getAuthErrorMessage(authError) : undefined;
 

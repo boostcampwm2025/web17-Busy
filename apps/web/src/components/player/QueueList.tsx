@@ -3,7 +3,7 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle, GripVertical } from 'lucide-react';
 import { useMusicActions } from '@/hooks';
-import { useModalStore, MODAL_TYPES } from '@/stores';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import type { DragEvent } from 'react';
 import { useState } from 'react';
@@ -31,7 +31,7 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
   const isEmpty = queue.length === 0;
 
   const { isAuthenticated } = useAuthMe();
-  const { openModal } = useModalStore();
+  const openModal = useModalStore((s) => s.openModal);
 
   const { openWriteModalWithQueue, addQueueToArchive } = useMusicActions();
   const [dragIndex, setDragIndex] = useState<number | null>(null);

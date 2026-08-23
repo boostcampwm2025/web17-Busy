@@ -2,7 +2,7 @@
 
 import { X, Trash2, ChevronUp, ChevronDown, XCircle, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { usePlayerStore } from '@/stores';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
 type MobileQueueRowProps = {
@@ -60,7 +60,9 @@ function MobileQueueRow({ music, index, isCurrent, isFirst, isLast, onPlay, onRe
 }
 
 export default function MobileNowPlaylistModal() {
-  const { isOpen, modalType, closeModal } = useModalStore();
+  const isOpen = useModalStore((s) => s.isOpen);
+  const modalType = useModalStore((s) => s.modalType);
+  const closeModal = useModalStore((s) => s.closeModal);
   const enabled = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
 
   const queue = usePlayerStore((s) => s.queue);

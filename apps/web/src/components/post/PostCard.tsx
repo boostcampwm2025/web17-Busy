@@ -6,7 +6,7 @@ import { PostHeader, PostMedia, PostActions, PostContentPreview } from './index'
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 import { usePostLikeMutation } from '@/hooks';
-import { useModalStore, MODAL_TYPES } from '@/stores';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 interface PostCardProps {
@@ -23,7 +23,7 @@ interface PostCardProps {
 
 export default function PostCard({ post, currentMusicId, isPlayingGlobal, onPlay, onPlayAll, onUserClick, onOpenDetail }: PostCardProps) {
   const { userId, isAuthenticated } = useAuthMe();
-  const { openModal } = useModalStore();
+  const openModal = useModalStore((s) => s.openModal);
 
   const isOwner = post.author.id === userId;
   const likeMutation = usePostLikeMutation({

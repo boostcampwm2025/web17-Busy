@@ -21,7 +21,9 @@ export default function AuthLoginQueryHandler() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const { openModal, isOpen, modalType } = useModalStore();
+  const openModal = useModalStore((s) => s.openModal);
+  const isOpen = useModalStore((s) => s.isOpen);
+  const modalType = useModalStore((s) => s.modalType);
 
   useEffect(() => {
     const hash = window.location.hash;

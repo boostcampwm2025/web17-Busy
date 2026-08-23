@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, FolderOpen } from 'lucide-react';
 
-import { useModalStore } from '@/stores';
+import { useModalStore } from '@/stores/useModalStore';
 import { CoverImgUploader, MusicSearch, SelectedMusicList } from './index';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
@@ -17,7 +17,7 @@ type Props = {
 };
 
 export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
-  const { closeModal } = useModalStore();
+  const closeModal = useModalStore((s) => s.closeModal);
 
   const handleWriteSuccess = () => {
     toast.success('새 글이 등록되었습니다.');
