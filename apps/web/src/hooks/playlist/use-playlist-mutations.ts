@@ -3,7 +3,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { GetPlaylistDetailResDto as PlaylistDetail, MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic } from '@repo/dto';
 
-import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist, queryKeys } from '@/api';
+import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist } from '@/api/internal/playlist';
+import { queryKeys } from '@/api/queryKeys';
 import {
   cancelPlaylistDetailQueries,
   getPlaylistDetailSnapshot,
@@ -114,6 +115,34 @@ export const useDeletePlaylistMutation = ({ playlistId, onDeleted }: DeleteOptio
     onSuccess: () => {
       onDeleted();
 
+      void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+      removePlaylistDetailCache(queryClient, playlistId);
+    },
+  });
+};
+
+/**
+ * 보관함 목록에서 쓴다. 대상이 목록 안에서 정해지므로 playlistId를 호출 시점에 받는다.
+ * 목록만 갱신하면 이미 열어 본 상세 cache가 예전 제목으로 남으므로 상세도 함께 정리한다.
+ */
+export const useRenamePlaylistInListMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ playlistId, title }: { playlistId: string; title: string }) => editTitleOfPlaylist(playlistId, title),
+    onSuccess: (_result, { playlistId, title }) => {
+      patchPlaylistDetailInCache(queryClient, playlistId, { title });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+    },
+  });
+};
+
+export const useDeletePlaylistInListMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (playlistId: string) => deletePlaylist(playlistId),
+    onSuccess: (_result, playlistId) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
       removePlaylistDetailCache(queryClient, playlistId);
     },
