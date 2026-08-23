@@ -1,20 +1,24 @@
-// import { logout as logoutApi } from '@/api/internal/auth';
-import { useSpotifyAuthStore, usePlayerStore, useSpotifyPlayerStore, useModalStore } from '@/stores';
-import { clearGuestQueueSession } from '@/hooks';
+import { useModalStore } from '@/stores/useModalStore';
+import { usePlayerStore } from '@/stores/usePlayerStore';
+import { useSpotifyAuthStore } from '@/stores/useSpotifyAuthStore';
+import { useSpotifyPlayerStore } from '@/stores/useSpotifyPlayerStore';
+import { clearGuestQueueSession } from '@/hooks/queue/useGuestQueueSession';
 import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
 
-export async function performLogout() {
-  // 1) 서버에 쿠키 삭제 요청 (jwt 제거)
-  // await logoutApi(); // 현재는 필요 없음
-  sessionStorage.removeItem(APP_ACCESS_TOKEN_STORAGE_KEY);
+/** 명시적 로그아웃과 401 세션 만료가 같은 절차를 쓰도록 모아 둔 정리 함수. */
+export function clearClientSession() {
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(APP_ACCESS_TOKEN_STORAGE_KEY);
+  }
 
-  // 2) FE 상태 초기화
   useSpotifyAuthStore.getState().clear();
   usePlayerStore.getState().clearQueue();
   useSpotifyPlayerStore.getState().reset();
   useModalStore.getState().closeModal();
   clearGuestQueueSession();
+}
 
-  // 3) 화면 갱신(인증 상태 반영)
+export async function performLogout() {
+  clearClientSession();
   window.location.assign('/');
 }
