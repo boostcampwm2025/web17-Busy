@@ -9,8 +9,6 @@ import type { DragEvent } from 'react';
 import { useState } from 'react';
 
 // UX 로그
-import { enqueueLog } from '@/utils/logQueue';
-import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api/internal/logging';
 
 import { TickerText } from '@/components';
 
@@ -49,9 +47,6 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
     }
     if (isEmpty) return;
 
-    // 큐 전체 보관함 저장 로그
-    enqueueLog(makeArchiveAddMusicLog({ musicIds: queue.map((m) => m.id) }));
-
     await addQueueToArchive(queue);
   };
 
@@ -61,9 +56,6 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
       return;
     }
     if (isEmpty) return;
-
-    // 큐 전체 포스트 추가 로그
-    enqueueLog(makePostAddMusicLog({ musicIds: queue.map((m) => m.id) }));
 
     await openWriteModalWithQueue(queue);
   };
