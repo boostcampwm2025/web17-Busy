@@ -4,8 +4,6 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Pause, Play, Plus, SkipBack, SkipForward, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useMusicActions } from '@/hooks';
-import { enqueueLog } from '@/utils';
-import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 import { TickerText } from '@/components';
@@ -85,9 +83,6 @@ export default function MiniPlayerBar({
     }
     if (!currentMusic) return;
 
-    enqueueLog(makePostAddMusicLog({ musicIds: [currentMusic.id] }));
-
-    // DB upsert 포함(내부 ensureMusicInDb)
     await openWriteModalWithMusic(currentMusic);
   };
 
@@ -98,8 +93,6 @@ export default function MiniPlayerBar({
     }
     if (!currentMusic) return;
 
-    enqueueLog(makeArchiveAddMusicLog({ musicIds: [currentMusic.id] }));
-    // DB upsert 포함(내부 ensureMusicInDb)
     await addMusicToArchive(currentMusic);
   };
 

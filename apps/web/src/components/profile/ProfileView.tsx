@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback } from 'react';
-import { getUserProfilePosts, queryKeys } from '@/api';
-import { useInfiniteScroll, useProfileQuery } from '@/hooks';
+import { useProfileQuery } from '@/hooks';
+import { useProfilePostsQuery } from '@/hooks/post/use-post-list-queries';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { ProfileSkeleton } from '../skeleton';
 import { ProfileInfo } from './ProfileInfo';
@@ -15,19 +14,7 @@ export default function ProfileView({ userId }: { userId: string }) {
 
   const isMyProfile = loggedInUserId === userId;
 
-  /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
-  const fetchProfilePosts = useCallback(
-    async (cursor?: string, limit?: number) => {
-      const data = await getUserProfilePosts(userId, cursor, limit);
-      return data;
-    },
-    [userId],
-  );
-
-  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
-    queryKey: queryKeys.posts.profile(userId),
-    fetchFn: fetchProfilePosts,
-  });
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useProfilePostsQuery(userId);
 
   if (profileQuery.error) throw profileQuery.error;
 

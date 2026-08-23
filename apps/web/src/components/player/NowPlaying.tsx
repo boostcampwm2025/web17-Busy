@@ -5,8 +5,6 @@ import { useMusicActions } from '@/hooks';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { enqueueLog } from '@/utils';
-import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api';
 
 import { NowPlayingCoverPlayback, NowPlayingProgressTick, NowPlayingMetaActions, NowPlayingControlsStatic, PlaybackProvider } from './index';
 
@@ -60,7 +58,6 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
     }
     if (!currentMusic) return;
 
-    enqueueLog(makePostAddMusicLog({ musicIds: [currentMusic.id] }));
     await openWriteModalWithMusic(currentMusic);
   }, [isAuthenticated, openModal, currentMusic, openWriteModalWithMusic]);
 
@@ -71,7 +68,6 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
     }
     if (!currentMusic) return;
 
-    enqueueLog(makeArchiveAddMusicLog({ musicIds: [currentMusic.id] }));
     await addMusicToArchive(currentMusic);
   }, [isAuthenticated, openModal, currentMusic, addMusicToArchive]);
 

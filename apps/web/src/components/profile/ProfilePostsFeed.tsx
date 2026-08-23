@@ -1,11 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
-import { getUserProfileFeedPosts, queryKeys } from '@/api';
-import { useInfiniteScroll } from '@/hooks';
+import { useProfileFeedPostsQuery } from '@/hooks/post/use-post-list-queries';
 import useIsMobile from '@/hooks/useIsMobile';
 import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
 import { PostCard } from '@/components';
@@ -35,12 +34,7 @@ export default function ProfilePostsFeed({ userId, initialPostId }: Props) {
   const pageRef = useRef<HTMLDivElement>(null);
   const swipe = useRef({ startX: 0, startY: 0, isHorizontal: null as boolean | null });
 
-  const fetchFn = useCallback((cursor?: string) => getUserProfileFeedPosts(userId, cursor), [userId]);
-
-  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
-    queryKey: queryKeys.posts.profileFull(userId),
-    fetchFn,
-  });
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useProfileFeedPostsQuery(userId);
 
   // 초기 로드 완료 후 클릭했던 게시글로 스크롤
   useEffect(() => {
