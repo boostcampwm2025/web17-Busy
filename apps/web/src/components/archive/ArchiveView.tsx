@@ -2,15 +2,15 @@
 
 import { PlaylistItem } from './PlaylistItems';
 import ArchiveViewHeader from './ArchiveViewHeader';
-import { deletePlaylist, editTitleOfPlaylist, queryKeys } from '@/api';
 import { usePlaylistsQuery } from '@/hooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { useDeletePlaylistInListMutation, useRenamePlaylistInListMutation } from '@/hooks/playlist/use-playlist-mutations';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 export default function ArchiveView() {
-  const queryClient = useQueryClient();
   const { data: playlists = [], isError } = usePlaylistsQuery();
+  const renamePlaylist = useRenamePlaylistInListMutation();
+  const deletePlaylist = useDeletePlaylistInListMutation();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -19,26 +19,12 @@ export default function ArchiveView() {
     }
   }, [isError]);
 
-  const invalidatePlaylists = () => queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
-
   const handleRename = async (id: string, title: string) => {
-    try {
-      await editTitleOfPlaylist(id, title);
-      await invalidatePlaylists();
-    } catch (e) {
-      toast.error('플레이리스트 이름 변경에 실패했습니다.');
-      console.error(e);
-    }
+    renamePlaylist.mutate({ playlistId: id, title }, { onError: () => toast.error('플레이리스트 이름 변경에 실패했습니다.') });
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      await deletePlaylist(id);
-      await invalidatePlaylists();
-    } catch (e) {
-      toast.error('플레이리스트 삭제에 실패했습니다.');
-      console.error(e);
-    }
+    deletePlaylist.mutate(id, { onError: () => toast.error('플레이리스트 삭제에 실패했습니다.') });
   };
 
   return (
