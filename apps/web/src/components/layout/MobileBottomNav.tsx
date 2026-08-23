@@ -5,7 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Home, Box, Plus, Search, User } from 'lucide-react';
 
 import { SidebarItemType } from '@/types';
-import { useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
+import { useModalStore, MODAL_TYPES } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import MobileBottomSheet from './MobileBottomSheet';
 
@@ -30,8 +31,7 @@ export default function MobileBottomNav() {
   const router = useRouter();
   const pathname = usePathname();
   const { openModal } = useModalStore();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const userId = useAuthStore((s) => s.userId);
+  const { userId, isAuthenticated } = useAuthMe();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
