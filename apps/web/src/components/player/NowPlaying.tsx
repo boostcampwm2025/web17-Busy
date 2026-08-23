@@ -4,7 +4,8 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 import { MusicProvider } from '@repo/dto/values';
 import { useCallback } from 'react';
 import { useMusicActions } from '@/hooks';
-import { useModalStore, MODAL_TYPES, usePlayerStore, useAuthStore } from '@/stores';
+import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { enqueueLog } from '@/utils';
 import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api';
 
@@ -26,7 +27,7 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
   const playError = usePlayerStore((s) => s.playError);
   const setPlayError = usePlayerStore((s) => s.setPlayError);
 
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { isAuthenticated } = useAuthMe();
   const { openModal } = useModalStore();
   const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
