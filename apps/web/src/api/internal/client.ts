@@ -1,7 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
-import { useModalStore, usePlayerStore, useSpotifyAuthStore, useSpotifyPlayerStore, MODAL_TYPES } from '@/stores';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+import { clearClientSession } from '@/hooks/auth/client/logout';
 
 type AuthMeta = {
   hadAuth: boolean;
@@ -23,16 +24,6 @@ const isAuthMeRequest = (cfg?: AuthedConfig): boolean => {
 const isLoginModalOpen = (): boolean => {
   const s = useModalStore.getState();
   return s.isOpen && s.modalType === MODAL_TYPES.LOGIN;
-};
-
-const clearAuthState = () => {
-  if (typeof window !== 'undefined') {
-    sessionStorage.removeItem(APP_ACCESS_TOKEN_STORAGE_KEY);
-  }
-  useSpotifyAuthStore.getState().clear();
-  usePlayerStore.getState().clearQueue();
-  useSpotifyPlayerStore.getState().reset();
-  useModalStore.getState().closeModal();
 };
 
 /**
@@ -122,7 +113,7 @@ internalClient.interceptors.response.use(
     if (handling401) throw error;
     handling401 = true;
 
-    clearAuthState();
+    clearClientSession();
 
     if (!isLoginModalOpen()) {
       useModalStore.getState().openModal(MODAL_TYPES.LOGIN, { authError: SESSION_EXPIRED_CODE });
