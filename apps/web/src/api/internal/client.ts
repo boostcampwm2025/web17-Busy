@@ -1,6 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
+import { getAppAccessToken } from '@/api/auth-token';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { clearClientSession } from '@/hooks/auth/client/logout';
 
@@ -44,11 +44,6 @@ const makeAuthSig = (token: string): string => {
   return (hash >>> 0).toString(16);
 };
 
-const getSessionToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  return sessionStorage.getItem(APP_ACCESS_TOKEN_STORAGE_KEY);
-};
-
 let handling401 = false;
 
 export const internalClient = axios.create({
@@ -64,7 +59,7 @@ internalClient.interceptors.request.use((config) => {
 
   if (typeof window === 'undefined') return cfg;
 
-  const token = getSessionToken();
+  const token = getAppAccessToken();
   if (!token) {
     cfg.__authMeta = { hadAuth: false };
     return cfg;
@@ -103,7 +98,7 @@ internalClient.interceptors.response.use(
     if (!isAuthMeRequest(cfg)) throw error;
 
     // 요청 당시 토큰과 현재 토큰이 동일할 때만 처리(레이스 방지)
-    const currentToken = getSessionToken();
+    const currentToken = getAppAccessToken();
     if (!currentToken) throw error;
 
     const currentSig = makeAuthSig(currentToken);

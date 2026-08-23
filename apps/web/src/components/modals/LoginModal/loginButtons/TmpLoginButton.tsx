@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { tmpLogin } from '@/api/internal/auth';
-import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
+import { setAppAccessToken } from '@/api/auth-token';
 
 // DEV 전용 시드 유저 (apps/api SEED_USERS와 동일)
 const DEV_USERS = [
@@ -19,7 +19,7 @@ export const TmpLoginButton = () => {
 
     try {
       const appJwt = await tmpLogin(userId);
-      sessionStorage.setItem(APP_ACCESS_TOKEN_STORAGE_KEY, appJwt);
+      setAppAccessToken(appJwt);
       // Google 로그인과 동일하게 리로드로 인증 상태 재평가
       window.location.assign('/');
     } catch {
