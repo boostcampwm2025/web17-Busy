@@ -3,14 +3,14 @@
 import { useCallback } from 'react';
 import { getUserProfilePosts, queryKeys } from '@/api';
 import { useInfiniteScroll, useProfileQuery } from '@/hooks';
-import { useAuthStore } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { ProfileSkeleton } from '../skeleton';
 import { ProfileInfo } from './ProfileInfo';
 import ProfilePosts from './ProfilePosts';
 import LoadingSpinner from '../LoadingSpinner';
 
 export default function ProfileView({ userId }: { userId: string }) {
-  const loggedInUserId = useAuthStore((s) => s.userId);
+  const { userId: loggedInUserId } = useAuthMe();
   const profileQuery = useProfileQuery(userId);
 
   const isMyProfile = loggedInUserId === userId;
