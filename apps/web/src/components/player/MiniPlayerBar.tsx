@@ -6,7 +6,7 @@ import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useMusicActions } from '@/hooks';
 import { enqueueLog } from '@/utils';
 import { makeArchiveAddMusicLog, makePostAddMusicLog } from '@/api';
-import { useAuthStore } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 import { TickerText } from '@/components';
 
@@ -47,7 +47,7 @@ export default function MiniPlayerBar({
    * - 사용자가 보관함 추가와 컨텐츠 생성 버튼을 누를 때 로그인 유무로 지원한다.
    * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
    */
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { isAuthenticated } = useAuthMe();
   const { openModal } = useModalStore();
 
   /** 보관함 추가와 컨텐츠 생성을 위한 함수  */

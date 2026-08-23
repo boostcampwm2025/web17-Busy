@@ -5,7 +5,8 @@ import { X } from 'lucide-react';
 
 import { QueueList, MiniPlayerBar, NowPlaying } from './index';
 import { useQueueSync, useGuestQueueSession } from '@/hooks';
-import { usePlayerStore, useModalStore, MODAL_TYPES, useAuthStore } from '@/stores';
+import { usePlayerStore, useModalStore, MODAL_TYPES } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): number => {
   if (!currentMusicId) return -1;
@@ -13,8 +14,7 @@ const findCurrentIndex = (currentMusicId: string | null, queueIds: string[]): nu
 };
 
 export default function RightPanel() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isLoading = useAuthStore((s) => s.isLoading);
+  const { isAuthenticated, isLoading } = useAuthMe();
   const enableServerSync = isAuthenticated && !isLoading;
   const enableGuestSession = !isAuthenticated && !isLoading;
 

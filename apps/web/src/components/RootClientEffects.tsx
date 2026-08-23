@@ -2,7 +2,6 @@
 
 import PwaRegister from '@/components/PwaRegister';
 import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
-import { AuthBootstrap } from '@/hooks/auth/client/AuthBootstrap';
 import SpotifyTokenFromHash from '@/hooks/auth/client/SpotifyTokenFromHash';
 import { PrivacyConsentGate } from '@/hooks/privacy/PrivacyConsentGate';
 
@@ -15,7 +14,6 @@ export default function RootClientEffects() {
     <>
       <PwaRegister />
       <SpotifyTokenFromHash />
-      <AuthBootstrap />
       <PrivacyConsentGate />
     </>
   );
