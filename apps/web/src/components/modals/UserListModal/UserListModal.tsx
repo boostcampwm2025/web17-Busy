@@ -4,7 +4,8 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { ProfileActionButton } from '@/components/profile';
 import { DEFAULT_IMAGES } from '@/constants';
 import type { GetUserFollowDto } from '@repo/dto';
-import { useAuthStore, useModalStore } from '@/stores';
+import { useModalStore } from '@/stores';
+import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, type MouseEvent } from 'react';
@@ -21,7 +22,7 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
   const { profileUserId }: { profileUserId: string } = modalProps;
 
   const router = useRouter();
-  const loggedInUserId = useAuthStore((s) => s.userId);
+  const { userId: loggedInUserId } = useAuthMe();
 
   /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
   const fetchUsers = useCallback(
