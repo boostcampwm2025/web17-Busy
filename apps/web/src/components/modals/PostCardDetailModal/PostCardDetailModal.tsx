@@ -6,7 +6,8 @@ import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/d
 
 import { useRouter, usePathname } from 'next/navigation';
 import { PostHeader } from '../../post';
-import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import useIsMobile from '@/hooks/useIsMobile';
 import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions, useSwipeToDismiss } from '@/hooks';
@@ -26,7 +27,10 @@ import { makePostDetailLog } from '@/api/internal/logging';
 export const PostCardDetailModal = () => {
   const { userId } = useAuthMe();
   const router = useRouter();
-  const { isOpen, modalType, modalProps, closeModal } = useModalStore();
+  const isOpen = useModalStore((s) => s.isOpen);
+  const modalType = useModalStore((s) => s.modalType);
+  const modalProps = useModalStore((s) => s.modalProps);
+  const closeModal = useModalStore((s) => s.closeModal);
   const enabled = isOpen && modalType === MODAL_TYPES.POST_DETAIL;
 
   useScrollLock(enabled);
