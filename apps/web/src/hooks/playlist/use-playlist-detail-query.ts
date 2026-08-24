@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { getPlaylistDetail, queryKeys } from '@/api';
+import { getPlaylistDetail } from '@/api/internal/playlist';
+import { queryKeys } from '@/api/queryKeys';
 
 /**
  * 플레이리스트 상세 조회. `usePlaylistRecommendations`가 `fetchQuery`로 채워 둔 같은 key를 구독하므로
