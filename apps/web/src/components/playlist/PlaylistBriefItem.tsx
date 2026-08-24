@@ -1,5 +1,3 @@
-'use client';
-
 import { Library } from 'lucide-react';
 import type { PlaylistBrief } from '@/hooks/playlist/usePlaylistRecommendations';
 
