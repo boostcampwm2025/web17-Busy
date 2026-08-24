@@ -1,8 +1,9 @@
 import { NotiRelatedType } from '@repo/dto/values';
 import type { NotiResponseDto } from '@repo/dto';
-import { NotiView } from './noti.types';
-import { formatRelativeTime, coalesceImageSrc } from '@/utils';
-import { DEFAULT_IMAGES } from '@/constants';
+import { NotiView } from '@/types/noti';
+import { formatRelativeTime } from '@/utils/time';
+import { coalesceImageSrc } from '@/utils/image';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 
 function toNotiMessageBody(n: NotiResponseDto) {
   switch (n.type) {

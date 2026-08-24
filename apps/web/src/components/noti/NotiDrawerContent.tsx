@@ -3,8 +3,8 @@
 import { useMemo, useState } from 'react';
 import { CheckCheck, Trash2 } from 'lucide-react';
 import NotiItem from './NotiItem';
-import { toNotiView } from './noti.mapper';
-import { NotiView } from './noti.types';
+import { toNotiView } from '@/mappers/noti-to-view';
+import { NotiView } from '@/types/noti';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { useRouter } from 'next/navigation';
 import ConfirmOverlay from '@/components/ConfirmOverlay';
