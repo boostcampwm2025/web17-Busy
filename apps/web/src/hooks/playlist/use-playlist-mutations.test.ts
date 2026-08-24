@@ -7,11 +7,19 @@ import type { GetPlaylistDetailResDto as PlaylistDetail, MusicRequestDto as Unsa
 import { queryKeys } from '@/api/queryKeys';
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
-import { useAddPlaylistSongMutation, useDeletePlaylistMutation, usePlaylistSongsMutation, useRenamePlaylistMutation } from './use-playlist-mutations';
+import {
+  useAddMusicsToPlaylistMutation,
+  useAddPlaylistSongMutation,
+  useCreatePlaylistMutation,
+  useDeletePlaylistMutation,
+  usePlaylistSongsMutation,
+  useRenamePlaylistMutation,
+} from './use-playlist-mutations';
 
 const apiMocks = vi.hoisted(() => ({
   changeMusicOrderOfPlaylist: vi.fn(),
   addMusicsToPlaylist: vi.fn(),
+  createNewPlaylist: vi.fn(),
   editTitleOfPlaylist: vi.fn(),
   deletePlaylist: vi.fn(),
 }));
@@ -180,6 +188,41 @@ describe('playlist mutations', () => {
       await waitFor(() => expect(result.current.isError).toBe(true));
       expect(onDeleted).not.toHaveBeenCalled();
       expect(songIdsInCache(queryClient)).toEqual(['a']);
+    });
+  });
+
+  describe('useCreatePlaylistMutation', () => {
+    /** 호출부가 만들어진 플레이리스트에 이어서 곡을 저장하므로 응답을 그대로 돌려줘야 한다. */
+    it('refreshes the list and hands the created playlist back', async () => {
+      const queryClient = createTestQueryClient();
+      queryClient.setQueryData(queryKeys.playlists.all, [{ id: PLAYLIST_ID }]);
+      apiMocks.createNewPlaylist.mockResolvedValue({ id: 'new-playlist', title: '새 플레이리스트' });
+
+      const { result } = renderHook(() => useCreatePlaylistMutation(), { wrapper: createWrapper(queryClient) });
+      result.current.mutate();
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(result.current.data?.id).toBe('new-playlist');
+      expect(queryClient.getQueryState(queryKeys.playlists.all)?.isInvalidated).toBe(true);
+    });
+  });
+
+  describe('useAddMusicsToPlaylistMutation', () => {
+    /** 저장 대상 플레이리스트의 상세를 이미 열어 봤다면 곡 수와 커버가 예전 값으로 남는다. */
+    it('refreshes both the list and the target playlist detail', async () => {
+      const queryClient = createTestQueryClient();
+      queryClient.setQueryData(queryKeys.playlists.all, [{ id: PLAYLIST_ID }]);
+      queryClient.setQueryData(detailKey, detail([music('a')]));
+      apiMocks.addMusicsToPlaylist.mockResolvedValue({ addedMusics: [music('b')] });
+
+      const songs = [{ ...music('b'), id: undefined } as UnsavedMusic];
+      const { result } = renderHook(() => useAddMusicsToPlaylistMutation(), { wrapper: createWrapper(queryClient) });
+      result.current.mutate({ playlistId: PLAYLIST_ID, musics: songs });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(apiMocks.addMusicsToPlaylist).toHaveBeenCalledWith(PLAYLIST_ID, songs);
+      expect(queryClient.getQueryState(queryKeys.playlists.all)?.isInvalidated).toBe(true);
+      expect(queryClient.getQueryState(detailKey)?.isInvalidated).toBe(true);
     });
   });
 });

@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import { Bell } from 'lucide-react';
 
-import { queryKeys } from '@/api';
+import { queryKeys } from '@/api/queryKeys';
 import { useNotiOverlayStore } from '@/stores/useNotiOverlayStore';
 import { useNotificationsQuery } from '@/hooks';
 

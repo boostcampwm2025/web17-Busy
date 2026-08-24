@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { GetPlaylistDetailResDto as PlaylistDetail, MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic } from '@repo/dto';
 
-import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, deletePlaylist, editTitleOfPlaylist } from '@/api/internal/playlist';
+import { addMusicsToPlaylist, changeMusicOrderOfPlaylist, createNewPlaylist, deletePlaylist, editTitleOfPlaylist } from '@/api/internal/playlist';
 import { queryKeys } from '@/api/queryKeys';
 import {
   cancelPlaylistDetailQueries,
@@ -145,6 +145,30 @@ export const useDeletePlaylistInListMutation = () => {
     onSuccess: (_result, playlistId) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
       removePlaylistDetailCache(queryClient, playlistId);
+    },
+  });
+};
+
+/** 빈 플레이리스트를 만든다. 응답의 플레이리스트를 이어서 쓰는 호출부가 있어 결과를 그대로 넘긴다. */
+export const useCreatePlaylistMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => createNewPlaylist(),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+    },
+  });
+};
+
+/** 보관함 저장 모달에서 쓴다. 대상 플레이리스트가 저장 시점에 정해지므로 playlistId를 호출 시점에 받는다. */
+export const useAddMusicsToPlaylistMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ playlistId, musics }: { playlistId: string; musics: UnsavedMusic[] }) => addMusicsToPlaylist(playlistId, musics),
+    onSuccess: (_result, { playlistId }) => {
+      invalidatePlaylistCaches(queryClient, playlistId);
     },
   });
 };

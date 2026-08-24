@@ -3,7 +3,7 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { NotiView } from './noti.types';
+import { NotiView } from '@/types/noti';
 import { DEFAULT_IMAGES } from '@/constants';
 import { coalesceImageSrc } from '@/utils';
 

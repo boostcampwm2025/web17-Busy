@@ -1,19 +1,15 @@
-import { createNewPlaylist, queryKeys } from '@/api';
-import { useQueryClient } from '@tanstack/react-query';
+'use client';
+
 import { Plus } from 'lucide-react';
 import { toast } from 'react-toastify';
 
-export default function ArchiveViewHeader() {
-  const queryClient = useQueryClient();
+import { useCreatePlaylistMutation } from '@/hooks/playlist/use-playlist-mutations';
 
-  const onCreateNewPlaylist = async () => {
-    try {
-      await createNewPlaylist();
-      await queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
-    } catch (e) {
-      toast.error('플레이리스트 생성에 실패했습니다.');
-      console.error(e);
-    }
+export default function ArchiveViewHeader() {
+  const createPlaylist = useCreatePlaylistMutation();
+
+  const onCreateNewPlaylist = () => {
+    createPlaylist.mutate(undefined, { onError: () => toast.error('플레이리스트 생성에 실패했습니다.') });
   };
 
   return (

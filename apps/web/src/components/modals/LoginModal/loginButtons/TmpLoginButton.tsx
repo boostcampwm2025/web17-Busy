@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { tmpLogin } from '@/api/internal/auth';
-import { setAppAccessToken } from '@/api/auth-token';
+import React from 'react';
+import { useTmpLoginMutation } from '@/hooks/auth/client/use-tmp-login-mutation';
 
 // DEV 전용 시드 유저 (apps/api SEED_USERS와 동일)
 const DEV_USERS = [
@@ -11,20 +10,13 @@ const DEV_USERS = [
 ] as const;
 
 export const TmpLoginButton = () => {
-  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const tmpLogin = useTmpLoginMutation();
+  const loadingId = tmpLogin.isPending ? tmpLogin.variables : null;
 
-  const handleTmpLogin = async (userId: string) => {
+  const handleTmpLogin = (userId: string) => {
     if (loadingId) return;
-    setLoadingId(userId);
 
-    try {
-      const appJwt = await tmpLogin(userId);
-      setAppAccessToken(appJwt);
-      // Google 로그인과 동일하게 리로드로 인증 상태 재평가
-      window.location.assign('/');
-    } catch {
-      setLoadingId(null);
-    }
+    tmpLogin.mutate(userId);
   };
 
   return (

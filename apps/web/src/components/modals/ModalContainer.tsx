@@ -12,7 +12,6 @@ import {
   PlaylistPickerModal,
   PrivacyConsentModal,
 } from './index';
-import { getFollowerUsers, getFollowingUsers } from '@/api';
 
 export default function ModalContainer() {
   const isOpen = useModalStore((s) => s.isOpen);
@@ -62,10 +61,10 @@ export default function ModalContainer() {
       {modalType === MODAL_TYPES.MOBILE_QUEUE && <MobileNowPlaylistModal />}
 
       {/* 5. 팔로워 사용자 목록 모달 */}
-      {modalType === MODAL_TYPES.FOLLOWER_USER && <UserListModal title="팔로워 목록" fetchFn={getFollowerUsers} />}
+      {modalType === MODAL_TYPES.FOLLOWER_USER && <UserListModal title="팔로워 목록" listType="followers" />}
 
       {/* 6. 팔로잉 사용자 목록 모달 */}
-      {modalType === MODAL_TYPES.FOLLOWING_USER && <UserListModal title="팔로잉 목록" fetchFn={getFollowingUsers} />}
+      {modalType === MODAL_TYPES.FOLLOWING_USER && <UserListModal title="팔로잉 목록" listType="followings" />}
 
       {/* 7. 플레이리스트 상세 모달 */}
       {modalType === MODAL_TYPES.PLAYLIST_DETAIL && <PlaylistDetailModal playlistId={modalProps.playlistId} />}
