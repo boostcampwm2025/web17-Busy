@@ -12,12 +12,12 @@ import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import useIsMobile from '@/hooks/common/useIsMobile';
 import useScrollLock from '@/hooks/common/useScrollLock';
 import { usePostDetail } from '@/hooks/post/usePostDetail';
-import useLikedUsers from '@/hooks/post/useLikedUsers';
 import usePostReactions from '@/hooks/post/usePostReactions';
 import { useSwipeToDismiss } from '@/hooks/common/useSwipeToDismiss';
 
 import { EMPTY_POST } from '@/constants/emptyPost';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import { LAYER } from '@/constants/layers';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PostMedia from '@/components/post/partials/PostMedia';
 import { coalesceImageSrc } from '@/utils/image';
@@ -71,10 +71,7 @@ export const PostCardDetailModal = () => {
     setLikedUsersOpen(false);
   }, [enabled, postId]);
 
-  const likedUsers = useLikedUsers({
-    enabled: Boolean(enabled && postId && likedUsersOpen),
-    postId: postId ?? '',
-  });
+  const handleCloseLikedUsers = () => setLikedUsersOpen(false);
 
   const playMusic = usePlayerStore((s) => s.playMusic);
   const addToQueue = usePlayerStore((s) => s.addToQueue);
@@ -250,11 +247,12 @@ export const PostCardDetailModal = () => {
     <>
       {/* ── 모바일: 댓글 바텀시트 ── */}
       <div className="lg:hidden">
-        <div className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-sm animate-fade-in" onClick={handleClose} />
+        {/* 시트는 같은 층이지만 DOM에서 뒤에 오므로 이 배경 위에 그려진다. */}
+        <div className={`fixed inset-0 ${LAYER.modal} bg-black/60 backdrop-blur-sm animate-fade-in`} onClick={handleClose} />
 
         <section
           ref={sheetRef}
-          className="fixed inset-x-0 bottom-0 z-[10002] h-[90vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up"
+          className={`fixed inset-x-0 bottom-0 ${LAYER.modal} h-[90vh] bg-white rounded-t-2xl border-t-2 border-x-2 border-primary flex flex-col animate-slide-up`}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -292,7 +290,7 @@ export const PostCardDetailModal = () => {
 
       {/* ── 데스크탑: 기존 풀 모달 ── */}
       <div
-        className="hidden lg:flex fixed inset-0 z-60 items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
+        className={`hidden lg:flex fixed inset-0 ${LAYER.modal} items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in`}
         onClick={handleClose}
         role="dialog"
         aria-modal="true"
@@ -383,14 +381,7 @@ export const PostCardDetailModal = () => {
         </div>
       </div>
 
-      <LikedUsersOverlay
-        isOpen={likedUsersOpen}
-        onClose={() => setLikedUsersOpen(false)}
-        users={likedUsers.users}
-        isLoading={likedUsers.isLoading}
-        errorMsg={likedUsers.errorMsg}
-        onRetry={likedUsers.refetch}
-      />
+      <LikedUsersOverlay isOpen={likedUsersOpen} postId={postId} onClose={handleCloseLikedUsers} />
     </>
   );
 };

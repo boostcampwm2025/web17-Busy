@@ -10,6 +10,7 @@
 /coverage
 /test-results
 /playwright-report
+/e2e/__screens__
 
 # next.js
 /.next/

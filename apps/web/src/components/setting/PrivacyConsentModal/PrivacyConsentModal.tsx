@@ -2,27 +2,27 @@
 
 import { useModalStore } from '@/stores/useModalStore';
 import { X } from 'lucide-react';
+import { ModalShell } from '@/components/common/ModalShell';
 import { PrivacyConsentForm } from './PrivacyConsentForm';
 
 export const PrivacyConsentModal = () => {
-  const closeModal = useModalStore((s) => s.closeModal);
+  const handleClose = useModalStore((s) => s.closeModal);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">
-      <div className="bg-white w-full max-w-lg rounded-3xl border-2 border-primary shadow-[8px_8px_0px_0px_var(--color-primary)]">
-        {/* 헤더 */}
-        <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary">
-          <h2 className="text-xl font-black text-primary">약관 동의</h2>
-          <button onClick={closeModal}>
-            <X className="w-6 h-6 text-primary" />
-          </button>
-        </div>
-
-        {/* 바디 - 분리된 폼 호출 */}
-        <div className="px-6 py-8">
-          <PrivacyConsentForm onSuccess={closeModal} />
-        </div>
+    // 동의는 명시적으로 받아야 하므로 배경을 눌러 넘어가지 못하게 한다.
+    <ModalShell onClose={handleClose} size="lg" closeOnBackdrop={false}>
+      {/* 헤더 */}
+      <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary">
+        <h2 className="text-xl font-black text-primary">약관 동의</h2>
+        <button onClick={handleClose}>
+          <X className="w-6 h-6 text-primary" />
+        </button>
       </div>
-    </div>
+
+      {/* 바디 - 분리된 폼 호출 */}
+      <div className="px-6 py-8">
+        <PrivacyConsentForm onSuccess={handleClose} />
+      </div>
+    </ModalShell>
   );
 };
