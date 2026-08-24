@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { usePlaylistDetailQuery } from '@/hooks/playlist/use-playlist-detail-query';
 import { usePlaylistSongsEditing } from '@/hooks/playlist/use-playlist-songs-editing';
 import { useModalStore } from '@/stores/useModalStore';
+import { ModalShell } from '@/components/common/ModalShell';
 import { Header, SearchDropdown, SongList, Toolbar } from './partials';
 
 export default function PlaylistDetailModal({ playlistId }: { playlistId: string }) {
@@ -28,22 +29,15 @@ export default function PlaylistDetailModal({ playlistId }: { playlistId: string
 
   return (
     playlist && (
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 animate-fade-in"
-        onMouseDown={(e) => {
-          if (e.target === e.currentTarget) closeModal();
-        }}
-      >
-        <div className="bg-white w-full max-w-lg rounded-3xl shadow-[8px_8px_0px_0px_#00214D] border-2 border-primary flex flex-col max-h-[85vh] overflow-hidden">
-          <Header playlistId={playlistId} />
+      <ModalShell onClose={closeModal} size="lg" cardClassName="max-h-[85vh]">
+        <Header playlistId={playlistId} />
 
-          <SearchDropdown handleAddSong={addSong} />
+        <SearchDropdown handleAddSong={addSong} />
 
-          {selectedSongIds.size > 0 && <Toolbar selectedSongIds={selectedSongIds} deleteSelectedSongs={deleteSelectedSongs} />}
+        {selectedSongIds.size > 0 && <Toolbar selectedSongIds={selectedSongIds} deleteSelectedSongs={deleteSelectedSongs} />}
 
-          <SongList songs={songs} selectedSongIds={selectedSongIds} toggleSelectSong={toggleSelectSong} moveSong={moveSong} moveSongTo={moveSongTo} />
-        </div>
-      </div>
+        <SongList songs={songs} selectedSongIds={selectedSongIds} toggleSelectSong={toggleSelectSong} moveSong={moveSong} moveSongTo={moveSongTo} />
+      </ModalShell>
     )
   );
 }
