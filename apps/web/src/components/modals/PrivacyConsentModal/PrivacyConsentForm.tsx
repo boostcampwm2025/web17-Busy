@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { toast } from 'react-toastify';
-import { updatePrivacyConsent } from '@/api';
-import { usePrivacyAgreements } from './usePrivacyAgreements';
+import { useUpdatePrivacyConsentMutation } from '@/hooks/privacy/use-update-privacy-consent-mutation';
+import { usePrivacyAgreements } from '@/hooks/privacy/use-privacy-agreements';
 import { AgreementItem } from './AgreeItem';
 import type { UpdateConsentListDto } from '@repo/dto';
 import { ConsentType } from '@repo/dto/values';
@@ -21,35 +21,34 @@ interface PrivacyConsentFormProps {
 }
 
 export const PrivacyConsentForm = ({ onSuccess, submitButtonText = '동의하고 시작하기', initialState }: PrivacyConsentFormProps) => {
-  const [isLoading, setIsLoading] = useState(false);
   const { agreements, handleCheck, handleAllCheck, isRequiredChecked } = usePrivacyAgreements(initialState);
+  const updateConsent = useUpdatePrivacyConsentMutation();
+  const isLoading = updateConsent.isPending;
 
   const handleSubmit = async () => {
     if (isLoading) return;
-    try {
-      setIsLoading(true);
 
-      const payload: UpdateConsentListDto = {
-        items: [
-          {
-            type: ConsentType.TERMS_OF_SERVICE, // 'TERMS'
-            agreed: agreements.terms,
-          },
-          {
-            type: ConsentType.PRIVACY_POLICY, // 'PRIVACY'
-            agreed: agreements.privacy,
-          },
-        ],
-      };
-      await updatePrivacyConsent(payload);
+    const payload: UpdateConsentListDto = {
+      items: [
+        {
+          type: ConsentType.TERMS_OF_SERVICE, // 'TERMS'
+          agreed: agreements.terms,
+        },
+        {
+          type: ConsentType.PRIVACY_POLICY, // 'PRIVACY'
+          agreed: agreements.privacy,
+        },
+      ],
+    };
+
+    try {
+      await updateConsent.mutateAsync(payload);
       toast.success('동의 여부가 업데이트 되었습니다.');
 
       // 페이지에서 성공 시 초기 상태 업데이트 / 모달에서 성공 시 파라미터 무시하고 closeModal
       if (onSuccess) onSuccess(agreements);
-    } catch (error) {
+    } catch {
       toast.error('동의 실패, 다시 시도해주세요');
-    } finally {
-      setIsLoading(false);
     }
   };
 
