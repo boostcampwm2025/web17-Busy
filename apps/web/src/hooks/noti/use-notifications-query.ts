@@ -4,7 +4,8 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { NotiResponseDto } from '@repo/dto';
 
-import { fetchNotis, queryKeys } from '@/api';
+import { fetchNotis } from '@/api/internal/noti';
+import { queryKeys } from '@/api/queryKeys';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 export type NotificationFetchStatus = 'no-login' | 'loading' | 'success' | 'error';

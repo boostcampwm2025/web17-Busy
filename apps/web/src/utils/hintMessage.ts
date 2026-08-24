@@ -1,4 +1,4 @@
-import { ITUNES_SEARCH } from '@/constants';
+import { ITUNES_SEARCH } from '@/constants/search';
 
 export const getHintMessage = (trimmed: string): string | undefined => {
   const needMin = trimmed.length > 0 && trimmed.length < ITUNES_SEARCH.MIN_QUERY_LENGTH;

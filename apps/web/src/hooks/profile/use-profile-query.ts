@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { getUser, queryKeys } from '@/api';
+import { getUser } from '@/api/internal/user';
+import { queryKeys } from '@/api/queryKeys';
 
 export const useProfileQuery = (userId: string) =>
   useQuery({

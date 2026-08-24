@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useProfileFollowMutation } from '@/hooks';
+import { useProfileFollowMutation } from '@/hooks/profile/use-profile-mutations';
 
 const SmallSpinner = () => <div className="h-5 w-5 mx-2.5 my-0.5 animate-spin rounded-full border-2 border-gray-300 border-t-black" />;
 

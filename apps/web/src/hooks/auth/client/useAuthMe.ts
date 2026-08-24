@@ -3,7 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import type { UserDto } from '@repo/dto';
 
-import { authMe, queryKeys } from '@/api';
+import { authMe } from '@/api/internal/auth';
+import { queryKeys } from '@/api/queryKeys';
 
 export const AUTH_ME_STALE_TIME_MS = 5 * 60 * 1000;
 

@@ -2,7 +2,7 @@
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Plus, ListPlus, Trash2, ChevronUp, ChevronDown, XCircle, GripVertical } from 'lucide-react';
-import { useMusicActions } from '@/hooks';
+import useMusicActions from '@/hooks/common/useMusicActions';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import type { DragEvent } from 'react';
@@ -10,7 +10,7 @@ import { useState } from 'react';
 
 // UX 로그
 
-import { TickerText } from '@/components';
+import TickerText from '@/components/common/TickerText';
 
 interface QueueListProps {
   queue: Music[];

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SPOTIFY_COOKIE_KEYS } from '@/hooks/auth/config/spotify';
 import { APP_ACCESS_TOKEN_HASH_KEY } from '@/constants/auth';
-import { spotifyExchange } from '@/api';
+import { spotifyExchange } from '@/api/internal/auth';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;

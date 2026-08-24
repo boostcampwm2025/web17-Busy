@@ -4,7 +4,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GetCommentsResDto } from '@repo/dto';
 
-import { authMe, getComments, queryKeys } from '@/api';
+import { authMe } from '@/api/internal/auth';
+import { getComments } from '@/api/internal/comment';
+import { queryKeys } from '@/api/queryKeys';
 import { AUTH_ME_STALE_TIME_MS } from '../auth/client/useAuthMe';
 import { setPostPatchInCaches } from './post-cache-updaters';
 import { usePostCommentMutation } from './use-post-comment-mutation';

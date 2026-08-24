@@ -7,7 +7,7 @@ import FollowStats from './FollowStats';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { GetUserDto as Profile } from '@repo/dto';
 import { EditTextarea, EditInput } from './ProfileInputs';
-import { useUpdateProfileMutation } from '@/hooks';
+import { useUpdateProfileMutation } from '@/hooks/profile/use-profile-mutations';
 
 export default function ProfileInfo({ profile, loggedInUserId }: { profile: Profile; loggedInUserId: string | null }) {
   const updateProfileMutation = useUpdateProfileMutation(profile.id);

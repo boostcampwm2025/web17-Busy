@@ -1,8 +1,8 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { PlayerProgress } from '@/types';
-import { YOUTUBE_PLAYER_TICK_INTERVAL_MS } from '@/constants';
+import { PlayerProgress } from '@/types/player';
+import { YOUTUBE_PLAYER_TICK_INTERVAL_MS } from '@/constants/player';
 import { usePlayerTick, useYouTubePlayer, useYouTubeProgress, useYouTubeSync } from './youtube';
 
 export function useYouTubeHook() {

@@ -2,12 +2,12 @@
 
 import { useMemo } from 'react';
 
-import { LoadingSpinner } from '@/components';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { SearchInput, SearchStateMessage, MusicSearchResults, UserSearchResults } from './index';
 
 import { SEARCH_TAB_ENTRIES } from '@/constants/search';
-import { getHintMessage } from '@/utils';
-import { useSearchDrawer } from '@/hooks';
+import { getHintMessage } from '@/utils/hintMessage';
+import useSearchDrawer from '@/hooks/search/useSearchDrawer';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 type Props = { enabled?: boolean };

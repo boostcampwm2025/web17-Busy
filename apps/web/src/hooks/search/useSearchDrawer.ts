@@ -1,8 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useItunesSearch, useUserSearch, useYoutubeSearch } from '@/hooks';
-import { SearchMode } from '@/types';
+import useItunesSearch from '@/hooks/search/use-itunes-search';
+import useUserSearch from '@/hooks/search/useUserSearch';
+import useYoutubeSearch from '@/hooks/search/useYoutubeSearch';
+import { SearchMode } from '@/types/search';
 
 export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
   const [query, setQuery] = useState('');

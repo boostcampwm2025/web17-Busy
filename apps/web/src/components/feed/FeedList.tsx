@@ -1,8 +1,8 @@
 'use client';
 
-import { usePlayerStore } from '@/stores';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { PostCard } from '@/components';
+import PostCard from '@/components/post/PostCard';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 import { useRouter } from 'next/navigation';
 

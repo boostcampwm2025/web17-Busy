@@ -1,4 +1,4 @@
-import { usePlayerStore } from '@/stores';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useItunesHook } from './useItunesHook';
 import { useYouTubeHook } from './useYouTubeHook';
 import { MusicProvider } from '@repo/dto/values';

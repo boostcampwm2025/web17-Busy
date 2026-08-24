@@ -6,8 +6,9 @@ import { ArrowLeft } from 'lucide-react';
 
 import { useProfileFeedPostsQuery } from '@/hooks/post/use-post-list-queries';
 import useIsMobile from '@/hooks/common/useIsMobile';
-import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
-import { PostCard } from '@/components';
+import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+import { usePlayerStore } from '@/stores/usePlayerStore';
+import PostCard from '@/components/post/PostCard';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import type { PostResponseDto as Post, MusicResponseDto as Music } from '@repo/dto';
 

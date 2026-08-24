@@ -1,4 +1,4 @@
-import type { ItunesSongResult } from '@/api';
+import type { ItunesSongResult } from '@/api/itunes/searchSongs';
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { MusicProvider } from '@repo/dto/values';
 

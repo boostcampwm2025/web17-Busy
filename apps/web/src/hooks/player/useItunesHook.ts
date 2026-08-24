@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePlayerStore } from '@/stores';
-import { Playback, PlayerProgress } from '@/types';
-import { clamp01, clampMs } from '@/utils';
-import { DEFAULT_VOLUME } from '@/constants';
+import { usePlayerStore } from '@/stores/usePlayerStore';
+import { Playback, PlayerProgress } from '@/types/player';
+import { clamp01, clampMs } from '@/utils/clamp';
+import { DEFAULT_VOLUME } from '@/constants/player';
 import { MusicProvider } from '@repo/dto/values';
 
 const toPlaybackErrorMessage = (e: unknown): string => {

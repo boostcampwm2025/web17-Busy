@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { usePlayerStore } from '@/stores';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
 const STORAGE_KEY = 'guest_queue_v1';

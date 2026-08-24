@@ -3,7 +3,8 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PostResponseDto as Post } from '@repo/dto';
-import { getPostDetail, queryKeys } from '@/api';
+import { getPostDetail } from '@/api/internal/post';
+import { queryKeys } from '@/api/queryKeys';
 import { setPostPatchInCaches } from './post-cache-updaters';
 
 /**

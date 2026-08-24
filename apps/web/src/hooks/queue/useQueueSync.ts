@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePlayerStore } from '@/stores';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import { getNowPlaylist, updateNowPlaylist } from '@/api/internal/now-playlist';
 
 type Options = { enabled: boolean };

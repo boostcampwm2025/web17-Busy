@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import { Header, Sidebar, ResizableRightPanel, ModalContainer, LoadingSpinner, MobileBottomNav } from '@/components';
+import Header from '@/components/layout/Header';
+import Sidebar from '@/components/sidebar/Sidebar';
+import ResizableRightPanel from '@/components/player/ResizableRightPanel';
+import ModalContainer from '@/components/app/ModalContainer';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import MobileNotiOverlay from '@/components/layout/MobileNotiOverlay';
 import { Suspense } from 'react';
 import PwaInstallBanner from '@/components/app/PwaInstallBanner';

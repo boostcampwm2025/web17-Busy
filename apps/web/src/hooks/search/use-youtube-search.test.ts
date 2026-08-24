@@ -11,13 +11,13 @@ const searchMocks = vi.hoisted(() => ({
   searchYoutubeVideos: vi.fn(),
 }));
 
-vi.mock('@/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/api')>()),
+vi.mock('@/api/youtube/searchVideos', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/api/youtube/searchVideos')>()),
   searchYoutubeVideos: searchMocks.searchYoutubeVideos,
 }));
 
-vi.mock('@/mappers', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/mappers')>()),
+vi.mock('@/mappers/youtubeVideoToMusic', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/mappers/youtubeVideoToMusic')>()),
   youtubeVideoToMusic: (video: { id: string; title: string }) => ({
     id: video.id,
     provider: 'youtube',

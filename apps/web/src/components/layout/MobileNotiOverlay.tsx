@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { useNotiOverlayStore } from '@/stores/useNotiOverlayStore';
-import { NotiDrawerContent } from '@/components/noti';
+import NotiDrawerContent from '@/components/noti/NotiDrawerContent';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 export default function MobileNotiOverlay() {

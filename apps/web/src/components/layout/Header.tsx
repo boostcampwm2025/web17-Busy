@@ -6,7 +6,7 @@ import { Bell } from 'lucide-react';
 
 import { queryKeys } from '@/api/queryKeys';
 import { useNotiOverlayStore } from '@/stores/useNotiOverlayStore';
-import { useNotificationsQuery } from '@/hooks';
+import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
 
 export default function Header() {
   const queryClient = useQueryClient();

@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
-import { coalesceImageSrc, formatRelativeTime } from '@/utils';
+import { coalesceImageSrc } from '@/utils/image';
+import { formatRelativeTime } from '@/utils/time';
 import type { PostResponseDto } from '@repo/dto';
-import { DEFAULT_IMAGES } from '@/constants';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { showConfirmToast } from '@/components/post/ConfirmToast';
 import { toast } from 'react-toastify';
 import { useDeletePostMutation } from '@/hooks/post/use-post-mutations';

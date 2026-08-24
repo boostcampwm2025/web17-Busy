@@ -1,9 +1,10 @@
 'use client';
 
 import type { GetCommentsResDto } from '@repo/dto';
-import { LoadingSpinner } from '@/components';
-import { DEFAULT_IMAGES } from '@/constants';
-import { coalesceImageSrc, formatRelativeTime } from '@/utils';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import { coalesceImageSrc } from '@/utils/image';
+import { formatRelativeTime } from '@/utils/time';
 
 type CommentItem = GetCommentsResDto['comments'][number];
 

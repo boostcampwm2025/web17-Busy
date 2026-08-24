@@ -10,11 +10,17 @@ import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import useIsMobile from '@/hooks/common/useIsMobile';
-import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions, useSwipeToDismiss } from '@/hooks';
+import useScrollLock from '@/hooks/common/useScrollLock';
+import { usePostDetail } from '@/hooks/post/usePostDetail';
+import useLikedUsers from '@/hooks/post/useLikedUsers';
+import usePostReactions from '@/hooks/post/usePostReactions';
+import { useSwipeToDismiss } from '@/hooks/common/useSwipeToDismiss';
 
-import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';
-import { LoadingSpinner, PostMedia } from '@/components';
-import { coalesceImageSrc } from '@/utils';
+import { EMPTY_POST } from '@/constants/emptyPost';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import PostMedia from '@/components/post/partials/PostMedia';
+import { coalesceImageSrc } from '@/utils/image';
 import { toast } from 'react-toastify';
 import { useUpdatePostMutation } from '@/hooks/post/use-post-mutations';
 

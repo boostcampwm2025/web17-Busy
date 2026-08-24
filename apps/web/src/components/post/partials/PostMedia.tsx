@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
-import { usePostMedia } from '@/hooks';
+import { usePostMedia } from '@/hooks/post/usePostMedia';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 import TickerText from '@/components/common/TickerText';
 
