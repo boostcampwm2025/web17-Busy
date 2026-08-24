@@ -3,11 +3,11 @@ import './globals.css';
 import { Header, Sidebar, ResizableRightPanel, ModalContainer, LoadingSpinner, MobileBottomNav } from '@/components';
 import MobileNotiOverlay from '@/components/layout/MobileNotiOverlay';
 import { Suspense } from 'react';
-import PwaInstallBanner from '@/components/PwaInstallBanner';
-import RootClientEffects from '@/components/RootClientEffects';
-import ToastProvider from '@/components/ToastContainer';
+import PwaInstallBanner from '@/components/app/PwaInstallBanner';
+import RootClientEffects from '@/components/app/RootClientEffects';
+import ToastProvider from '@/components/app/ToastContainer';
 import AuthLoginQueryHandler from '@/hooks/auth/client/AuthLoginQueryHandler';
-import QueryProvider from '@/components/QueryProvider';
+import QueryProvider from '@/components/app/QueryProvider';
 
 export const metadata: Metadata = {
   title: 'VIBR - Sharing your Music Vibe',

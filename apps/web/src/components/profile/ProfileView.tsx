@@ -3,10 +3,10 @@
 import { useProfileQuery } from '@/hooks';
 import { useProfilePostsQuery } from '@/hooks/post/use-post-list-queries';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { ProfileSkeleton } from '../skeleton';
+import { ProfileSkeleton } from '@/components/common/skeleton';
 import { ProfileInfo } from './ProfileInfo';
 import ProfilePosts from './ProfilePosts';
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 export default function ProfileView({ userId }: { userId: string }) {
   const { userId: loggedInUserId } = useAuthMe();

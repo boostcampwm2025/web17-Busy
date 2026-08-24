@@ -1,4 +1,4 @@
-import ConfirmOverlay from '@/components/ConfirmOverlay';
+import ConfirmOverlay from '@/components/common/ConfirmOverlay';
 import { DEFAULT_IMAGES, MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import type { PlaylistBriefResDto as Playlist } from '@repo/dto';

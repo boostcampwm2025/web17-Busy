@@ -8,7 +8,7 @@ import { useProfileFeedPostsQuery } from '@/hooks/post/use-post-list-queries';
 import useIsMobile from '@/hooks/useIsMobile';
 import { useModalStore, MODAL_TYPES, usePlayerStore } from '@/stores';
 import { PostCard } from '@/components';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import type { PostResponseDto as Post, MusicResponseDto as Music } from '@repo/dto';
 
 interface Props {

@@ -1,6 +1,6 @@
 'use client';
 
-import LoadingSpinner from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { ProfileActionButton } from '@/components/profile';
 import { DEFAULT_IMAGES } from '@/constants';
 import { useModalStore } from '@/stores/useModalStore';

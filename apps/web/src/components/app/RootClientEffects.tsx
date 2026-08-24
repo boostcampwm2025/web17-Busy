@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-import PwaRegister from '@/components/PwaRegister';
+import PwaRegister from '@/components/app/PwaRegister';
 import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
 import SpotifyTokenFromHash from '@/hooks/auth/client/SpotifyTokenFromHash';
 import { PrivacyConsentGate } from '@/hooks/privacy/PrivacyConsentGate';

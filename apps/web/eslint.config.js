@@ -88,7 +88,7 @@ export default [
     // RootClientEffects.tsx는 client.ts가 store/hooks를 알 수 없어 만든 의존성 역전 배선의 등록 지점이다(#423).
     // 루트 eslint.config.mjs는 이 규칙 자체를 모르므로 root cwd에서 도는 lint-staged가 인라인 eslint-disable을
     // "쓸모없는 지시어"로 보고 지운다. 규칙 설정에서 예외 처리해 어느 config에서 실행돼도 안전하게 한다.
-    ignores: ['**/*.test.{ts,tsx}', 'src/components/RootClientEffects.tsx'],
+    ignores: ['**/*.test.{ts,tsx}', 'src/components/app/RootClientEffects.tsx'],
     rules: {
       'no-restricted-imports': [
         'error',

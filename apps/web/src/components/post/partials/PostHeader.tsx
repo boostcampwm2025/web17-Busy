@@ -5,7 +5,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { coalesceImageSrc, formatRelativeTime } from '@/utils';
 import type { PostResponseDto } from '@repo/dto';
 import { DEFAULT_IMAGES } from '@/constants';
-import { showConfirmToast } from '@/components/ConfirmToast';
+import { showConfirmToast } from '@/components/post/ConfirmToast';
 import { toast } from 'react-toastify';
 import { useDeletePostMutation } from '@/hooks/post/use-post-mutations';
 

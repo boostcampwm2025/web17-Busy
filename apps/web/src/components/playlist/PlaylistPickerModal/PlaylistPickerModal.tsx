@@ -9,7 +9,7 @@ import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { coalesceImageSrc } from '@/utils/image';
 
 import type { MusicRequestDto, MusicResponseDto as Music } from '@repo/dto';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { usePlaylistsQuery } from '@/hooks/playlist/use-playlists-query';
 import { useAddMusicsToPlaylistMutation, useCreatePlaylistMutation } from '@/hooks/playlist/use-playlist-mutations';
 

@@ -7,7 +7,7 @@ import { toNotiView } from '@/mappers/noti-to-view';
 import { NotiView } from '@/types/noti';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { useRouter } from 'next/navigation';
-import ConfirmOverlay from '@/components/ConfirmOverlay';
+import ConfirmOverlay from '@/components/common/ConfirmOverlay';
 import { useNotificationMutations, useNotificationsQuery } from '@/hooks';
 
 export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => void }) {

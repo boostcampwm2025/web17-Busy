@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import ProfilePostsFeed from '@/components/profile/ProfilePostsFeed';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 export default async function ProfilePostsPage({ params, searchParams }: { params: { id: string }; searchParams: { postId?: string } }) {
   const { id } = await Promise.resolve(params);
