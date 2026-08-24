@@ -39,7 +39,6 @@ jobs:
   web-lint-audit:
     name: Web Lint Audit
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
@@ -61,8 +60,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # lint 스크립트의 --max-warnings가 천장이다. 경고가 늘면 여기서 실패한다.
+      # 줄일 때마다 apps/web/package.json의 숫자를 내려 되돌아가지 못하게 한다.
       - name: Run web lint audit
-        run: pnpm -C apps/web lint || true
+        run: pnpm -C apps/web lint
 
   web-unit-test:
     name: Web Unit Tests
