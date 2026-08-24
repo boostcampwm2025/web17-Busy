@@ -3,16 +3,18 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { Music as MusicIcon, Search, Sparkles, X } from 'lucide-react';
 
-import { ITUNES_SEARCH } from '@/constants';
-import { useItunesSearch, usePlaylistRecommendations, useYoutubeSearch, type PlaylistDetail } from '@/hooks';
+import { ITUNES_SEARCH } from '@/constants/search';
+import useItunesSearch from '@/hooks/search/use-itunes-search';
+import useYoutubeSearch from '@/hooks/search/useYoutubeSearch';
+import { usePlaylistRecommendations, type PlaylistDetail } from '@/hooks/playlist/usePlaylistRecommendations';
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { BriefItemList, EmptyPlaylist, LoadingMessage } from './PlaylistSectionInner';
 
-import { SearchMode } from '@/types';
-import { SEARCH_TAB_ENTRIES } from '@/components/search/SearchDrawerContent';
+import type { SearchMode } from '@/types/search';
 
-import { TickerText } from '@/components';
+import { SearchTabs } from '@/components/common/SearchTabs';
+import TickerText from '@/components/common/TickerText';
 
 interface MusicSearchProps {
   searchQuery: string;
@@ -114,33 +116,6 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
     );
   };
 
-  const renderTabs = () => (
-    <div className="px-2 pb-2">
-      <div className="rounded-lg border border-gray-100 bg-white/70 p-1 shadow-sm">
-        <div className="flex text-center gap-1">
-          {SEARCH_TAB_ENTRIES.map(([tabMode, tabTitle]) => {
-            if (tabMode === 'user') return;
-            const isActive = mode === tabMode;
-            return (
-              <button
-                key={tabMode}
-                type="button"
-                title={`${tabTitle} 검색`}
-                aria-pressed={isActive}
-                onClick={() => handleChangeMode(tabMode)}
-                className={`flex-1 rounded-md px-3 py-2 text-sm sm:text-base transition-colors ${
-                  isActive ? 'bg-primary font-bold text-white shadow' : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
-                }`}
-              >
-                {tabTitle}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-
   const renderSearchResults = () => {
     if (needMin) return <div className="p-4 text-center text-gray-2 text-sm">{MIN_QUERY_HINT}</div>;
     if (active.status === 'loading') return <div className="p-4 text-center text-gray-2 text-sm">검색 중...</div>;
@@ -177,7 +152,9 @@ export const MusicSearch = ({ searchQuery, setSearchQuery, isSearchOpen, setIsSe
     if (!hasQuery) return renderPlaylistSection();
     return (
       <>
-        {renderTabs()}
+        <div className="px-2 pb-2">
+          <SearchTabs mode={mode} onChange={handleChangeMode} />
+        </div>
         {renderSearchResults()}
       </>
     );

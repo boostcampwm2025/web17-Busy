@@ -4,7 +4,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import type { GetAllPlaylistsResDto, GetPlaylistDetailResDto } from '@repo/dto';
-import { getPlaylistDetail, queryKeys } from '@/api';
+import { getPlaylistDetail } from '@/api/internal/playlist';
+import { queryKeys } from '@/api/queryKeys';
 import { usePlaylistsQuery } from './use-playlists-query';
 
 export type PlaylistBrief = GetAllPlaylistsResDto['playlists'][number];

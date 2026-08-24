@@ -5,18 +5,10 @@ import { useMemo } from 'react';
 import { LoadingSpinner } from '@/components';
 import { SearchInput, SearchStateMessage, MusicSearchResults, UserSearchResults } from './index';
 
+import { SEARCH_TAB_ENTRIES } from '@/constants/search';
 import { getHintMessage } from '@/utils';
 import { useSearchDrawer } from '@/hooks';
-import { SearchMode } from '@/types';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-
-const SEARCH_TAB_TITLES = {
-  music: '음원',
-  user: '사용자',
-  video: '유튜브',
-} as const satisfies Record<SearchMode, string>;
-
-export const SEARCH_TAB_ENTRIES = Object.entries(SEARCH_TAB_TITLES) as [SearchMode, string][];
 
 type Props = { enabled?: boolean };
 

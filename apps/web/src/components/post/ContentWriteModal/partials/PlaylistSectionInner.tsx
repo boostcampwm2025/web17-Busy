@@ -1,4 +1,4 @@
-import { PlaylistBriefItem } from '@/components/playlist';
+import { PlaylistBriefItem } from '@/components/playlist/PlaylistBriefItem';
 import { PlaylistBriefResDto } from '@repo/dto';
 
 export function LoadingMessage() {

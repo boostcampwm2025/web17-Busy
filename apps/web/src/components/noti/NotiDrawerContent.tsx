@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { CheckCheck, Trash2 } from 'lucide-react';
 import NotiItem from './NotiItem';
 import { toNotiView } from '@/mappers/noti-to-view';
@@ -8,6 +8,7 @@ import { NotiView } from '@/types/noti';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { useRouter } from 'next/navigation';
 import ConfirmOverlay from '@/components/common/ConfirmOverlay';
+import { useConfirm } from '@/hooks/common/use-confirm';
 import { useNotificationMutations, useNotificationsQuery } from '@/hooks';
 
 export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -16,7 +17,7 @@ export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => v
 
   const { notifications: rawNotis, status: notiFetchStatus, errorMessage } = useNotificationsQuery();
   const { readNoti, readAllNotis, deleteAllNotis, isReadingAllNotis, isDeletingAllNotis } = useNotificationMutations();
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const deleteAllConfirm = useConfirm(deleteAllNotis);
 
   const notis = useMemo(() => {
     return rawNotis.map(toNotiView).sort((a, b) => new Date(b.createdAtIso).getTime() - new Date(a.createdAtIso).getTime());
@@ -72,7 +73,7 @@ export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => v
           </button>
           <button
             type="button"
-            onClick={() => setConfirmOpen(true)}
+            onClick={deleteAllConfirm.open}
             disabled={isDeletingAllNotis}
             className="flex items-center gap-1 rounded-full border border-gray-3 px-3 py-1 text-s text-gray-1 hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors"
           >
@@ -84,15 +85,10 @@ export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => v
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">{renderBody()}</div>
 
       <ConfirmOverlay
-        open={confirmOpen}
+        open={deleteAllConfirm.isOpen}
         title="알림을 모두 삭제할까요?"
-        confirmLabel="삭제"
-        cancelLabel="취소"
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={() => {
-          setConfirmOpen(false);
-          deleteAllNotis();
-        }}
+        onCancel={deleteAllConfirm.cancel}
+        onConfirm={deleteAllConfirm.confirm}
       />
     </div>
   );

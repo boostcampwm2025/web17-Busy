@@ -1,10 +1,14 @@
-import ConfirmOverlay from '@/components/common/ConfirmOverlay';
-import { DEFAULT_IMAGES, MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
-import { MODAL_TYPES, useModalStore } from '@/stores';
 import type { PlaylistBriefResDto as Playlist } from '@repo/dto';
 import { Library, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+
+import ConfirmOverlay from '@/components/common/ConfirmOverlay';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import { MAX_PLAYLIST_TITLE_LENGTH } from '@/constants/playlist';
+import { useConfirm } from '@/hooks/common/use-confirm';
+import { usePlaylistTitleEditing } from '@/hooks/playlist/use-playlist-title-editing';
+import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
 
 type Props = Playlist & {
   openMenuId: string | null;
@@ -22,15 +26,15 @@ export default function PlaylistItem(playlist: Props) {
 
   const [menuPos, setMenuPos] = useState<{ top: number; left: number; width: number } | null>(null);
 
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const { isEditing, draft, isInvalid, start, change, commit, cancel } = usePlaylistTitleEditing({
+    title: playlist.title,
+    onRename: (nextTitle) => void playlist.onRename(playlist.id, nextTitle),
+  });
 
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [draftTitle, setDraftTitle] = useState(playlist.title);
-  const [isInvalidTitle, setIsInvalidTitle] = useState(false);
+  const deleteConfirm = useConfirm(() => void playlist.onDelete(playlist.id));
 
-  // 플리 상세 모달 열기
   const handlePlaylistClick = () => {
-    if (isEditingTitle) return;
+    if (isEditing) return;
     openModal(MODAL_TYPES.PLAYLIST_DETAIL, { playlistId: playlist.id });
   };
 
@@ -45,86 +49,48 @@ export default function PlaylistItem(playlist: Props) {
     playlist.setOpenMenuId(playlist.id);
   };
 
-  const onRename: React.MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.stopPropagation();
-    playlist.setOpenMenuId(null);
-
-    setDraftTitle(playlist.title);
-    setIsEditingTitle(true);
+  const closeMenuThen = (action: () => void): React.MouseEventHandler<HTMLButtonElement> => {
+    return (e) => {
+      e.stopPropagation();
+      playlist.setOpenMenuId(null);
+      action();
+    };
   };
 
-  const onDelete: React.MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.stopPropagation();
-    playlist.setOpenMenuId(null);
-
-    setConfirmOpen(true);
-  };
-
-  const validateRename = (title: string) => {
-    return title.trim().length <= MAX_PLAYLIST_TITLE_LENGTH;
-  };
-
-  const commitRename = async () => {
-    const nextTitle = draftTitle.trim();
-    if (isInvalidTitle) return;
-
-    if (!nextTitle || nextTitle === playlist.title) {
-      setIsEditingTitle(false);
-      setDraftTitle(playlist.title);
-      return;
-    }
-
-    await playlist.onRename(playlist.id, nextTitle);
-    setIsEditingTitle(false);
-    setIsInvalidTitle(false);
-  };
-
-  const cancelRename = () => {
-    setIsEditingTitle(false);
-    setIsInvalidTitle(false);
-    setDraftTitle(playlist.title);
-  };
-
-  useEffect(() => {
-    const isInValid = !validateRename(draftTitle);
-    isInvalidTitle !== isInValid && setIsInvalidTitle(isInValid);
-  }, [draftTitle]);
-
+  const setOpenMenuId = playlist.setOpenMenuId;
   useEffect(() => {
     const onDocMouseDown = (e: MouseEvent) => {
       if (!isMenuOpen) return;
       const target = e.target as Node;
       if (buttonRef.current?.contains(target)) return;
       if (menuRef.current?.contains(target)) return;
-      playlist.setOpenMenuId(null);
+      setOpenMenuId(null);
     };
     document.addEventListener('mousedown', onDocMouseDown);
     return () => document.removeEventListener('mousedown', onDocMouseDown);
-  }, [isMenuOpen, playlist]);
+  }, [isMenuOpen, setOpenMenuId]);
 
-  const menu = useMemo(() => {
-    if (!isMenuOpen || !menuPos) return;
-    return (
-      <div
-        ref={menuRef}
-        className="fixed z-9999 w-36 px-1 py-2 bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] overflow-hidden"
-        style={{ top: menuPos.top, left: menuPos.left - 144 }} // menu width: 144px
-        onClick={(e) => e.stopPropagation()}
+  // useMemo로 감싸지 않는다. 메뉴가 닫힌 사이 title이 바뀌면 memo가 옛 핸들러를 붙든다.
+  const menu = isMenuOpen && menuPos && (
+    <div
+      ref={menuRef}
+      className="fixed z-9999 w-36 px-1 py-2 bg-white border-2 border-primary rounded-lg shadow-[4px_4px_0px_0px_#00214D] overflow-hidden"
+      style={{ top: menuPos.top, left: menuPos.left - 144 }} // menu width: 144px
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-primary hover:bg-gray-50" onClick={closeMenuThen(start)}>
+        <Pencil className="w-4 h-4" />
+        이름 변경
+      </button>
+      <button
+        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-accent-pink hover:bg-[color-mix(in_srgb,var(--color-accent-pink),white_90%)]"
+        onClick={closeMenuThen(deleteConfirm.open)}
       >
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-primary hover:bg-gray-50" onClick={onRename}>
-          <Pencil className="w-4 h-4" />
-          이름 변경
-        </button>
-        <button
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-accent-pink hover:bg-[color-mix(in_srgb,var(--color-accent-pink),white_90%)]"
-          onClick={onDelete}
-        >
-          <Trash2 className="w-4 h-4" />
-          삭제
-        </button>
-      </div>
-    );
-  }, [isMenuOpen, menuPos]);
+        <Trash2 className="w-4 h-4" />
+        삭제
+      </button>
+    </div>
+  );
 
   return (
     <div
@@ -144,25 +110,25 @@ export default function PlaylistItem(playlist: Props) {
 
       {/* 플리 정보 */}
       <div className="min-w-0 overflow-hidden">
-        {isEditingTitle ? (
+        {isEditing ? (
           <>
             <input
               autoFocus
               className="w-full sm:text-lg font-black text-primary rounded-md border-2 border-primary px-2 py-1 focus:outline-none"
-              value={draftTitle}
+              value={draft}
               onClick={(e) => e.stopPropagation()}
-              onChange={(e) => setDraftTitle(e.target.value)}
-              onBlur={commitRename}
+              onChange={(e) => change(e.target.value)}
+              onBlur={commit}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  commitRename();
+                  commit();
                 }
                 if (e.key === 'Escape') {
-                  cancelRename();
+                  cancel();
                 }
               }}
             />
-            {isInvalidTitle && <span className="text-right my-2 text-xs text-error">제목은 최대 {MAX_PLAYLIST_TITLE_LENGTH}자까지 허용합니다.</span>}
+            {isInvalid && <span className="text-right my-2 text-xs text-error">제목은 최대 {MAX_PLAYLIST_TITLE_LENGTH}자까지 허용합니다.</span>}
           </>
         ) : (
           <h3 className="max-w-full sm:text-lg font-black text-primary truncate group-hover:text-accent-pink transition-colors">{playlist.title}</h3>
@@ -186,15 +152,10 @@ export default function PlaylistItem(playlist: Props) {
       {typeof window !== 'undefined' && menu && createPortal(menu, document.body)}
 
       <ConfirmOverlay
-        open={confirmOpen}
+        open={deleteConfirm.isOpen}
         title="플레이리스트를 삭제할까요?"
-        confirmLabel="삭제"
-        cancelLabel="취소"
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={async () => {
-          setConfirmOpen(false);
-          await playlist.onDelete(playlist.id);
-        }}
+        onCancel={deleteConfirm.cancel}
+        onConfirm={deleteConfirm.confirm}
       />
     </div>
   );

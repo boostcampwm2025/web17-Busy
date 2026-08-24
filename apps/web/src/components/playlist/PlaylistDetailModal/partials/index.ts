@@ -1,4 +1,4 @@
 export * from './Header';
-export * from './search';
+export * from './SearchDropdown';
 export * from './Toolbar';
 export * from './SongList';

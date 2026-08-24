@@ -1,14 +1,14 @@
-import type { MusicResponseDto as Music } from '@repo/dto';
-import type { MusicRequestDto as UnsavedMusic } from '@repo/dto';
-import { Plus } from 'lucide-react';
-import { TickerText } from '@/components';
+import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as Music } from '@repo/dto';
+
+import TickerText from '@/components/common/TickerText';
 
 type Props = {
   items: Music[];
   handleAddSong: (song: UnsavedMusic) => void;
 };
 
-export function MusicSearchResults({ items, handleAddSong }: Props) {
+/** 검색 결과를 눌러 플레이리스트에 넣는 목록. 같은 이름의 components/search 쪽은 드로어용 브라우저다. */
+export function AddSongResults({ items, handleAddSong }: Props) {
   return (
     <div className="bg-white border-2 border-primary rounded-xl max-h-40 overflow-y-auto custom-scrollbar shadow-md">
       {items.map((song) => (

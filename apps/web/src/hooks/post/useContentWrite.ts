@@ -4,9 +4,10 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 
 import useMusicActions from '../common/useMusicActions';
 import type { PlaylistDetail } from '../playlist/usePlaylistRecommendations';
-import { createPost } from '@/api';
-import { DEFAULT_IMAGES } from '@/constants';
-import { reorder } from '@/utils';
+import { createPost } from '@/api/internal/post';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import { dedupeById } from '@/utils/dedupe-by-id';
+import { reorder } from '@/utils/reorder';
 import { invalidatePostListCaches } from './post-cache-updaters';
 
 type Options = {
@@ -45,20 +46,9 @@ type Return = {
 
 const isUuid = (id: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
 
-const uniqById = (items: Music[]): Music[] => {
-  const seen = new Set<string>();
-  const out: Music[] = [];
-  for (const m of items) {
-    if (seen.has(m.id)) continue;
-    seen.add(m.id);
-    out.push(m);
-  }
-  return out;
-};
-
 const toInitialSelected = (initialMusics?: Music[], initialMusic?: Music): Music[] => {
   if (Array.isArray(initialMusics) && initialMusics.length > 0) {
-    return uniqById(initialMusics);
+    return dedupeById(initialMusics);
   }
   return initialMusic ? [initialMusic] : [];
 };
