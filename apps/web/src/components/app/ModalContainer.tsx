@@ -68,7 +68,7 @@ export default function ModalContainer() {
       {modalType === MODAL_TYPES.PLAYLIST_DETAIL && <PlaylistDetailModal playlistId={modalProps.playlistId} />}
 
       {/* 8. 보관함 저장(플레이리스트 선택) 모달 */}
-      {modalType === MODAL_TYPES.PLAYLIST_PICKER && <PlaylistPickerModal />}
+      {modalType === MODAL_TYPES.PLAYLIST_PICKER && <PlaylistPickerModal musics={modalProps.musics} />}
 
       {/* 9. 개인정보수집동의 모달 */}
       {modalType === MODAL_TYPES.PRIVACY_CONCENT && <PrivacyConsentModal />}
