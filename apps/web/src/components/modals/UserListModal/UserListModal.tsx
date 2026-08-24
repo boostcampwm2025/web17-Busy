@@ -3,21 +3,19 @@
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ProfileActionButton } from '@/components/profile';
 import { DEFAULT_IMAGES } from '@/constants';
-import type { GetUserFollowDto } from '@repo/dto';
 import { useModalStore } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, type MouseEvent } from 'react';
-import { useInfiniteScroll } from '@/hooks';
-import { queryKeys } from '@/api';
+import { type MouseEvent } from 'react';
+import { useFollowUsersQuery, type FollowListType } from '@/hooks/profile/use-follow-users-query';
 
 interface UserListModalProps {
   title: string;
-  fetchFn: (userId: string, cursor?: string | undefined, limit?: number) => Promise<GetUserFollowDto>;
+  listType: FollowListType;
 }
 
-export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
+export const UserListModal = ({ title, listType }: UserListModalProps) => {
   const modalProps = useModalStore((s) => s.modalProps);
   const closeModal = useModalStore((s) => s.closeModal);
   const { profileUserId }: { profileUserId: string } = modalProps;
@@ -25,19 +23,7 @@ export const UserListModal = ({ title, fetchFn }: UserListModalProps) => {
   const router = useRouter();
   const { userId: loggedInUserId } = useAuthMe();
 
-  /** fetch 함수 반환 형식을 무한 스크롤 hook 시그니처에 맞게 변환하는 함수 */
-  const fetchUsers = useCallback(
-    async (cursor?: string, limit?: number) => {
-      const data = await fetchFn(profileUserId, cursor, limit);
-      return { items: data.users, hasNext: data.hasNext, nextCursor: data.nextCursor };
-    },
-    [profileUserId, fetchFn],
-  );
-
-  const { items, hasNext, isInitialLoading, errorMsg, ref } = useInfiniteScroll({
-    queryKey: queryKeys.users.list(title, profileUserId),
-    fetchFn: fetchUsers,
-  });
+  const { items, hasNext, isInitialLoading, errorMsg, ref } = useFollowUsersQuery(listType, profileUserId);
 
   /** 프로필 클릭 시 해당 프로필 페이지 내비게이션 함수 */
   const handleProfileClick = (profileUserId: string) => {
