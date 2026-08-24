@@ -3,16 +3,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { useModalStore } from '@/stores/useModalStore';
-import { addMusicsToPlaylist, createNewPlaylist, queryKeys } from '@/api';
-import { DEFAULT_IMAGES } from '@/constants';
-import { coalesceImageSrc } from '@/utils';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import { coalesceImageSrc } from '@/utils/image';
 
 import type { MusicRequestDto, MusicResponseDto as Music } from '@repo/dto';
-import { LoadingSpinner } from '@/components';
-import { usePlaylistsQuery } from '@/hooks';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { usePlaylistsQuery } from '@/hooks/playlist/use-playlists-query';
+import { useAddMusicsToPlaylistMutation, useCreatePlaylistMutation } from '@/hooks/playlist/use-playlist-mutations';
 
 const toMusicRequestDto = (m: Music): MusicRequestDto => ({
   id: m.id,
@@ -36,7 +35,6 @@ const dedupeById = (musics: Music[]): Music[] => {
 };
 
 export default function PlaylistPickerModal() {
-  const queryClient = useQueryClient();
   const isOpen = useModalStore((s) => s.isOpen);
   const modalType = useModalStore((s) => s.modalType);
   const modalProps = useModalStore((s) => s.modalProps);
@@ -48,10 +46,12 @@ export default function PlaylistPickerModal() {
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [submittingPlaylistId, setSubmittingPlaylistId] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const createPlaylist = useCreatePlaylistMutation();
+  const addMusics = useAddMusicsToPlaylistMutation();
+  const isCreating = createPlaylist.isPending;
+  const submittingPlaylistId = addMusics.isPending ? addMusics.variables.playlistId : null;
 
-  const canSubmit = Boolean(musics && musics.length > 0) && !submittingPlaylistId && !isCreating;
+  const canSubmit = Boolean(musics && musics.length > 0) && !addMusics.isPending && !isCreating;
 
   useEffect(() => {
     if (!enabled) return;
@@ -76,13 +76,9 @@ export default function PlaylistPickerModal() {
     if (!musics || musics.length === 0) return;
 
     const unique = dedupeById(musics);
-    const req = unique.map(toMusicRequestDto);
+    const { addedMusics } = await addMusics.mutateAsync({ playlistId, musics: unique.map(toMusicRequestDto) });
 
-    const res = await addMusicsToPlaylist(playlistId, req);
-    await queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
-
-    const addedCount = Array.isArray(res.addedMusics) ? res.addedMusics.length : 0;
-    handleSaveResultToast(addedCount);
+    handleSaveResultToast(Array.isArray(addedMusics) ? addedMusics.length : 0);
 
     closeModal();
   };
@@ -90,7 +86,6 @@ export default function PlaylistPickerModal() {
   const handleSelect = async (playlistId: string) => {
     if (!canSubmit) return;
 
-    setSubmittingPlaylistId(playlistId);
     setErrorMsg(null);
 
     try {
@@ -98,26 +93,20 @@ export default function PlaylistPickerModal() {
     } catch {
       setErrorMsg('플레이리스트에 저장하지 못했습니다. 잠시 후 다시 시도해주세요.');
       toast.error('저장에 실패했습니다.');
-    } finally {
-      setSubmittingPlaylistId(null);
     }
   };
 
   const handleCreateAndSave = async () => {
     if (!canSubmit) return;
 
-    setIsCreating(true);
     setErrorMsg(null);
 
     try {
-      const created = await createNewPlaylist();
-      await queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+      const created = await createPlaylist.mutateAsync();
       await saveToPlaylist(created.id);
     } catch {
       setErrorMsg('새 플레이리스트를 만들지 못했습니다.');
       toast.error('플레이리스트 생성에 실패했습니다.');
-    } finally {
-      setIsCreating(false);
     }
   };
 
