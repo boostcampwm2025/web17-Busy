@@ -1,4 +1,4 @@
-import type { CommentItem } from '@/types';
+import type { CommentItem } from '@/types/comment';
 import type { PostResponseDto } from '@repo/dto';
 
 export const buildMockComments = (post: Pick<PostResponseDto, 'id'>): CommentItem[] => [

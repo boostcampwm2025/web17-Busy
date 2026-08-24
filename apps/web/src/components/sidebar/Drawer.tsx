@@ -3,8 +3,10 @@
 import { PropsWithChildren, ReactNode, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
-import { ErrorScreen, LoadingSpinner, ResizeHandle } from '@/components';
-import { DRAWER_LEFT_EXPANDED, DRAWER_LEFT_SHRINKED } from '@/constants';
+import ErrorScreen from '@/components/common/ErrorScreen';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import ResizeHandle from '@/components/layout/ResizeHandle';
+import { DRAWER_LEFT_EXPANDED, DRAWER_LEFT_SHRINKED } from '@/constants/sidebar';
 
 type DrawerProps = PropsWithChildren<{
   isOpen: boolean;

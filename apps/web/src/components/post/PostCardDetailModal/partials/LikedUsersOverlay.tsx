@@ -4,9 +4,9 @@ import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { LikedUserDto } from '@repo/dto';
 
-import { DEFAULT_IMAGES } from '@/constants';
-import { coalesceImageSrc } from '@/utils';
-import { LoadingSpinner } from '@/components';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import { coalesceImageSrc } from '@/utils/image';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 type Props = {
   isOpen: boolean;

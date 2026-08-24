@@ -1,8 +1,32 @@
 import { nextJsConfig } from '@repo/eslint-config/next-js';
 
+/**
+ * 배럴을 거치면 쓰지도 않는 모듈이 딸려 오고 심볼이 실제로 어디 있는지 알 수 없어진다.
+ *
+ * patterns가 아니라 paths를 쓰는 이유: patterns의 group은 하위 경로까지 매칭해서
+ * '@/stores'가 '@/stores/useModalStore'(권장 형태)까지 잡는다. paths는 정확히 일치할 때만 걸린다.
+ *
+ * flat config에서 뒤 블록의 no-restricted-imports는 앞 블록 것을 병합이 아니라 덮어쓰므로,
+ * 계층 규칙을 가진 블록마다 이 목록을 함께 넣어야 둘 다 살아남는다.
+ */
+const barrelPaths = ['@/api', '@/hooks', '@/components', '@/utils', '@/constants', '@/types', '@/stores', '@/mappers'].map((name) => ({
+  name,
+  message: `배럴 대신 직접 경로로 import하세요. 예: '${name}' 대신 '${name}/파일명'`,
+}));
+
 /** @type {import("eslint").Linter.Config[]} */
 export default [
   ...nextJsConfig,
+
+  // 아래 계층 블록에 걸리지 않는 파일(app/**, src/components/app/** 등)을 위한 기본값.
+  // 계층 블록은 이 뒤에 오면서 barrelPaths를 각자 다시 포함한다.
+  {
+    files: ['src/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', { paths: barrelPaths }],
+    },
+  },
 
   // Next App Router reserved filenames must be lowercase (layout.tsx, page.tsx, etc.)
   {
@@ -34,6 +58,7 @@ export default [
       'no-restricted-imports': [
         'error',
         {
+          paths: barrelPaths,
           patterns: [
             {
               group: ['@/stores', '@/stores/*', '@/hooks', '@/hooks/*', '@/components', '@/components/*'],
@@ -51,6 +76,7 @@ export default [
       'no-restricted-imports': [
         'error',
         {
+          paths: barrelPaths,
           patterns: [
             {
               group: ['@/hooks', '@/hooks/*', '@/components', '@/components/*'],
@@ -68,6 +94,7 @@ export default [
       'no-restricted-imports': [
         'error',
         {
+          paths: barrelPaths,
           patterns: [
             {
               group: ['@/components', '@/components/*'],
@@ -94,6 +121,7 @@ export default [
       'no-restricted-imports': [
         'error',
         {
+          paths: barrelPaths,
           patterns: [
             {
               group: ['@/api'],

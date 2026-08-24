@@ -3,7 +3,7 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import React, { memo } from 'react';
 import { Box, Plus } from 'lucide-react';
-import { TickerText } from '@/components';
+import TickerText from '@/components/common/TickerText';
 
 type Props = {
   currentMusic: Music | null;

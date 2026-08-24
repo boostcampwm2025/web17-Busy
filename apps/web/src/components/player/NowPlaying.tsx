@@ -1,7 +1,7 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { MusicProvider } from '@repo/dto/values';
 import { useCallback } from 'react';
-import { useMusicActions } from '@/hooks';
+import useMusicActions from '@/hooks/common/useMusicActions';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';

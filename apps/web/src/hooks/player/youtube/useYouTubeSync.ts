@@ -1,9 +1,9 @@
 'use client';
 
-import { DEFAULT_VOLUME } from '@/constants';
-import { usePlayerStore } from '@/stores';
-import { PlayerProgress } from '@/types';
-import { clamp01 } from '@/utils';
+import { DEFAULT_VOLUME } from '@/constants/player';
+import { usePlayerStore } from '@/stores/usePlayerStore';
+import { PlayerProgress } from '@/types/player';
+import { clamp01 } from '@/utils/clamp';
 import { MusicProvider } from '@repo/dto/values';
 import { useEffect } from 'react';
 

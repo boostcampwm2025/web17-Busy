@@ -2,8 +2,8 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
-import { coalesceImageSrc } from '@/utils';
-import { DEFAULT_IMAGES } from '@/constants';
+import { coalesceImageSrc } from '@/utils/image';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 
 type Args = {
   post: Post;

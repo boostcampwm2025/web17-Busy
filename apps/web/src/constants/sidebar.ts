@@ -1,5 +1,5 @@
 import { Bell, Box, Home, Search, Settings, User } from 'lucide-react';
-import { SidebarItemType } from '@/types';
+import { SidebarItemType } from '@/types/sidebar';
 
 export const menuItems = [
   { type: SidebarItemType.HOME, icon: Home, label: '홈' },

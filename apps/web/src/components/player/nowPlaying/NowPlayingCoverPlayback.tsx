@@ -2,7 +2,7 @@
 
 import type { MusicResponseDto as Music } from '@repo/dto';
 import React, { memo } from 'react';
-import { DEFAULT_IMAGES } from '@/constants';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { usePlaybackRefs } from './PlaybackProvider';
 
 type Props = {

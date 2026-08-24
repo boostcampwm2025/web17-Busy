@@ -4,11 +4,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState, lazy, useEffect, useRef, useCallback } from 'react';
 import { LogIn, LogOut, Menu, Plus } from 'lucide-react';
 
-import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants';
-import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types';
+import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants/sidebar';
+import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types/sidebar';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import { useNotificationsQuery, useResizable } from '@/hooks';
+import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
+import { useResizable } from '@/hooks/common/useResizable';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';

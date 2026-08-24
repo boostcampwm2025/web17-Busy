@@ -1,6 +1,6 @@
 'use client';
 
-import { useProfileQuery } from '@/hooks';
+import { useProfileQuery } from '@/hooks/profile/use-profile-query';
 import { useProfilePostsQuery } from '@/hooks/post/use-post-list-queries';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { ProfileSkeleton } from '@/components/common/skeleton';

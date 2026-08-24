@@ -3,7 +3,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { UpdateProfileDto, UserDto } from '@repo/dto';
 
-import { addFollow, queryKeys, removeFollow, updateProfile } from '@/api';
+import { addFollow, removeFollow } from '@/api/internal/follow';
+import { queryKeys } from '@/api/queryKeys';
+import { updateProfile } from '@/api/internal/user';
 import { applyFollowResultToProfileCaches, patchProfileInCache } from './profile-cache-updaters';
 
 type FollowVariables = {

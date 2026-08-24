@@ -1,8 +1,8 @@
 'use client';
 
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { ProfileActionButton } from '@/components/profile';
-import { DEFAULT_IMAGES } from '@/constants';
+import ProfileActionButton from '@/components/profile/ProfileInfo/ProfileActionButton';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { useModalStore } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { X } from 'lucide-react';

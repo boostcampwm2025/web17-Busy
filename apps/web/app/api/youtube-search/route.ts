@@ -1,4 +1,4 @@
-import { YOUTUBE_SEARCH } from '@/constants';
+import { YOUTUBE_SEARCH } from '@/constants/search';
 import { NextResponse } from 'next/server';
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_SEARCH_API_KEY;

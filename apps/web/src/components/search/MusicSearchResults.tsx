@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { TrackItem } from './index';
-import { ContentSearchMode } from '@/types';
+import { ContentSearchMode } from '@/types/search';
 
 type Props = {
   mode: ContentSearchMode;

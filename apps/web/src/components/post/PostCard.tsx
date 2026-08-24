@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 import { PostHeader, PostMedia, PostActions, PostContentPreview } from './index';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
-import { usePostLikeMutation } from '@/hooks';
+import { usePostLikeMutation } from '@/hooks/post/use-post-like-mutation';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 

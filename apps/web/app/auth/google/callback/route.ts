@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GOOGLE_AUTH_QUERY_KEYS, GOOGLE_COOKIE_KEYS } from '@/hooks/auth/config/google';
 import { APP_ACCESS_TOKEN_HASH_KEY } from '@/constants/auth';
-import { googleExchange } from '@/api';
+import { googleExchange } from '@/api/internal/auth';
 
 const APP_ORIGIN = process.env.APP_ORIGIN;
 

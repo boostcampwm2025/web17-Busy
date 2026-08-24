@@ -1,8 +1,9 @@
 'use client';
 
 import RightPanel from './RightPanel';
-import { ResizeHandle } from '@/components';
-import { useResizable, useIsMobile } from '@/hooks';
+import ResizeHandle from '@/components/layout/ResizeHandle';
+import { useResizable } from '@/hooks/common/useResizable';
+import useIsMobile from '@/hooks/common/useIsMobile';
 
 const MINI_PLAYER_BAR_HEIGHT = 'h-16';
 

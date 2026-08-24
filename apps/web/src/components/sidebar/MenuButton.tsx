@@ -1,4 +1,4 @@
-import { SidebarItemTypeValues } from '@/types';
+import { SidebarItemTypeValues } from '@/types/sidebar';
 import { LucideProps } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes, memo, useCallback } from 'react';
 

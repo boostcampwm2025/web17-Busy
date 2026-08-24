@@ -1,4 +1,4 @@
-import { spotifyToken } from '@/api';
+import { spotifyToken } from '@/api/internal/auth';
 import { create } from 'zustand';
 
 type SpotifyAuthState = {

@@ -1,9 +1,9 @@
 'use client';
 
-import { searchYoutubeVideos } from '@/api';
+import { searchYoutubeVideos } from '@/api/youtube/searchVideos';
 import { queryKeys } from '@/api/queryKeys';
-import { youtubeVideoToMusic } from '@/mappers';
-import { YOUTUBE_SEARCH } from '@/constants';
+import { youtubeVideoToMusic } from '@/mappers/youtubeVideoToMusic';
+import { YOUTUBE_SEARCH } from '@/constants/search';
 
 import { useExternalSearchQuery, type ExternalSearchResult } from './use-external-search-query';
 

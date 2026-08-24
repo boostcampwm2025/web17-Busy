@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronUp, ChevronDown, Trash2, Music as MusicIcon } from 'lucide-react';
 import type { MusicResponseDto as Music } from '@repo/dto';
-import { TickerText } from '@/components';
+import TickerText from '@/components/common/TickerText';
 
 interface SelectedMusicListProps {
   musics: Music[];

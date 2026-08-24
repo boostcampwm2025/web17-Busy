@@ -4,8 +4,8 @@ import React from 'react';
 import { Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { NotiView } from '@/types/noti';
-import { DEFAULT_IMAGES } from '@/constants';
-import { coalesceImageSrc } from '@/utils';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
+import { coalesceImageSrc } from '@/utils/image';
 
 function NotiItem({ noti, onClick, onMarkRead }: { noti: NotiView; onClick: (noti: NotiView) => void; onMarkRead: (noti: NotiView) => void }) {
   const router = useRouter();

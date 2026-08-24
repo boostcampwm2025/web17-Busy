@@ -2,7 +2,7 @@
 
 import { PlaylistItem } from './PlaylistItems';
 import ArchiveViewHeader from './ArchiveViewHeader';
-import { usePlaylistsQuery } from '@/hooks';
+import { usePlaylistsQuery } from '@/hooks/playlist/use-playlists-query';
 import { useDeletePlaylistInListMutation, useRenamePlaylistInListMutation } from '@/hooks/playlist/use-playlist-mutations';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';

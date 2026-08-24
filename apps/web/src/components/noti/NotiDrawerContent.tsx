@@ -5,11 +5,12 @@ import { CheckCheck, Trash2 } from 'lucide-react';
 import NotiItem from './NotiItem';
 import { toNotiView } from '@/mappers/noti-to-view';
 import { NotiView } from '@/types/noti';
-import { MODAL_TYPES, useModalStore } from '@/stores';
+import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
 import { useRouter } from 'next/navigation';
 import ConfirmOverlay from '@/components/common/ConfirmOverlay';
 import { useConfirm } from '@/hooks/common/use-confirm';
-import { useNotificationMutations, useNotificationsQuery } from '@/hooks';
+import { useNotificationMutations } from '@/hooks/noti/use-notification-mutations';
+import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
 
 export default function NotiDrawerContent({ onNavigate }: { onNavigate?: () => void }) {
   const openModal = useModalStore((s) => s.openModal);

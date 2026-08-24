@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useMemo } from 'react';
-import { usePlayback } from '@/hooks';
+import { usePlayback } from '@/hooks/player/usePlayback';
 
 type PlaybackKind = 'youtube' | 'itunes';
 

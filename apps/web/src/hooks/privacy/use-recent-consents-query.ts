@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { getRecentConsents, queryKeys } from '@/api';
+import { getRecentConsents } from '@/api/internal/privacy';
+import { queryKeys } from '@/api/queryKeys';
 
 /**
  * 동의 내역은 사용자가 폼을 제출할 때만 바뀐다. 제출 후에는 cache를 무효화하므로

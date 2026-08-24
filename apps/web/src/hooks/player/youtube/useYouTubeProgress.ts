@@ -1,7 +1,7 @@
 'use client';
 
-import { PlayerProgress } from '@/types';
-import { clampMs } from '@/utils';
+import { PlayerProgress } from '@/types/player';
+import { clampMs } from '@/utils/clamp';
 import { useCallback } from 'react';
 
 type Props = {

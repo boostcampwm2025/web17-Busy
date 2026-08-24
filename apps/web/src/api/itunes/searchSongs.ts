@@ -1,4 +1,4 @@
-import { toErrorMessage } from '@/utils';
+import { toErrorMessage } from '@/utils/errorMessage';
 
 export interface ItunesSearchResponse {
   resultCount: number;

@@ -1,6 +1,7 @@
 'use client';
 
-import { LoginRequestScreen, ProfileSkeleton } from '@/components';
+import LoginRequestScreen from '@/components/common/LoginRequestScreen';
+import ProfileSkeleton from '@/components/common/skeleton/ProfileSkeleton';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

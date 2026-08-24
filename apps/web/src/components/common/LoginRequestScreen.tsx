@@ -1,6 +1,6 @@
 'use client';
 
-import { MODAL_TYPES, useModalStore } from '@/stores';
+import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
 import { BadgeAlert } from 'lucide-react';
 
 export default function LoginRequestScreen() {

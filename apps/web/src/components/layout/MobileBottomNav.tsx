@@ -4,7 +4,7 @@ import React, { useState, useCallback, lazy, Suspense, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Home, Box, Plus, Search, User } from 'lucide-react';
 
-import { SidebarItemType } from '@/types';
+import { SidebarItemType } from '@/types/sidebar';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import LoadingSpinner from '@/components/common/LoadingSpinner';

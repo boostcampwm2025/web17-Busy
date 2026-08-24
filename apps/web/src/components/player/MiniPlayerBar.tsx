@@ -3,10 +3,10 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Pause, Play, Plus, SkipBack, SkipForward, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { useMusicActions } from '@/hooks';
+import useMusicActions from '@/hooks/common/useMusicActions';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
-import { TickerText } from '@/components';
+import TickerText from '@/components/common/TickerText';
 
 interface MiniPlayerBarProps {
   currentMusic: Music | null;

@@ -1,8 +1,8 @@
 'use client';
 
-import { YOUTUBE_IFRAME_ID, YOUTUBE_IFRAME_SCRIPT_SRC } from '@/constants';
-import { usePlayerStore } from '@/stores';
-import { PlayerProgress } from '@/types';
+import { YOUTUBE_IFRAME_ID, YOUTUBE_IFRAME_SCRIPT_SRC } from '@/constants/player';
+import { usePlayerStore } from '@/stores/usePlayerStore';
+import { PlayerProgress } from '@/types/player';
 import { useEffect, useRef, useState } from 'react';
 
 declare global {

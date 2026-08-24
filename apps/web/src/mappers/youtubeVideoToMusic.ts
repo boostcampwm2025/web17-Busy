@@ -1,4 +1,4 @@
-import { YoutubeVideoResult } from '@/api';
+import { YoutubeVideoResult } from '@/api/youtube/searchVideos';
 import { MusicProvider } from '@repo/dto/values';
 import type { MusicResponseDto as Music } from '@repo/dto';
 

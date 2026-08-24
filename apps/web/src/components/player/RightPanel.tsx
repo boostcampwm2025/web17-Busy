@@ -4,7 +4,8 @@ import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 import { QueueList, MiniPlayerBar, NowPlaying } from './index';
-import { useQueueSync, useGuestQueueSession } from '@/hooks';
+import { useQueueSync } from '@/hooks/queue/useQueueSync';
+import { useGuestQueueSession } from '@/hooks/queue/useGuestQueueSession';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';

@@ -4,9 +4,9 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import type { SearchUsersResDto } from '@repo/dto';
 
-import { useProfileFollowMutation } from '@/hooks';
-import { coalesceImageSrc } from '@/utils';
-import { DEFAULT_IMAGES } from '@/constants';
+import { useProfileFollowMutation } from '@/hooks/profile/use-profile-mutations';
+import { coalesceImageSrc } from '@/utils/image';
+import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 
 type SearchUser = SearchUsersResDto['users'][number];
 

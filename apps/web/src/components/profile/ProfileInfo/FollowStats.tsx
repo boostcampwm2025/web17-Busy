@@ -1,7 +1,7 @@
 'use client';
 
-import { MODAL_TYPES, useModalStore } from '@/stores';
-import { formatFollowCount } from '@/utils';
+import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
+import { formatFollowCount } from '@/utils/followCount';
 
 interface FollowStatsProps {
   profileUserId: string;

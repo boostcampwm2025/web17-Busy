@@ -3,7 +3,7 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import React, { memo, useMemo } from 'react';
 import SeekBar from '../SeekBar';
-import { formatMs } from '@/utils';
+import { formatMs } from '@/utils/time';
 import { usePlaybackProgress, usePlaybackRefs } from './PlaybackProvider';
 
 type Props = {

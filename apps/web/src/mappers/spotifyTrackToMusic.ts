@@ -1,4 +1,4 @@
-import type { SpotifyTrack } from '@/api';
+import type { SpotifyTrack } from '@/api/spotify/searchTracks';
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { MusicProvider } from '@repo/dto/values';
 

@@ -7,7 +7,7 @@ import { usePrivacyAgreements } from '@/hooks/privacy/use-privacy-agreements';
 import { AgreementItem } from './AgreeItem';
 import type { UpdateConsentListDto } from '@repo/dto';
 import { ConsentType } from '@repo/dto/values';
-import { PRIVACY_POLICY_TEXT, TERMS_OF_SERVICE_TEXT } from '@/constants';
+import { PRIVACY_POLICY_TEXT, TERMS_OF_SERVICE_TEXT } from '@/constants/terms';
 
 interface ConsentState {
   terms: boolean;

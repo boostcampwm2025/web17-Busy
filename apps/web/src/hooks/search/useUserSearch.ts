@@ -2,10 +2,12 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { useInfiniteScroll, useDebouncedValue } from '@/hooks';
-import { ITUNES_SEARCH } from '@/constants';
-import { queryKeys, searchUsers } from '@/api';
-import { SearchStatus } from '@/types';
+import useInfiniteScroll from '@/hooks/common/use-infinite-scroll';
+import useDebouncedValue from '@/hooks/common/useDebouncedValue';
+import { ITUNES_SEARCH } from '@/constants/search';
+import { queryKeys } from '@/api/queryKeys';
+import { searchUsers } from '@/api/internal/user';
+import { SearchStatus } from '@/types/search';
 import type { SearchUsersResDto } from '@repo/dto';
 
 type SearchUser = SearchUsersResDto['users'][number];
