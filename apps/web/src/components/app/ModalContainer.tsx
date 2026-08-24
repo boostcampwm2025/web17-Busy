@@ -2,16 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import {
-  ContentWriteModal,
-  PostCardDetailModal,
-  LoginModal,
-  MobileNowPlaylistModal,
-  UserListModal,
-  PlaylistDetailModal,
-  PlaylistPickerModal,
-  PrivacyConsentModal,
-} from './index';
+import { LoginModal } from '@/components/auth/LoginModal';
+import { ContentWriteModal } from '@/components/post/ContentWriteModal';
+import { PostCardDetailModal } from '@/components/post/PostCardDetailModal';
+import { PlaylistDetailModal } from '@/components/playlist/PlaylistDetailModal';
+import { PlaylistPickerModal } from '@/components/playlist/PlaylistPickerModal';
+import { UserListModal } from '@/components/profile/UserListModal';
+import { MobileNowPlaylistModal } from '@/components/player/MobileNowPlaylistModal';
+import { PrivacyConsentModal } from '@/components/setting/PrivacyConsentModal';
 
 export default function ModalContainer() {
   const isOpen = useModalStore((s) => s.isOpen);

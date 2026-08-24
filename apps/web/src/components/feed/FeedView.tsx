@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useFeedPostsQuery } from '@/hooks/post/use-post-list-queries';
-import { FeedSkeleton } from '../skeleton';
-import LoadingSpinner from '../LoadingSpinner';
+import { FeedSkeleton } from '@/components/common/skeleton';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import FeedList from './FeedList';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 

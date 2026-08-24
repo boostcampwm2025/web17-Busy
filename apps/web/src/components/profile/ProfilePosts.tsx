@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { MODAL_TYPES, useModalStore } from '@/stores';
 import { PostPreviewDto as PostPreview } from '@repo/dto';
 import { Heart, MessageCircle } from 'lucide-react';
-import useIsMobile from '@/hooks/useIsMobile';
+import useIsMobile from '@/hooks/common/useIsMobile';
 
 export default function ProfilePosts({ posts, isMyProfile, userId }: { posts: PostPreview[]; isMyProfile: boolean; userId: string }) {
   const router = useRouter();

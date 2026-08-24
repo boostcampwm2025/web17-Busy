@@ -6,8 +6,8 @@ import { ConsentType } from '@repo/dto/values';
 import { ConsentItemDto } from '@repo/dto';
 
 import { useRecentConsentsQuery } from '@/hooks/privacy/use-recent-consents-query';
-import { PrivacyConsentForm } from '../modals/PrivacyConsentModal';
-import LoadingSpinner from '../LoadingSpinner';
+import { PrivacyConsentForm } from './PrivacyConsentModal';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 interface ConsentState {
   terms: boolean;

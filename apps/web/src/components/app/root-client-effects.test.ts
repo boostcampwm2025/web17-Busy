@@ -11,9 +11,9 @@ import { useSpotifyAuthStore } from '@/stores/useSpotifyAuthStore';
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
 // 이 테스트가 보는 것은 세션 만료 배선 하나뿐이라, 나머지 자식 효과는 렌더 비용만 늘린다.
-vi.mock('@/components/PwaRegister', () => ({ default: () => null }));
-vi.mock('@/hooks/auth/client/SpotifyTokenFromHash', () => ({ default: () => null }));
-vi.mock('@/hooks/privacy/PrivacyConsentGate', () => ({ PrivacyConsentGate: () => null }));
+vi.mock('@/components/app/PwaRegister', () => ({ default: () => null }));
+vi.mock('@/components/app/SpotifyTokenFromHash', () => ({ default: () => null }));
+vi.mock('@/components/app/PrivacyConsentGate', () => ({ PrivacyConsentGate: () => null }));
 vi.mock('@/hooks/noti/use-notifications-query', () => ({ useNotificationsQuery: () => ({}) }));
 
 import { internalClient } from '@/api/internal/client';

@@ -5,7 +5,7 @@ import type { Cursor, PostResponseDto } from '@repo/dto';
 
 import { getFeedPosts, getUserProfileFeedPosts, getUserProfilePosts } from '@/api/internal/post';
 import { queryKeys } from '@/api/queryKeys';
-import useInfiniteScroll from '@/hooks/use-infinite-scroll';
+import useInfiniteScroll from '@/hooks/common/use-infinite-scroll';
 
 /**
  * 서버가 페이지 간 중복 게시글을 반환할 수 있어 방어한다. 서버 중복 제거(#392) 이후 존치 여부를 판단한다.

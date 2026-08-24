@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { usePostMedia } from '@/hooks';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
-import TickerText from '@/components/TickerText';
+import TickerText from '@/components/common/TickerText';
 
 type Variant = 'card' | 'modal';
 

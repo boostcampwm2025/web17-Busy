@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 
 import { getFollowerUsers, getFollowingUsers } from '@/api/internal/follow';
 import { queryKeys } from '@/api/queryKeys';
-import useInfiniteScroll from '@/hooks/use-infinite-scroll';
+import useInfiniteScroll from '@/hooks/common/use-infinite-scroll';
 
 export type FollowListType = 'followers' | 'followings';
 

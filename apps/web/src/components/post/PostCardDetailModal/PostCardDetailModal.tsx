@@ -5,11 +5,11 @@ import { X } from 'lucide-react';
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { PostHeader } from '../../post';
+import PostHeader from '@/components/post/partials/PostHeader';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
-import useIsMobile from '@/hooks/useIsMobile';
+import useIsMobile from '@/hooks/common/useIsMobile';
 import { useScrollLock, usePostDetail, useLikedUsers, usePostReactions, useSwipeToDismiss } from '@/hooks';
 
 import { EMPTY_POST, DEFAULT_IMAGES } from '@/constants';

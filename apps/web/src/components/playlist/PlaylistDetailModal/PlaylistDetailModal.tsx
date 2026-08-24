@@ -1,10 +1,10 @@
-import { ConfirmOverlay } from '@/components';
+import ConfirmOverlay from '@/components/common/ConfirmOverlay';
 import { useModalStore } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import type { MusicRequestDto as UnsavedMusic, MusicResponseDto as SavedMusic } from '@repo/dto';
 import { useEffect, useState } from 'react';
 import { DEFAULT_IMAGES, MAX_PLAYLIST_TITLE_LENGTH } from '@/constants';
-import { Header, SearchDropdown, SongList, Toolbar } from './components';
+import { Header, SearchDropdown, SongList, Toolbar } from './partials';
 import {
   useAddPlaylistSongMutation,
   useDeletePlaylistMutation,
