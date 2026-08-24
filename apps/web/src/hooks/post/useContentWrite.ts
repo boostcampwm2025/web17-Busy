@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
-import useMusicActions from '../useMusicActions';
+import useMusicActions from '../common/useMusicActions';
 import type { PlaylistDetail } from '../playlist/usePlaylistRecommendations';
 import { createPost } from '@/api';
 import { DEFAULT_IMAGES } from '@/constants';

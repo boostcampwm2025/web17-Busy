@@ -3,7 +3,7 @@ import { useQuery, type QueryKey } from '@tanstack/react-query';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
 import type { SearchStatus } from '@/types/search';
-import useDebouncedValue from '@/hooks/useDebouncedValue';
+import useDebouncedValue from '@/hooks/common/useDebouncedValue';
 
 /**
  * 같은 검색어를 다시 조회할 때 재요청하지 않는 시간.
