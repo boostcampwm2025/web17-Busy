@@ -85,10 +85,11 @@ export default [
    */
   {
     files: ['src/components/**/*.{ts,tsx}'],
-    // RootClientEffects.tsx는 client.ts가 store/hooks를 알 수 없어 만든 의존성 역전 배선의 등록 지점이다(#423).
-    // 루트 eslint.config.mjs는 이 규칙 자체를 모르므로 root cwd에서 도는 lint-staged가 인라인 eslint-disable을
-    // "쓸모없는 지시어"로 보고 지운다. 규칙 설정에서 예외 처리해 어느 config에서 실행돼도 안전하게 한다.
-    ignores: ['**/*.test.{ts,tsx}', 'src/components/app/RootClientEffects.tsx'],
+    // components/app은 feature 코드가 돌기 전에 세션 토큰·401 핸들러 같은 횡단 관심사를 배선하는
+    // 부트스트랩 계층이라 utility를 직접 다뤄야 한다(예: client.ts의 의존성 역전 등록 지점 #423).
+    // 인라인 eslint-disable은 쓸 수 없다. 루트 eslint.config.mjs가 이 규칙을 몰라서
+    // root cwd로 도는 lint-staged가 "쓸모없는 지시어"로 보고 지운다.
+    ignores: ['**/*.test.{ts,tsx}', 'src/components/app/**'],
     rules: {
       'no-restricted-imports': [
         'error',

@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import PwaInstallBanner from '@/components/app/PwaInstallBanner';
 import RootClientEffects from '@/components/app/RootClientEffects';
 import ToastProvider from '@/components/app/ToastContainer';
-import AuthLoginQueryHandler from '@/hooks/auth/client/AuthLoginQueryHandler';
+import AuthLoginQueryHandler from '@/components/app/AuthLoginQueryHandler';
 import QueryProvider from '@/components/app/QueryProvider';
 
 export const metadata: Metadata = {

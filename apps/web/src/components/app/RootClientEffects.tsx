@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 
 import PwaRegister from '@/components/app/PwaRegister';
 import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
-import SpotifyTokenFromHash from '@/hooks/auth/client/SpotifyTokenFromHash';
-import { PrivacyConsentGate } from '@/hooks/privacy/PrivacyConsentGate';
+import SpotifyTokenFromHash from '@/components/app/SpotifyTokenFromHash';
+import { PrivacyConsentGate } from '@/components/app/PrivacyConsentGate';
 import { registerSessionExpiredHandler, SESSION_EXPIRED_CODE } from '@/api/internal/client';
 import { clearClientSession } from '@/hooks/auth/client/logout';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
