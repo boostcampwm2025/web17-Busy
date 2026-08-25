@@ -8,6 +8,7 @@ import { Observable, tap } from 'rxjs';
 import type { Request, Response } from 'express';
 import type { LogEventDto } from '@repo/dto';
 import { LogsService } from 'src/modules/log/logs.service';
+import { v7 as uuidV7 } from 'uuid';
 
 import {
   getUserIdFromReq,
@@ -49,6 +50,7 @@ export class LikeStreamLogInterceptor implements NestInterceptor {
 
           // sessionId는 있을 때만 포함(사실상 무시 정책 반영)
           const event: LogEventDto = {
+            eventId: uuidV7(),
             eventType,
             source: 'be',
             ...(sessionId ? { sessionId } : {}),

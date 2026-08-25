@@ -9,6 +9,7 @@ import type { Request, Response } from 'express';
 import type { LogEventDto } from '@repo/dto';
 
 import { LogsService } from 'src/modules/log/logs.service';
+import { v7 as uuidV7 } from 'uuid';
 import {
   getUserIdFromReq,
   getSessionIdFromReq,
@@ -49,6 +50,7 @@ export class CommentStreamLogInterceptor implements NestInterceptor {
 
           // sessionId는 있을 때만 포함(사실상 무시 정책 반영)
           const event: LogEventDto = {
+            eventId: uuidV7(),
             eventType: 'COMMENT_CREATE',
             source: 'be',
             ...(sessionId ? { sessionId } : {}),

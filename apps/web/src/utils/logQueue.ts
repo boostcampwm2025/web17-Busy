@@ -80,6 +80,20 @@ export const resetLogQueueStats = () => {
 
 const now = () => Date.now();
 
+/**
+ * 중복 제거용 식별자.
+ * `crypto.randomUUID`는 보안 컨텍스트(https/localhost)에서만 있으므로 대비해 둔다.
+ * 키가 없으면 서버가 중복을 못 걸러낼 뿐 전송 자체는 되므로, 실패해도 이벤트를 버리지는 않는다.
+ */
+const createEventId = (): string | undefined => {
+  try {
+    if (typeof crypto?.randomUUID === 'function') return crypto.randomUUID();
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  } catch {
+    return undefined;
+  }
+};
+
 const scheduleFlush = (delayMs = config.flushIntervalMs) => {
   if (flushTimer) return;
 
@@ -154,14 +168,17 @@ const shouldDropOnError = (err: unknown): boolean => {
 export const enqueueLog = (event: LogEventDto) => {
   if (typeof window === 'undefined') return;
 
+  // 재시도로 같은 이벤트가 여러 번 도착해도 서버가 걸러낼 수 있도록 여기서 한 번만 붙인다.
+  const identified: LogEventDto = event.eventId ? event : { ...event, eventId: createEventId() };
+
   // 이벤트가 너무 크면 drop (운영 안정성)
-  if (approxBytes(event) > config.maxEventBytes) {
+  if (approxBytes(identified) > config.maxEventBytes) {
     stats.droppedOversize += 1;
     return;
   }
 
   stats.enqueued += 1;
-  buffer.push(event);
+  buffer.push(identified);
   dropOldestIfOverflow();
 
   // 백오프 중이면 타이머만 걸어둠

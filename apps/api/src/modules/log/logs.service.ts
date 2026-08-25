@@ -19,6 +19,13 @@ const consentCacheKey = (userId: string) => `consent:log:${userId}`;
 const LOG_STREAM_MAXLEN = 20_000;
 
 /**
+ * 이벤트 식별자를 기억해 두는 기간.
+ * FE 버퍼는 페이지가 열려 있는 내내 유지되고 백오프도 최대 16초까지 늘어나므로,
+ * 재시도가 이 창 안에 들어오도록 넉넉히 잡는다.
+ */
+const EVENT_SEEN_TTL_SEC = 60 * 60;
+
+/**
  * FE/BE 공용 로그 적재(Sink) - Stream Only
  * - Redis Stream에 원천 이벤트만 저장
  * - 트렌딩(ZSET) 갱신은 워커/배치/다른 모듈에서 처리(분리)
@@ -61,11 +68,11 @@ export class LogsService {
    * - serverTs는 서버 적재 시각(UTC 기반 처리 권장)
    */
 
-  private async pushToStream(params: {
+  private streamPushArgs(params: {
     userId: string;
     serverTs: number;
     event: LogEventDto;
-  }) {
+  }): string[] {
     const { userId, serverTs, event } = params;
 
     const occurredAt = safeDateOrNull(event.occurredAt);
@@ -74,11 +81,11 @@ export class LogsService {
         ? JSON.stringify(event.meta)
         : '';
 
-    await this.redis.xadd(
+    return [
       REDIS_KEYS.LOG_EVENTS_STREAM,
       'MAXLEN',
       '~',
-      LOG_STREAM_MAXLEN,
+      String(LOG_STREAM_MAXLEN),
       '*',
       'serverTs',
       String(serverTs),
@@ -107,9 +114,57 @@ export class LogsService {
       event.provider ?? '',
       'occurredAt',
       occurredAt ? occurredAt.toISOString() : '',
+      'eventId',
+      event.eventId ?? '',
       'meta',
       metaStr,
+    ];
+  }
+
+  /**
+   * 이미 받은 이벤트를 걸러낸다.
+   *
+   * 식별자가 없는 이벤트(배포 과도기의 옛 번들)는 판별할 방법이 없으니 그대로 통과시킨다.
+   * Redis 판별이 실패한 경우에도 통과시킨다 — 유실보다 중복이 낫다.
+   */
+  private async rejectAlreadySeen(
+    events: LogEventDto[],
+  ): Promise<{ fresh: LogEventDto[]; blocked: number }> {
+    const identified = events.filter(
+      (event): event is LogEventDto & { eventId: string } => !!event.eventId,
     );
+    if (identified.length === 0) return { fresh: events, blocked: 0 };
+
+    const pipeline = this.redis.pipeline();
+    for (const event of identified) {
+      pipeline.set(
+        REDIS_KEYS.LOG_EVENT_SEEN(event.eventId),
+        '1',
+        'EX',
+        EVENT_SEEN_TTL_SEC,
+        'NX',
+      );
+    }
+    const results = await pipeline.exec();
+
+    const seenBefore = new Set<string>();
+    identified.forEach((event, index) => {
+      const entry = results?.[index];
+      if (!entry) return; // 판별 결과가 없으면 통과
+      const [err, value] = entry;
+      if (err) return; // Redis 오류면 통과
+      // NX는 처음 보는 키에만 'OK'를 준다. null이면 이미 받은 이벤트다.
+      if (value !== 'OK') seenBefore.add(event.eventId);
+    });
+
+    if (seenBefore.size === 0) return { fresh: events, blocked: 0 };
+
+    return {
+      fresh: events.filter(
+        (event) => !event.eventId || !seenBefore.has(event.eventId),
+      ),
+      blocked: seenBefore.size,
+    };
   }
 
   async ingest(userId: string, dto: CreateLogsReqDto): Promise<number> {
@@ -117,11 +172,29 @@ export class LogsService {
     const ok = await this.hasLogConsent(userId);
     if (!ok) return 0;
 
+    const { fresh, blocked } = await this.rejectAlreadySeen(dto.events);
+    if (fresh.length === 0) {
+      if (blocked > 0) await this.countBlockedDuplicates(blocked);
+      return 0;
+    }
+
     const serverTs = Date.now();
-    // Stream only: 모든 이벤트를 원천 스트림에 적재
-    await Promise.all(
-      dto.events.map((e) => this.pushToStream({ userId, serverTs, event: e })),
-    );
-    return dto.events.length;
+    // Stream only: 모든 이벤트를 원천 스트림에 적재.
+    // 이벤트마다 왕복하면 중복 판별까지 더해져 왕복이 2N이 되므로 한 번에 묶어 보낸다.
+    const pipeline = this.redis.pipeline();
+    for (const event of fresh) {
+      const args = this.streamPushArgs({ userId, serverTs, event });
+      pipeline.xadd(...(args as [string, ...string[]]));
+    }
+    if (blocked > 0) {
+      pipeline.incrby(REDIS_KEYS.LOG_DUPLICATES_BLOCKED, blocked);
+    }
+    await pipeline.exec();
+
+    return fresh.length;
+  }
+
+  private async countBlockedDuplicates(blocked: number) {
+    await this.redis.incrby(REDIS_KEYS.LOG_DUPLICATES_BLOCKED, blocked);
   }
 }
