@@ -33,7 +33,6 @@ export const LoginModal = () => {
           <div className="text-sm font-bold text-secondary border border-secondary/40 bg-secondary/5 rounded-xl px-4 py-3">{errorMessage}</div>
         )}
         <GoogleLoginButton />
-        {/* <SpotifyLoginButton /> */}
         {process.env.NODE_ENV !== 'production' && <TmpLoginButton />}
       </div>
     </ModalShell>

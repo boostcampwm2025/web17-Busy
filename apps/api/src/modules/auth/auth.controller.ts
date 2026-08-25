@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
-import { ExchangeTokenDto } from './dto/exchangeDto';
 
 const JWT_COOKIE_NAME = 'jwt';
 const ONE_HOUR_MS = 1000 * 60 * 60;
@@ -64,25 +63,6 @@ export class AuthController {
     return { ok: true };
   }
 
-  @Post('spotify/exchange')
-  async spotifyExchange(@Body() { code, verifier }: ExchangeTokenDto) {
-    const spotifyTokens = await this.authService.spotifyExchange(
-      code,
-      verifier,
-    );
-
-    // 프론트 callback이 appJwt를 기대한다면(추후 정리),
-    // 여기서도 appJwt 발급을 하려면 아래 2줄을 활성화하면 됨.
-    // const user = await this.authService.handleSpotifySignIn(spotifyTokens);
-    // const appJwt = await this.authService.issueJwt({ id: user.id });
-
-    return {
-      spotifyAccessToken: spotifyTokens.accessToken,
-      spotifyTokenExpiresIn: spotifyTokens.expiresIn,
-      // appJwt,
-    };
-  }
-
   @Post('google/exchange')
   async googleExchange(@Body() body: { code: string; verifier?: string }) {
     if (!body.code) {
@@ -97,11 +77,5 @@ export class AuthController {
     const appJwt = await this.authService.issueJwt({ id: user.id });
 
     return { appJwt };
-  }
-
-  @Get('spotify/token')
-  refresh() {
-    this.logger.warn('spotify/token is not implemented yet');
-    return;
   }
 }

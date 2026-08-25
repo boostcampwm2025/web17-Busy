@@ -253,9 +253,6 @@ importers:
       '@types/react-dom':
         specifier: 19.2.2
         version: 19.2.2(@types/react@19.2.2)
-      '@types/spotify-web-playback-sdk':
-        specifier: ^0.1.19
-        version: 0.1.19
       '@types/youtube':
         specifier: ^0.1.2
         version: 0.1.2
@@ -2183,9 +2180,6 @@ packages:
   '@types/sharp@0.32.0':
     resolution: {integrity: sha512-OOi3kL+FZDnPhVzsfD37J88FNeZh6gQsGcLc95NbeURRGvmSjeXiDcyWzF2o3yh/gQAUn2uhh/e+CPCa5nwAxw==}
     deprecated: This is a stub types definition. sharp provides its own type definitions, so you do not need this installed.
-
-  '@types/spotify-web-playback-sdk@0.1.19':
-    resolution: {integrity: sha512-Is7x9gMIMoERxE0uvb2SPFQoy5OR7nO1B24CJiaDAUIdq195OLTQedN95XJQtxB2mfm+zi2j3LvEtpPdHKnB3w==}
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
@@ -8173,8 +8167,6 @@ snapshots:
   '@types/sharp@0.32.0':
     dependencies:
       sharp: 0.34.5
-
-  '@types/spotify-web-playback-sdk@0.1.19': {}
 
   '@types/stack-utils@2.0.3': {}
 

@@ -4,8 +4,6 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
-import { useSpotifyAuthStore } from '@/stores/useSpotifyAuthStore';
-import { useSpotifyPlayerStore } from '@/stores/useSpotifyPlayerStore';
 
 import { clearClientSession, performLogout } from './logout';
 
@@ -26,7 +24,6 @@ const music = (id: string): Music =>
 const fillLoggedInState = () => {
   sessionStorage.setItem(APP_ACCESS_TOKEN_STORAGE_KEY, 'app-jwt-token');
   sessionStorage.setItem(GUEST_QUEUE_STORAGE_KEY, JSON.stringify({ queue: [], currentMusic: null, isPlaying: false, savedAt: 0 }));
-  useSpotifyAuthStore.setState({ accessToken: 'spotify-token', expiresAt: Date.now() + 10_000 });
   usePlayerStore.setState({ queue: [music('music-1')], currentMusic: music('music-1'), isPlaying: true });
   useModalStore.getState().openModal(MODAL_TYPES.PLAYLIST_DETAIL);
 };
@@ -34,9 +31,7 @@ const fillLoggedInState = () => {
 describe('clearClientSession', () => {
   beforeEach(() => {
     sessionStorage.clear();
-    useSpotifyAuthStore.getState().clear();
     usePlayerStore.getState().clearQueue();
-    useSpotifyPlayerStore.getState().reset();
     useModalStore.getState().closeModal();
   });
 
@@ -46,7 +41,6 @@ describe('clearClientSession', () => {
     clearClientSession();
 
     expect(sessionStorage.getItem(APP_ACCESS_TOKEN_STORAGE_KEY)).toBeNull();
-    expect(useSpotifyAuthStore.getState().accessToken).toBeNull();
     expect(usePlayerStore.getState().queue).toEqual([]);
     expect(usePlayerStore.getState().currentMusic).toBeNull();
     expect(useModalStore.getState().isOpen).toBe(false);

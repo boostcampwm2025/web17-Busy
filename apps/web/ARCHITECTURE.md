@@ -10,13 +10,13 @@
 page  →  component  →  business  →  store  →  utility
 ```
 
-| 계층      | 경로                                                                                                                                                                                  |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| page      | `app/**`                                                                                                                                                                              |
-| component | `src/components/**`                                                                                                                                                                   |
-| business  | `src/hooks/**`                                                                                                                                                                        |
-| store     | `src/stores/**`, `src/api/queryKeys/**`                                                                                                                                               |
-| utility   | `src/api/internal/**`, `src/api/itunes/**`, `src/api/spotify/**`, `src/api/youtube/**`, `src/api/auth-token.ts`, `src/utils/**`, `src/constants/**`, `src/types/**`, `src/mappers/**` |
+| 계층      | 경로                                                                                                                                                            |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| page      | `app/**`                                                                                                                                                        |
+| component | `src/components/**`                                                                                                                                             |
+| business  | `src/hooks/**`                                                                                                                                                  |
+| store     | `src/stores/**`, `src/api/queryKeys/**`                                                                                                                         |
+| utility   | `src/api/internal/**`, `src/api/itunes/**`, `src/api/youtube/**`, `src/api/auth-token.ts`, `src/utils/**`, `src/constants/**`, `src/types/**`, `src/mappers/**` |
 
 "한 단계씩만"이 아니라 "자기보다 아래 어디든" 허용한다. hooks가 store와 utility를 함께 쓰는 것은 정상이다.
 

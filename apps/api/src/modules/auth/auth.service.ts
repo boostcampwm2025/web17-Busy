@@ -4,8 +4,6 @@ import {
   AuthProvider,
   GoogleTokenResponse,
   GoogleUserInfoResponse,
-  SpotifyCurrentUserResponse,
-  SpotifyTokenResponse,
 } from './types';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -23,81 +21,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
-
-  async spotifyExchange(
-    code: string,
-    verifier: string,
-  ): Promise<{
-    accessToken: string;
-    expiresIn: number;
-    refreshToken: string;
-  }> {
-    const tokenUrl = this.configService.getOrThrow<string>('SPOTIFY_TOKEN_URL');
-
-    const res = await fetch(tokenUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: this.configService.getOrThrow<string>('SPOTIFY_CLIENT_ID'),
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: this.configService.getOrThrow<string>(
-          'SPOTIFY_REDIRECT_URI',
-        ),
-        code_verifier: verifier,
-      }),
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      this.logger.warn(
-        `Spotify token exchange failed: ${res.status} ${errorText}`,
-      );
-      throw new UnauthorizedException('Spotify Token 교환에 실패했습니다.');
-    }
-
-    const spotifyTokenResponse = (await res.json()) as SpotifyTokenResponse;
-
-    return {
-      accessToken: spotifyTokenResponse.access_token,
-      expiresIn: spotifyTokenResponse.expires_in,
-      refreshToken: spotifyTokenResponse.refresh_token,
-    };
-  }
-
-  async handleSpotifySignIn(spotifyTokens: {
-    accessToken: string;
-    refreshToken: string;
-  }) {
-    const apiBaseUrl = this.configService.getOrThrow<string>(
-      'SPOTIFY_API_BASE_URL',
-    );
-    const url = `${apiBaseUrl}/me`;
-
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${spotifyTokens.accessToken}` },
-    });
-
-    if (!res.ok) {
-      throw new UnauthorizedException(
-        'Spotify 사용자 정보 조회에 실패했습니다.',
-      );
-    }
-
-    const me = (await res.json()) as SpotifyCurrentUserResponse;
-    const profileImgUrl = me.images[0]?.url;
-
-    // Phase 2에서 실제 upsert 구현
-    const user = await this.userService.findOrCreateBySpotifyUserId({
-      spotifyUserId: me.id,
-      nickname: me.display_name,
-      email: me.email,
-      profileImgUrl,
-      refreshToken: spotifyTokens.refreshToken,
-    });
-
-    return user;
-  }
 
   async exchangeGoogle(code: string, verifier?: string) {
     const clientId = this.configService.getOrThrow<string>('GOOGLE_CLIENT_ID');

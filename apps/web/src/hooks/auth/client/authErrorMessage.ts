@@ -10,7 +10,6 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   token_exchange_failed: '로그인 처리 중 오류가 발생했어요. 다시 시도해주세요.',
 
   // Provider-specific prefix 패턴 (현재 구현과 호환)
-  spotify_error_access_denied: 'Spotify 로그인 권한이 거부되었어요.',
   google_error_access_denied: 'Google 로그인 권한이 거부되었어요.',
 };
 
@@ -25,8 +24,7 @@ export function getAuthErrorMessage(authError?: string) {
   const key = normalizeErrorKey(authError);
   if (!key) return DEFAULT_MESSAGE;
 
-  // spotify_error_xxx / google_error_xxx 형식 일반 처리
-  if (key.startsWith('spotify_error_')) return 'Spotify 로그인에 실패했어요.';
+  // google_error_xxx 형식 일반 처리
   if (key.startsWith('google_error_')) return 'Google 로그인에 실패했어요.';
 
   return AUTH_ERROR_MESSAGES[key] ?? DEFAULT_MESSAGE;

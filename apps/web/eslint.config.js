@@ -45,7 +45,6 @@ export default [
     files: [
       'src/api/internal/**/*.ts',
       'src/api/itunes/**/*.ts',
-      'src/api/spotify/**/*.ts',
       'src/api/youtube/**/*.ts',
       'src/api/auth-token.ts',
       'src/utils/**/*.ts',
