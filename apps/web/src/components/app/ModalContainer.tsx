@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+import { useModalStore, useModalProps, MODAL_TYPES } from '@/stores/useModalStore';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { ContentWriteModal } from '@/components/post/ContentWriteModal';
 import { PostCardDetailModal } from '@/components/post/PostCardDetailModal';
@@ -14,7 +14,11 @@ import { PrivacyConsentModal } from '@/components/setting/PrivacyConsentModal';
 export default function ModalContainer() {
   const isOpen = useModalStore((s) => s.isOpen);
   const modalType = useModalStore((s) => s.modalType);
-  const modalProps = useModalStore((s) => s.modalProps);
+  const writeProps = useModalProps(MODAL_TYPES.WRITE);
+  const followerProps = useModalProps(MODAL_TYPES.FOLLOWER_USER);
+  const followingProps = useModalProps(MODAL_TYPES.FOLLOWING_USER);
+  const playlistDetailProps = useModalProps(MODAL_TYPES.PLAYLIST_DETAIL);
+  const playlistPickerProps = useModalProps(MODAL_TYPES.PLAYLIST_PICKER);
   const closeModal = useModalStore((s) => s.closeModal);
   const closeModalRef = useRef(closeModal);
   closeModalRef.current = closeModal;
@@ -47,7 +51,7 @@ export default function ModalContainer() {
   return (
     <>
       {/* 1. 컨텐츠 작성 모달 */}
-      {modalType === MODAL_TYPES.WRITE && <ContentWriteModal initialMusic={modalProps.initialMusic} initialMusics={modalProps.initialMusics} />}
+      {modalType === MODAL_TYPES.WRITE && <ContentWriteModal initialMusics={writeProps?.initialMusics} />}
 
       {/* 2. 로그인 모달 */}
       {modalType === MODAL_TYPES.LOGIN && <LoginModal />}
@@ -59,16 +63,20 @@ export default function ModalContainer() {
       {modalType === MODAL_TYPES.MOBILE_QUEUE && <MobileNowPlaylistModal />}
 
       {/* 5. 팔로워 사용자 목록 모달 */}
-      {modalType === MODAL_TYPES.FOLLOWER_USER && <UserListModal title="팔로워 목록" listType="followers" />}
+      {modalType === MODAL_TYPES.FOLLOWER_USER && (
+        <UserListModal title="팔로워 목록" listType="followers" profileUserId={followerProps?.profileUserId ?? ''} />
+      )}
 
       {/* 6. 팔로잉 사용자 목록 모달 */}
-      {modalType === MODAL_TYPES.FOLLOWING_USER && <UserListModal title="팔로잉 목록" listType="followings" />}
+      {modalType === MODAL_TYPES.FOLLOWING_USER && (
+        <UserListModal title="팔로잉 목록" listType="followings" profileUserId={followingProps?.profileUserId ?? ''} />
+      )}
 
       {/* 7. 플레이리스트 상세 모달 */}
-      {modalType === MODAL_TYPES.PLAYLIST_DETAIL && <PlaylistDetailModal playlistId={modalProps.playlistId} />}
+      {modalType === MODAL_TYPES.PLAYLIST_DETAIL && <PlaylistDetailModal playlistId={playlistDetailProps?.playlistId ?? ''} />}
 
       {/* 8. 보관함 저장(플레이리스트 선택) 모달 */}
-      {modalType === MODAL_TYPES.PLAYLIST_PICKER && <PlaylistPickerModal musics={modalProps.musics} />}
+      {modalType === MODAL_TYPES.PLAYLIST_PICKER && <PlaylistPickerModal musics={playlistPickerProps?.musics ?? []} />}
 
       {/* 9. 개인정보수집동의 모달 */}
       {modalType === MODAL_TYPES.PRIVACY_CONCENT && <PrivacyConsentModal />}

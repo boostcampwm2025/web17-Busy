@@ -10,14 +10,10 @@ import { useContentWrite } from '@/hooks/post/useContentWrite';
 import { toast } from 'react-toastify';
 
 type Props = {
-  /** legacy: 단일 곡 */
-  initialMusic?: Music;
-
-  /** 신규: 다곡 */
   initialMusics?: Music[];
 };
 
-export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
+export const ContentWriteModal = ({ initialMusics }: Props) => {
   const handleClose = useModalStore((s) => s.closeModal);
 
   const handleWriteSuccess = () => {
@@ -42,7 +38,6 @@ export const ContentWriteModal = ({ initialMusic, initialMusics }: Props) => {
     onMoveMusic,
     onSubmit,
   } = useContentWrite({
-    initialMusic,
     initialMusics,
     onSuccess: handleWriteSuccess,
   });
