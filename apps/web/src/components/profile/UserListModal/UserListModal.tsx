@@ -14,12 +14,11 @@ import { useFollowUsersQuery, type FollowListType } from '@/hooks/profile/use-fo
 interface UserListModalProps {
   title: string;
   listType: FollowListType;
+  profileUserId: string;
 }
 
-export const UserListModal = ({ title, listType }: UserListModalProps) => {
-  const modalProps = useModalStore((s) => s.modalProps);
+export const UserListModal = ({ title, listType, profileUserId }: UserListModalProps) => {
   const closeModal = useModalStore((s) => s.closeModal);
-  const { profileUserId }: { profileUserId: string } = modalProps;
 
   const router = useRouter();
   const { userId: loggedInUserId } = useAuthMe();

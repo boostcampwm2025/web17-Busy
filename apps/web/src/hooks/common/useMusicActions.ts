@@ -61,7 +61,7 @@ export default function useMusicActions() {
     playMusic(ensured);
   };
 
-  /** 작성 모달(단일): DB에 보장 후 initialMusic으로 전달 */
+  /** 작성 모달(단일): DB에 보장 후 initialMusics로 전달 */
   const openWriteModalWithMusic = async (track: Music) => {
     logMusicIds([track], makePostAddMusicLog);
 

@@ -18,7 +18,7 @@ export default function FeedView({ initialPost }: FeedViewProps) {
 
   useEffect(() => {
     if (initialPost) {
-      openModal(MODAL_TYPES.POST_DETAIL, { postId: initialPost.id, initialPost });
+      openModal(MODAL_TYPES.POST_DETAIL, { postId: initialPost.id, post: initialPost });
     }
   }, [initialPost, openModal]);
 

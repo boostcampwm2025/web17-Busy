@@ -1,20 +1,15 @@
 'use client';
 
 import React from 'react';
-import { useModalStore } from '@/stores/useModalStore';
+import { useModalStore, useModalProps, MODAL_TYPES } from '@/stores/useModalStore';
 import { X } from 'lucide-react';
 import { getAuthErrorMessage } from '@/hooks/auth/client/authErrorMessage';
 import { ModalShell } from '@/components/common/ModalShell';
 import { GoogleLoginButton, TmpLoginButton } from './loginButtons';
 
-type LoginModalProps = {
-  authError?: string;
-};
-
 export const LoginModal = () => {
   const closeModal = useModalStore((s) => s.closeModal);
-  const modalProps = useModalStore((s) => s.modalProps);
-  const { authError } = (modalProps ?? {}) as LoginModalProps;
+  const authError = useModalProps(MODAL_TYPES.LOGIN)?.authError;
   const errorMessage = authError ? getAuthErrorMessage(authError) : undefined;
 
   return (

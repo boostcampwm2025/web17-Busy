@@ -11,12 +11,6 @@ import { reorder } from '@/utils/reorder';
 import { invalidatePostListCaches } from './post-cache-updaters';
 
 type Options = {
-  /**
-   * 기존 호출부 유지
-   */
-  initialMusic?: Music;
-
-  /** 다곡 초기값 */
   initialMusics?: Music[];
 
   onSuccess: () => void;
@@ -46,12 +40,8 @@ type Return = {
 
 const isUuid = (id: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
 
-const toInitialSelected = (initialMusics?: Music[], initialMusic?: Music): Music[] => {
-  if (Array.isArray(initialMusics) && initialMusics.length > 0) {
-    return dedupeById(initialMusics);
-  }
-  return initialMusic ? [initialMusic] : [];
-};
+const toInitialSelected = (initialMusics?: Music[]): Music[] =>
+  Array.isArray(initialMusics) && initialMusics.length > 0 ? dedupeById(initialMusics) : [];
 
 const toMusicPayload = (m: Music) => ({
   // NOTE: iTunes 검색 결과 id는 외부 trackId일 수 있으므로 UUID만 id로 전송
@@ -64,11 +54,11 @@ const toMusicPayload = (m: Music) => ({
   durationMs: m.durationMs,
 });
 
-export const useContentWrite = ({ initialMusic, initialMusics, onSuccess }: Options): Return => {
+export const useContentWrite = ({ initialMusics, onSuccess }: Options): Return => {
   const queryClient = useQueryClient();
   const { ensureMusicInDb } = useMusicActions();
 
-  const [selectedMusics, setSelectedMusics] = useState<Music[]>(() => toInitialSelected(initialMusics, initialMusic));
+  const [selectedMusics, setSelectedMusics] = useState<Music[]>(() => toInitialSelected(initialMusics));
   const [content, setContent] = useState('');
 
   const [customCoverPreview, setCustomCoverPreview] = useState<string | null>(null);
@@ -79,14 +69,14 @@ export const useContentWrite = ({ initialMusic, initialMusics, onSuccess }: Opti
 
   // 모달이 "다른 initialMusics"로 다시 열릴 수 있으므로, props 변화에 맞춰 초기화
   useEffect(() => {
-    setSelectedMusics(toInitialSelected(initialMusics, initialMusic));
+    setSelectedMusics(toInitialSelected(initialMusics));
     setContent('');
     setSearchQuery('');
     setIsSearchOpen(false);
 
     setCustomCoverFile(null);
     setCustomCoverPreview(null);
-  }, [initialMusic, initialMusics]);
+  }, [initialMusics]);
 
   const activeCover = useMemo(
     () => customCoverPreview || selectedMusics[0]?.albumCoverUrl || DEFAULT_IMAGES.ALBUM,

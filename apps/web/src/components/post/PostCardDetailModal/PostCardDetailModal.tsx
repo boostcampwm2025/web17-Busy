@@ -6,7 +6,7 @@ import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/d
 
 import { useRouter, usePathname } from 'next/navigation';
 import PostHeader from '@/components/post/partials/PostHeader';
-import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+import { useModalStore, useModalProps, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import useIsMobile from '@/hooks/common/useIsMobile';
@@ -34,14 +34,14 @@ export const PostCardDetailModal = () => {
   const router = useRouter();
   const isOpen = useModalStore((s) => s.isOpen);
   const modalType = useModalStore((s) => s.modalType);
-  const modalProps = useModalStore((s) => s.modalProps);
+  const modalProps = useModalProps(MODAL_TYPES.POST_DETAIL);
   const closeModal = useModalStore((s) => s.closeModal);
   const enabled = isOpen && modalType === MODAL_TYPES.POST_DETAIL;
 
   useScrollLock(enabled);
 
-  const postId = enabled ? (modalProps?.postId as string | undefined) : undefined;
-  const passedPost = enabled ? ((modalProps?.post as Post | undefined) ?? undefined) : undefined;
+  const postId = enabled ? modalProps?.postId : undefined;
+  const passedPost = enabled ? modalProps?.post : undefined;
 
   useEffect(() => {
     if (!enabled) return;
