@@ -99,9 +99,17 @@ const average = (values: number[]): number => {
 
 const delayFor = (sessionIndex: number, charIndex: number) => 80 + ((sessionIndex * 37 + charIndex * 29) % 171);
 
+/**
+ * 세션마다 검색어가 달라야 한다. 모드당 페이지 하나로 전 세션을 연속 실행하므로 query cache가 공유되는데,
+ * 검색 훅에 staleTime(5분)이 있어 같은 검색어가 다시 나오면 요청 없이 캐시로 응답한다.
+ * 그러면 이 하네스가 재려는 debounce·경합 제어 효과 대신 캐시 적중률을 재게 된다.
+ * 검색어 목록을 한 바퀴 돈 뒤부터는 접미사를 붙여 매 세션이 새 query key를 갖게 한다.
+ */
 const buildSessionPlans = (count: number): SessionPlan[] =>
   Array.from({ length: count }, (_, index) => {
-    const term = SEARCH_TERMS[index % SEARCH_TERMS.length] ?? 'music';
+    const base = SEARCH_TERMS[index % SEARCH_TERMS.length] ?? 'music';
+    const cycle = Math.floor(index / SEARCH_TERMS.length);
+    const term = cycle === 0 ? base : `${base}${cycle}`;
     const splitIndex = Math.max(2, Math.floor(term.length / 2));
     const hasMidTypingPause = index % 3 === 2;
     const actions = [...term].map((char, charIndex) => ({
