@@ -80,6 +80,34 @@ describe('logQueue 유실 계측', () => {
     expect(getLogQueueStats().sent).toBe(0);
   });
 
+  it('이벤트마다 중복 제거용 식별자를 붙여 보낸다', async () => {
+    mocks.post.mockResolvedValue({ data: {} });
+    const { enqueueLog, getLogQueueStats } = await loadQueue();
+
+    for (let i = 0; i < FLUSH_SIZE; i += 1) enqueueLog(event());
+
+    await vi.waitFor(() => expect(getLogQueueStats().sent).toBe(FLUSH_SIZE));
+
+    const events = (mocks.post.mock.calls[0]?.[1] as { events: { eventId?: string }[] }).events;
+    const ids = events.map((e) => e.eventId);
+    expect(ids.every(Boolean)).toBe(true);
+    expect(new Set(ids).size).toBe(FLUSH_SIZE); // 이벤트마다 서로 달라야 한다
+  });
+
+  it('이미 식별자가 있으면 새로 붙이지 않는다', async () => {
+    mocks.post.mockResolvedValue({ data: {} });
+    const { enqueueLog, getLogQueueStats } = await loadQueue();
+
+    // 재시도로 다시 들어와도 같은 식별자를 유지해야 서버가 중복을 알아본다.
+    enqueueLog(event({ eventId: 'fixed-id' }));
+    for (let i = 1; i < FLUSH_SIZE; i += 1) enqueueLog(event());
+
+    await vi.waitFor(() => expect(getLogQueueStats().sent).toBe(FLUSH_SIZE));
+
+    const events = (mocks.post.mock.calls[0]?.[1] as { events: { eventId?: string }[] }).events;
+    expect(events[0]?.eventId).toBe('fixed-id');
+  });
+
   it('스냅샷은 복사본이라 밖에서 고쳐도 원본이 바뀌지 않는다', async () => {
     const { enqueueLog, getLogQueueStats } = await loadQueue();
 
