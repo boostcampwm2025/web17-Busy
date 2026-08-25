@@ -15,7 +15,7 @@ import path from 'node:path';
  *              검색 하네스가 debounce 타이머를 무력화해 baseline을 만든 것과 같은 방법이다.
  *
  * 이벤트 1건 = 게시글 상세 모달을 열었다 닫기.
- * `PostCardDetailModal.handleClose`가 `emitOnce`로 정확히 한 번만 기록한다(중복 가드 있음).
+ * `usePostDetailLog`가 열람 1회당 정확히 한 번 기록한다.
  *
  * 실행:
  *   LOG_BATCHING_MEASUREMENT=1 LOG_BATCHING_MEASUREMENT_MODE=current pnpm exec playwright test e2e/log-batching-measurement.spec.ts --project=chromium
@@ -40,8 +40,9 @@ const EVENTS_PER_SESSION = numberFromEnv('LOG_BATCHING_MEASUREMENT_EVENTS', 24);
  *   1. 쌓이는 이벤트 수가 flushSize(20) 미만  — 넘으면 크기 기반 flush로 숨기기 전에 전송된다
  *   2. 구동 시간이 flushIntervalMs(3000ms) 미만 — 넘으면 타이머가 먼저 발화한다
  *
- * 현재 상세 열고닫기 1회가 이벤트를 2건 만들므로(중복 기록 결함) 5회면 10건이라 1을 만족하고,
- * 한 회 약 140ms이므로 약 0.7초로 2도 만족한다.
+ * 이 하네스는 `next dev`로 돌고, 개발 모드의 Strict Mode가 effect를 두 번 실행해
+ * 상세 열고닫기 1회가 이벤트를 2건 만든다(프로덕션 빌드는 1건이다. #432에서 실측 확인).
+ * 그래서 5회면 10건이라 1을 만족하고, 한 회 약 140ms이므로 약 0.7초로 2도 만족한다.
  */
 const LOSS_EVENTS = numberFromEnv('LOG_BATCHING_MEASUREMENT_LOSS_EVENTS', 5);
 const MOCK_API_DELAY_MS = numberFromEnv('LOG_BATCHING_MEASUREMENT_MOCK_DELAY_MS', 60);
@@ -379,7 +380,6 @@ test('records /api/logs request counts and tab-hide loss', async ({ browser }) =
     fs.writeFile(path.join(OUTPUT_DIR, `raw-${MODE}.json`), JSON.stringify(records, null, 2)),
   ]);
 
-   
   console.log(`\n[${MODE}] 세션 ${summary.sessionCount} · 이벤트 간격 중앙값 ${summary.medianDriveIntervalMs}ms`);
   console.log(
     `  A 배치     행동 ${summary.actionsPerSession} → 이벤트 ${summary.averageEventsSent} → 요청 ${summary.averageRequests} ` +
@@ -389,7 +389,6 @@ test('records /api/logs request counts and tab-hide loss', async ({ browser }) =
     `  B 탭 종료   행동 ${summary.lossActionsPerSession} → 전송된 이벤트 ${summary.averageLossEventsSent} ` +
       `(전량 유실 세션 ${summary.sessionsWithTotalLoss}/${summary.sessionCount}, 숨김 후 요청 ${summary.averageRequestsAfterHide})`,
   );
-   
 
   expect(summary.sessionCount).toBe(SESSION_COUNT);
 });

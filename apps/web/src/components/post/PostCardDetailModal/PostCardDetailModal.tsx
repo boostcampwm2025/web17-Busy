@@ -25,9 +25,7 @@ import { toast } from 'react-toastify';
 import { useUpdatePostMutation } from '@/hooks/post/use-post-mutations';
 
 import { PostDetailBody, PostDetailActions, PostDetailCommentComposer, LikedUsersOverlay } from './partials';
-
-// UX 로그
-import { enqueuePostDetailSummary } from '@/hooks/post/post-detail-log';
+import { usePostDetailLog } from '@/hooks/post/use-post-detail-log';
 
 export const PostCardDetailModal = () => {
   const { userId } = useAuthMe();
@@ -77,7 +75,6 @@ export const PostCardDetailModal = () => {
   const addToQueue = usePlayerStore((s) => s.addToQueue);
   const selectMusic = usePlayerStore((s) => s.selectMusic);
   const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
-  const currentMusic = usePlayerStore((s) => s.currentMusic); // UX
   const isPlaying = usePlayerStore((s) => s.isPlaying);
 
   const profileImg = useMemo(() => coalesceImageSrc(safePost.author.profileImgUrl, DEFAULT_IMAGES.PROFILE), [safePost.author.profileImgUrl]);
@@ -136,33 +133,15 @@ export const PostCardDetailModal = () => {
     setEditedContent(safePost.content); // 원본 content로 되돌리기
   };
 
-  // =========================
-  // UX 로그 수집(상세모달)
-  // =========================
-  const openedAtRef = useRef<number>(0);
-  const playedMusicIdsRef = useRef<Set<string>>(new Set());
-  const listenMsByMusicRef = useRef<Record<string, number>>({});
-  const lastTickRef = useRef<number>(0);
-  const emittedRef = useRef<boolean>(false); // 중복 방지
+  const postMusicIds = useMemo(() => safePost.musics.map((m) => m.id), [safePost.musics]);
+  const { markMusicPlayed } = usePostDetailLog({ enabled, postId, userId, postMusicIds, isPlaying, currentMusicId });
 
-  // 모달 열릴 때 초기화
-  useEffect(() => {
-    if (!enabled || !postId) return;
-
-    openedAtRef.current = Date.now();
-    playedMusicIdsRef.current = new Set();
-    listenMsByMusicRef.current = {};
-    lastTickRef.current = Date.now();
-    emittedRef.current = false; // open 시 reset
-  }, [enabled, postId]);
-
-  // 모달에서 재생 트리거(곡 id 기록)
   const handlePlayFromPost = useCallback(
     (m: Music) => {
-      if (m?.id) playedMusicIdsRef.current.add(m.id);
+      if (m?.id) markMusicPlayed(m.id);
       playMusic(m);
     },
-    [playMusic],
+    [markMusicPlayed, playMusic],
   );
 
   // 커버 페이지: 게시글 전체 음악을 큐에 넣고 첫 번째 곡 재생
@@ -172,68 +151,13 @@ export const PostCardDetailModal = () => {
     const firstMusic = musics[0];
     if (!firstMusic) return;
     addToQueue(musics);
-    playedMusicIdsRef.current.add(firstMusic.id);
+    markMusicPlayed(firstMusic.id);
     selectMusic(firstMusic);
-  }, [safePost.musics, addToQueue, selectMusic]);
-
-  // listen time 누적(1초 tick)
-  useEffect(() => {
-    if (!enabled || !postId) return;
-
-    const postMusicIdSet = new Set((safePost.musics ?? []).map((m) => m.id));
-
-    const tick = () => {
-      const now = Date.now();
-      const delta = now - lastTickRef.current;
-      lastTickRef.current = now;
-
-      // 로그인 사용자만 수집(서버 /api/logs AuthGuard)
-      if (!userId) return;
-
-      if (!isPlaying) return;
-      if (!currentMusic?.id) return;
-
-      // 상세 모달 "컨텐츠의 음악"을 재생 중인 경우만 누적
-      if (!postMusicIdSet.has(currentMusic.id)) return;
-
-      const prev = listenMsByMusicRef.current[currentMusic.id] ?? 0;
-      listenMsByMusicRef.current[currentMusic.id] = prev + Math.max(0, delta);
-    };
-
-    const timer = window.setInterval(tick, 1000);
-    return () => window.clearInterval(timer);
-  }, [enabled, postId, safePost.musics, userId, isPlaying, currentMusic?.id]);
-
-  const emitPostDetailSummary = useCallback(() => {
-    if (!userId) return; // 로그인 사용자만
-    if (!postId) return;
-
-    const dwellMs = openedAtRef.current ? Date.now() - openedAtRef.current : 0;
-    const playedMusicCount = playedMusicIdsRef.current.size;
-    const listenMsByMusic = listenMsByMusicRef.current;
-
-    enqueuePostDetailSummary({ postId, dwellMs, playedMusicCount, listenMsByMusic });
-  }, [userId, postId]);
-
-  // emitOnce 가드 (중복 2회 기록 방지)
-  const emitOnce = useCallback(() => {
-    if (emittedRef.current) return;
-    emittedRef.current = true;
-    emitPostDetailSummary();
-  }, [emitPostDetailSummary]);
+  }, [safePost.musics, addToQueue, selectMusic, markMusicPlayed]);
 
   const handleClose = useCallback(() => {
-    emitOnce();
     closeModal();
-  }, [emitOnce, closeModal]);
-
-  // 모달 unmount/disable 시에도 summary 전송(백업) — 단, emitOnce라 중복 없음
-  useEffect(() => {
-    if (!enabled) return;
-    return () => {
-      emitOnce();
-    };
-  }, [enabled, emitOnce]);
+  }, [closeModal]);
 
   if (!enabled || !postId) return null;
 
