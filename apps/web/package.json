@@ -46,7 +46,6 @@
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
-    "@types/spotify-web-playback-sdk": "^0.1.19",
     "@types/youtube": "^0.1.2",
     "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.10",

@@ -59,33 +59,6 @@ export class UserService {
     });
   }
 
-  async findOrCreateBySpotifyUserId(profile: {
-    spotifyUserId: string;
-    nickname: string;
-    email: string;
-    profileImgUrl: string;
-    refreshToken: string;
-  }): Promise<{
-    id: string;
-    nickname: string;
-    profileImgUrl?: string | null;
-  }> {
-    const user = await this.findOrCreateByProviderUserId({
-      provider: AuthProvider.SPOTIFY,
-      providerUserId: profile.spotifyUserId,
-      nickname: profile.nickname,
-      email: profile.email,
-      profileImgUrl: profile.profileImgUrl,
-      refreshToken: profile.refreshToken,
-    });
-
-    return {
-      id: user.id,
-      nickname: user.nickname,
-      profileImgUrl: user.profileImgUrl ?? null,
-    };
-  }
-
   async findById(userId: string): Promise<User | null> {
     return this.userRepository.findUserById(userId);
   }

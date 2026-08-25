@@ -7,12 +7,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
 import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
-import { useSpotifyAuthStore } from '@/stores/useSpotifyAuthStore';
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
 // 이 테스트가 보는 것은 세션 만료 배선 하나뿐이라, 나머지 자식 효과는 렌더 비용만 늘린다.
 vi.mock('@/components/app/PwaRegister', () => ({ default: () => null }));
-vi.mock('@/components/app/SpotifyTokenFromHash', () => ({ default: () => null }));
 vi.mock('@/components/app/PrivacyConsentGate', () => ({ PrivacyConsentGate: () => null }));
 vi.mock('@/hooks/noti/use-notifications-query', () => ({ useNotificationsQuery: () => ({}) }));
 
@@ -37,7 +35,6 @@ const renderRoot = () => {
 describe('RootClientEffects session expiry wiring', () => {
   beforeEach(() => {
     sessionStorage.clear();
-    useSpotifyAuthStore.getState().clear();
     usePlayerStore.getState().clearQueue();
     useModalStore.getState().closeModal();
     internalClient.defaults.adapter = respondWith401;
@@ -50,7 +47,6 @@ describe('RootClientEffects session expiry wiring', () => {
   it('clears the session and opens the login modal when authMe returns 401', async () => {
     sessionStorage.setItem(APP_ACCESS_TOKEN_STORAGE_KEY, 'app-jwt-token');
     sessionStorage.setItem(GUEST_QUEUE_STORAGE_KEY, JSON.stringify({ queue: [], currentMusic: null, isPlaying: false, savedAt: 0 }));
-    useSpotifyAuthStore.setState({ accessToken: 'spotify-token', expiresAt: Date.now() + 10_000 });
 
     renderRoot();
 
@@ -59,7 +55,6 @@ describe('RootClientEffects session expiry wiring', () => {
     await waitFor(() => expect(useModalStore.getState().isOpen).toBe(true));
     expect(sessionStorage.getItem(APP_ACCESS_TOKEN_STORAGE_KEY)).toBeNull();
     expect(sessionStorage.getItem(GUEST_QUEUE_STORAGE_KEY)).toBeNull();
-    expect(useSpotifyAuthStore.getState().accessToken).toBeNull();
 
     expect(useModalStore.getState().modalType).toBe(MODAL_TYPES.LOGIN);
     expect(useModalStore.getState().modalProps).toEqual({ authError: 'session_expired' });

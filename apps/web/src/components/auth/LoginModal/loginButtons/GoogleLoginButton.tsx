@@ -38,7 +38,7 @@ export const GoogleLoginButton = () => {
         </>
       ) : (
         <>
-          <Image src="/Google.svg" alt="Spotify" width={27} height={27} className="shrink-0" />
+          <Image src="/Google.svg" alt="Google" width={27} height={27} className="shrink-0" />
           Google로 로그인
         </>
       )}

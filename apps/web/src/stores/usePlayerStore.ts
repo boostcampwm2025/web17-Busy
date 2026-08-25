@@ -173,7 +173,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     });
   },
 
-  /** 재생/일시정지 UI 상태만 토글 (실제 Spotify 재생 호출은 비범위) */
+  /** 재생/일시정지 UI 상태만 토글 (실제 재생 제어는 provider별 훅이 담당) */
   togglePlay: () => {
     set((state) => ({ isPlaying: !state.isPlaying }));
   },

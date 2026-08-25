@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 
 import PwaRegister from '@/components/app/PwaRegister';
 import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
-import SpotifyTokenFromHash from '@/components/app/SpotifyTokenFromHash';
 import { PrivacyConsentGate } from '@/components/app/PrivacyConsentGate';
 import { registerSessionExpiredHandler, SESSION_EXPIRED_CODE } from '@/api/internal/client';
 import { clearClientSession } from '@/hooks/auth/client/logout';
@@ -29,7 +28,6 @@ export default function RootClientEffects() {
   return (
     <>
       <PwaRegister />
-      <SpotifyTokenFromHash />
       <PrivacyConsentGate />
     </>
   );
