@@ -15,6 +15,8 @@ vi.mock('@/components/app/PrivacyConsentGate', () => ({ PrivacyConsentGate: () =
 vi.mock('@/hooks/noti/use-notifications-query', () => ({ useNotificationsQuery: () => ({}) }));
 
 import { internalClient } from '@/api/internal/client';
+import { logsClient } from '@/api/internal/logsClient';
+import { enqueueLog } from '@/utils/logQueue';
 
 import RootClientEffects from './RootClientEffects';
 
@@ -58,5 +60,37 @@ describe('RootClientEffects session expiry wiring', () => {
 
     expect(useModalStore.getState().modalType).toBe(MODAL_TYPES.LOGIN);
     expect(useModalStore.getState().modalProps).toEqual({ authError: 'session_expired' });
+  });
+});
+
+const hideTab = () => {
+  Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+  // 실제 브라우저처럼 document에서 버블링시켜야 window 리스너에 닿는다.
+  document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
+};
+
+describe('RootClientEffects log queue wiring', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    sessionStorage.setItem(APP_ACCESS_TOKEN_STORAGE_KEY, 'app-jwt-token');
+  });
+
+  /**
+   * 로그는 버퍼에 모였다가 타이머로 나간다.
+   * 탭을 숨기면 그 타이머를 기다릴 수 없으므로 즉시 비우는 리스너가 붙어 있어야 한다.
+   */
+  it('flushes buffered logs when the tab is hidden', async () => {
+    const post = vi.spyOn(logsClient, 'post').mockResolvedValue({ data: {} });
+
+    renderRoot();
+    enqueueLog({ eventType: 'POST_DETAIL_SUMMARY', source: 'fe_ux', occurredAt: new Date().toISOString(), meta: {} });
+    expect(post).not.toHaveBeenCalled(); // 아직 버퍼에 있다
+
+    hideTab();
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post.mock.calls[0]?.[1]).toMatchObject({ events: [expect.objectContaining({ eventType: 'POST_DETAIL_SUMMARY' })] });
+
+    post.mockRestore();
   });
 });
