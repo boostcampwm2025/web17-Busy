@@ -32,6 +32,52 @@ let backoffUntil = 0;
 
 let config: Required<Options> = { ...DEFAULTS };
 
+/**
+ * 유실 지점별 계측. 버리는 경로가 전부 조용한 return이라 흔적이 남지 않아,
+ * 어디서 얼마나 사라지는지 알 수 없었다. 사유를 뭉뚱그리면 고칠 곳을 못 찾으므로 나눠 센다.
+ */
+export type LogQueueStats = {
+  enqueued: number;
+  /** 개별 이벤트가 maxEventBytes를 넘어 버려진 수 */
+  droppedOversize: number;
+  /** 버퍼가 maxBufferSize를 넘겨 오래된 것부터 버려진 수 */
+  droppedOverflow: number;
+  /** 토큰 없음/401이라 재시도 의미가 없어 버려진 수 */
+  droppedUnauthorized: number;
+  /** 서버가 수신한 것으로 확인된 수 */
+  sent: number;
+  /**
+   * 전송 실패로 버퍼에 되돌린 이벤트 수. 재시도할 때마다 누적되므로 원본 이벤트 수보다 클 수 있다.
+   * 서버가 적재를 끝낸 뒤 응답만 유실된 경우라면 되돌린 만큼이 그대로 중복 전송이 된다.
+   */
+  restored: number;
+};
+
+const createStats = (): LogQueueStats => ({
+  enqueued: 0,
+  droppedOversize: 0,
+  droppedOverflow: 0,
+  droppedUnauthorized: 0,
+  sent: 0,
+  restored: 0,
+});
+
+let stats: LogQueueStats = createStats();
+
+/** 계측 스냅샷. 측정 하네스와 디버깅에서 읽는다. */
+export const getLogQueueStats = (): LogQueueStats => ({ ...stats });
+
+declare global {
+  interface Window {
+    /** 계측 스냅샷을 브라우저에서 읽는 경로. initLogQueue가 등록한다. */
+    __logQueueStats?: () => LogQueueStats;
+  }
+}
+
+export const resetLogQueueStats = () => {
+  stats = createStats();
+};
+
 const now = () => Date.now();
 
 const scheduleFlush = (delayMs = config.flushIntervalMs) => {
@@ -53,6 +99,7 @@ const dropOldestIfOverflow = () => {
   const overflow = buffer.length - config.maxBufferSize;
   if (overflow <= 0) return;
   buffer = buffer.slice(overflow);
+  stats.droppedOverflow += overflow;
 };
 
 const approxBytes = (obj: unknown): number => {
@@ -108,8 +155,12 @@ export const enqueueLog = (event: LogEventDto) => {
   if (typeof window === 'undefined') return;
 
   // 이벤트가 너무 크면 drop (운영 안정성)
-  if (approxBytes(event) > config.maxEventBytes) return;
+  if (approxBytes(event) > config.maxEventBytes) {
+    stats.droppedOversize += 1;
+    return;
+  }
 
+  stats.enqueued += 1;
   buffer.push(event);
   dropOldestIfOverflow();
 
@@ -149,14 +200,17 @@ export const flush = async () => {
 
   try {
     await logsClient.post('/logs', { events: batch });
+    stats.sent += batch.length;
     clearBackoff();
   } catch (err) {
     // 로그인 전용이므로 401/토큰없음은 버퍼 의미 없음 -> drop
     if (shouldDropOnError(err)) {
       // drop: batch는 버리고, 남은 buffer만 이어서 처리
+      stats.droppedUnauthorized += batch.length;
       clearBackoff();
     } else {
       // 네트워크/서버 오류면 되돌리고 backoff
+      stats.restored += batch.length;
       buffer = [...batch, ...buffer];
       dropOldestIfOverflow();
       setBackoff();
@@ -190,6 +244,9 @@ export const initLogQueue = (opts?: Options) => {
   initialized = true;
   config = { ...DEFAULTS, ...(opts ?? {}) };
 
+  // 프로덕션 빌드에서도 유실 수치를 읽어야 측정이 실제 동작을 반영한다.
+  window.__logQueueStats = getLogQueueStats;
+
   const onVisibility = () => {
     if (document.visibilityState === 'hidden') {
       void flush(); // best-effort
@@ -200,6 +257,7 @@ export const initLogQueue = (opts?: Options) => {
 
   return () => {
     initialized = false;
+    delete window.__logQueueStats;
     window.removeEventListener('visibilitychange', onVisibility);
     clearFlushTimer();
   };

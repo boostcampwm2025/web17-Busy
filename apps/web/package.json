@@ -18,6 +18,7 @@
     "measure:infinite-scroll": "INFINITE_SCROLL_MEASUREMENT=1 playwright test e2e/infinite-scroll-measurement.spec.ts --project=chromium",
     "measure:log-batching": "LOG_BATCHING_MEASUREMENT=1 playwright test e2e/log-batching-measurement.spec.ts --project=chromium",
     "measure:log-rate": "LOG_RATE_MEASUREMENT=1 playwright test e2e/log-event-rate-measurement.spec.ts --project=chromium",
+    "measure:log-loss": "LOG_LOSS_MEASUREMENT=1 playwright test e2e/log-loss-measurement.spec.ts --project=chromium",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
