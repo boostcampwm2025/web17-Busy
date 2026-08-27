@@ -1,13 +1,16 @@
-import React from 'react';
-import { X, FolderOpen } from 'lucide-react';
-
-import { useModalStore } from '@/stores/useModalStore';
-import { ModalShell } from '@/components/common/ModalShell';
-import { CoverImgUploader, MusicSearch, SelectedMusicList } from './index';
-
-import type { MusicResponseDto as Music } from '@repo/dto';
-import { useContentWrite } from '@/hooks/post/useContentWrite';
 import { toast } from 'react-toastify';
+import type { MusicResponseDto as Music } from '@repo/dto';
+
+import { ModalShell } from '@/components/common/ModalShell';
+import { useContentWrite } from '@/hooks/post/useContentWrite';
+import { useModalStore } from '@/stores/useModalStore';
+
+import { ContentWriteFooter } from './partials/ContentWriteFooter';
+import { ContentWriteHeader } from './partials/ContentWriteHeader';
+import { CoverImgUploader } from './partials/CoverImgUploader';
+import { MusicSearch } from './partials/MusicSearch';
+import { PostContentField } from './partials/PostContentField';
+import { SelectedMusicList } from './partials/SelectedMusicList';
 
 type Props = {
   initialMusics?: Music[];
@@ -37,20 +40,12 @@ export const ContentWriteModal = ({ initialMusics }: Props) => {
     onRemoveMusic,
     onMoveMusic,
     onSubmit,
-  } = useContentWrite({
-    initialMusics,
-    onSuccess: handleWriteSuccess,
-  });
+  } = useContentWrite({ initialMusics, onSuccess: handleWriteSuccess });
 
   return (
     // 작성 중인 내용이 날아가지 않도록 배경 클릭으로 닫지 않는다.
     <ModalShell onClose={handleClose} size="xl" closeOnBackdrop={false} cardClassName="max-h-[90vh]">
-      <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary bg-white z-10 shrink-0">
-        <h2 className="text-xl font-black text-primary">새 게시물 만들기</h2>
-        <button type="button" onClick={handleClose} className="p-1 hover:bg-gray-4 rounded-full transition-colors group" aria-label="close">
-          <X className="w-6 h-6 text-primary group-hover:text-accent-pink transition-colors" />
-        </button>
-      </div>
+      <ContentWriteHeader onClose={handleClose} />
 
       <div className="flex-1 overflow-y-auto p-6 custom-scrollbar flex flex-col">
         <div className="flex flex-col md:flex-row gap-6 mb-8">
@@ -67,30 +62,10 @@ export const ContentWriteModal = ({ initialMusics }: Props) => {
           onAddPlaylist={onAddPlaylist}
         />
 
-        <div className="mb-2">
-          <label htmlFor="postContent" className="text-sm font-bold text-gray-1 mb-2 block">
-            내용
-          </label>
-          <textarea
-            id="postContent"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="이 음악에 대한 이야기를 들려주세요..."
-            className="w-full h-32 p-4 rounded-xl border-2 border-primary text-primary bg-white focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:bg-gray-4/30 resize-none font-medium custom-scrollbar placeholder:text-gray-2 transition-colors"
-          />
-        </div>
+        <PostContentField value={content} onChange={setContent} />
       </div>
 
-      <div className="p-6 border-t-2 border-primary bg-white shrink-0 flex items-center flex-row-reverse">
-        <button
-          type="button"
-          className="px-8 py-2.5 rounded-full font-bold bg-primary text-white border-2 border-primary hover:bg-white hover:text-primary hover:shadow-[4px_4px_0px_0px_var(--color-accent-cyan)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
-          disabled={isSubmitDisabled}
-          onClick={() => void onSubmit()}
-        >
-          등록
-        </button>
-      </div>
+      <ContentWriteFooter isSubmitDisabled={isSubmitDisabled} onSubmit={() => void onSubmit()} />
     </ModalShell>
   );
 };

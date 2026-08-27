@@ -72,17 +72,16 @@ export const nextJsConfig = [
       // 1-2. 폴더명: kebab-case 강제 (Next.js App Router)
       'check-file/folder-naming-convention': ['error', { '**/*': 'KEBAB_CASE' }],
 
-      // 1-2. 이벤트 핸들러 네이밍 강제 (handle~, on~)
-      // 복잡한 regex 대신 react 전용 규칙을 사용합니다.
-      'react/jsx-handler-names': [
-        'error',
-        {
-          eventHandlerPrefix: 'handle', // 함수 이름은 handle로 시작 (ex: handleClick)
-          eventHandlerPropPrefix: 'on', // Props 이름은 on으로 시작 (ex: onClick)
-          checkLocalVariables: true, // 내부 변수도 검사
-          checkInlineFunction: true,
-        },
-      ],
+      /**
+       * 이벤트 핸들러 네이밍(handle~/on~)은 끈다.
+       *
+       * 실측 150건을 분류했더니 정상 관용구만 나왔다 — 인라인 화살표 52건(checkInlineFunction은 기본값이 아니다),
+       * 훅·스토어 액션 직결 66건(`onClick={closeModal}`), 자식으로 넘기는 prop 32건(`onClose={onClose}`).
+       * 규칙을 지키려면 액션마다 `handle*` 별칭을 만들어야 하는데, 그건 읽기 쉬워지는 게 아니라 한 겹 늘어나는 것이다.
+       * 남겨 두면 경고 총량만 부풀려 `#320`의 ratchet 안에 진짜 문제를 묻는다
+       * (실제로 이 더미 안에 react-hooks/rules-of-hooks 위반이 하나 숨어 있었다).
+       */
+      'react/jsx-handler-names': 'off',
     },
   },
 ];

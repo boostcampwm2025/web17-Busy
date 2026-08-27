@@ -1,11 +1,11 @@
 import { PlaylistBriefItem } from '@/components/playlist/PlaylistBriefItem';
-import { PlaylistBriefResDto } from '@repo/dto';
+import type { PlaylistBriefResDto } from '@repo/dto';
 
 export function LoadingMessage() {
   return <div className="p-4 text-center text-gray-2 text-sm">불러오는 중...</div>;
 }
 
-export function EmptyPlaylist({ onClick }: Readonly<{ onClick: () => Promise<void> }>) {
+export function EmptyPlaylist({ onClick }: Readonly<{ onClick: () => void }>) {
   return (
     <div className="p-4 text-center text-gray-2 text-sm">
       보관함이 비어있습니다.
@@ -21,7 +21,7 @@ export function EmptyPlaylist({ onClick }: Readonly<{ onClick: () => Promise<voi
 interface BriefItemListProps {
   briefs: PlaylistBriefResDto[];
   selectedPlaylistId: string | null;
-  onSelect: (playlistId: string) => Promise<void>;
+  onSelect: (playlistId: string) => void;
 }
 
 export function BriefItemList({ briefs, selectedPlaylistId, onSelect }: Readonly<BriefItemListProps>) {
