@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import type { SearchUsersResDto } from '@repo/dto';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { UserItem } from './index';
+import UserItem from './UserItem';
 
 type SearchUser = SearchUsersResDto['users'][number];
 

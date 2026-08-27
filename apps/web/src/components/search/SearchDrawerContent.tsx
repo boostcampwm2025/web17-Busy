@@ -3,7 +3,10 @@
 import { useMemo } from 'react';
 
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { SearchInput, SearchStateMessage, MusicSearchResults, UserSearchResults } from './index';
+import MusicSearchResults from './MusicSearchResults';
+import SearchInput from './SearchInput';
+import SearchStateMessage from './SearchStateMessage';
+import UserSearchResults from './UserSearchResults';
 
 import { SEARCH_TAB_ENTRIES } from '@/constants/search';
 import { getHintMessage } from '@/utils/hintMessage';
