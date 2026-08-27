@@ -26,12 +26,12 @@ type Options = {
   pollMs?: number;
 };
 
-type Result = {
+export type PostReactions = {
   isAuthenticated: boolean;
 
   isLiked: boolean;
   likeCount: number;
-  toggleLike: () => Promise<void>;
+  toggleLike: () => void;
   isSubmittingLike: boolean;
 
   comments: CommentItem[];
@@ -51,7 +51,14 @@ const getEffectivePollMs = (base: number) => {
   return base;
 };
 
-export default function usePostReactions({ enabled, postId, initialIsLiked, initialLikeCount, initialCommentCount, pollMs = 5000 }: Options): Result {
+export default function usePostReactions({
+  enabled,
+  postId,
+  initialIsLiked,
+  initialLikeCount,
+  initialCommentCount,
+  pollMs = 5000,
+}: Options): PostReactions {
   const queryClient = useQueryClient();
 
   const likeMutation = usePostLikeMutation({ postId });
@@ -166,10 +173,12 @@ export default function usePostReactions({ enabled, postId, initialIsLiked, init
   }, [enabled, pollMs, commentText, commentMutation.isPending, refetchComments, clearTimer]);
 
   // 좋아요 토글(Detail -> Feed 동기화 포함)
-  const toggleLike = useCallback(async () => {
+  // mutateAsync는 실패 시 거절한다. 호출부가 클릭 핸들러라 await하지 않으므로 unhandled rejection이 된다.
+  // 롤백은 mutation의 onError가 이미 하므로 fire-and-forget인 mutate로 부른다.
+  const toggleLike = useCallback(() => {
     if (!isAuthenticated) return;
     if (likeMutation.isPending) return;
-    await likeMutation.mutateAsync({ isLiked: initialIsLiked, likeCount: initialLikeCount });
+    likeMutation.mutate({ isLiked: initialIsLiked, likeCount: initialLikeCount });
   }, [isAuthenticated, initialIsLiked, initialLikeCount, likeMutation]);
 
   // 댓글 작성(optimistic + 실패 시 rollback)
