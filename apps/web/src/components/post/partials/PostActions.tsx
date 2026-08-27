@@ -1,8 +1,6 @@
-'use client';
-
 import type { PostResponseDto } from '@repo/dto';
 import { Heart, MessageCircle, Send } from 'lucide-react';
-import { toast } from 'react-toastify';
+import { copyPostLink } from '@/utils/share-post-link';
 
 type Props = {
   post: PostResponseDto;
@@ -26,18 +24,6 @@ export default function PostActions({ post, onClickLike, onClickComment, disable
     'font-bold text-xs sm:text-sm transition-colors',
     liked ? 'text-accent-pink' : 'text-primary group-hover:text-accent-pink',
   ].join(' ');
-
-  const handleCopyLink = async (postId: string) => {
-    const link = `${window.location.origin}/post/${postId}`;
-
-    try {
-      await navigator.clipboard.writeText(link);
-      toast.success('링크가 복사되었습니다!'); // 사용자 피드백
-    } catch (err) {
-      console.error('링크 복사 실패:', err);
-      toast.error('링크 복사에 실패했습니다.');
-    }
-  };
 
   return (
     <div className="flex items-center gap-6 mb-4">
@@ -72,7 +58,7 @@ export default function PostActions({ post, onClickLike, onClickComment, disable
         type="button"
         onClick={(e) => {
           stop(e);
-          handleCopyLink(post.id);
+          void copyPostLink(post.id);
         }}
         className="group"
         title="링크 복사"
