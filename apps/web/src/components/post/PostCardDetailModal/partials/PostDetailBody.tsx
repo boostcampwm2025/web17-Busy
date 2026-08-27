@@ -1,6 +1,4 @@
-'use client';
-
-import type { GetCommentsResDto } from '@repo/dto';
+import type { GetCommentsResDto, PostResponseDto } from '@repo/dto';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { coalesceImageSrc } from '@/utils/image';
@@ -9,30 +7,28 @@ import { formatRelativeTime } from '@/utils/time';
 type CommentItem = GetCommentsResDto['comments'][number];
 
 type Props = {
-  profileImg: string;
-  nickname: string;
+  author: PostResponseDto['author'];
   content: string;
   comments: CommentItem[];
   commentsLoading: boolean;
-  hideAuthorRow?: boolean;
 };
 
-export default function PostDetailBody({ profileImg, nickname, content, comments, commentsLoading, hideAuthorRow }: Props) {
+export default function PostDetailBody({ author, content, comments, commentsLoading }: Props) {
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
-      {!hideAuthorRow && (
-        <>
-          <div className="flex space-x-3">
-            <img src={profileImg} alt={nickname} className="w-9 h-9 rounded-full border border-primary/20 object-cover shrink-0" />
-            <div className="text-sm min-w-0">
-              <p className="font-bold text-primary mb-1">{nickname}</p>
-              <p className="text-primary/80 leading-relaxed font-medium whitespace-pre-wrap">{content}</p>
-            </div>
-          </div>
+      <div className="flex space-x-3">
+        <img
+          src={coalesceImageSrc(author.profileImgUrl, DEFAULT_IMAGES.PROFILE)}
+          alt={author.nickname}
+          className="w-9 h-9 rounded-full border border-primary/20 object-cover shrink-0"
+        />
+        <div className="text-sm min-w-0">
+          <p className="font-bold text-primary mb-1">{author.nickname}</p>
+          <p className="text-primary/80 leading-relaxed font-medium whitespace-pre-wrap">{content}</p>
+        </div>
+      </div>
 
-          <div className="h-px bg-gray-100" />
-        </>
-      )}
+      <div className="h-px bg-gray-100" />
 
       <div className="space-y-6">
         {commentsLoading ? (
