@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
-import useMusicActions from '../common/useMusicActions';
 import type { PlaylistDetail } from '../playlist/usePlaylistRecommendations';
 import { createPost } from '@/api/internal/post';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
-import { dedupeById } from '@/utils/dedupe-by-id';
-import { reorder } from '@/utils/reorder';
 import { invalidatePostListCaches } from './post-cache-updaters';
+import { usePostCoverImage } from './use-post-cover-image';
+import { usePostMusicSelection } from './use-post-music-selection';
 
 type Options = {
   initialMusics?: Music[];
@@ -40,9 +39,6 @@ type Return = {
 
 const isUuid = (id: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
 
-const toInitialSelected = (initialMusics?: Music[]): Music[] =>
-  Array.isArray(initialMusics) && initialMusics.length > 0 ? dedupeById(initialMusics) : [];
-
 const toMusicPayload = (m: Music) => ({
   // NOTE: iTunes 검색 결과 id는 외부 trackId일 수 있으므로 UUID만 id로 전송
   id: isUuid(m.id) ? m.id : undefined,
@@ -54,106 +50,65 @@ const toMusicPayload = (m: Music) => ({
   durationMs: m.durationMs,
 });
 
+/** 곡 선택·커버·검색창·본문을 조립해 게시글 하나를 만든다. 각 조각의 상태는 전용 훅이 소유한다. */
 export const useContentWrite = ({ initialMusics, onSuccess }: Options): Return => {
   const queryClient = useQueryClient();
-  const { ensureMusicInDb } = useMusicActions();
 
-  const [selectedMusics, setSelectedMusics] = useState<Music[]>(() => toInitialSelected(initialMusics));
+  const { selectedMusics, addMusic, addMusics, removeMusic, moveMusic, reset: resetSelection } = usePostMusicSelection({ initialMusics });
+  const { coverFile, previewUrl, handleFileChange, reset: resetCover } = usePostCoverImage();
+
   const [content, setContent] = useState('');
-
-  const [customCoverPreview, setCustomCoverPreview] = useState<string | null>(null);
-  const [customCoverFile, setCustomCoverFile] = useState<File | null>(null);
-
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // 모달이 "다른 initialMusics"로 다시 열릴 수 있으므로, props 변화에 맞춰 초기화
-  useEffect(() => {
-    setSelectedMusics(toInitialSelected(initialMusics));
-    setContent('');
+  const closeSearch = useCallback(() => {
     setSearchQuery('');
     setIsSearchOpen(false);
+  }, []);
 
-    setCustomCoverFile(null);
-    setCustomCoverPreview(null);
-  }, [initialMusics]);
+  // 모달이 "다른 initialMusics"로 다시 열릴 수 있으므로, props 변화에 맞춰 초기화.
+  // resetSelection이 initialMusics에 묶여 있어 이 effect도 그때만 다시 돈다.
+  useEffect(() => {
+    resetSelection();
+    resetCover();
+    setContent('');
+    closeSearch();
+  }, [resetSelection, resetCover, closeSearch]);
 
-  const activeCover = useMemo(
-    () => customCoverPreview || selectedMusics[0]?.albumCoverUrl || DEFAULT_IMAGES.ALBUM,
-    [customCoverPreview, selectedMusics],
-  );
+  const activeCover = useMemo(() => previewUrl || selectedMusics[0]?.albumCoverUrl || DEFAULT_IMAGES.ALBUM, [previewUrl, selectedMusics]);
 
   const isSubmitDisabled = selectedMusics.length === 0;
 
-  // blob url revoke (메모리 누수 방지)
-  useEffect(() => {
-    return () => {
-      if (customCoverPreview) URL.revokeObjectURL(customCoverPreview);
-    };
-  }, [customCoverPreview]);
+  const onAddMusic = useCallback(
+    async (music: Music) => {
+      await addMusic(music);
+      closeSearch();
+    },
+    [addMusic, closeSearch],
+  );
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const onAddPlaylist = useCallback(
+    (playlist: PlaylistDetail) => {
+      addMusics(playlist.musics);
+      closeSearch();
+    },
+    [addMusics, closeSearch],
+  );
 
-    setCustomCoverFile(file);
-
-    const url = URL.createObjectURL(file);
-    setCustomCoverPreview(url);
-
-    // 같은 파일 다시 선택 가능하게
-    e.target.value = '';
-  };
-
-  const closeSearch = () => {
-    setSearchQuery('');
-    setIsSearchOpen(false);
-  };
-
-  const onAddMusic = async (music: Music) => {
-    const savedMusic = await ensureMusicInDb(music);
-    setSelectedMusics((prev) => {
-      if (prev.some((m) => m.id === savedMusic.id)) return prev;
-      return [...prev, savedMusic];
-    });
-    closeSearch();
-  };
-
-  const dedupePlaylistMusic = (prevList: Music[], newList: Music[]) => newList.filter((m) => !prevList.some((p) => p.id === m.id));
-
-  const onAddPlaylist = (playlist: PlaylistDetail) => {
-    setSelectedMusics((prev) => {
-      const next = dedupePlaylistMusic(prev, playlist.musics);
-      if (next.length === 0) return prev;
-      return [...prev, ...next];
-    });
-    closeSearch();
-  };
-
-  const onRemoveMusic = (id: string) => {
-    setSelectedMusics((prev) => prev.filter((m) => m.id !== id));
-  };
-
-  const onMoveMusic = (index: number, direction: 'up' | 'down') => {
-    setSelectedMusics((prev) => reorder(prev, index, direction));
-  };
-
-  const onSubmit = async () => {
-    const trimmed = content.trim();
-
+  const onSubmit = useCallback(async () => {
     const fd = new FormData();
-    fd.append('content', trimmed);
+    fd.append('content', content.trim());
 
     // 서버가 musics를 JSON string으로 받는 전제(CreatePostMultipartDto)
     fd.append('musics', JSON.stringify(selectedMusics.map(toMusicPayload)));
 
-    if (customCoverFile) fd.append('coverImgUrl', customCoverFile);
+    if (coverFile) fd.append('coverImgUrl', coverFile);
 
     await createPost(fd);
     invalidatePostListCaches(queryClient);
 
     onSuccess();
-  };
+  }, [content, selectedMusics, coverFile, queryClient, onSuccess]);
 
   return {
     selectedMusics,
@@ -168,11 +123,11 @@ export const useContentWrite = ({ initialMusics, onSuccess }: Options): Return =
     activeCover,
     isSubmitDisabled,
 
-    onFileChange,
+    onFileChange: handleFileChange,
     onAddMusic,
     onAddPlaylist,
-    onRemoveMusic,
-    onMoveMusic,
+    onRemoveMusic: removeMusic,
+    onMoveMusic: moveMusic,
 
     onSubmit,
   };
