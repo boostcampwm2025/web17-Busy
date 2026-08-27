@@ -1,5 +1,3 @@
-'use client';
-
 import { Send } from 'lucide-react';
 import useAutoResizeTextarea from '@/hooks/post/useAutoResizeTextarea';
 import { handleEnterSubmitWithShiftNewline } from '@/utils/keyboard';
