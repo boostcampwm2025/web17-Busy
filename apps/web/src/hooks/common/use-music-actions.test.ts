@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
 import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
@@ -7,12 +7,16 @@ import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
 const mocks = vi.hoisted(() => ({
   createMusic: vi.fn(),
   enqueueLog: vi.fn(),
+  toast: { success: vi.fn(), error: vi.fn() },
 }));
 
 vi.mock('@/api/internal/music', () => ({ createMusic: mocks.createMusic }));
 vi.mock('@/utils/logQueue', () => ({ enqueueLog: mocks.enqueueLog }));
+vi.mock('react-toastify', () => ({ toast: mocks.toast }));
 
 import useMusicActions from './useMusicActions';
+
+type MusicActions = ReturnType<typeof useMusicActions>;
 
 const DB_UUID = '019be163-4b37-76ad-aeb3-6986a3489de6';
 const EXTERNAL_ID = 'itunes-12345';
@@ -78,5 +82,54 @@ describe('useMusicActions logging', () => {
     await result.current.addQueueToArchive(queue);
 
     expect(musicIdsOf(mocks.enqueueLog.mock.calls[0]!)).toEqual(queue.map((track) => track.id));
+  });
+});
+
+/**
+ * 이 액션들은 전부 클릭 핸들러에서 await 없이 호출된다.
+ * upsert가 실패해도 거절하면 안 되고(unhandled rejection), 사용자에게 알려야 한다.
+ */
+describe('useMusicActions failure handling', () => {
+  beforeEach(() => {
+    mocks.createMusic.mockReset();
+    mocks.enqueueLog.mockReset();
+    mocks.toast.error.mockReset();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    useModalStore.getState().closeModal();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it.each([
+    ['addMusicToPlayer', (r: MusicActions) => r.addMusicToPlayer(music(EXTERNAL_ID))],
+    ['openWriteModalWithMusic', (r: MusicActions) => r.openWriteModalWithMusic(music(EXTERNAL_ID))],
+    ['addMusicToArchive', (r: MusicActions) => r.addMusicToArchive(music(EXTERNAL_ID))],
+    ['openWriteModalWithQueue', (r: MusicActions) => r.openWriteModalWithQueue([music(EXTERNAL_ID)])],
+    ['addQueueToArchive', (r: MusicActions) => r.addQueueToArchive([music(EXTERNAL_ID)])],
+  ])('%s does not reject when the upsert fails', async (_name, run) => {
+    mocks.createMusic.mockRejectedValue(new Error('network down'));
+    const { result } = renderHook(() => useMusicActions());
+
+    await expect(run(result.current)).resolves.toBeUndefined();
+    expect(mocks.toast.error).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not open a modal when the upsert fails', async () => {
+    mocks.createMusic.mockRejectedValue(new Error('network down'));
+    const { result } = renderHook(() => useMusicActions());
+
+    await result.current.openWriteModalWithMusic(music(EXTERNAL_ID));
+
+    expect(useModalStore.getState().modalType).toBeNull();
+  });
+
+  /** 이 원시 함수는 반환값을 쓰는 호출부(usePostMusicSelection)가 있어 계속 던져야 한다. */
+  it('keeps ensureMusicInDb rejecting so callers can react to the failure', async () => {
+    mocks.createMusic.mockRejectedValue(new Error('network down'));
+    const { result } = renderHook(() => useMusicActions());
+
+    await expect(result.current.ensureMusicInDb(music(EXTERNAL_ID))).rejects.toThrow('network down');
   });
 });

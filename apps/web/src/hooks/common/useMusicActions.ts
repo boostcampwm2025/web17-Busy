@@ -1,5 +1,7 @@
 'use client';
 
+import { toast } from 'react-toastify';
+
 import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import type { CreateMusicReqDto, MusicResponseDto as Music } from '@repo/dto';
@@ -21,6 +23,19 @@ const toCreateMusicReqDto = (m: Music): CreateMusicReqDto => ({
 /** DB upsert로 id가 바뀌기 전에 남긴다. 사용자가 실제로 고른 트랙 id가 기록돼야 한다. */
 const logMusicIds = (tracks: Music[], make: typeof makePostAddMusicLog) => {
   enqueueLog(make({ musicIds: tracks.map((track) => track.id) }));
+};
+
+/**
+ * 아래 액션들은 전부 클릭 핸들러에서 await 없이 호출된다.
+ * upsert가 실패했을 때 거절을 그대로 흘리면 unhandled rejection이 되고 사용자는 아무 반응도 못 본다.
+ */
+const runSafely = async (action: () => Promise<void>) => {
+  try {
+    await action();
+  } catch (err) {
+    console.error('음악 처리 실패:', err);
+    toast.error('음악을 불러오지 못했습니다.');
+  }
 };
 
 /**
@@ -56,46 +71,51 @@ export default function useMusicActions() {
   };
 
   /** 재생: DB에 보장 후 플레이어에 전달 */
-  const addMusicToPlayer = async (track: Music) => {
-    const ensured = await ensureMusicInDb(track);
-    playMusic(ensured);
-  };
+  const addMusicToPlayer = (track: Music) =>
+    runSafely(async () => {
+      const ensured = await ensureMusicInDb(track);
+      playMusic(ensured);
+    });
 
   /** 작성 모달(단일): DB에 보장 후 initialMusics로 전달 */
-  const openWriteModalWithMusic = async (track: Music) => {
-    logMusicIds([track], makePostAddMusicLog);
+  const openWriteModalWithMusic = (track: Music) =>
+    runSafely(async () => {
+      logMusicIds([track], makePostAddMusicLog);
 
-    const [ensured] = await ensureMusicsInDb([track]);
-    if (!ensured) return;
-    openModal(MODAL_TYPES.WRITE, { initialMusics: [ensured] });
-  };
+      const [ensured] = await ensureMusicsInDb([track]);
+      if (!ensured) return;
+      openModal(MODAL_TYPES.WRITE, { initialMusics: [ensured] });
+    });
 
   /** 보관함 저장(단일): music DB에 보장 후 플레이리스트 선택 모달 오픈 */
-  const addMusicToArchive = async (track: Music) => {
-    logMusicIds([track], makeArchiveAddMusicLog);
+  const addMusicToArchive = (track: Music) =>
+    runSafely(async () => {
+      logMusicIds([track], makeArchiveAddMusicLog);
 
-    const [ensured] = await ensureMusicsInDb([track]);
-    if (!ensured) return;
-    openModal(MODAL_TYPES.PLAYLIST_PICKER, { musics: [ensured] });
-  };
+      const [ensured] = await ensureMusicsInDb([track]);
+      if (!ensured) return;
+      openModal(MODAL_TYPES.PLAYLIST_PICKER, { musics: [ensured] });
+    });
 
   /** 작성 모달(큐 전체) */
-  const openWriteModalWithQueue = async (tracks: Music[]) => {
-    logMusicIds(tracks, makePostAddMusicLog);
+  const openWriteModalWithQueue = (tracks: Music[]) =>
+    runSafely(async () => {
+      logMusicIds(tracks, makePostAddMusicLog);
 
-    const ensured = await ensureMusicsInDb(tracks);
-    if (ensured.length === 0) return;
-    openModal(MODAL_TYPES.WRITE, { initialMusics: ensured });
-  };
+      const ensured = await ensureMusicsInDb(tracks);
+      if (ensured.length === 0) return;
+      openModal(MODAL_TYPES.WRITE, { initialMusics: ensured });
+    });
 
   /** 보관함 저장(큐 전체) */
-  const addQueueToArchive = async (tracks: Music[]) => {
-    logMusicIds(tracks, makeArchiveAddMusicLog);
+  const addQueueToArchive = (tracks: Music[]) =>
+    runSafely(async () => {
+      logMusicIds(tracks, makeArchiveAddMusicLog);
 
-    const ensured = await ensureMusicsInDb(tracks);
-    if (ensured.length === 0) return;
-    openModal(MODAL_TYPES.PLAYLIST_PICKER, { musics: ensured });
-  };
+      const ensured = await ensureMusicsInDb(tracks);
+      if (ensured.length === 0) return;
+      openModal(MODAL_TYPES.PLAYLIST_PICKER, { musics: ensured });
+    });
 
   return {
     ensureMusicInDb,
