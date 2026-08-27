@@ -1,5 +1,3 @@
-'use client';
-
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import type { SearchUsersResDto } from '@repo/dto';

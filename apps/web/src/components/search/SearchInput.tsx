@@ -1,5 +1,3 @@
-'use client';
-
 import { Search, XCircle } from 'lucide-react';
 
 interface SearchInputProps {

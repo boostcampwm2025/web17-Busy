@@ -1,5 +1,3 @@
-'use client';
-
 import { Box, Plus } from 'lucide-react';
 
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
