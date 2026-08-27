@@ -1,5 +1,3 @@
-'use client';
-
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import type { SearchUsersResDto } from '@repo/dto';
@@ -49,7 +47,6 @@ export default function UserItem({ user, disabledFollow, meId }: Props) {
       <button
         type="button"
         onClick={handleGoProfile}
-        // disabled={isMe}
         className={`w-12 h-12 mr-4 shrink-0 ${isMe ? 'cursor-default' : ''}`}
         title={isMe ? '내 프로필' : '프로필 보기'}
       >

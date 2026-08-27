@@ -1,5 +1,3 @@
-'use client';
-
 import { Box, Plus } from 'lucide-react';
 
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
@@ -20,16 +18,16 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
   /** 재생 / 작성 모달 / 보관함 선택 */
   const { addMusicToPlayer, openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
-  const handlePlayClick = async () => {
-    await addMusicToPlayer(item);
+  const handlePlayClick = () => {
+    void addMusicToPlayer(item);
   };
 
-  const handleWriteClick = async () => {
+  const handleWriteClick = () => {
     if (!isAuthenticated) {
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
-    await openWriteModalWithMusic(item);
+    void openWriteModalWithMusic(item);
   };
 
   const handleArchiveClick = () => {
@@ -37,7 +35,7 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
-    addMusicToArchive(item);
+    void addMusicToArchive(item);
   };
 
   const isVideo = mode === 'video';

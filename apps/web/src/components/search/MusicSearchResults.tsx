@@ -1,8 +1,6 @@
-'use client';
-
 import { memo } from 'react';
 import type { MusicResponseDto as Music } from '@repo/dto';
-import { TrackItem } from './index';
+import TrackItem from './TrackItem';
 import { ContentSearchMode } from '@/types/search';
 
 type Props = {

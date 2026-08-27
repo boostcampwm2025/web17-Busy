@@ -1,9 +1,10 @@
-'use client';
-
 import { useMemo } from 'react';
 
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { SearchInput, SearchStateMessage, MusicSearchResults, UserSearchResults } from './index';
+import MusicSearchResults from './MusicSearchResults';
+import SearchInput from './SearchInput';
+import SearchStateMessage from './SearchStateMessage';
+import UserSearchResults from './UserSearchResults';
 
 import { SEARCH_TAB_ENTRIES } from '@/constants/search';
 import { getHintMessage } from '@/utils/hintMessage';
@@ -12,7 +13,7 @@ import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 type Props = { enabled?: boolean };
 
-function SearchDrawerInner({ enabled = true }: Props) {
+export default function SearchDrawerContent({ enabled = true }: Props) {
   const { userId, isAuthenticated } = useAuthMe();
   const { query, setQuery, clearQuery, mode, handleChangeMode, itunes, users, videos, active } = useSearchDrawer({ enabled });
 
@@ -67,8 +68,4 @@ function SearchDrawerInner({ enabled = true }: Props) {
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2 border-t-2 border-primary/10">{renderBody()}</div>
     </div>
   );
-}
-
-export default function SearchDrawerContent({ enabled = true }: Props) {
-  return <SearchDrawerInner enabled={enabled} />;
 }
