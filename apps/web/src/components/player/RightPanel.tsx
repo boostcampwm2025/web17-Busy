@@ -3,7 +3,9 @@
 import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-import { QueueList, MiniPlayerBar, NowPlaying } from './index';
+import QueueList from './QueueList';
+import MiniPlayerBar from './MiniPlayerBar';
+import NowPlaying from './NowPlaying/NowPlaying';
 import { useQueueSync } from '@/hooks/queue/useQueueSync';
 import { useGuestQueueSession } from '@/hooks/queue/useGuestQueueSession';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';

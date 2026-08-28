@@ -6,7 +6,11 @@ import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
-import { NowPlayingCoverPlayback, NowPlayingProgressTick, NowPlayingMetaActions, NowPlayingControlsStatic, PlaybackProvider } from './index';
+import { PlaybackProvider } from './partials/PlaybackProvider';
+import NowPlayingCoverPlayback from './partials/NowPlayingCoverPlayback';
+import NowPlayingProgressTick from './partials/NowPlayingProgressTick';
+import NowPlayingMetaActions from './partials/NowPlayingMetaActions';
+import NowPlayingControlsStatic from './partials/NowPlayingControlsStatic';
 
 type Props = {
   currentMusic: Music | null;

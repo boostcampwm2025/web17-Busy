@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { Pause, Play, Shuffle, SkipBack, SkipForward } from 'lucide-react';
-import VolumeControl from '../VolumeControl';
+import VolumeControl from '../../VolumeControl';
 
 type Props = {
   enabled: boolean;
