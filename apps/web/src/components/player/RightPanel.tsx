@@ -1,5 +1,3 @@
-'use client';
-
 import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 

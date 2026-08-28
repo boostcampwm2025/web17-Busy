@@ -1,5 +1,3 @@
-'use client';
-
 import type { MusicResponseDto as Music } from '@repo/dto';
 import React, { memo, useMemo } from 'react';
 import SeekBar from '../../SeekBar';
