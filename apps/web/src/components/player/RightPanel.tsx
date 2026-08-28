@@ -1,7 +1,7 @@
 import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-import QueueList from './QueueList';
+import QueueList from './QueueList/QueueList';
 import MiniPlayerBar from './MiniPlayerBar';
 import NowPlaying from './NowPlaying/NowPlaying';
 import { useQueueSync } from '@/hooks/queue/useQueueSync';
