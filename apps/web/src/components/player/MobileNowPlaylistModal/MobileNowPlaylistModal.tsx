@@ -35,7 +35,7 @@ function MobileQueueRow({ music, index, isCurrent, isFirst, isLast, onPlay, onRe
           onClick={() => onMoveUp(index)}
           disabled={isFirst}
           title="위로"
-          className="p-1 text-gray-1 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
+          className="p-1 text-gray-1 enabled:hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <ChevronUp className="w-4 h-4" />
         </button>
@@ -44,7 +44,7 @@ function MobileQueueRow({ music, index, isCurrent, isFirst, isLast, onPlay, onRe
           onClick={() => onMoveDown(index)}
           disabled={isLast}
           title="아래로"
-          className="p-1 text-gray-1 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
+          className="p-1 text-gray-1 enabled:hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <ChevronDown className="w-4 h-4" />
         </button>
@@ -94,7 +94,7 @@ export default function MobileNowPlaylistModal() {
               onClick={clearQueue}
               disabled={queue.length === 0}
               title={queue.length === 0 ? '큐가 비어있습니다' : '전체 비우기'}
-              className="flex items-center gap-1 px-3 py-2 rounded-md border-2 border-primary text-primary font-bold text-sm hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 px-3 py-2 rounded-md border-2 border-primary text-primary font-bold text-sm enabled:hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <XCircle className="w-4 h-4" />
               Clear

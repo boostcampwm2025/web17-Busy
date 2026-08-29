@@ -27,27 +27,6 @@ export default function MiniPlayerBar({ onOpenFullPlayer }: MiniPlayerBarProps) 
   const { isAuthenticated } = useAuthMe();
   const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
-  const handleTogglePlayClick = () => {
-    if (!isPlayable) {
-      return;
-    }
-    nav.togglePlay();
-  };
-
-  const handlePrevClick = () => {
-    if (!nav.canPrev) {
-      return;
-    }
-    nav.playPrev();
-  };
-
-  const handleNextClick = () => {
-    if (!nav.canNext) {
-      return;
-    }
-    nav.playNext();
-  };
-
   const handleToggleQueueClick = () => {
     if (isQueueOpen) {
       closeModal();
@@ -103,30 +82,30 @@ export default function MiniPlayerBar({ onOpenFullPlayer }: MiniPlayerBarProps) 
       <div className="flex items-center gap-1 shrink-0">
         <button
           type="button"
-          onClick={handlePrevClick}
+          onClick={nav.playPrev}
           disabled={!nav.canPrev}
           title={nav.canPrev ? '이전 곡' : '이전 곡 없음'}
-          className="p-2 text-primary rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 text-primary rounded-full transition-colors enabled:hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipBack className="w-5 h-5" />
         </button>
 
         <button
           type="button"
-          onClick={handleTogglePlayClick}
+          onClick={nav.togglePlay}
           disabled={!isPlayable}
           title={!isPlayable ? '재생할 음악이 없습니다' : isPlaying ? '일시정지' : '재생'}
-          className="p-2 rounded-full bg-primary text-white transition-all hover:shadow-[2px_2px_0px_0px_#00ebc7] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 rounded-full bg-primary text-white transition-all enabled:hover:shadow-[2px_2px_0px_0px_#00ebc7] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
         </button>
 
         <button
           type="button"
-          onClick={handleNextClick}
+          onClick={nav.playNext}
           disabled={!nav.canNext}
           title={nav.canNext ? '다음 곡' : '다음 곡 없음'}
-          className="p-2 text-primary rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 text-primary rounded-full transition-colors enabled:hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipForward className="w-5 h-5" />
         </button>
