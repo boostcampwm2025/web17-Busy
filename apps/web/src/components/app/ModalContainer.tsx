@@ -8,7 +8,6 @@ import { PostCardDetailModal } from '@/components/post/PostCardDetailModal';
 import { PlaylistDetailModal } from '@/components/playlist/PlaylistDetailModal';
 import { PlaylistPickerModal } from '@/components/playlist/PlaylistPickerModal';
 import { UserListModal } from '@/components/profile/UserListModal';
-import { MobileNowPlaylistModal } from '@/components/player/MobileNowPlaylistModal';
 import { PrivacyConsentModal } from '@/components/setting/PrivacyConsentModal';
 
 export default function ModalContainer() {
@@ -58,9 +57,6 @@ export default function ModalContainer() {
 
       {/* 3. 포스트 상세 모달 */}
       {modalType === MODAL_TYPES.POST_DETAIL && <PostCardDetailModal />}
-
-      {/* 4. 모바일 재생목록 모달 */}
-      {modalType === MODAL_TYPES.MOBILE_QUEUE && <MobileNowPlaylistModal />}
 
       {/* 5. 팔로워 사용자 목록 모달 */}
       {modalType === MODAL_TYPES.FOLLOWER_USER && (
