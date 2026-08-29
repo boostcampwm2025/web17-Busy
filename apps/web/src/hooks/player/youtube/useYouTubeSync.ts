@@ -22,7 +22,8 @@ export function useYouTubeSync({ ready, playerRef, setProgress }: Props) {
   const videoId = currentMusic?.trackUri;
   const isYoutube = currentMusic?.provider === MusicProvider.YOUTUBE;
 
-  // volume 동기화
+  // volume 동기화. ready가 없으면 마운트 시점엔 player가 아직 없어 그냥 리턴하고, 이후 volume이
+  // 안 바뀌는 한 다시 실행되지 않아 최초 볼륨이 반영되지 않는다.
   useEffect(() => {
     const player = playerRef.current;
     if (!player) return;
@@ -37,7 +38,7 @@ export function useYouTubeSync({ ready, playerRef, setProgress }: Props) {
       if (player.isMuted()) player.unMute();
       player.setVolume(v100);
     }
-  }, [volume]);
+  }, [volume, ready]);
 
   // video 교체
   useEffect(() => {
