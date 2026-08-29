@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
 import { usePlayerStore } from '@/stores/usePlayerStore';
-import { useYouTubeSync } from './useYouTubeSync';
+import { useYouTubeSync } from './use-youtube-sync';
 
 const mockPlayer = () =>
   ({

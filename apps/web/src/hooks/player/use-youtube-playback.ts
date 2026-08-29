@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { PlayerProgress } from '@/types/player';
 import { YOUTUBE_PLAYER_TICK_INTERVAL_MS } from '@/constants/player';
-import { usePlayerTick } from './youtube/usePlayerTick';
-import { useYouTubePlayer } from './youtube/useYouTubePlayer';
-import { useYouTubeProgress } from './youtube/useYouTubeProgress';
-import { useYouTubeSync } from './youtube/useYouTubeSync';
+import { usePlayerTick } from './youtube/use-player-tick';
+import { useYouTubePlayer } from './youtube/use-youtube-player';
+import { useYouTubeProgress } from './youtube/use-youtube-progress';
+import { useYouTubeSync } from './youtube/use-youtube-sync';
 
-export function useYouTubeHook() {
+export function useYouTubePlayback() {
   const [progress, setProgress] = useState<PlayerProgress>({ positionMs: 0, durationMs: 0 });
   const [isTicking, setIsTicking] = useState(false);
 

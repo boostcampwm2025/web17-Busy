@@ -13,7 +13,7 @@ const toPlaybackErrorMessage = (e: unknown): string => {
   return '재생에 실패했습니다. 잠시 후 다시 시도해주세요.';
 };
 
-export const useItunesHook = (): Playback => {
+export const useItunesPlayback = (): Playback => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentMusic = usePlayerStore((s) => s.currentMusic);
