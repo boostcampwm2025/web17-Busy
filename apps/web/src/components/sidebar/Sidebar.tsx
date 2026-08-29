@@ -13,7 +13,7 @@ import { useResizable } from '@/hooks/common/useResizable';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
-import { NotiDrawerContent } from '../noti';
+import NotiDrawerContent from '../noti/NotiDrawerContent';
 
 import { performLogout } from '@/hooks/auth/client/logout';
 
