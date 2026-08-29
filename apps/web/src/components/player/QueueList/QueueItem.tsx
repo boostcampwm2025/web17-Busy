@@ -1,9 +1,10 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
-import { ChevronDown, ChevronUp, GripVertical, Trash2 } from 'lucide-react';
+import { GripVertical, Trash2 } from 'lucide-react';
 
 import TickerText from '@/components/common/TickerText';
 import type { DragProps } from '@/hooks/common/use-drag-reorder';
 import { usePlayerStore } from '@/stores/usePlayerStore';
+import QueueReorderControls from '../QueueReorderControls';
 
 type Props = {
   music: Music;
@@ -18,8 +19,6 @@ export default function QueueItem({ music, index, isLast, isDragOver, dragProps 
   const isCurrent = usePlayerStore((s) => s.currentMusic?.id === music.id);
   const selectMusic = usePlayerStore((s) => s.selectMusic);
   const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
-  const moveUp = usePlayerStore((s) => s.moveUp);
-  const moveDown = usePlayerStore((s) => s.moveDown);
 
   const handleSelectClick = () => {
     selectMusic(music);
@@ -27,14 +26,6 @@ export default function QueueItem({ music, index, isLast, isDragOver, dragProps 
 
   const handleRemoveClick = () => {
     removeFromQueue(music.id);
-  };
-
-  const handleMoveUpClick = () => {
-    moveUp(index);
-  };
-
-  const handleMoveDownClick = () => {
-    moveDown(index);
   };
 
   return (
@@ -63,26 +54,7 @@ export default function QueueItem({ music, index, isLast, isDragOver, dragProps 
         </div>
       </button>
 
-      <div className="flex flex-col">
-        <button
-          type="button"
-          onClick={handleMoveUpClick}
-          disabled={index === 0}
-          title="위로"
-          className="p-1 text-gray-1 enabled:hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          <ChevronUp className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={handleMoveDownClick}
-          disabled={isLast}
-          title="아래로"
-          className="p-1 text-gray-1 enabled:hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          <ChevronDown className="w-4 h-4" />
-        </button>
-      </div>
+      <QueueReorderControls index={index} isLast={isLast} />
 
       <button type="button" onClick={handleRemoveClick} title="삭제" className="p-2 text-gray-2 hover:text-accent-pink">
         <Trash2 className="w-4 h-4" />
