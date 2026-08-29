@@ -1,9 +1,6 @@
 import { MusicProvider } from '@repo/dto/values';
-import { useCallback } from 'react';
-import useMusicActions from '@/hooks/common/useMusicActions';
-import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useCurrentMusicActions } from '@/hooks/player/use-current-music-actions';
 
 import { PlaybackProvider } from './partials/PlaybackProvider';
 import NowPlayingCoverPlayback from './partials/NowPlayingCoverPlayback';
@@ -15,31 +12,9 @@ export default function NowPlaying() {
   const currentMusic = usePlayerStore((s) => s.currentMusic);
   const playError = usePlayerStore((s) => s.playError);
 
-  const { isAuthenticated } = useAuthMe();
-  const openModal = useModalStore((s) => s.openModal);
-  const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
+  const musicActions = useCurrentMusicActions();
 
   const isYouTube = currentMusic?.provider === MusicProvider.YOUTUBE;
-
-  const handlePost = useCallback(() => {
-    if (!isAuthenticated) {
-      openModal(MODAL_TYPES.LOGIN);
-      return;
-    }
-    if (!currentMusic) return;
-
-    void openWriteModalWithMusic(currentMusic);
-  }, [isAuthenticated, openModal, currentMusic, openWriteModalWithMusic]);
-
-  const handleSave = useCallback(() => {
-    if (!isAuthenticated) {
-      openModal(MODAL_TYPES.LOGIN);
-      return;
-    }
-    if (!currentMusic) return;
-
-    void addMusicToArchive(currentMusic);
-  }, [isAuthenticated, openModal, currentMusic, addMusicToArchive]);
 
   return (
     <div className="p-4 py-8 border-b-2 border-primary">
@@ -47,7 +22,7 @@ export default function NowPlaying() {
 
       <PlaybackProvider>
         <NowPlayingCoverPlayback currentMusic={currentMusic} isYouTube={isYouTube} />
-        <NowPlayingMetaActions currentMusic={currentMusic} playError={playError} onPost={handlePost} onSave={handleSave} />
+        <NowPlayingMetaActions currentMusic={currentMusic} playError={playError} onPost={musicActions.post} onSave={musicActions.save} />
         <NowPlayingProgressTick currentMusic={currentMusic} />
       </PlaybackProvider>
 

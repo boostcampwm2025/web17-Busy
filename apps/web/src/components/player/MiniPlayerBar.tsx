@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { Box, Pause, Play, Plus, SkipBack, SkipForward, ListPlus } from 'lucide-react';
-import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
-import useMusicActions from '@/hooks/common/useMusicActions';
 import { useQueueNavigation } from '@/hooks/player/use-queue-navigation';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useCurrentMusicActions } from '@/hooks/player/use-current-music-actions';
 
 import TickerText from '@/components/common/TickerText';
 import MobileBottomSheet from '@/components/layout/MobileBottomSheet';
@@ -21,13 +19,10 @@ export default function MiniPlayerBar({ onOpenFullPlayer }: MiniPlayerBarProps) 
 
   const nav = useQueueNavigation();
 
-  const openModal = useModalStore((s) => s.openModal);
+  const musicActions = useCurrentMusicActions();
 
   // 큐 시트는 앱 전역 모달이 아니라 이 바가 소유하는 UI다. 검색 드로어(MobileBottomNav)와 같은 방식.
   const [isQueueOpen, setIsQueueOpen] = useState(false);
-
-  const { isAuthenticated } = useAuthMe();
-  const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
   const handleToggleQueueClick = () => {
     setIsQueueOpen((prev) => !prev);
@@ -35,26 +30,6 @@ export default function MiniPlayerBar({ onOpenFullPlayer }: MiniPlayerBarProps) 
 
   const handleCloseQueue = () => {
     setIsQueueOpen(false);
-  };
-
-  const handlePostClick = () => {
-    if (!isAuthenticated) {
-      openModal(MODAL_TYPES.LOGIN);
-      return;
-    }
-    if (!currentMusic) return;
-
-    void openWriteModalWithMusic(currentMusic);
-  };
-
-  const handleSaveClick = () => {
-    if (!isAuthenticated) {
-      openModal(MODAL_TYPES.LOGIN);
-      return;
-    }
-    if (!currentMusic) return;
-
-    void addMusicToArchive(currentMusic);
   };
 
   const queueTitle = isQueueOpen ? '현재 재생목록 닫기' : '현재 재생목록 열기';
@@ -124,7 +99,7 @@ export default function MiniPlayerBar({ onOpenFullPlayer }: MiniPlayerBarProps) 
 
           <button
             type="button"
-            onClick={handleSaveClick}
+            onClick={musicActions.save}
             title="보관함에 추가"
             className="p-2 rounded-lg border border-transparent text-primary transition-all hover:bg-white hover:border-accent-cyan hover:shadow-[2px_2px_0px_0px_#00ebc7] hidden sm:block"
           >
@@ -133,7 +108,7 @@ export default function MiniPlayerBar({ onOpenFullPlayer }: MiniPlayerBarProps) 
 
           <button
             type="button"
-            onClick={handlePostClick}
+            onClick={musicActions.post}
             title="추천 글 작성"
             className="p-2 rounded-lg border border-transparent text-primary transition-all hover:bg-white hover:border-accent-pink hover:shadow-[2px_2px_0px_0px_#ff5470] hidden sm:block"
           >
