@@ -1,11 +1,12 @@
-﻿'use client';
-
 import { useState } from 'react';
 import { PlayerProgress } from '@/types/player';
 import { YOUTUBE_PLAYER_TICK_INTERVAL_MS } from '@/constants/player';
-import { usePlayerTick, useYouTubePlayer, useYouTubeProgress, useYouTubeSync } from './youtube';
+import { usePlayerTick } from './youtube/use-player-tick';
+import { useYouTubePlayer } from './youtube/use-youtube-player';
+import { useYouTubeProgress } from './youtube/use-youtube-progress';
+import { useYouTubeSync } from './youtube/use-youtube-sync';
 
-export function useYouTubeHook() {
+export function useYouTubePlayback() {
   const [progress, setProgress] = useState<PlayerProgress>({ positionMs: 0, durationMs: 0 });
   const [isTicking, setIsTicking] = useState(false);
 
@@ -13,7 +14,7 @@ export function useYouTubeHook() {
    * 플레이어 인스턴스 생성
    * 생성 시 이벤트 핸들러 등록
    */
-  const { containerRef, playerRef, ready } = useYouTubePlayer({ setProgress, setIsTicking });
+  const { containerRef, playerRef, isReady } = useYouTubePlayer({ setProgress, setIsTicking });
 
   /**
    * progress 관련 함수 정의
@@ -29,7 +30,7 @@ export function useYouTubeHook() {
    * 에러메시지 초기화
    * 재생/일시정지 제어
    */
-  useYouTubeSync({ ready, playerRef, setProgress });
+  useYouTubeSync({ isReady, playerRef, setProgress });
 
   /**
    * YOUTUBE_PLAYER_TICK_INTERVAL_MS 마다 player의 재생 위치와 progress 동기화

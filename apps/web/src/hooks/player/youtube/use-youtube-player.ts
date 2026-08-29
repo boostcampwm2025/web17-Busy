@@ -1,7 +1,6 @@
-'use client';
-
 import { YOUTUBE_IFRAME_ID, YOUTUBE_IFRAME_SCRIPT_SRC } from '@/constants/player';
 import { usePlayerStore } from '@/stores/usePlayerStore';
+import { shouldRepeatSingle, toDurationMs } from '../playback-policy';
 import { PlayerProgress } from '@/types/player';
 import { useEffect, useRef, useState } from 'react';
 
@@ -22,7 +21,7 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
   const togglePlay = usePlayerStore((s) => s.togglePlay);
   const setPlayError = usePlayerStore((s) => s.setPlayError);
 
-  const [ready, setReady] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YT.Player | null>(null);
@@ -65,12 +64,12 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
   }, [queueLength]);
 
   useEffect(() => {
-    let mounted = true;
+    let isMounted = true;
 
     const waitForContainer = () =>
       new Promise<HTMLDivElement>((resolve) => {
         const tick = () => {
-          if (!mounted) return;
+          if (!isMounted) return;
           const el = containerRef.current;
           if (el) return resolve(el);
           requestAnimationFrame(tick);
@@ -81,14 +80,14 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
     const init = async () => {
       await loadScript();
       const el = await waitForContainer();
-      if (!mounted || playerRef.current) return;
+      if (!isMounted || playerRef.current) return;
 
       playerRef.current = new window.YT.Player(el, {
         playerVars: { autoplay: 0, controls: 1 },
         events: {
           onReady: (e) => {
             playerRef.current = e.target;
-            setReady(true);
+            setIsReady(true);
           },
           onError: (e) => {
             setPlayError(`Youtube error: ${e.data}`);
@@ -99,8 +98,7 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
             if (!player) return;
 
             const syncDuration = () => {
-              const d = player.getDuration(); // 현재 위치 (seconds)
-              const durationMs = d > 0 ? Math.floor(d * 1000) : 0;
+              const durationMs = toDurationMs(player.getDuration());
               if (durationMs > 0) {
                 setProgress((prev) => ({ ...prev, durationMs: durationMs || prev.durationMs }));
               }
@@ -119,12 +117,10 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
                 setIsTicking(false);
                 break;
 
-              case YT.PlayerState.ENDED:
+              case YT.PlayerState.ENDED: {
                 setIsTicking(false);
 
-                const qLen = queueLengthRef.current;
-
-                if (qLen <= 1) {
+                if (shouldRepeatSingle(queueLengthRef.current)) {
                   player.seekTo(0, true);
                   player.playVideo();
                   return;
@@ -132,6 +128,7 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
 
                 playNext();
                 break;
+              }
 
               default: // UNSTARTED 등
                 setIsTicking(false);
@@ -145,7 +142,7 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
     init();
 
     return () => {
-      mounted = false;
+      isMounted = false;
       playerRef.current?.destroy();
       playerRef.current = null;
     };
@@ -154,6 +151,6 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
   return {
     containerRef,
     playerRef,
-    ready,
+    isReady,
   };
 }

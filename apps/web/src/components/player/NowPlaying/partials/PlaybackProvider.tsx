@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { usePlayback } from '@/hooks/player/usePlayback';
+import { usePlayback } from '@/hooks/player/use-playback';
 
 type PlaybackKind = 'youtube' | 'itunes';
 

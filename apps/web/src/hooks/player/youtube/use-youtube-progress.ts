@@ -1,7 +1,5 @@
-'use client';
-
 import { PlayerProgress } from '@/types/player';
-import { clampMs } from '@/utils/clamp';
+import { resolveSeekTarget, toDurationMs } from '../playback-policy';
 import { useCallback } from 'react';
 
 type Props = {
@@ -22,16 +20,11 @@ export function useYouTubeProgress({ progress, playerRef, setProgress }: Props) 
       const player = playerRef.current;
       if (!player) return;
 
-      const rawDuration = player.getDuration();
-      const metaMs = rawDuration > 0 ? Math.floor(rawDuration * 1000) : 0;
-      const maxMs = metaMs > 0 ? metaMs : progress.durationMs;
+      const target = resolveSeekTarget(ms, toDurationMs(player.getDuration()), progress.durationMs);
+      if (!target) return;
 
-      if (maxMs <= 0) return;
-
-      const nextMs = clampMs(ms, maxMs);
-      player.seekTo(nextMs / 1000, true);
-
-      setProgress((prev) => ({ ...prev, positionMs: nextMs, durationMs: maxMs || prev.durationMs }));
+      player.seekTo(target.positionMs / 1000, true);
+      setProgress((prev) => ({ ...prev, ...target }));
     },
     [progress.durationMs],
   );

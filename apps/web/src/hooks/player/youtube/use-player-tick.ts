@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect } from 'react';
 
 export function usePlayerTick(enabled: boolean, getTimeSec: () => number, onTickMs: (ms: number) => void, intervalMs = 250) {
