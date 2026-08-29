@@ -1,5 +1,3 @@
-'use client';
-
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Pause, Play, Plus, SkipBack, SkipForward, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
@@ -39,16 +37,8 @@ export default function MiniPlayerBar({
 }: MiniPlayerBarProps) {
   const isPlayable = Boolean(currentMusic);
 
-  /**
-   * NOTE:
-   * - 사용자의 로그인 유무를 체크한다.
-   * - 사용자가 보관함 추가와 컨텐츠 생성 버튼을 누를 때 로그인 유무로 지원한다.
-   * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
-   */
   const { isAuthenticated } = useAuthMe();
   const openModal = useModalStore((s) => s.openModal);
-
-  /** 보관함 추가와 컨텐츠 생성을 위한 함수  */
   const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
   const handleTogglePlayClick = () => {
@@ -151,7 +141,6 @@ export default function MiniPlayerBar({
           <SkipForward className="w-5 h-5" />
         </button>
 
-        {/* 재생목록 열기/닫기 */}
         <button
           type="button"
           onClick={handleToggleQueueClick}

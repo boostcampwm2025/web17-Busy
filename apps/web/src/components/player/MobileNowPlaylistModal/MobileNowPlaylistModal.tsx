@@ -1,5 +1,3 @@
-'use client';
-
 import { X, Trash2, ChevronUp, ChevronDown, XCircle, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
@@ -63,7 +61,7 @@ export default function MobileNowPlaylistModal() {
   const isOpen = useModalStore((s) => s.isOpen);
   const modalType = useModalStore((s) => s.modalType);
   const closeModal = useModalStore((s) => s.closeModal);
-  const enabled = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
+  const isQueueModalOpen = isOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
 
   const queue = usePlayerStore((s) => s.queue);
   const currentMusicId = usePlayerStore((s) => s.currentMusic?.id ?? null);
@@ -74,7 +72,7 @@ export default function MobileNowPlaylistModal() {
   const moveUp = usePlayerStore((s) => s.moveUp);
   const moveDown = usePlayerStore((s) => s.moveDown);
 
-  if (!enabled) return null;
+  if (!isQueueModalOpen) return null;
 
   // 플레이어(h-16) + 네비(h-16) = bottom-32
   return (
