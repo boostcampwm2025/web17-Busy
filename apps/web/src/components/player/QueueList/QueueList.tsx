@@ -1,5 +1,5 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
-import { useState, type DragEvent } from 'react';
+import { useDragReorder } from '@/hooks/common/use-drag-reorder';
 import QueueItem from './QueueItem';
 import QueueToolbar from './QueueToolbar';
 
@@ -15,38 +15,7 @@ type Props = {
 };
 
 export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown, onMove, onSelect }: Props) {
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-
-  const getDragProps = (index: number) => ({
-    draggable: true,
-    onDragStart: (event: DragEvent<HTMLLIElement>) => {
-      setDragIndex(index);
-      event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', String(index));
-    },
-    onDragOver: (event: DragEvent<HTMLLIElement>) => {
-      event.preventDefault();
-      setDragOverIndex(index);
-      event.dataTransfer.dropEffect = 'move';
-    },
-    onDrop: (event: DragEvent<HTMLLIElement>) => {
-      event.preventDefault();
-      const from = dragIndex ?? Number(event.dataTransfer.getData('text/plain'));
-      if (!Number.isFinite(from)) {
-        setDragIndex(null);
-        setDragOverIndex(null);
-        return;
-      }
-      if (from !== index) onMove(from, index);
-      setDragIndex(null);
-      setDragOverIndex(null);
-    },
-    onDragEnd: () => {
-      setDragIndex(null);
-      setDragOverIndex(null);
-    },
-  });
+  const { dragOverIndex, getDragProps } = useDragReorder(onMove);
 
   return (
     <div className="flex-1 flex flex-col p-6 overflow-hidden bg-gray-4/30">

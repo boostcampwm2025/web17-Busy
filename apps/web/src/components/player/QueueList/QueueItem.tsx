@@ -1,16 +1,8 @@
 import type { MusicResponseDto as Music } from '@repo/dto';
 import { ChevronDown, ChevronUp, GripVertical, Trash2 } from 'lucide-react';
-import type { DragEvent } from 'react';
 
 import TickerText from '@/components/common/TickerText';
-
-type DragProps = {
-  draggable: boolean;
-  onDragStart: (event: DragEvent<HTMLLIElement>) => void;
-  onDragOver: (event: DragEvent<HTMLLIElement>) => void;
-  onDrop: (event: DragEvent<HTMLLIElement>) => void;
-  onDragEnd: () => void;
-};
+import type { DragProps } from '@/hooks/common/use-drag-reorder';
 
 type Props = {
   music: Music;
