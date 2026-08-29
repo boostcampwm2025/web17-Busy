@@ -1,5 +1,3 @@
-'use client';
-
 import { DEFAULT_VOLUME } from '@/constants/player';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { PlayerProgress } from '@/types/player';

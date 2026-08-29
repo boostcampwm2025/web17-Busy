@@ -1,5 +1,3 @@
-'use client';
-
 import { PlayerProgress } from '@/types/player';
 import { clampMs } from '@/utils/clamp';
 import { useCallback } from 'react';
