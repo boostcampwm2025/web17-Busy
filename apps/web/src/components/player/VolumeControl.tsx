@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { VolumeX, Volume1, Volume2 } from 'lucide-react';
 
@@ -12,7 +10,7 @@ type Props = {
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
 export default function VolumeControl({ value, onChange, disabled = false }: Props) {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   const Icon = useMemo(() => {
@@ -22,21 +20,21 @@ export default function VolumeControl({ value, onChange, disabled = false }: Pro
   }, [value]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
 
     const onOutside = (e: MouseEvent) => {
       const el = wrapRef.current;
       if (!el) return;
-      if (e.target instanceof Node && !el.contains(e.target)) setOpen(false);
+      if (e.target instanceof Node && !el.contains(e.target)) setIsOpen(false);
     };
 
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
-  }, [open]);
+  }, [isOpen]);
 
   const handleToggle = () => {
     if (disabled) return;
-    setOpen((p) => !p);
+    setIsOpen((p) => !p);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,11 +52,9 @@ export default function VolumeControl({ value, onChange, disabled = false }: Pro
           'absolute left-0 top-1/2 -translate-y-1/2',
           'rounded-full overflow-hidden',
           'transition-[width,opacity] duration-200 ease-out',
-          open ? `w-24 opacity-100` : `w-10 opacity-100`,
-          // open/hover일 때만 배경이 생김 (닫힌 기본 상태는 투명)
-          open ? 'bg-darkblue/15 backdrop-blur-sm' : 'bg-transparent',
-          // hover 시에만 아이콘 색이 primary로 변경
-          open ? 'text-primary' : 'text-gray-2 hover:text-primary',
+          isOpen ? `w-24 opacity-100` : `w-10 opacity-100`,
+          isOpen ? 'bg-darkblue/15 backdrop-blur-sm' : 'bg-transparent',
+          isOpen ? 'text-primary' : 'text-gray-2 hover:text-primary',
         ].join(' ')}
       >
         <div className="flex items-center">
@@ -73,9 +69,8 @@ export default function VolumeControl({ value, onChange, disabled = false }: Pro
             <Icon className="w-5 h-5" />
           </button>
 
-          {/* 슬라이더 영역: open일 때만 보이게 */}
           <div
-            className={['pr-3', 'transition-opacity duration-200', open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'].join(
+            className={['pr-3', 'transition-opacity duration-200', isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'].join(
               ' ',
             )}
           >

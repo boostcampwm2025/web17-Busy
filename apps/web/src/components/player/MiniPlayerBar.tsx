@@ -1,99 +1,58 @@
-'use client';
-
-import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Pause, Play, Plus, SkipBack, SkipForward, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import useMusicActions from '@/hooks/common/useMusicActions';
+import { useQueueNavigation } from '@/hooks/player/use-queue-navigation';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 import TickerText from '@/components/common/TickerText';
 
 interface MiniPlayerBarProps {
-  currentMusic: Music | null;
-  isPlaying: boolean;
-
-  canPrev: boolean;
-  canNext: boolean;
-
-  isQueueOpen: boolean;
-
-  onTogglePlay: () => void;
-  onPrev: () => void;
-  onNext: () => void;
-
-  onToggleQueue: () => void;
   onOpenFullPlayer: () => void;
 }
 
-export default function MiniPlayerBar({
-  currentMusic,
-  isPlaying,
-  canPrev,
-  canNext,
-  isQueueOpen,
-  onTogglePlay,
-  onPrev,
-  onNext,
-  onToggleQueue,
-  onOpenFullPlayer,
-}: MiniPlayerBarProps) {
+export default function MiniPlayerBar({ onOpenFullPlayer }: MiniPlayerBarProps) {
+  const currentMusic = usePlayerStore((s) => s.currentMusic);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
   const isPlayable = Boolean(currentMusic);
 
-  /**
-   * NOTE:
-   * - 사용자의 로그인 유무를 체크한다.
-   * - 사용자가 보관함 추가와 컨텐츠 생성 버튼을 누를 때 로그인 유무로 지원한다.
-   * - 보관함을 누르면 로그인한 사용자 Id로 보관함 리스트 모달을 불러온다.
-   */
-  const { isAuthenticated } = useAuthMe();
-  const openModal = useModalStore((s) => s.openModal);
+  const nav = useQueueNavigation();
 
-  /** 보관함 추가와 컨텐츠 생성을 위한 함수  */
+  const isModalOpen = useModalStore((s) => s.isOpen);
+  const modalType = useModalStore((s) => s.modalType);
+  const openModal = useModalStore((s) => s.openModal);
+  const closeModal = useModalStore((s) => s.closeModal);
+  const isQueueOpen = isModalOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
+
+  const { isAuthenticated } = useAuthMe();
   const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
-  const handleTogglePlayClick = () => {
-    if (!isPlayable) {
-      return;
-    }
-    onTogglePlay();
-  };
-
-  const handlePrevClick = () => {
-    if (!canPrev) {
-      return;
-    }
-    onPrev();
-  };
-
-  const handleNextClick = () => {
-    if (!canNext) {
-      return;
-    }
-    onNext();
-  };
-
   const handleToggleQueueClick = () => {
-    onToggleQueue();
+    if (isQueueOpen) {
+      closeModal();
+      return;
+    }
+    openModal(MODAL_TYPES.MOBILE_QUEUE);
   };
 
-  const handlePostClick = async () => {
+  const handlePostClick = () => {
     if (!isAuthenticated) {
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
     if (!currentMusic) return;
 
-    await openWriteModalWithMusic(currentMusic);
+    void openWriteModalWithMusic(currentMusic);
   };
 
-  const handleSaveClick = async () => {
+  const handleSaveClick = () => {
     if (!isAuthenticated) {
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
     if (!currentMusic) return;
 
-    await addMusicToArchive(currentMusic);
+    void addMusicToArchive(currentMusic);
   };
 
   const queueTitle = isQueueOpen ? '현재 재생목록 닫기' : '현재 재생목록 열기';
@@ -123,35 +82,34 @@ export default function MiniPlayerBar({
       <div className="flex items-center gap-1 shrink-0">
         <button
           type="button"
-          onClick={handlePrevClick}
-          disabled={!canPrev}
-          title={canPrev ? '이전 곡' : '이전 곡 없음'}
-          className="p-2 text-primary rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={nav.playPrev}
+          disabled={!nav.canPrev}
+          title={nav.canPrev ? '이전 곡' : '이전 곡 없음'}
+          className="p-2 text-primary rounded-full transition-colors enabled:hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipBack className="w-5 h-5" />
         </button>
 
         <button
           type="button"
-          onClick={handleTogglePlayClick}
+          onClick={nav.togglePlay}
           disabled={!isPlayable}
           title={!isPlayable ? '재생할 음악이 없습니다' : isPlaying ? '일시정지' : '재생'}
-          className="p-2 rounded-full bg-primary text-white transition-all hover:shadow-[2px_2px_0px_0px_#00ebc7] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 rounded-full bg-primary text-white transition-all enabled:hover:shadow-[2px_2px_0px_0px_#00ebc7] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
         </button>
 
         <button
           type="button"
-          onClick={handleNextClick}
-          disabled={!canNext}
-          title={canNext ? '다음 곡' : '다음 곡 없음'}
-          className="p-2 text-primary rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={nav.playNext}
+          disabled={!nav.canNext}
+          title={nav.canNext ? '다음 곡' : '다음 곡 없음'}
+          className="p-2 text-primary rounded-full transition-colors enabled:hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipForward className="w-5 h-5" />
         </button>
 
-        {/* 재생목록 열기/닫기 */}
         <button
           type="button"
           onClick={handleToggleQueueClick}
@@ -164,7 +122,7 @@ export default function MiniPlayerBar({
         <button
           type="button"
           onClick={handleSaveClick}
-          title={'보관함에 추가'}
+          title="보관함에 추가"
           className="p-2 rounded-lg border border-transparent text-primary transition-all hover:bg-white hover:border-accent-cyan hover:shadow-[2px_2px_0px_0px_#00ebc7] hidden sm:block"
         >
           <Box className="w-5 h-5" />
@@ -173,7 +131,7 @@ export default function MiniPlayerBar({
         <button
           type="button"
           onClick={handlePostClick}
-          title={'추천 글 작성'}
+          title="추천 글 작성"
           className="p-2 rounded-lg border border-transparent text-primary transition-all hover:bg-white hover:border-accent-pink hover:shadow-[2px_2px_0px_0px_#ff5470] hidden sm:block"
         >
           <Plus className="w-5 h-5" />

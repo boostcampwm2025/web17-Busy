@@ -1,5 +1,3 @@
-'use client';
-
 import type { MusicResponseDto as Music } from '@repo/dto';
 import React, { memo } from 'react';
 import { Box, Plus } from 'lucide-react';
@@ -14,7 +12,7 @@ type Props = {
 };
 
 function NowPlayingMetaActionsBase({ currentMusic, playError, onPost, onSave }: Props) {
-  const enabled = Boolean(currentMusic);
+  const isEnabled = Boolean(currentMusic);
 
   return (
     <>
@@ -32,11 +30,11 @@ function NowPlayingMetaActionsBase({ currentMusic, playError, onPost, onSave }: 
         )}
       </div>
 
-      {enabled && playError ? (
+      {isEnabled && playError ? (
         <div className="mb-3 rounded-xl border-2 border-secondary bg-secondary/10 px-3 py-2 text-sm font-bold text-secondary">{playError}</div>
       ) : null}
 
-      {enabled && (
+      {isEnabled && (
         <div className="flex items-center justify-center gap-2 mb-3">
           <button
             type="button"
