@@ -3,7 +3,11 @@ import { usePlayerStore } from '@/stores/usePlayerStore';
 import QueueItem from './QueueItem';
 import QueueToolbar from './QueueToolbar';
 
-export default function QueueList() {
+type Props = {
+  shouldShowHeading?: boolean;
+};
+
+export default function QueueList({ shouldShowHeading = true }: Props) {
   const queue = usePlayerStore((s) => s.queue);
   const moveTo = usePlayerStore((s) => s.moveTo);
 
@@ -11,7 +15,7 @@ export default function QueueList() {
 
   return (
     <div className="flex-1 flex flex-col p-6 overflow-hidden bg-gray-4/30">
-      <QueueToolbar />
+      <QueueToolbar shouldShowHeading={shouldShowHeading} />
 
       {queue.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-center">
