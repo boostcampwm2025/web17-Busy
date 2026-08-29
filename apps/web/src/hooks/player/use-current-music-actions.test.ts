@@ -98,3 +98,30 @@ describe('useCurrentMusicActions', () => {
     expect(useModalStore.getState().isOpen).toBe(false);
   });
 });
+
+/** post·save는 memo()인 NowPlayingMetaActions의 props로 그대로 들어간다. */
+describe('useCurrentMusicActions 참조 동일성', () => {
+  beforeEach(() => {
+    mocks.isAuthenticated = true;
+    usePlayerStore.setState({ currentMusic: CURRENT });
+  });
+
+  it('판단에 쓰는 값이 그대로면 리렌더해도 같은 핸들러를 준다', () => {
+    const { result, rerender } = renderHook(() => useCurrentMusicActions());
+    const first = result.current;
+
+    rerender();
+
+    expect(result.current).toBe(first);
+  });
+
+  // deps를 비워서 고정하면 여기서 걸린다. 이전 곡을 담은 핸들러가 그대로 남기 때문
+  it('현재 곡이 바뀌면 새 핸들러를 만든다', () => {
+    const { result } = renderHook(() => useCurrentMusicActions());
+    const first = result.current;
+
+    act(() => usePlayerStore.setState({ currentMusic: music('b') }));
+
+    expect(result.current).not.toBe(first);
+  });
+});
