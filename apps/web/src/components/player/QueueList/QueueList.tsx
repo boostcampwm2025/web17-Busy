@@ -1,25 +1,17 @@
-import type { MusicResponseDto as Music } from '@repo/dto';
 import { useDragReorder } from '@/hooks/common/use-drag-reorder';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import QueueItem from './QueueItem';
 import QueueToolbar from './QueueToolbar';
 
-type Props = {
-  queue: Music[];
-  currentMusicId: string | null;
-  onClear: () => void;
-  onRemove: (musicId: string) => void;
-  onMoveUp: (index: number) => void;
-  onMoveDown: (index: number) => void;
-  onMove: (from: number, to: number) => void;
-  onSelect: (music: Music) => void;
-};
+export default function QueueList() {
+  const queue = usePlayerStore((s) => s.queue);
+  const moveTo = usePlayerStore((s) => s.moveTo);
 
-export default function QueueList({ queue, currentMusicId, onClear, onRemove, onMoveUp, onMoveDown, onMove, onSelect }: Props) {
-  const { dragOverIndex, getDragProps } = useDragReorder(onMove);
+  const { dragOverIndex, getDragProps } = useDragReorder(moveTo);
 
   return (
     <div className="flex-1 flex flex-col p-6 overflow-hidden bg-gray-4/30">
-      <QueueToolbar queue={queue} onClear={onClear} />
+      <QueueToolbar />
 
       {queue.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-center">
@@ -35,15 +27,9 @@ export default function QueueList({ queue, currentMusicId, onClear, onRemove, on
               key={`${music.id}-${index}`}
               music={music}
               index={index}
-              isCurrent={currentMusicId === music.id}
-              isDragOver={dragOverIndex === index}
-              isFirst={index === 0}
               isLast={index === queue.length - 1}
+              isDragOver={dragOverIndex === index}
               dragProps={getDragProps(index)}
-              onSelect={onSelect}
-              onRemove={onRemove}
-              onMoveUp={onMoveUp}
-              onMoveDown={onMoveDown}
             />
           ))}
         </ul>

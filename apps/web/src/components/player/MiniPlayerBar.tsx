@@ -1,89 +1,79 @@
-import type { MusicResponseDto as Music } from '@repo/dto';
 import { Box, Pause, Play, Plus, SkipBack, SkipForward, ListPlus } from 'lucide-react';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 import useMusicActions from '@/hooks/common/useMusicActions';
+import { useQueueNavigation } from '@/hooks/player/use-queue-navigation';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 import TickerText from '@/components/common/TickerText';
 
 interface MiniPlayerBarProps {
-  currentMusic: Music | null;
-  isPlaying: boolean;
-
-  canPrev: boolean;
-  canNext: boolean;
-
-  isQueueOpen: boolean;
-
-  onTogglePlay: () => void;
-  onPrev: () => void;
-  onNext: () => void;
-
-  onToggleQueue: () => void;
   onOpenFullPlayer: () => void;
 }
 
-export default function MiniPlayerBar({
-  currentMusic,
-  isPlaying,
-  canPrev,
-  canNext,
-  isQueueOpen,
-  onTogglePlay,
-  onPrev,
-  onNext,
-  onToggleQueue,
-  onOpenFullPlayer,
-}: MiniPlayerBarProps) {
+export default function MiniPlayerBar({ onOpenFullPlayer }: MiniPlayerBarProps) {
+  const currentMusic = usePlayerStore((s) => s.currentMusic);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
   const isPlayable = Boolean(currentMusic);
 
-  const { isAuthenticated } = useAuthMe();
+  const nav = useQueueNavigation();
+
+  const isModalOpen = useModalStore((s) => s.isOpen);
+  const modalType = useModalStore((s) => s.modalType);
   const openModal = useModalStore((s) => s.openModal);
+  const closeModal = useModalStore((s) => s.closeModal);
+  const isQueueOpen = isModalOpen && modalType === MODAL_TYPES.MOBILE_QUEUE;
+
+  const { isAuthenticated } = useAuthMe();
   const { openWriteModalWithMusic, addMusicToArchive } = useMusicActions();
 
   const handleTogglePlayClick = () => {
     if (!isPlayable) {
       return;
     }
-    onTogglePlay();
+    nav.togglePlay();
   };
 
   const handlePrevClick = () => {
-    if (!canPrev) {
+    if (!nav.canPrev) {
       return;
     }
-    onPrev();
+    nav.playPrev();
   };
 
   const handleNextClick = () => {
-    if (!canNext) {
+    if (!nav.canNext) {
       return;
     }
-    onNext();
+    nav.playNext();
   };
 
   const handleToggleQueueClick = () => {
-    onToggleQueue();
+    if (isQueueOpen) {
+      closeModal();
+      return;
+    }
+    openModal(MODAL_TYPES.MOBILE_QUEUE);
   };
 
-  const handlePostClick = async () => {
+  const handlePostClick = () => {
     if (!isAuthenticated) {
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
     if (!currentMusic) return;
 
-    await openWriteModalWithMusic(currentMusic);
+    void openWriteModalWithMusic(currentMusic);
   };
 
-  const handleSaveClick = async () => {
+  const handleSaveClick = () => {
     if (!isAuthenticated) {
       openModal(MODAL_TYPES.LOGIN);
       return;
     }
     if (!currentMusic) return;
 
-    await addMusicToArchive(currentMusic);
+    void addMusicToArchive(currentMusic);
   };
 
   const queueTitle = isQueueOpen ? '현재 재생목록 닫기' : '현재 재생목록 열기';
@@ -114,8 +104,8 @@ export default function MiniPlayerBar({
         <button
           type="button"
           onClick={handlePrevClick}
-          disabled={!canPrev}
-          title={canPrev ? '이전 곡' : '이전 곡 없음'}
+          disabled={!nav.canPrev}
+          title={nav.canPrev ? '이전 곡' : '이전 곡 없음'}
           className="p-2 text-primary rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipBack className="w-5 h-5" />
@@ -134,8 +124,8 @@ export default function MiniPlayerBar({
         <button
           type="button"
           onClick={handleNextClick}
-          disabled={!canNext}
-          title={canNext ? '다음 곡' : '다음 곡 없음'}
+          disabled={!nav.canNext}
+          title={nav.canNext ? '다음 곡' : '다음 곡 없음'}
           className="p-2 text-primary rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipForward className="w-5 h-5" />
@@ -153,7 +143,7 @@ export default function MiniPlayerBar({
         <button
           type="button"
           onClick={handleSaveClick}
-          title={'보관함에 추가'}
+          title="보관함에 추가"
           className="p-2 rounded-lg border border-transparent text-primary transition-all hover:bg-white hover:border-accent-cyan hover:shadow-[2px_2px_0px_0px_#00ebc7] hidden sm:block"
         >
           <Box className="w-5 h-5" />
@@ -162,7 +152,7 @@ export default function MiniPlayerBar({
         <button
           type="button"
           onClick={handlePostClick}
-          title={'추천 글 작성'}
+          title="추천 글 작성"
           className="p-2 rounded-lg border border-transparent text-primary transition-all hover:bg-white hover:border-accent-pink hover:shadow-[2px_2px_0px_0px_#ff5470] hidden sm:block"
         >
           <Plus className="w-5 h-5" />

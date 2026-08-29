@@ -3,51 +3,38 @@ import { ChevronDown, ChevronUp, GripVertical, Trash2 } from 'lucide-react';
 
 import TickerText from '@/components/common/TickerText';
 import type { DragProps } from '@/hooks/common/use-drag-reorder';
+import { usePlayerStore } from '@/stores/usePlayerStore';
 
 type Props = {
   music: Music;
   index: number;
-
-  isCurrent: boolean;
-  isDragOver: boolean;
-  isFirst: boolean;
   isLast: boolean;
 
+  isDragOver: boolean;
   dragProps: DragProps;
-
-  onSelect: (music: Music) => void;
-  onRemove: (musicId: string) => void;
-  onMoveUp: (index: number) => void;
-  onMoveDown: (index: number) => void;
 };
 
-export default function QueueItem({
-  music,
-  index,
-  isCurrent,
-  isDragOver,
-  isFirst,
-  isLast,
-  dragProps,
-  onSelect,
-  onRemove,
-  onMoveUp,
-  onMoveDown,
-}: Props) {
+export default function QueueItem({ music, index, isLast, isDragOver, dragProps }: Props) {
+  const isCurrent = usePlayerStore((s) => s.currentMusic?.id === music.id);
+  const selectMusic = usePlayerStore((s) => s.selectMusic);
+  const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
+  const moveUp = usePlayerStore((s) => s.moveUp);
+  const moveDown = usePlayerStore((s) => s.moveDown);
+
   const handleSelectClick = () => {
-    onSelect(music);
+    selectMusic(music);
   };
 
   const handleRemoveClick = () => {
-    onRemove(music.id);
+    removeFromQueue(music.id);
   };
 
   const handleMoveUpClick = () => {
-    onMoveUp(index);
+    moveUp(index);
   };
 
   const handleMoveDownClick = () => {
-    onMoveDown(index);
+    moveDown(index);
   };
 
   return (
@@ -57,7 +44,7 @@ export default function QueueItem({
         isCurrent ? 'border-primary bg-white' : 'border-transparent hover:border-gray-3 hover:bg-white'
       } ${isDragOver ? 'border-accent-cyan bg-accent-cyan/10' : ''}`}
     >
-      <span className="text-gray-2 cursor-grab active:cursor-grabbing">
+      <span className="text-gray-2 cursor-grab active:cursor-grabbing" aria-label="drag-handle">
         <GripVertical className="w-4 h-4" />
       </span>
       <span className={`w-6 text-center text-sm font-bold ${isCurrent ? 'text-accent-pink' : 'text-gray-2'}`}>{index + 1}</span>
@@ -80,7 +67,7 @@ export default function QueueItem({
         <button
           type="button"
           onClick={handleMoveUpClick}
-          disabled={isFirst}
+          disabled={index === 0}
           title="위로"
           className="p-1 text-gray-1 enabled:hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
         >
