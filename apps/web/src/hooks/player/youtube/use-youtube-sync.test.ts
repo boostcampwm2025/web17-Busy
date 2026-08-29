@@ -36,22 +36,22 @@ describe('useYouTubeSync', () => {
     usePlayerStore.setState({ currentMusic: null, isPlaying: false, volume: 0.5, playError: null });
   });
 
-  // ready가 deps에 없으면 마운트 시점(player가 아직 없음)에 리턴하고, volume이 그대로면 다시 안 돈다
-  it('플레이어가 준비되면(ready) 그 시점의 볼륨을 반영한다', () => {
+  // isReady가 deps에 없으면 마운트 시점(player가 아직 없음)에 리턴하고, volume이 그대로면 다시 안 돈다
+  it('플레이어가 준비되면(isReady) 그 시점의 볼륨을 반영한다', () => {
     usePlayerStore.setState({ volume: 0.5 });
     const player = mockPlayer();
     const playerRef = { current: null } as RefObject<YT.Player | null>;
     const setProgress = vi.fn();
 
-    const { rerender } = renderHook(({ ready }) => useYouTubeSync({ ready, playerRef, setProgress }), {
-      initialProps: { ready: false },
+    const { rerender } = renderHook(({ isReady }) => useYouTubeSync({ isReady, playerRef, setProgress }), {
+      initialProps: { isReady: false },
     });
 
     expect(player.setVolume).not.toHaveBeenCalled();
 
-    // onReady 콜백이 player 인스턴스를 채우고 ready를 true로 바꾸는 시점을 흉내낸다
+    // onReady 콜백이 player 인스턴스를 채우고 isReady를 true로 바꾸는 시점을 흉내낸다
     playerRef.current = player;
-    rerender({ ready: true });
+    rerender({ isReady: true });
 
     expect(player.setVolume).toHaveBeenCalledWith(50);
   });
@@ -61,7 +61,7 @@ describe('useYouTubeSync', () => {
     const player = mockPlayer();
     const playerRef = { current: player } as RefObject<YT.Player | null>;
 
-    renderHook(() => useYouTubeSync({ ready: true, playerRef, setProgress: vi.fn() }));
+    renderHook(() => useYouTubeSync({ isReady: true, playerRef, setProgress: vi.fn() }));
 
     expect(player.mute).toHaveBeenCalled();
     expect(player.setVolume).toHaveBeenCalledWith(0);
@@ -73,7 +73,7 @@ describe('useYouTubeSync', () => {
     player.isMuted = vi.fn().mockReturnValue(true);
     const playerRef = { current: player } as RefObject<YT.Player | null>;
 
-    renderHook(() => useYouTubeSync({ ready: true, playerRef, setProgress: vi.fn() }));
+    renderHook(() => useYouTubeSync({ isReady: true, playerRef, setProgress: vi.fn() }));
 
     act(() => usePlayerStore.setState({ volume: 0.7 }));
 
@@ -86,7 +86,7 @@ describe('useYouTubeSync', () => {
     const player = mockPlayer();
     const playerRef = { current: player } as RefObject<YT.Player | null>;
 
-    renderHook(() => useYouTubeSync({ ready: true, playerRef, setProgress: vi.fn() }));
+    renderHook(() => useYouTubeSync({ isReady: true, playerRef, setProgress: vi.fn() }));
 
     act(() => usePlayerStore.setState({ volume: 0.9 }));
 
@@ -97,7 +97,7 @@ describe('useYouTubeSync', () => {
     usePlayerStore.setState({ playError: '이전 에러', currentMusic: music('a') });
     const playerRef = { current: null } as RefObject<YT.Player | null>;
 
-    renderHook(() => useYouTubeSync({ ready: false, playerRef, setProgress: vi.fn() }));
+    renderHook(() => useYouTubeSync({ isReady: false, playerRef, setProgress: vi.fn() }));
 
     act(() => usePlayerStore.setState({ currentMusic: music('b') }));
 

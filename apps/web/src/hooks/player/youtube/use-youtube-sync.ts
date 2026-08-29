@@ -5,12 +5,12 @@ import { MusicProvider } from '@repo/dto/values';
 import { useEffect } from 'react';
 
 type Props = {
-  ready: boolean;
+  isReady: boolean;
   playerRef: React.RefObject<YT.Player | null>;
   setProgress: React.Dispatch<React.SetStateAction<PlayerProgress>>;
 };
 
-export function useYouTubeSync({ ready, playerRef, setProgress }: Props) {
+export function useYouTubeSync({ isReady, playerRef, setProgress }: Props) {
   const volume = usePlayerStore((s) => s.volume);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
   const currentMusic = usePlayerStore((s) => s.currentMusic);
@@ -19,7 +19,7 @@ export function useYouTubeSync({ ready, playerRef, setProgress }: Props) {
   const videoId = currentMusic?.trackUri;
   const isYoutube = currentMusic?.provider === MusicProvider.YOUTUBE;
 
-  // volume 동기화. ready가 없으면 마운트 시점엔 player가 아직 없어 그냥 리턴하고, 이후 volume이
+  // volume 동기화. isReady가 없으면 마운트 시점엔 player가 아직 없어 그냥 리턴하고, 이후 volume이
   // 안 바뀌는 한 다시 실행되지 않아 최초 볼륨이 반영되지 않는다.
   useEffect(() => {
     const player = playerRef.current;
@@ -35,11 +35,11 @@ export function useYouTubeSync({ ready, playerRef, setProgress }: Props) {
       if (player.isMuted()) player.unMute();
       player.setVolume(v100);
     }
-  }, [volume, ready]);
+  }, [volume, isReady]);
 
   // video 교체
   useEffect(() => {
-    if (!ready) return;
+    if (!isReady) return;
 
     const player = playerRef.current;
     if (!player) return;
@@ -54,7 +54,7 @@ export function useYouTubeSync({ ready, playerRef, setProgress }: Props) {
 
     if (isPlaying) player.loadVideoById(videoId);
     else player.cueVideoById(videoId);
-  }, [ready, currentMusic?.id, videoId, isYoutube]);
+  }, [isReady, currentMusic?.id, videoId, isYoutube]);
 
   // 에러메시지 초기화
   useEffect(() => {
