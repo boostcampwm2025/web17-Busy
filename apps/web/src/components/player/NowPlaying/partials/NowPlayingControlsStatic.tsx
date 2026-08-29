@@ -1,15 +1,14 @@
 import React, { memo } from 'react';
-import { Pause, Play, Shuffle, SkipBack, SkipForward } from 'lucide-react';
+import { Pause, Play, SkipBack, SkipForward } from 'lucide-react';
 import VolumeControl from '../../VolumeControl';
 
 type Props = {
-  enabled: boolean;
+  isEnabled: boolean;
 
   isPlaying: boolean;
   canPrev: boolean;
   canNext: boolean;
 
-  onClearPlayError: () => void;
   onTogglePlay: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -18,76 +17,42 @@ type Props = {
   onVolumeChange: (v: number) => void;
 };
 
-function NowPlayingControlsStaticBase({
-  enabled,
-  isPlaying,
-  canPrev,
-  canNext,
-  onClearPlayError,
-  onTogglePlay,
-  onPrev,
-  onNext,
-  volume,
-  onVolumeChange,
-}: Props) {
+function NowPlayingControlsStaticBase({ isEnabled, isPlaying, canPrev, canNext, onTogglePlay, onPrev, onNext, volume, onVolumeChange }: Props) {
   return (
-    <div className={`relative flex items-center justify-center gap-4${enabled ? '' : ' opacity-50'}`}>
+    <div className={`relative flex items-center justify-center gap-4${isEnabled ? '' : ' opacity-50'}`}>
       <div className="w-5 aspect-square" />
+
       <button
         type="button"
-        onClick={() => {
-          if (!enabled || !canPrev) return;
-          onClearPlayError();
-          onPrev();
-        }}
-        disabled={enabled && !canPrev}
+        onClick={onPrev}
+        disabled={!canPrev}
         title={canPrev ? '이전 곡' : '이전 곡 없음'}
-        className={
-          enabled
-            ? 'text-primary p-2 rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed'
-            : 'text-gray-2 cursor-not-allowed'
-        }
+        className="p-2 rounded-full text-primary transition-colors enabled:hover:bg-gray-4 disabled:text-gray-2 disabled:cursor-not-allowed"
       >
         <SkipBack className="w-6 h-6" />
       </button>
 
       <button
         type="button"
-        onClick={() => {
-          if (!enabled) return;
-          onClearPlayError();
-          onTogglePlay();
-        }}
-        disabled={!enabled}
-        className={
-          enabled
-            ? 'w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center transition-all hover:shadow-[3px_3px_0px_0px_#00ebc7]'
-            : 'w-12 h-12 rounded-full bg-gray-2 text-white flex items-center justify-center cursor-not-allowed'
-        }
-        title={isPlaying ? '일시정지' : '재생'}
+        onClick={onTogglePlay}
+        disabled={!isEnabled}
+        title={!isEnabled ? '재생할 음악이 없습니다' : isPlaying ? '일시정지' : '재생'}
+        className="w-12 h-12 rounded-full flex items-center justify-center bg-primary text-white transition-all enabled:hover:shadow-[3px_3px_0px_0px_#00ebc7] disabled:bg-gray-2 disabled:cursor-not-allowed"
       >
-        {enabled && isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
+        {isEnabled && isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
       </button>
 
       <button
         type="button"
-        onClick={() => {
-          if (!enabled || !canNext) return;
-          onClearPlayError();
-          onNext();
-        }}
-        disabled={enabled && !canNext}
+        onClick={onNext}
+        disabled={!canNext}
         title={canNext ? '다음 곡' : '다음 곡 없음'}
-        className={
-          enabled
-            ? 'text-primary p-2 rounded-full transition-colors hover:bg-gray-4 disabled:opacity-50 disabled:cursor-not-allowed'
-            : 'text-gray-2 cursor-not-allowed'
-        }
+        className="p-2 rounded-full text-primary transition-colors enabled:hover:bg-gray-4 disabled:text-gray-2 disabled:cursor-not-allowed"
       >
         <SkipForward className="w-6 h-6" />
       </button>
 
-      <VolumeControl value={volume} onChange={onVolumeChange} disabled={!enabled} />
+      <VolumeControl value={volume} onChange={onVolumeChange} disabled={!isEnabled} />
     </div>
   );
 }

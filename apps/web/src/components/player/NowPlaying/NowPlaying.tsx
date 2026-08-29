@@ -86,11 +86,10 @@ export default function NowPlaying({ currentMusic, isPlaying, canPrev, canNext, 
       </PlaybackProvider>
 
       <NowPlayingControlsStatic
-        enabled={Boolean(currentMusic)}
+        isEnabled={Boolean(currentMusic)}
         isPlaying={isPlaying}
         canPrev={canPrev}
         canNext={canNext}
-        onClearPlayError={clearPlayError}
         onTogglePlay={safeTogglePlay}
         onPrev={safePrev}
         onNext={safeNext}

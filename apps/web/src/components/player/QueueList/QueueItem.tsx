@@ -82,7 +82,7 @@ export default function QueueItem({
           onClick={handleMoveUpClick}
           disabled={isFirst}
           title="위로"
-          className="p-1 text-gray-1 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
+          className="p-1 text-gray-1 enabled:hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <ChevronUp className="w-4 h-4" />
         </button>
@@ -91,7 +91,7 @@ export default function QueueItem({
           onClick={handleMoveDownClick}
           disabled={isLast}
           title="아래로"
-          className="p-1 text-gray-1 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
+          className="p-1 text-gray-1 enabled:hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <ChevronDown className="w-4 h-4" />
         </button>
