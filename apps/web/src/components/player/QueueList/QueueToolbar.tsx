@@ -5,7 +5,12 @@ import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 
-export default function QueueToolbar() {
+type Props = {
+  /** 바텀시트처럼 바깥에서 이미 제목을 보여주는 곳에서는 끈다. */
+  shouldShowHeading?: boolean;
+};
+
+export default function QueueToolbar({ shouldShowHeading = true }: Props) {
   const queue = usePlayerStore((s) => s.queue);
   const clearQueue = usePlayerStore((s) => s.clearQueue);
   const isEmpty = queue.length === 0;
@@ -40,11 +45,13 @@ export default function QueueToolbar() {
   };
 
   return (
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="font-black text-primary flex items-center gap-2">
-        <ListPlus className="w-5 h-5 text-accent-pink" />
-        재생 목록
-      </h3>
+    <div className={`flex items-center mb-4 ${shouldShowHeading ? 'justify-between' : 'justify-end'}`}>
+      {shouldShowHeading && (
+        <h3 className="font-black text-primary flex items-center gap-2">
+          <ListPlus className="w-5 h-5 text-accent-pink" />
+          재생 목록
+        </h3>
+      )}
 
       <div className="flex items-center gap-2">
         <button

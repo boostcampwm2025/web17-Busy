@@ -5,7 +5,6 @@ export const MODAL_TYPES = {
   WRITE: 'WRITE',
   LOGIN: 'LOGIN',
   POST_DETAIL: 'POST_DETAIL',
-  MOBILE_QUEUE: 'MOBILE_QUEUE',
   FOLLOWER_USER: 'FOLLOWER_USER',
   FOLLOWING_USER: 'FOLLOWING_USER',
   PLAYLIST_DETAIL: 'PLAYLIST_DETAIL',
@@ -25,7 +24,6 @@ export type ModalPropsMap = {
     initialIsEditing?: boolean;
     initialEditingContent?: string;
   };
-  [MODAL_TYPES.MOBILE_QUEUE]: NoProps;
   [MODAL_TYPES.FOLLOWER_USER]: { profileUserId: string };
   [MODAL_TYPES.FOLLOWING_USER]: { profileUserId: string };
   [MODAL_TYPES.PLAYLIST_DETAIL]: { playlistId: string };
