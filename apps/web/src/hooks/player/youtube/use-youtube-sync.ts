@@ -1,7 +1,6 @@
-import { DEFAULT_VOLUME } from '@/constants/player';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { PlayerProgress } from '@/types/player';
-import { clamp01 } from '@/utils/clamp';
+import { normalizeVolume } from '../playback-policy';
 import { MusicProvider } from '@repo/dto/values';
 import { useEffect } from 'react';
 
@@ -26,7 +25,7 @@ export function useYouTubeSync({ ready, playerRef, setProgress }: Props) {
     const player = playerRef.current;
     if (!player) return;
 
-    const v01 = Number.isFinite(volume) ? clamp01(volume) : DEFAULT_VOLUME;
+    const v01 = normalizeVolume(volume);
     const v100 = Math.round(v01 * 100);
 
     if (v100 <= 0) {

@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { Playback, PlayerProgress } from '@/types/player';
-import { clamp01, clampMs } from '@/utils/clamp';
-import { DEFAULT_VOLUME } from '@/constants/player';
+import { normalizeVolume, resolveSeekTarget, shouldRepeatSingle, toDurationMs } from './playback-policy';
 import { MusicProvider } from '@repo/dto/values';
 
 const toPlaybackErrorMessage = (e: unknown): string => {
@@ -36,7 +35,7 @@ export const useItunesPlayback = (): Playback => {
     if (typeof window === 'undefined') return;
 
     const audio = new Audio();
-    audio.volume = Number.isFinite(volume) ? clamp01(volume) : DEFAULT_VOLUME;
+    audio.volume = normalizeVolume(volume);
 
     audioRef.current = audio;
     setVolume(audio.volume); // store 기본값 동기화
@@ -53,8 +52,7 @@ export const useItunesPlayback = (): Playback => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const v = Number.isFinite(volume) ? clamp01(volume) : DEFAULT_VOLUME;
-    audio.volume = v;
+    audio.volume = normalizeVolume(volume);
   }, [volume]);
 
   // 1곡이면 loop=true로 안정적으로 반복
@@ -62,7 +60,7 @@ export const useItunesPlayback = (): Playback => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    audio.loop = queueLength <= 1;
+    audio.loop = shouldRepeatSingle(queueLength);
   }, [queueLength]);
 
   // 소스 교체: currentMusic 변경 시에만 실행 (pause 토글로 재실행되면 안 됨)
@@ -126,12 +124,12 @@ export const useItunesPlayback = (): Playback => {
     };
 
     const handleLoadedMetadata = () => {
-      const durationMs = Number.isFinite(audio.duration) ? Math.floor(audio.duration * 1000) : 0;
+      const durationMs = toDurationMs(audio.duration);
       setProgress((prev) => ({ ...prev, durationMs: durationMs || prev.durationMs }));
     };
 
     const handleEnded = () => {
-      if (queueLength <= 1) return;
+      if (shouldRepeatSingle(queueLength)) return;
       playNext();
     };
 
@@ -152,17 +150,13 @@ export const useItunesPlayback = (): Playback => {
       const audio = audioRef.current;
       if (!audio) return;
 
-      // duration 우선순위: audio.duration -> progress.durationMs
-      const metaMs = Number.isFinite(audio.duration) ? Math.floor(audio.duration * 1000) : 0;
-      const maxMs = metaMs > 0 ? metaMs : progress.durationMs;
+      const target = resolveSeekTarget(ms, toDurationMs(audio.duration), progress.durationMs);
+      if (!target) return;
 
-      if (maxMs <= 0) return;
-
-      const nextMs = clampMs(ms, maxMs);
-      audio.currentTime = nextMs / 1000;
+      audio.currentTime = target.positionMs / 1000;
 
       // 즉시 UI 반영 (timeupdate 기다리지 않음)
-      setProgress((prev) => ({ ...prev, positionMs: nextMs, durationMs: maxMs || prev.durationMs }));
+      setProgress((prev) => ({ ...prev, ...target }));
     },
     [progress.durationMs],
   );

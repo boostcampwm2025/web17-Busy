@@ -1,5 +1,6 @@
 import { YOUTUBE_IFRAME_ID, YOUTUBE_IFRAME_SCRIPT_SRC } from '@/constants/player';
 import { usePlayerStore } from '@/stores/usePlayerStore';
+import { shouldRepeatSingle, toDurationMs } from '../playback-policy';
 import { PlayerProgress } from '@/types/player';
 import { useEffect, useRef, useState } from 'react';
 
@@ -97,8 +98,7 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
             if (!player) return;
 
             const syncDuration = () => {
-              const d = player.getDuration(); // 현재 위치 (seconds)
-              const durationMs = d > 0 ? Math.floor(d * 1000) : 0;
+              const durationMs = toDurationMs(player.getDuration());
               if (durationMs > 0) {
                 setProgress((prev) => ({ ...prev, durationMs: durationMs || prev.durationMs }));
               }
@@ -122,7 +122,7 @@ export function useYouTubePlayer({ setProgress, setIsTicking }: Props) {
 
                 const qLen = queueLengthRef.current;
 
-                if (qLen <= 1) {
+                if (shouldRepeatSingle(qLen)) {
                   player.seekTo(0, true);
                   player.playVideo();
                   return;
