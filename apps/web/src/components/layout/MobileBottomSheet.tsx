@@ -2,7 +2,7 @@
 
 import { PropsWithChildren } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { CloseButton } from '@/components/common/CloseButton';
 import { useSwipeToDismiss } from '@/hooks/common/use-swipe-to-dismiss';
 
 type MobileBottomSheetProps = PropsWithChildren<{
@@ -38,9 +38,7 @@ export default function MobileBottomSheet({ isOpen, title, onClose, className, c
         {/* 타이틀 + 닫기 */}
         <div className="flex items-center px-6 py-3 border-b-2 border-primary/10 flex-shrink-0">
           <h2 className="text-xl font-black text-primary flex-1">{title}</h2>
-          <button type="button" onClick={onClose} className="p-2 rounded-full hover:bg-gray-4 text-primary transition-colors" title="닫기">
-            <X className="w-5 h-5" />
-          </button>
+          <CloseButton onClose={onClose} size="sm" />
         </div>
 
         {/* 콘텐츠 */}

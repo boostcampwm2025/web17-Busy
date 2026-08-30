@@ -1,7 +1,7 @@
 'use client';
 
 import { useModalStore } from '@/stores/useModalStore';
-import { X } from 'lucide-react';
+import { CloseButton } from '@/components/common/CloseButton';
 import { ModalShell } from '@/components/common/ModalShell';
 import { PrivacyConsentForm } from './PrivacyConsentForm';
 
@@ -14,9 +14,7 @@ export const PrivacyConsentModal = () => {
       {/* 헤더 */}
       <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary">
         <h2 className="text-xl font-black text-primary">약관 동의</h2>
-        <button onClick={handleClose}>
-          <X className="w-6 h-6 text-primary" />
-        </button>
+        <CloseButton onClose={handleClose} />
       </div>
 
       {/* 바디 - 분리된 폼 호출 */}

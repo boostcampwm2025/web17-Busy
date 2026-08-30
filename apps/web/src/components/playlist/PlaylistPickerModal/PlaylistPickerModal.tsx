@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { X, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import { useModalStore } from '@/stores/useModalStore';
 import type { MusicResponseDto as Music } from '@repo/dto';
+import { CloseButton } from '@/components/common/CloseButton';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { ModalShell } from '@/components/common/ModalShell';
 import { usePlaylistPicker } from '@/hooks/playlist/use-playlist-picker';
@@ -29,9 +30,7 @@ export default function PlaylistPickerModal({ musics = [] }: Props) {
     <ModalShell onClose={closeModal} size="md" cardClassName="max-h-[70vh]">
       <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary bg-white">
         <h2 className="text-xl font-black text-primary">플레이리스트 선택</h2>
-        <button onClick={closeModal} className="p-1 hover:bg-grayish rounded-full transition-colors">
-          <X className="w-6 h-6 text-primary" />
-        </button>
+        <CloseButton onClose={closeModal} />
       </div>
 
       <div className="px-6 py-3 border-b border-gray-100">

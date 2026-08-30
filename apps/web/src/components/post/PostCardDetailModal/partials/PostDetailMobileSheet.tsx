@@ -1,6 +1,6 @@
-import { X } from 'lucide-react';
 import type { PostResponseDto as Post } from '@repo/dto';
 
+import { CloseButton } from '@/components/common/CloseButton';
 import { LAYER } from '@/constants/layers';
 import type { useSwipeToDismiss } from '@/hooks/common/use-swipe-to-dismiss';
 import type { PostReactions } from '@/hooks/post/use-post-reactions';
@@ -34,9 +34,7 @@ export default function PostDetailMobileSheet({ post, reactions, swipe, onClose 
           <div className="flex-1" />
           <div className="w-10 h-1 rounded-full bg-gray-3" />
           <div className="flex-1 flex justify-end">
-            <button type="button" onClick={onClose} className="p-2 rounded-full hover:bg-gray-4 text-primary transition-colors" title="닫기">
-              <X className="w-5 h-5" />
-            </button>
+            <CloseButton onClose={onClose} size="sm" />
           </div>
         </div>
 
