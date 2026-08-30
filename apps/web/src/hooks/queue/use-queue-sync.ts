@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import { getNowPlaylist, updateNowPlaylist } from '@/api/internal/now-playlist';
 
+const SYNC_DEBOUNCE_MS = 1500;
+
 type Options = { enabled: boolean };
 
 /**
@@ -51,7 +53,7 @@ export const useQueueSync = ({ enabled }: Options) => {
         // 실패 시 sync 중단(반복 에러 방지)
         setSyncEnabled(false);
       }
-    }, 1500);
+    }, SYNC_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
   }, [enabled, queue, isLoaded, syncEnabled]);
