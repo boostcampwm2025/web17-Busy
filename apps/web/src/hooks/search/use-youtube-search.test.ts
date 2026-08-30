@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
-import useYoutubeSearch from './useYoutubeSearch';
+import useYoutubeSearch from './use-youtube-search';
 
 const searchMocks = vi.hoisted(() => ({
   searchYoutubeVideos: vi.fn(),

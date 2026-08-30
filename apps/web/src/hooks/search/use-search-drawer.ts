@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import useItunesSearch from '@/hooks/search/use-itunes-search';
-import useUserSearch from '@/hooks/search/useUserSearch';
-import useYoutubeSearch from '@/hooks/search/useYoutubeSearch';
+import useUserSearch from '@/hooks/search/use-user-search';
+import useYoutubeSearch from '@/hooks/search/use-youtube-search';
 import { SearchMode } from '@/types/search';
 
 export default function useSearchDrawer({ enabled }: { enabled: boolean }) {
