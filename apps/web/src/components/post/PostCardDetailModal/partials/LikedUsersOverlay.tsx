@@ -1,8 +1,8 @@
-import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { coalesceImageSrc } from '@/utils/image';
+import { CloseButton } from '@/components/common/CloseButton';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { ModalShell } from '@/components/common/ModalShell';
 import useLikedUsers from '@/hooks/post/use-liked-users';
@@ -31,9 +31,7 @@ export default function LikedUsersOverlay({ isOpen, postId, onClose }: Props) {
     <ModalShell onClose={onClose} size="md" layer="overlay" cardClassName="max-h-[60vh]">
       <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary bg-white">
         <h2 className="text-xl font-black text-primary">좋아요</h2>
-        <button onClick={onClose} className="p-1 hover:bg-grayish rounded-full transition-colors">
-          <X className="w-6 h-6 text-primary" />
-        </button>
+        <CloseButton onClose={onClose} />
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">

@@ -1,8 +1,7 @@
-import { X } from 'lucide-react';
-
 import QueueList from './QueueList/QueueList';
 import MiniPlayerBar from './MiniPlayerBar';
 import NowPlaying from './NowPlaying/NowPlaying';
+import { CloseButton } from '@/components/common/CloseButton';
 import { useQueueSync } from '@/hooks/queue/use-queue-sync';
 import { useGuestQueueSession } from '@/hooks/queue/use-guest-queue-session';
 import { useFullPlayer } from '@/hooks/player/use-full-player';
@@ -31,9 +30,7 @@ export default function RightPanel() {
           <div className="flex-1" />
           <div className="w-10 h-1 rounded-full bg-gray-3" />
           <div className="flex-1 flex justify-end">
-            <button type="button" onClick={fullPlayer.close} className="p-2 rounded-full hover:bg-gray-4 text-primary transition-colors" title="닫기">
-              <X className="w-5 h-5" />
-            </button>
+            <CloseButton onClose={fullPlayer.close} size="sm" />
           </div>
         </div>
       )}

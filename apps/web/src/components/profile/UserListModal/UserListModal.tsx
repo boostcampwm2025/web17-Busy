@@ -1,12 +1,12 @@
 'use client';
 
+import { CloseButton } from '@/components/common/CloseButton';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { ModalShell } from '@/components/common/ModalShell';
 import ProfileActionButton from '@/components/profile/ProfileInfo/ProfileActionButton';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { useModalStore } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
-import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { type MouseEvent } from 'react';
 import { useFollowUsersQuery, type FollowListType } from '@/hooks/profile/use-follow-users-query';
@@ -47,9 +47,7 @@ export const UserListModal = ({ title, listType, profileUserId }: UserListModalP
       {/* 모달 헤더 영역 */}
       <div className="flex items-center justify-between px-6 py-4 border-b-2 border-primary bg-white">
         <h2 className="text-xl font-black text-primary">{title}</h2>
-        <button onClick={handleCloseModal} className="p-1 hover:bg-grayish rounded-full transition-colors">
-          <X className="w-6 h-6 text-primary" />
-        </button>
+        <CloseButton onClose={handleCloseModal} />
       </div>
 
       {/* 사용자 목록 */}
