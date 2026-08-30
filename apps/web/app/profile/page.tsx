@@ -2,7 +2,7 @@
 
 import LoginRequestScreen from '@/components/common/LoginRequestScreen';
 import ProfileSkeleton from '@/components/common/skeleton/ProfileSkeleton';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 

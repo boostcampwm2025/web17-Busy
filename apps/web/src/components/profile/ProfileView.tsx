@@ -2,7 +2,7 @@
 
 import { useProfileQuery } from '@/hooks/profile/use-profile-query';
 import { useProfilePostsQuery } from '@/hooks/post/use-post-list-queries';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 import { ProfileSkeleton } from '@/components/common/skeleton';
 import { ProfileInfo } from './ProfileInfo';
 import ProfilePosts from './ProfilePosts';

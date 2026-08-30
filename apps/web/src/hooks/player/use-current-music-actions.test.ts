@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   addMusicToArchive: vi.fn(),
 }));
 
-vi.mock('@/hooks/auth/client/useAuthMe', () => ({
+vi.mock('@/hooks/auth/client/use-auth-me', () => ({
   useAuthMe: () => ({ user: null, userId: null, isAuthenticated: mocks.isAuthenticated, isLoading: false }),
 }));
 

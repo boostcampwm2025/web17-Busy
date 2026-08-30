@@ -7,7 +7,7 @@ import { LogIn, LogOut, Menu, Plus } from 'lucide-react';
 import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants/sidebar';
 import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types/sidebar';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
 import { useResizable } from '@/hooks/common/use-resizable';
 

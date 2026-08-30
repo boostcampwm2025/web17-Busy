@@ -9,7 +9,7 @@ import { createTestQueryClient, renderWithQueryClient } from '@/test/render-with
 const apiMocks = vi.hoisted(() => ({ addLike: vi.fn(), removeLike: vi.fn() }));
 vi.mock('@/api/internal/like', () => ({ addLike: apiMocks.addLike, removeLike: apiMocks.removeLike }));
 
-vi.mock('@/hooks/auth/client/useAuthMe', () => ({
+vi.mock('@/hooks/auth/client/use-auth-me', () => ({
   useAuthMe: () => ({ user: null, userId: 'me', isAuthenticated: true, isLoading: false }),
 }));
 

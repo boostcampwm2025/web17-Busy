@@ -6,7 +6,7 @@ import type { NotiResponseDto } from '@repo/dto';
 
 import { fetchNotis } from '@/api/internal/noti';
 import { queryKeys } from '@/api/queryKeys';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 
 export type NotificationFetchStatus = 'no-login' | 'loading' | 'success' | 'error';
 

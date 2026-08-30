@@ -7,7 +7,7 @@ import type { GetCommentsResDto } from '@repo/dto';
 import { authMe } from '@/api/internal/auth';
 import { getComments } from '@/api/internal/comment';
 import { queryKeys } from '@/api/queryKeys';
-import { AUTH_ME_STALE_TIME_MS } from '../auth/client/useAuthMe';
+import { AUTH_ME_STALE_TIME_MS } from '../auth/client/use-auth-me';
 import { setPostPatchInCaches } from './post-cache-updaters';
 import { usePostCommentMutation } from './use-post-comment-mutation';
 import { usePostLikeMutation } from './use-post-like-mutation';

@@ -5,7 +5,7 @@ import { ModalShell } from '@/components/common/ModalShell';
 import ProfileActionButton from '@/components/profile/ProfileInfo/ProfileActionButton';
 import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { useModalStore } from '@/stores/useModalStore';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { type MouseEvent } from 'react';

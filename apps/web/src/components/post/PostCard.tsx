@@ -8,7 +8,7 @@ import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/d
 
 import { usePostLikeMutation } from '@/hooks/post/use-post-like-mutation';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 
 interface PostCardProps {
   post: Post;

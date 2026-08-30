@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 import { recentConsentsQueryOptions } from '@/hooks/privacy/use-recent-consents-query';
 
 export function PrivacyConsentGate() {

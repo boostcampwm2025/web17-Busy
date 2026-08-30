@@ -6,7 +6,7 @@ import { Home, Box, Plus, Search, User } from 'lucide-react';
 
 import { SidebarItemType } from '@/types/sidebar';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import MobileBottomSheet from './MobileBottomSheet';
 

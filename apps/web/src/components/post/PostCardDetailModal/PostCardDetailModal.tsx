@@ -4,7 +4,7 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 
 import { useModalStore, useModalProps, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 import useScrollLock from '@/hooks/common/use-scroll-lock';
 import { useSwipeToDismiss } from '@/hooks/common/use-swipe-to-dismiss';
 import { usePostDetail } from '@/hooks/post/usePostDetail';
