@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import type { ContentSearchMode } from '@/types/search';
 import useItunesSearch from './use-itunes-search';
-import useYoutubeSearch from './useYoutubeSearch';
+import useYoutubeSearch from './use-youtube-search';
 
 /** 음원·유튜브만 검색한다. 사용자 검색까지 필요한 화면은 useSearchDrawer를 쓴다. */
 export const useContentSearch = () => {

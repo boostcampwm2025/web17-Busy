@@ -6,7 +6,7 @@ import { ITUNES_SEARCH } from '@/constants/search';
 import { useOutsideClick } from '@/hooks/common/use-outside-click';
 import { usePlaylistRecommendations, type PlaylistDetail } from '@/hooks/playlist/usePlaylistRecommendations';
 import useItunesSearch from '@/hooks/search/use-itunes-search';
-import useYoutubeSearch from '@/hooks/search/useYoutubeSearch';
+import useYoutubeSearch from '@/hooks/search/use-youtube-search';
 import type { SearchMode } from '@/types/search';
 
 import MusicSearchInput from './MusicSearchInput';

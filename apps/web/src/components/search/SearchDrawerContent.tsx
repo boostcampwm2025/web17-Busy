@@ -8,7 +8,7 @@ import UserSearchResults from './UserSearchResults';
 
 import { SEARCH_TAB_ENTRIES } from '@/constants/search';
 import { getHintMessage } from '@/utils/hintMessage';
-import useSearchDrawer from '@/hooks/search/useSearchDrawer';
+import useSearchDrawer from '@/hooks/search/use-search-drawer';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 
 type Props = { enabled?: boolean };
