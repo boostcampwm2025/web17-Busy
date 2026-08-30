@@ -9,7 +9,7 @@ import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/type
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
-import { useResizable } from '@/hooks/common/useResizable';
+import { useResizable } from '@/hooks/common/use-resizable';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';

@@ -1,7 +1,7 @@
 import { Box, Plus } from 'lucide-react';
 
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import useMusicActions from '@/hooks/common/useMusicActions';
+import useMusicActions from '@/hooks/common/use-music-actions';
 import { ContentSearchMode } from '@/types/search';
 import type { MusicResponseDto as Music } from '@repo/dto';
 import TickerText from '@/components/common/TickerText';

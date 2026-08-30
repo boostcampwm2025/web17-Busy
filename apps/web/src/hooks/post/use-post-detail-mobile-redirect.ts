@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
-import useIsMobile from '@/hooks/common/useIsMobile';
+import useIsMobile from '@/hooks/common/use-is-mobile';
 import { useModalStore } from '@/stores/useModalStore';
 
 type Params = {

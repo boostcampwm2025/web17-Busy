@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
 import { useProfileFeedPostsQuery } from '@/hooks/post/use-post-list-queries';
-import useIsMobile from '@/hooks/common/useIsMobile';
+import useIsMobile from '@/hooks/common/use-is-mobile';
 import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';
 import PostCard from '@/components/post/PostCard';

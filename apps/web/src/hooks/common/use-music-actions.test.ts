@@ -14,7 +14,7 @@ vi.mock('@/api/internal/music', () => ({ createMusic: mocks.createMusic }));
 vi.mock('@/utils/logQueue', () => ({ enqueueLog: mocks.enqueueLog }));
 vi.mock('react-toastify', () => ({ toast: mocks.toast }));
 
-import useMusicActions from './useMusicActions';
+import useMusicActions from './use-music-actions';
 
 type MusicActions = ReturnType<typeof useMusicActions>;
 

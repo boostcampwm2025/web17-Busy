@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 
 import useInfiniteScroll from '@/hooks/common/use-infinite-scroll';
-import useDebouncedValue from '@/hooks/common/useDebouncedValue';
+import useDebouncedValue from '@/hooks/common/use-debounced-value';
 import { ITUNES_SEARCH } from '@/constants/search';
 import { queryKeys } from '@/api/queryKeys';
 import { searchUsers } from '@/api/internal/user';
