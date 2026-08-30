@@ -1,6 +1,6 @@
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
-import { usePostMedia } from '@/hooks/post/usePostMedia';
+import { usePostMedia } from '@/hooks/post/use-post-media';
 import { usePostMediaSwipe } from '@/hooks/post/use-post-media-swipe';
 
 import PostMediaInfoBox from './PostMediaInfoBox';

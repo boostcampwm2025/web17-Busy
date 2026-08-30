@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
 import { ModalShell } from '@/components/common/ModalShell';
-import { useContentWrite } from '@/hooks/post/useContentWrite';
+import { useContentWrite } from '@/hooks/post/use-content-write';
 import { useModalStore } from '@/stores/useModalStore';
 
 import { ContentWriteFooter } from './partials/ContentWriteFooter';
