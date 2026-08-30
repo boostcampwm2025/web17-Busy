@@ -120,6 +120,40 @@ test.describe('ModalShell 시각 확인', () => {
     await shot(page, '5-playlist-detail');
   });
 
+  test('PostDetailDesktopModal', async ({ page }) => {
+    await routeAmbient(page, { viewer: true });
+    const post = {
+      id: 'post-1',
+      content: '게시글 내용',
+      coverImgUrl: '/cover.png',
+      likeCount: 3,
+      commentCount: 0,
+      isLiked: false,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      author: { id: VIEWER_ID, nickname: '나', profileImgUrl: null },
+      musics: [buildMusic(1)],
+    };
+    await page.route('**/api/feed**', (route) => route.fulfill(json({ posts: [post], hasNext: false })));
+    await page.route('**/api/post/post-1', (route) => route.fulfill(json(post)));
+    await page.route('**/api/comment**', (route) => route.fulfill(json({ comments: [], hasNext: false })));
+
+    const pageErrors: string[] = [];
+    page.on('pageerror', (e) => pageErrors.push(e.message));
+
+    await page.goto('/');
+    await page.getByText('게시글 내용').first().click({ timeout: 30_000 });
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 30_000 });
+    await shot(page, '6-post-detail');
+
+    // 배경 클릭으로 닫히고, 카드 안 클릭으로는 안 닫혀야 한다(ModalShell 전환 회귀 확인).
+    await page.getByRole('dialog').click({ position: { x: 10, y: 10 } });
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.mouse.click(5, 5);
+    await expect(page.getByRole('dialog')).toBeHidden({ timeout: 5_000 });
+
+    expect(pageErrors).toEqual([]);
+  });
+
   test('LikedUsersOverlay (PostCardDetailModal 위)', async ({ page }) => {
     await routeAmbient(page, { viewer: true });
     const post = {
