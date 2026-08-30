@@ -1,5 +1,5 @@
 import { Library } from 'lucide-react';
-import type { PlaylistBrief } from '@/hooks/playlist/usePlaylistRecommendations';
+import type { PlaylistBrief } from '@/hooks/playlist/use-playlist-recommendations';
 
 type Props = {
   brief: PlaylistBrief;
