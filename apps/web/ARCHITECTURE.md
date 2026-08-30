@@ -76,6 +76,30 @@ JSX로 마운트된다면 컴포넌트이므로 `components/app/`에 둔다.
 새로 만드는 파일은 kebab-case다(`use-post-mutations.ts`). camelCase 파일이 남아 있는 것은
 이전 관행이고, 건드리는 김에 함께 바꾼다. 컴포넌트 파일은 PascalCase를 유지한다.
 
+## 폴더명
+
+폴더는 담고 있는 것을 따른다. 파일명 규칙의 연장이지 별도 규칙이 아니다.
+
+| 폴더             | 규칙       | 예                                            |
+| ---------------- | ---------- | --------------------------------------------- |
+| 컴포넌트 폴더    | PascalCase | `NowPlaying/`, `PlaylistDetailModal/`         |
+| 그룹·도메인 폴더 | kebab-case | `hooks/player/`, `partials/`, `api/internal/` |
+| 라우트 세그먼트  | kebab-case | `app/post/`, `app/api/youtube-search/`        |
+
+컴포넌트 폴더가 PascalCase인 것은 대표 파일과 이름이 같아야 하기 때문이다
+(`NowPlaying/NowPlaying.tsx`). 폴더를 열지 않고도 어느 컴포넌트인지 보인다.
+`partials/`는 컴포넌트가 아니라 묶음이므로 kebab이다.
+
+`app/`의 `[id]`·`(home)`은 Next.js App Router 문법이라 이 규칙 밖이다.
+
+**camelCase는 어디에도 쓰지 않는다.** `api/queryKeys/`,
+`components/auth/LoginModal/loginButtons/`가 남아 있는데 이전 관행이고, 파일명과 마찬가지로
+건드리는 김에 바꾼다.
+
+폴더명은 lint로 강제하지 않는다. 위 세 종류를 한 패턴으로 표현하려면 읽을 수 없는 설정이
+필요한데, 그렇게까지 해서 잡히는 것이 위 camelCase 2개뿐이라 규칙을 문서에만 둔다.
+파일명은 lint가 강제한다(`.tsx`는 PascalCase, `.ts`는 kebab-case).
+
 ## import 경로
 
 배럴(`index.ts`)을 거치지 않고 직접 경로로 import한다.
