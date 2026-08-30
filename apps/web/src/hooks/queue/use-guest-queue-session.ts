@@ -33,6 +33,9 @@ export const clearGuestQueueSession = () => {
 /**
  * 게스트(비로그인)일 때만 sessionStorage로 큐/현재곡 상태를 저장/복원합니다.
  * - 탭 독립: sessionStorage 특성상 다른 탭과 공유되지 않음
+ * - 로그인 사용자용 `useQueueSync`와는 저장 대상(queue+currentMusic+isPlaying 스냅샷) ·
+ *   저장소(sessionStorage) · 복원 시점(마운트 후 단 한 번, enabled 재토글에도 재복원 안 함) ·
+ *   실패 정책(조용히 무시)이 전부 달라 하나로 합치지 않았다.
  */
 export const useGuestQueueSession = (enabled: boolean) => {
   const queue = usePlayerStore((s) => s.queue);

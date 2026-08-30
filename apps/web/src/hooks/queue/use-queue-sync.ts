@@ -6,6 +6,11 @@ import { getNowPlaylist, updateNowPlaylist } from '@/api/internal/now-playlist';
 
 type Options = { enabled: boolean };
 
+/**
+ * 로그인 사용자의 큐를 서버(`nowPlaylist`)와 동기화한다.
+ * 게스트용 `useGuestQueueSession`과 저장 대상(queue만) · 저장소(서버) · 복원 시점(enabled 켜질 때마다) ·
+ * 실패 정책(서버 에러 시 이후 sync 전체 중단)이 전부 달라 하나로 합치지 않았다.
+ */
 export const useQueueSync = ({ enabled }: Options) => {
   const queue = usePlayerStore((s) => s.queue);
   const initializeQueue = usePlayerStore((s) => s.initializeQueue);
