@@ -5,7 +5,7 @@ import PostHeader from '@/components/post/partials/PostHeader';
 import PostMedia from '@/components/post/partials/PostMedia';
 import { LAYER } from '@/constants/layers';
 import type { PostEditing } from '@/hooks/post/use-post-editing';
-import type { PostReactions } from '@/hooks/post/usePostReactions';
+import type { PostReactions } from '@/hooks/post/use-post-reactions';
 
 import PostContentEditor from './PostContentEditor';
 import PostDetailActions from './PostDetailActions';

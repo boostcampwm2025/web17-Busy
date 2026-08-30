@@ -8,7 +8,7 @@ import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 import useScrollLock from '@/hooks/common/use-scroll-lock';
 import { useSwipeToDismiss } from '@/hooks/common/use-swipe-to-dismiss';
 import { usePostDetail } from '@/hooks/post/usePostDetail';
-import usePostReactions from '@/hooks/post/usePostReactions';
+import usePostReactions from '@/hooks/post/use-post-reactions';
 import { usePostDetailLog } from '@/hooks/post/use-post-detail-log';
 import { usePostDetailMobileRedirect } from '@/hooks/post/use-post-detail-mobile-redirect';
 import { usePostEditing } from '@/hooks/post/use-post-editing';

@@ -2,38 +2,27 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { GetCommentsResDto } from '@repo/dto';
+import type { GetCommentsResDto, UserDto } from '@repo/dto';
 
-import { authMe } from '@/api/internal/auth';
 import { getComments } from '@/api/internal/comment';
 import { queryKeys } from '@/api/queryKeys';
-import { AUTH_ME_STALE_TIME_MS } from '../auth/client/use-auth-me';
 import { setPostPatchInCaches } from './post-cache-updaters';
 import { usePostCommentMutation } from './use-post-comment-mutation';
-import { usePostLikeMutation } from './use-post-like-mutation';
 
 type CommentItem = GetCommentsResDto['comments'][number];
 
-type Options = {
+type Params = {
   enabled: boolean;
   postId: string;
-
-  initialIsLiked: boolean;
-  initialLikeCount: number;
   initialCommentCount: number;
+  isAuthenticated: boolean;
+  me: UserDto | null;
 
   /** 기본 5000ms */
   pollMs?: number;
 };
 
-export type PostReactions = {
-  isAuthenticated: boolean;
-
-  isLiked: boolean;
-  likeCount: number;
-  toggleLike: () => void;
-  isSubmittingLike: boolean;
-
+export type PostComments = {
   comments: CommentItem[];
   commentsLoading: boolean;
 
@@ -51,32 +40,14 @@ const getEffectivePollMs = (base: number) => {
   return base;
 };
 
-export default function usePostReactions({
-  enabled,
-  postId,
-  initialIsLiked,
-  initialLikeCount,
-  initialCommentCount,
-  pollMs = 5000,
-}: Options): PostReactions {
+/** 게시글 상세 댓글: 조회·폴링·작성. `use-post-reactions.ts`의 좋아요와 책임을 분리했다(#471). */
+export function usePostComments({ enabled, postId, initialCommentCount, isAuthenticated, me, pollMs = 5000 }: Params): PostComments {
   const queryClient = useQueryClient();
-
-  const likeMutation = usePostLikeMutation({ postId });
 
   const [commentText, setCommentText] = useState('');
 
   const timerRef = useRef<number | null>(null);
   const onlineRef = useRef<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
-
-  const { data: me = null } = useQuery({
-    queryKey: queryKeys.auth.me,
-    queryFn: authMe,
-    enabled,
-    retry: false,
-    staleTime: AUTH_ME_STALE_TIME_MS,
-  });
-
-  const isAuthenticated = enabled && Boolean(me);
 
   const {
     data: commentsData,
@@ -172,15 +143,6 @@ export default function usePostReactions({
     };
   }, [enabled, pollMs, commentText, commentMutation.isPending, refetchComments, clearTimer]);
 
-  // 좋아요 토글(Detail -> Feed 동기화 포함)
-  // mutateAsync는 실패 시 거절한다. 호출부가 클릭 핸들러라 await하지 않으므로 unhandled rejection이 된다.
-  // 롤백은 mutation의 onError가 이미 하므로 fire-and-forget인 mutate로 부른다.
-  const toggleLike = useCallback(() => {
-    if (!isAuthenticated) return;
-    if (likeMutation.isPending) return;
-    likeMutation.mutate({ isLiked: initialIsLiked, likeCount: initialLikeCount });
-  }, [isAuthenticated, initialIsLiked, initialLikeCount, likeMutation]);
-
   // 댓글 작성(optimistic + 실패 시 rollback)
   const submitComment = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -201,13 +163,6 @@ export default function usePostReactions({
   }, [isAuthenticated, commentMutation, commentText, currentCommentCount, me]);
 
   return {
-    isAuthenticated,
-
-    isLiked: initialIsLiked,
-    likeCount: initialLikeCount,
-    toggleLike,
-    isSubmittingLike: likeMutation.isPending,
-
     comments,
     commentsLoading: isCommentsLoading,
 
