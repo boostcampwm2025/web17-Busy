@@ -6,7 +6,7 @@ import NowPlaying from './NowPlaying/NowPlaying';
 import { useQueueSync } from '@/hooks/queue/useQueueSync';
 import { useGuestQueueSession } from '@/hooks/queue/useGuestQueueSession';
 import { useFullPlayer } from '@/hooks/player/use-full-player';
-import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
+import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 
 export default function RightPanel() {
   const { isAuthenticated, isLoading } = useAuthMe();

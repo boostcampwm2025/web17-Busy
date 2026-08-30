@@ -5,7 +5,7 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 
 const mocks = vi.hoisted(() => ({ tickerRenders: 0 }));
 
-vi.mock('@/hooks/auth/client/useAuthMe', () => ({
+vi.mock('@/hooks/auth/client/use-auth-me', () => ({
   useAuthMe: () => ({ user: null, userId: null, isAuthenticated: true, isLoading: false }),
 }));
 

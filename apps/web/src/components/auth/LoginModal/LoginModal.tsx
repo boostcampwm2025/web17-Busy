@@ -3,7 +3,7 @@
 import React from 'react';
 import { useModalStore, useModalProps, MODAL_TYPES } from '@/stores/useModalStore';
 import { X } from 'lucide-react';
-import { getAuthErrorMessage } from '@/hooks/auth/client/authErrorMessage';
+import { getAuthErrorMessage } from '@/hooks/auth/client/auth-error-message';
 import { ModalShell } from '@/components/common/ModalShell';
 import { GoogleLoginButton, TmpLoginButton } from './loginButtons';
 

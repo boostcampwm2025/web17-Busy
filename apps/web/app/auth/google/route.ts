@@ -1,8 +1,7 @@
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
-import { createPkcePair } from '@/hooks/auth/server/pkce';
-import { buildGoogleAuthorizeUrl } from '@/hooks/auth/server/googleAuth';
-import { GOOGLE_COOKIE_KEYS, GOOGLE_OAUTH_TMP_COOKIE_OPTIONS } from '@/hooks/auth/config/google';
+import { createPkcePair, buildGoogleAuthorizeUrl } from '@/api/internal/auth';
+import { GOOGLE_COOKIE_KEYS, GOOGLE_OAUTH_TMP_COOKIE_OPTIONS } from '@/constants/auth';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
