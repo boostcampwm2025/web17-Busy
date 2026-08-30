@@ -6,7 +6,7 @@ import type { PostResponseDto as Post } from '@repo/dto';
 
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
-import { usePostDetail } from './usePostDetail';
+import { usePostDetail } from './use-post-detail';
 
 const apiMocks = vi.hoisted(() => ({
   getPostDetail: vi.fn(),

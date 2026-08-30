@@ -5,7 +5,7 @@ import { DEFAULT_IMAGES } from '@/constants/defaultImages';
 import { coalesceImageSrc } from '@/utils/image';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { ModalShell } from '@/components/common/ModalShell';
-import useLikedUsers from '@/hooks/post/useLikedUsers';
+import useLikedUsers from '@/hooks/post/use-liked-users';
 
 type Props = {
   isOpen: boolean;

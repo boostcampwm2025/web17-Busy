@@ -6,7 +6,7 @@ import type { LikedUserDto } from '@repo/dto';
 
 import { createTestQueryClient } from '@/test/render-with-query-client';
 
-import useLikedUsers from './useLikedUsers';
+import useLikedUsers from './use-liked-users';
 import { usePostLikeMutation } from './use-post-like-mutation';
 
 const apiMocks = vi.hoisted(() => ({

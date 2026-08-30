@@ -3,7 +3,7 @@ import type { PostResponseDto as Post } from '@repo/dto';
 
 import { LAYER } from '@/constants/layers';
 import type { useSwipeToDismiss } from '@/hooks/common/use-swipe-to-dismiss';
-import type { PostReactions } from '@/hooks/post/usePostReactions';
+import type { PostReactions } from '@/hooks/post/use-post-reactions';
 
 import PostDetailBody from './PostDetailBody';
 import PostDetailCommentComposer from './PostDetailCommentComposer';

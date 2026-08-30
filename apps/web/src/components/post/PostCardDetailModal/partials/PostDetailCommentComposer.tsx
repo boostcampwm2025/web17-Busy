@@ -1,5 +1,5 @@
 import { Send } from 'lucide-react';
-import useAutoResizeTextarea from '@/hooks/post/useAutoResizeTextarea';
+import useAutoResizeTextarea from '@/hooks/post/use-auto-resize-textarea';
 import { handleEnterSubmitWithShiftNewline } from '@/utils/keyboard';
 
 type Props = {
