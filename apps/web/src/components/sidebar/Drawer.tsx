@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactNode, Suspense } from 'react';
+import { PropsWithChildren, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import ErrorScreen from '@/components/common/ErrorScreen';
@@ -17,24 +17,9 @@ type DrawerProps = PropsWithChildren<{
   isResizing: boolean;
   /** 리사이즈 핸들 pointerdown 핸들러 */
   onResizePointerDown: (e: React.PointerEvent) => void;
-
-  /** Suspense fallback (옵션) */
-  loadingFallback?: ReactNode;
-
-  /** ErrorBoundary fallback (옵션) */
-  errorFallback?: ReactNode;
 }>;
 
-export default function Drawer({
-  isOpen,
-  isSidebarExpanded,
-  title,
-  width,
-  isResizing,
-  onResizePointerDown,
-  children,
-  loadingFallback = <LoadingSpinner />,
-}: DrawerProps) {
+export default function Drawer({ isOpen, isSidebarExpanded, title, width, isResizing, onResizePointerDown, children }: DrawerProps) {
   return (
     <div
       style={{ width }}
@@ -51,7 +36,7 @@ export default function Drawer({
         </div>
       )}
       <ErrorBoundary FallbackComponent={ErrorScreen}>
-        <Suspense fallback={loadingFallback}>{children}</Suspense>
+        <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
       </ErrorBoundary>
 
       <ResizeHandle side="right" onPointerDown={onResizePointerDown} isDragging={isResizing} />
