@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react';
 
-import type { ListStatus, PlaylistBrief } from '@/hooks/playlist/usePlaylistRecommendations';
+import type { ListStatus, PlaylistBrief } from '@/hooks/playlist/use-playlist-recommendations';
 
 import { BriefItemList, EmptyPlaylist, LoadingMessage } from './PlaylistSectionInner';
 

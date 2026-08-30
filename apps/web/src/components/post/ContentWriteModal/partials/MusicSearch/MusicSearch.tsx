@@ -4,7 +4,7 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 import { SearchTabs } from '@/components/common/SearchTabs';
 import { ITUNES_SEARCH } from '@/constants/search';
 import { useOutsideClick } from '@/hooks/common/use-outside-click';
-import { usePlaylistRecommendations, type PlaylistDetail } from '@/hooks/playlist/usePlaylistRecommendations';
+import { usePlaylistRecommendations, type PlaylistDetail } from '@/hooks/playlist/use-playlist-recommendations';
 import useItunesSearch from '@/hooks/search/use-itunes-search';
 import useYoutubeSearch from '@/hooks/search/use-youtube-search';
 import type { SearchMode } from '@/types/search';
