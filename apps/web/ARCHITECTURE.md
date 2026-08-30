@@ -73,8 +73,11 @@ JSX로 마운트된다면 컴포넌트이므로 `components/app/`에 둔다.
 
 ## 파일명
 
-새로 만드는 파일은 kebab-case다(`use-post-mutations.ts`). camelCase 파일이 남아 있는 것은
-이전 관행이고, 건드리는 김에 함께 바꾼다. 컴포넌트 파일은 PascalCase를 유지한다.
+새로 만드는 파일은 kebab-case다(`use-post-mutations.ts`). 두문자어 표기가 흔들리는 것도 막는다 —
+camelCase면 `YouTube`인지 `Youtube`인지, `iTunes`인지 `itunes`인지 매번 정해야 하는데(실제로 이
+저장소에 `YouTube`·`Youtube`·`iTunes`·`itunes`·`Itunes`가 전부 있었다), kebab은 전부 소문자로
+눕혀 그 판단 자체를 없앤다. camelCase 파일이 남아 있는 것은 이전 관행이고, 건드리는 김에 함께
+바꾼다. 컴포넌트 파일은 PascalCase를 유지한다.
 
 ## 폴더명
 
