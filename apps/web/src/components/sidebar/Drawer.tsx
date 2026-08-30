@@ -1,5 +1,3 @@
-'use client';
-
 import { PropsWithChildren, ReactNode, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 

@@ -1,5 +1,3 @@
-'use client';
-
 type ResizeHandleProps = {
   onPointerDown: (e: React.PointerEvent) => void;
   /** 핸들이 붙는 가장자리 */
