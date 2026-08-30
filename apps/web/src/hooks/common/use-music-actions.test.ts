@@ -133,3 +133,19 @@ describe('useMusicActions failure handling', () => {
     await expect(result.current.ensureMusicInDb(music(EXTERNAL_ID))).rejects.toThrow('network down');
   });
 });
+
+/**
+ * 소비처(useCurrentMusicActions·QueueToolbar·TrackItem·usePostMusicSelection)의 useCallback deps에
+ * 이 반환값이 그대로 들어간다. 매 렌더 새 참조를 주면 그 아래 memo() 리프까지 전부 무효화된다.
+ */
+describe('useMusicActions reference stability', () => {
+  it('returns the same object across re-renders', () => {
+    const { result, rerender } = renderHook(() => useMusicActions());
+    const first = result.current;
+
+    rerender();
+
+    // 객체가 같으면 액션 6개도 전부 같다. 하나라도 새로 만들어지면 useMemo deps가 바뀌어 여기서 걸린다
+    expect(result.current).toBe(first);
+  });
+});
