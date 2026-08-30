@@ -16,8 +16,8 @@ vi.mock('@/api/youtube/searchVideos', async (importOriginal) => ({
   searchYoutubeVideos: searchMocks.searchYoutubeVideos,
 }));
 
-vi.mock('@/mappers/youtubeVideoToMusic', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/mappers/youtubeVideoToMusic')>()),
+vi.mock('@/mappers/youtube-video-to-music', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/mappers/youtube-video-to-music')>()),
   youtubeVideoToMusic: (video: { id: string; title: string }) => ({
     id: video.id,
     provider: 'youtube',
