@@ -3,8 +3,8 @@ import { X } from 'lucide-react';
 import QueueList from './QueueList/QueueList';
 import MiniPlayerBar from './MiniPlayerBar';
 import NowPlaying from './NowPlaying/NowPlaying';
-import { useQueueSync } from '@/hooks/queue/useQueueSync';
-import { useGuestQueueSession } from '@/hooks/queue/useGuestQueueSession';
+import { useQueueSync } from '@/hooks/queue/use-queue-sync';
+import { useGuestQueueSession } from '@/hooks/queue/use-guest-queue-session';
 import { useFullPlayer } from '@/hooks/player/use-full-player';
 import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
 
