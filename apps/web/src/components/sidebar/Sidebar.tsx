@@ -34,11 +34,7 @@ export default function Sidebar() {
   const { isAuthenticated, isLoading, handleOpenWriteModal, handleOpenLoginModal } = useSidebarAuthActions();
 
   // 드로어 너비 드래그 조절 (검색·알림 드로어가 동일 너비 공유)
-  const {
-    width: drawerWidth,
-    isDragging: isDrawerResizing,
-    onPointerDown: onDrawerResizePointerDown,
-  } = useResizable({ defaultWidth: 384, min: 256, max: 600, direction: 'right', storageKey: 'vibr:drawerWidth' });
+  const drawerResize = useResizable({ defaultWidth: 384, min: 256, max: 600, direction: 'right', storageKey: 'vibr:drawerWidth' });
 
   return (
     <div className="flex h-full relative z-30" ref={sidebarRef}>
@@ -69,15 +65,7 @@ export default function Sidebar() {
 
           <div className="flex flex-col px-3 gap-4">
             {menuItems.map((item) => (
-              <MenuButton
-                key={item.type}
-                type={item.type}
-                Icon={item.icon}
-                label={item.label}
-                onClick={handleItemClick}
-                isActive={item.type === activeItem}
-                shouldShowSpan={isExpanded}
-              >
+              <MenuButton key={item.type} item={item} onClick={handleItemClick} isActive={item.type === activeItem} shouldShowSpan={isExpanded}>
                 {item.type === SidebarItemType.NOTIFICATION && unreadNotiCount > 0 && (
                   <span className="absolute top-1 left-6 min-w-5 h-5 px-1 rounded-full bg-accent-pink text-white text-[10px] flex items-center justify-center">
                     {unreadNotiCount > 99 ? '99+' : unreadNotiCount}
@@ -121,26 +109,12 @@ export default function Sidebar() {
       </nav>
 
       {/* 1. 검색 */}
-      <Drawer
-        isOpen={isSearchOpen}
-        isSidebarExpanded={isExpanded}
-        title="검색"
-        width={drawerWidth}
-        isResizing={isDrawerResizing}
-        onResizePointerDown={onDrawerResizePointerDown}
-      >
+      <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded} title="검색" resize={drawerResize}>
         <SearchDrawerContent enabled={isSearchOpen} />
       </Drawer>
 
       {/* 2. 알림 */}
-      <Drawer
-        isOpen={isNotificationOpen}
-        isSidebarExpanded={isExpanded}
-        title="알림"
-        width={drawerWidth}
-        isResizing={isDrawerResizing}
-        onResizePointerDown={onDrawerResizePointerDown}
-      >
+      <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded} title="알림" resize={drawerResize}>
         {isNotificationOpen && <NotiDrawerContent onNavigate={handleCloseDrawer} />}
       </Drawer>
     </div>

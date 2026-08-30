@@ -5,27 +5,24 @@ import ErrorScreen from '@/components/common/ErrorScreen';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import ResizeHandle from '@/components/layout/ResizeHandle';
 import { DRAWER_LEFT_EXPANDED, DRAWER_LEFT_SHRINKED } from '@/constants/sidebar';
+import type { useResizable } from '@/hooks/common/use-resizable';
 
 type DrawerProps = PropsWithChildren<{
   isOpen: boolean;
   isSidebarExpanded: boolean;
   title?: string;
 
-  /** 드로어 너비(px) */
-  width: number;
-  /** 리사이즈 드래그 중 여부 (드래그 중엔 너비 트랜지션 비활성화) */
-  isResizing: boolean;
-  /** 리사이즈 핸들 pointerdown 핸들러 */
-  onResizePointerDown: (e: React.PointerEvent) => void;
+  /** useResizable의 반환값을 그대로 넘긴다 */
+  resize: ReturnType<typeof useResizable>;
 }>;
 
-export default function Drawer({ isOpen, isSidebarExpanded, title, width, isResizing, onResizePointerDown, children }: DrawerProps) {
+export default function Drawer({ isOpen, isSidebarExpanded, title, resize, children }: DrawerProps) {
   return (
     <div
-      style={{ width }}
+      style={{ width: resize.width }}
       className={`
         absolute top-0 ${isSidebarExpanded ? DRAWER_LEFT_EXPANDED : DRAWER_LEFT_SHRINKED} h-full bg-white border-r-2 border-primary z-30
-        ${isResizing ? 'transition-none' : 'transition-all duration-300 ease-in-out'} shadow-[8px_0px_20px_rgba(0,0,0,0.05)]
+        ${resize.isDragging ? 'transition-none' : 'transition-all duration-300 ease-in-out'} shadow-[8px_0px_20px_rgba(0,0,0,0.05)]
         ${isOpen ? 'translate-x-0' : '-translate-x-full opacity-0 pointer-events-none'}
       `}
     >
@@ -39,7 +36,7 @@ export default function Drawer({ isOpen, isSidebarExpanded, title, width, isResi
         <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
       </ErrorBoundary>
 
-      <ResizeHandle side="right" onPointerDown={onResizePointerDown} isDragging={isResizing} />
+      <ResizeHandle side="right" onPointerDown={resize.onPointerDown} isDragging={resize.isDragging} />
     </div>
   );
 }

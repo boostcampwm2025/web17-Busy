@@ -1,3 +1,6 @@
+import type { ForwardRefExoticComponent, RefAttributes } from 'react';
+import type { LucideProps } from 'lucide-react';
+
 export const SidebarItemType = {
   PROFILE: 'profile',
   SEARCH: 'search',
@@ -11,3 +14,9 @@ export const SidebarItemType = {
 export type SidebarItemTypeValues = (typeof SidebarItemType)[keyof typeof SidebarItemType];
 
 export const drawerTypes = [SidebarItemType.SEARCH, SidebarItemType.NOTIFICATION] as const;
+
+export type MenuItem = {
+  type: SidebarItemTypeValues;
+  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
+  label: string;
+};

@@ -1,18 +1,17 @@
-import { SidebarItemTypeValues } from '@/types/sidebar';
-import { LucideProps } from 'lucide-react';
-import { ForwardRefExoticComponent, RefAttributes, memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
+import type { MenuItem, SidebarItemTypeValues } from '@/types/sidebar';
 
 interface MenuButtonProps {
-  Icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
-  type: SidebarItemTypeValues;
-  label: string;
+  item: MenuItem;
   onClick: (type: SidebarItemTypeValues) => void;
   isActive: boolean;
   shouldShowSpan: boolean;
   children: React.ReactNode;
 }
 
-function MenuButton({ type, Icon, label, onClick, isActive, shouldShowSpan, children }: MenuButtonProps) {
+function MenuButton({ item, onClick, isActive, shouldShowSpan, children }: MenuButtonProps) {
+  const { type, icon: Icon, label } = item;
+
   const handleClick = useCallback(() => {
     onClick(type);
   }, [onClick, type]);
