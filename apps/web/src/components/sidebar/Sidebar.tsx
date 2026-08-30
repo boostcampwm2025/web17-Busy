@@ -1,178 +1,40 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState, lazy, useEffect, useRef, useCallback } from 'react';
+import { lazy } from 'react';
 import { LogIn, LogOut, Menu, Plus } from 'lucide-react';
 
 import { menuItems, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_SHRINKED } from '@/constants/sidebar';
-import { drawerTypes, SidebarItemType, type SidebarItemTypeValues } from '@/types/sidebar';
-import { useModalStore, MODAL_TYPES } from '@/stores/useModalStore';
-import { useAuthMe } from '@/hooks/auth/client/use-auth-me';
+import { SidebarItemType } from '@/types/sidebar';
 import { useNotificationsQuery } from '@/hooks/noti/use-notifications-query';
 import { useResizable } from '@/hooks/common/use-resizable';
+import { useSidebarAuthActions } from '@/hooks/sidebar/use-sidebar-auth-actions';
+import { useSidebarNavigation } from '@/hooks/sidebar/use-sidebar-navigation';
 
 import Drawer from './Drawer';
 import MenuButton from './MenuButton';
 import NotiDrawerContent from '../noti/NotiDrawerContent';
 
-import { performLogout } from '@/hooks/auth/client/logout';
-
 const SearchDrawerContent = lazy(() => import('@/components/search/SearchDrawerContent'));
-const isDrawerItem = (type: SidebarItemTypeValues): boolean => (drawerTypes as readonly SidebarItemTypeValues[]).includes(type);
-const needLogin = (type: SidebarItemTypeValues) => {
-  return type === SidebarItemType.PROFILE || type === SidebarItemType.ARCHIVE || type === SidebarItemType.SETTING;
-};
 
 export default function Sidebar() {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const openModal = useModalStore((s) => s.openModal);
-  const { userId, isAuthenticated, isLoading } = useAuthMe();
-
   const { unreadCount: unreadNotiCount } = useNotificationsQuery();
 
-  const initialActiveItem = useMemo<SidebarItemTypeValues>(() => {
-    if (pathname === '/') {
-      return SidebarItemType.HOME;
-    }
-    return pathname.split('/')[1] as SidebarItemTypeValues;
-  }, [pathname]);
+  const {
+    sidebarRef,
+    isExpanded,
+    activeItem,
+    isSearchOpen,
+    isNotificationOpen,
+    handleToggleSidebar,
+    handleItemClick,
+    handleNavigate,
+    handleCloseDrawer,
+  } = useSidebarNavigation();
 
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [activeItem, setActiveItem] = useState<SidebarItemTypeValues>(initialActiveItem);
-  const [activeDrawer, setActiveDrawer] = useState<SidebarItemTypeValues | null>(null);
+  const { isAuthenticated, isLoading, handleOpenWriteModal, handleOpenLoginModal } = useSidebarAuthActions();
 
   // 드로어 너비 드래그 조절 (검색·알림 드로어가 동일 너비 공유)
-  const {
-    width: drawerWidth,
-    isDragging: isDrawerResizing,
-    onPointerDown: onDrawerResizePointerDown,
-  } = useResizable({ defaultWidth: 384, min: 256, max: 600, direction: 'right', storageKey: 'vibr:drawerWidth' });
-
-  // 사이드바 영역 클릭 여부 관리
-  const sidebarRef = useRef<HTMLDivElement>(null);
-
-  // 드로어별 open/close 여부 상태 관리
-  const isSearchOpen = activeDrawer === SidebarItemType.SEARCH;
-  const isNotificationOpen = activeDrawer === SidebarItemType.NOTIFICATION;
-
-  const handleToggleSidebar = useCallback(() => setIsExpanded((prev) => !prev), []);
-
-  const handleCloseDrawer = useCallback(() => setActiveDrawer(null), []);
-
-  const handleOpenDrawer = useCallback(
-    (type: SidebarItemTypeValues) => {
-      setActiveDrawer((currentDrawer) => {
-        if (currentDrawer === type) {
-          return null;
-        }
-
-        isExpanded && setIsExpanded(false);
-        return type;
-      });
-    },
-    [isExpanded],
-  );
-
-  const handleMyProfileNavigate = useCallback(() => {
-    if (!userId) return;
-    setActiveItem(SidebarItemType.PROFILE);
-    router.push(`/profile/${userId}`);
-  }, [router, userId]);
-
-  const handleNavigate = useCallback(
-    (type: SidebarItemTypeValues) => {
-      setActiveItem(type);
-      router.push(type === SidebarItemType.HOME ? '/' : `/${type}`);
-    },
-    [router],
-  );
-
-  const handleItemClick = useCallback(
-    (type: SidebarItemTypeValues) => {
-      // 드로어 아이콘 클릭 시 토글 로직 수행
-      if (isDrawerItem(type)) {
-        setActiveItem(type);
-        handleOpenDrawer(type);
-        return;
-      }
-
-      // 일반 메뉴 아이템 클릭 시, 열려 있는 드로어를 닫고 페이지 이동/모달 오픈
-      handleCloseDrawer();
-
-      if (needLogin(type) && !isAuthenticated) {
-        openModal(MODAL_TYPES.LOGIN);
-        return;
-      }
-
-      type === SidebarItemType.PROFILE ? handleMyProfileNavigate() : handleNavigate(type);
-    },
-    [handleCloseDrawer, handleOpenDrawer, isAuthenticated, openModal, handleMyProfileNavigate, handleNavigate],
-  );
-
-  const handleOpenWriteModal = useCallback(() => {
-    if (!isAuthenticated) {
-      openModal(MODAL_TYPES.LOGIN);
-      return;
-    }
-    openModal(MODAL_TYPES.WRITE);
-  }, [isAuthenticated, openModal]);
-
-  const handleOpenLoginModal = useCallback(async () => {
-    if (isLoading) return;
-
-    if (!isAuthenticated) {
-      openModal(MODAL_TYPES.LOGIN);
-      return;
-    }
-
-    await performLogout();
-  }, [isLoading, isAuthenticated, openModal]);
-
-  useEffect(() => {
-    // 페이지 url 경로가 바뀔 때마다 사이드바 활성화 아이콘을 현재 pathname 기반으로 업데이트
-    setActiveItem(initialActiveItem);
-  }, [pathname, initialActiveItem]);
-
-  useEffect(() => {
-    // 드로어가 닫힐 때마다 사이드바 활성화 아이콘을 현재 pathname 기반으로 업데이트
-    !activeDrawer && setActiveItem(initialActiveItem);
-  }, [activeDrawer, initialActiveItem]);
-
-  useEffect(() => {
-    // 외부 영역 클릭 여부 판단 후 열린 드로어가 있다면 닫기
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-
-      // 포털로 띄워진 모달/오버레이 위 클릭은 바깥 클릭으로 보지 않음
-      // (sidebarRef DOM 밖이라 그냥 두면 드로어가 닫혀버림)
-      if (useModalStore.getState().isOpen) return;
-      if (target.closest('[data-drawer-keep]')) return;
-
-      if (sidebarRef.current && !sidebarRef.current.contains(target) && activeDrawer) {
-        handleCloseDrawer();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      // 언마운트 시 이벤트 리스너 정리
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [activeDrawer, handleCloseDrawer]);
-
-  useEffect(() => {
-    // ESC 키로 열린 드로어 닫기 (모달이 열려 있으면 모달 닫기가 우선)
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      if (useModalStore.getState().isOpen) return;
-      if (activeDrawer) handleCloseDrawer();
-    };
-
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
-  }, [activeDrawer, handleCloseDrawer]);
+  const drawerResize = useResizable({ defaultWidth: 384, min: 256, max: 600, direction: 'right', storageKey: 'vibr:drawerWidth' });
 
   return (
     <div className="flex h-full relative z-30" ref={sidebarRef}>
@@ -203,15 +65,7 @@ export default function Sidebar() {
 
           <div className="flex flex-col px-3 gap-4">
             {menuItems.map((item) => (
-              <MenuButton
-                key={item.type}
-                type={item.type}
-                Icon={item.icon}
-                label={item.label}
-                onClick={handleItemClick}
-                isActive={item.type === activeItem}
-                shouldShowSpan={isExpanded}
-              >
+              <MenuButton key={item.type} item={item} onClick={handleItemClick} isActive={item.type === activeItem} shouldShowSpan={isExpanded}>
                 {item.type === SidebarItemType.NOTIFICATION && unreadNotiCount > 0 && (
                   <span className="absolute top-1 left-6 min-w-5 h-5 px-1 rounded-full bg-accent-pink text-white text-[10px] flex items-center justify-center">
                     {unreadNotiCount > 99 ? '99+' : unreadNotiCount}
@@ -255,26 +109,12 @@ export default function Sidebar() {
       </nav>
 
       {/* 1. 검색 */}
-      <Drawer
-        isOpen={isSearchOpen}
-        isSidebarExpanded={isExpanded}
-        title="검색"
-        width={drawerWidth}
-        isResizing={isDrawerResizing}
-        onResizePointerDown={onDrawerResizePointerDown}
-      >
+      <Drawer isOpen={isSearchOpen} isSidebarExpanded={isExpanded} title="검색" resize={drawerResize}>
         <SearchDrawerContent enabled={isSearchOpen} />
       </Drawer>
 
       {/* 2. 알림 */}
-      <Drawer
-        isOpen={isNotificationOpen}
-        isSidebarExpanded={isExpanded}
-        title="알림"
-        width={drawerWidth}
-        isResizing={isDrawerResizing}
-        onResizePointerDown={onDrawerResizePointerDown}
-      >
+      <Drawer isOpen={isNotificationOpen} isSidebarExpanded={isExpanded} title="알림" resize={drawerResize}>
         {isNotificationOpen && <NotiDrawerContent onNavigate={handleCloseDrawer} />}
       </Drawer>
     </div>

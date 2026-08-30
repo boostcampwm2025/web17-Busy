@@ -19,7 +19,7 @@ type Options = {
  */
 export function useOutsideClick(
   refs: RefObject<HTMLElement | null>[],
-  onOutside: () => void,
+  onOutside: (target: Node) => void,
   { enabled = true, eventType = 'mousedown' }: Options = {},
 ) {
   const latestOnOutside = useRef(onOutside);
@@ -38,7 +38,7 @@ export function useOutsideClick(
       const target = e.target as Node;
       const isInside = latestRefs.current.some((ref) => ref.current?.contains(target));
       if (isInside) return;
-      latestOnOutside.current();
+      latestOnOutside.current(target);
     };
 
     document.addEventListener(eventType, handleOutside);

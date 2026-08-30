@@ -1,7 +1,7 @@
 import { Bell, Box, Home, Search, Settings, User } from 'lucide-react';
-import { SidebarItemType } from '@/types/sidebar';
+import { SidebarItemType, type MenuItem } from '@/types/sidebar';
 
-export const menuItems = [
+export const menuItems: MenuItem[] = [
   { type: SidebarItemType.HOME, icon: Home, label: '홈' },
   { type: SidebarItemType.SEARCH, icon: Search, label: '검색' },
   { type: SidebarItemType.NOTIFICATION, icon: Bell, label: '알림' },
