@@ -69,6 +69,7 @@ export const UserListModal = ({ title, listType, profileUserId }: UserListModalP
                         <img
                           src={user.profileImgUrl || DEFAULT_IMAGES.PROFILE}
                           alt={user.nickname}
+                          loading="lazy"
                           className="w-full h-full rounded-full border border-primary object-cover"
                         />
                       </button>

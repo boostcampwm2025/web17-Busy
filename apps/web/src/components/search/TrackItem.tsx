@@ -45,7 +45,7 @@ export default function TrackItem({ mode, item, isAuthenticated }: TrackItemProp
       <div
         className={`${isVideo ? 'h-14 aspect-video' : 'h-12 aspect-square'} mr-4 shrink-0 rounded-lg overflow-hidden border border-gray-3 bg-gray-4`}
       >
-        <img src={item.albumCoverUrl} alt={item.title} className="w-full h-full object-cover" />
+        <img src={item.albumCoverUrl} alt={item.title} loading="lazy" className="w-full h-full object-cover" />
       </div>
 
       <div className="flex-1 min-w-0">

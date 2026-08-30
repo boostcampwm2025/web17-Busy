@@ -58,6 +58,7 @@ export default function LikedUsersOverlay({ isOpen, postId, onClose }: Props) {
                   <img
                     src={coalesceImageSrc(u.profileImgUrl, DEFAULT_IMAGES.PROFILE)}
                     alt={u.nickname}
+                    loading="lazy"
                     className="w-full h-full rounded-full border border-primary object-cover"
                   />
                 </button>

@@ -22,7 +22,7 @@ export const PlaylistBriefItem = ({ brief, isLoading, onSelect }: Props) => {
         <div className="absolute top-0.5 -right-0.5 w-10 h-10 bg-gray-3 border border-gray-3 rounded-lg rotate-3" />
 
         {coverUrl ? (
-          <img src={coverUrl} alt="playlist-cover" className="relative w-10 h-10 rounded-lg border border-gray-3 object-cover z-10" />
+          <img src={coverUrl} alt="playlist-cover" loading="lazy" className="relative w-10 h-10 rounded-lg border border-gray-3 object-cover z-10" />
         ) : (
           <div className="relative w-10 h-10 rounded-lg border border-gray-3 bg-white z-10 flex items-center justify-center">
             <Library className="w-4 h-4 text-gray-1" />

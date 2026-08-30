@@ -17,7 +17,7 @@ export function AddSongResults({ items, handleAddSong }: Props) {
           onClick={() => handleAddSong({ ...song, id: undefined })}
           className="w-full flex items-center p-2 hover:bg-gray-4 text-left border-b border-gray-100 last:border-0"
         >
-          <img src={song.albumCoverUrl} alt={song.title} className="w-8 h-8 rounded border border-gray-200 mr-2" />
+          <img src={song.albumCoverUrl} alt={song.title} loading="lazy" className="w-8 h-8 rounded border border-gray-200 mr-2" />
           <div className="flex-1 min-w-0">
             <TickerText text={song.title} className="font-bold text-sm" />
             <TickerText text={song.artistName} className="text-xs text-gray-500" />

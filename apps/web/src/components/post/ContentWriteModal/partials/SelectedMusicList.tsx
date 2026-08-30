@@ -25,7 +25,7 @@ export const SelectedMusicList = ({ musics, onRemove, onMove }: SelectedMusicLis
         ) : (
           musics.map((music, idx) => (
             <div key={music.id} className="flex items-center bg-white p-2 rounded-lg border border-primary/10 shadow-sm">
-              <img src={music.albumCoverUrl} alt="art" className="w-10 h-10 rounded border border-gray-3 object-cover shrink-0" />
+              <img src={music.albumCoverUrl} alt="art" loading="lazy" className="w-10 h-10 rounded border border-gray-3 object-cover shrink-0" />
 
               <div className="ml-3 flex-1 min-w-0">
                 <TickerText text={music.title} className="text-sm font-bold text-primary" />

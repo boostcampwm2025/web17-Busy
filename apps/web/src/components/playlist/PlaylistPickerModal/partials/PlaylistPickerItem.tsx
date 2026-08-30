@@ -23,6 +23,7 @@ export function PlaylistPickerItem({ playlist, busy, disabled, onSelect }: Props
           <img
             src={coalesceImageSrc(playlist.firstAlbumCoverUrl, DEFAULT_IMAGES.ALBUM)}
             alt={playlist.title}
+            loading="lazy"
             className="w-10 h-10 rounded-lg border border-gray-3 object-cover shrink-0"
           />
           <div className="ml-3 min-w-0 text-left">
