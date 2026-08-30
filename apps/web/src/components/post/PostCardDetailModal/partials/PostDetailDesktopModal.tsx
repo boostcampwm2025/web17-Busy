@@ -1,9 +1,9 @@
 import type { MusicResponseDto as Music, PostResponseDto as Post } from '@repo/dto';
 
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { ModalShell } from '@/components/common/ModalShell';
 import PostHeader from '@/components/post/partials/PostHeader';
 import PostMedia from '@/components/post/partials/PostMedia';
-import { LAYER } from '@/constants/layers';
 import type { PostEditing } from '@/hooks/post/use-post-editing';
 import type { PostReactions } from '@/hooks/post/use-post-reactions';
 
@@ -53,16 +53,8 @@ export default function PostDetailDesktopModal({
   const { handleStartEdit, handleSave, handleCancelEdit } = editing;
 
   return (
-    <div
-      className={`hidden lg:flex fixed inset-0 ${LAYER.modal} items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in`}
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        className="bg-white w-full max-w-5xl h-full max-h-[85vh] rounded-2xl border-2 border-primary shadow-2xl flex flex-col md:flex-row overflow-hidden animate-scale-up"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="hidden lg:block">
+      <ModalShell onClose={onClose} size="2xl" cardClassName="h-full max-h-[85vh] md:flex-row">
         {isLoading ? (
           <LoadingSpinner />
         ) : error ? (
@@ -121,7 +113,7 @@ export default function PostDetailDesktopModal({
             onSubmit={submitComment}
           />
         </div>
-      </div>
+      </ModalShell>
     </div>
   );
 }
