@@ -2,7 +2,7 @@
 
 import { searchYoutubeVideos } from '@/api/youtube/searchVideos';
 import { queryKeys } from '@/api/queryKeys';
-import { youtubeVideoToMusic } from '@/mappers/youtubeVideoToMusic';
+import { youtubeVideoToMusic } from '@/mappers/youtube-video-to-music';
 import { YOUTUBE_SEARCH } from '@/constants/search';
 
 import { useExternalSearchQuery, type ExternalSearchResult } from './use-external-search-query';

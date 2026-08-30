@@ -4,7 +4,7 @@ import type { MusicResponseDto as Music } from '@repo/dto';
 import { searchItunesSongs } from '@/api/itunes/searchSongs';
 import { queryKeys } from '@/api/queryKeys';
 import { ITUNES_SEARCH } from '@/constants/search';
-import { itunesSongToMusic } from '@/mappers/itunesSongToMusic';
+import { itunesSongToMusic } from '@/mappers/itunes-song-to-music';
 
 import { useExternalSearchQuery, type ExternalSearchResult } from './use-external-search-query';
 

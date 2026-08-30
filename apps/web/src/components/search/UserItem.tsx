@@ -53,6 +53,7 @@ export default function UserItem({ user, disabledFollow, meId }: Props) {
         <img
           src={coalesceImageSrc(user.profileImgUrl, DEFAULT_IMAGES.PROFILE)}
           alt={user.nickname}
+          loading="lazy"
           className="w-12 h-12 rounded-full object-cover border border-gray-3"
         />
       </button>

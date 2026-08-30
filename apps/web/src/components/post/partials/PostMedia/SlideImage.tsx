@@ -20,11 +20,11 @@ export default function SlideImage({ src, alt, variant, isActive = false }: Prop
   if (variant === 'modal') {
     return (
       <>
-        <img src={src} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
-        <img src={src} alt={alt} className={`absolute inset-0 w-full h-full object-contain${zoomClassName}`} />
+        <img src={src} alt="" aria-hidden loading="lazy" className="absolute inset-0 w-full h-full object-cover scale-110 blur-md brightness-75" />
+        <img src={src} alt={alt} loading="lazy" className={`absolute inset-0 w-full h-full object-contain${zoomClassName}`} />
       </>
     );
   }
 
-  return <img src={src} alt={alt} className={`w-full h-full object-cover${zoomClassName}`} />;
+  return <img src={src} alt={alt} loading="lazy" className={`w-full h-full object-cover${zoomClassName}`} />;
 }

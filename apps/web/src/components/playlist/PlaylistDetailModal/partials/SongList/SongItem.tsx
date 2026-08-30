@@ -38,7 +38,7 @@ export function SongItem({ song, index, isLast, isChecked, isDragOver, toggleSel
       {/* 곡 정보를 누르면 그 곡만 재생한다 */}
       <div className="flex items-center flex-1 min-w-0 cursor-pointer" onClick={() => playMusic(song)}>
         <div className="relative w-10 h-10 mr-3 shrink-0">
-          <img src={song.albumCoverUrl} alt="cover" className="w-full h-full rounded border border-gray-200 object-cover" />
+          <img src={song.albumCoverUrl} alt="cover" loading="lazy" className="w-full h-full rounded border border-gray-200 object-cover" />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded flex items-center justify-center transition-colors">
             <Play className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 fill-current drop-shadow-md" />
           </div>

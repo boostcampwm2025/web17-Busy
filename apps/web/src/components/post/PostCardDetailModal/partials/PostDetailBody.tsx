@@ -39,6 +39,7 @@ export default function PostDetailBody({ author, content, comments, commentsLoad
               <img
                 src={coalesceImageSrc(c.author.profileImgUrl, DEFAULT_IMAGES.PROFILE)}
                 alt={c.author.nickname}
+                loading="lazy"
                 className="w-9 h-9 rounded-full border border-primary/10 object-cover shrink-0"
               />
               <div className="flex-1 text-sm min-w-0">

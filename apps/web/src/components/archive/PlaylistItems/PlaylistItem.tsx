@@ -104,6 +104,7 @@ export default function PlaylistItem(playlist: Props) {
         <img
           src={playlist.firstAlbumCoverUrl || DEFAULT_IMAGES.ALBUM}
           alt={playlist.title}
+          loading="lazy"
           className="relative w-full h-full object-cover rounded-lg border-2 border-primary z-10"
         />
       </div>

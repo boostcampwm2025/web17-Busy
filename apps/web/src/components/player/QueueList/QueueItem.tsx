@@ -41,7 +41,7 @@ export default function QueueItem({ music, index, isLast, isDragOver, dragProps 
       <span className={`w-6 text-center text-sm font-bold ${isCurrent ? 'text-accent-pink' : 'text-gray-2'}`}>{index + 1}</span>
 
       <button type="button" onClick={handleSelectClick} className="flex items-center gap-3 min-w-0 flex-1 text-left">
-        <img src={music.albumCoverUrl} alt={music.title} className="w-10 h-10 rounded border border-gray-3 object-cover" />
+        <img src={music.albumCoverUrl} alt={music.title} loading="lazy" className="w-10 h-10 rounded border border-gray-3 object-cover" />
         <div className="min-w-0 flex-1">
           <TickerText
             text={music.title}

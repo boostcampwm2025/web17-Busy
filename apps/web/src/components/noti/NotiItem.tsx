@@ -28,6 +28,7 @@ function NotiItem({ noti, onClick, onMarkRead }: { noti: NotiView; onClick: (not
           <img
             src={coalesceImageSrc(noti.thumbnailUrl, DEFAULT_IMAGES.ALBUM)}
             alt="noti"
+            loading="lazy"
             className={`w-full h-full object-cover border border-gray-200 ${thumbShape}`}
           />
         </div>

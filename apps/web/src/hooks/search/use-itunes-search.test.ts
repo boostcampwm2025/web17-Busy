@@ -16,7 +16,7 @@ vi.mock('@/api/itunes/searchSongs', () => ({
   searchItunesSongs: searchMocks.searchItunesSongs,
 }));
 
-vi.mock('@/mappers/itunesSongToMusic', () => ({
+vi.mock('@/mappers/itunes-song-to-music', () => ({
   itunesSongToMusic: (track: ItunesSongResult) => ({
     id: String(track.trackId),
     provider: 'ITUNES',
