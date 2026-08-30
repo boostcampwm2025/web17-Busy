@@ -12,7 +12,7 @@ vi.mock('@/hooks/auth/client/useAuthMe', () => ({
   useAuthMe: () => ({ user: null, userId: null, isAuthenticated: mocks.isAuthenticated, isLoading: false }),
 }));
 
-vi.mock('@/hooks/common/useMusicActions', () => ({
+vi.mock('@/hooks/common/use-music-actions', () => ({
   default: () => ({
     openWriteModalWithMusic: mocks.openWriteModalWithMusic,
     addMusicToArchive: mocks.addMusicToArchive,

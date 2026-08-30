@@ -3,7 +3,7 @@
 import { PropsWithChildren } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
-import { useSwipeToDismiss } from '@/hooks/common/useSwipeToDismiss';
+import { useSwipeToDismiss } from '@/hooks/common/use-swipe-to-dismiss';
 
 type MobileBottomSheetProps = PropsWithChildren<{
   isOpen: boolean;

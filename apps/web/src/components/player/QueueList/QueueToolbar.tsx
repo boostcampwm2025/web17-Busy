@@ -1,6 +1,6 @@
 import { Box, ListPlus, Plus, XCircle } from 'lucide-react';
 
-import useMusicActions from '@/hooks/common/useMusicActions';
+import useMusicActions from '@/hooks/common/use-music-actions';
 import { useAuthMe } from '@/hooks/auth/client/useAuthMe';
 import { MODAL_TYPES, useModalStore } from '@/stores/useModalStore';
 import { usePlayerStore } from '@/stores/usePlayerStore';

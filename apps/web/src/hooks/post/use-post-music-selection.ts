@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
-import useMusicActions from '@/hooks/common/useMusicActions';
+import useMusicActions from '@/hooks/common/use-music-actions';
 import { dedupeById } from '@/utils/dedupe-by-id';
 import { reorder } from '@/utils/reorder';
 

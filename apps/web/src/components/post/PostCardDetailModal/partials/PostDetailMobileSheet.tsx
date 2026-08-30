@@ -2,7 +2,7 @@ import { X } from 'lucide-react';
 import type { PostResponseDto as Post } from '@repo/dto';
 
 import { LAYER } from '@/constants/layers';
-import type { useSwipeToDismiss } from '@/hooks/common/useSwipeToDismiss';
+import type { useSwipeToDismiss } from '@/hooks/common/use-swipe-to-dismiss';
 import type { PostReactions } from '@/hooks/post/usePostReactions';
 
 import PostDetailBody from './PostDetailBody';

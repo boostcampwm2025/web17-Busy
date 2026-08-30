@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MusicResponseDto as Music } from '@repo/dto';
 
 const musicActionMocks = vi.hoisted(() => ({ ensureMusicInDb: vi.fn() }));
-vi.mock('@/hooks/common/useMusicActions', () => ({
+vi.mock('@/hooks/common/use-music-actions', () => ({
   default: () => ({ ensureMusicInDb: musicActionMocks.ensureMusicInDb }),
 }));
 
