@@ -67,10 +67,12 @@ export const nextJsConfig = [
   {
     files: ['**/*.tsx'], // 컴포넌트 파일(.tsx)에만 적용
     rules: {
-      // 1-2. 컴포넌트 파일명: PascalCase 강제 (LoginButton.tsx)
-      'check-file/filename-naming-convention': ['error', { '**/*.tsx': 'PASCAL_CASE' }],
-      // 1-2. 폴더명: kebab-case 강제 (Next.js App Router)
-      'check-file/folder-naming-convention': ['error', { '**/*': 'KEBAB_CASE' }],
+      /**
+       * 컴포넌트 파일명은 PascalCase(LoginButton.tsx).
+       * ignoreMiddleExtensions가 없으면 NowPlayingMetaActions.test.tsx의 `.test`가 이름의 일부로
+       * 잡혀 위반이 된다. base.mjs의 .ts 규칙은 이미 이 옵션을 준다.
+       */
+      'check-file/filename-naming-convention': ['error', { '**/*.tsx': 'PASCAL_CASE' }, { ignoreMiddleExtensions: true }],
 
       /**
        * 이벤트 핸들러 네이밍(handle~/on~)은 끈다.
@@ -82,6 +84,29 @@ export const nextJsConfig = [
        * (실제로 이 더미 안에 react-hooks/rules-of-hooks 위반이 하나 숨어 있었다).
        */
       'react/jsx-handler-names': 'off',
+    },
+  },
+
+  /**
+   * 7. 폴더명은 lint로 강제하지 않는다.
+   *
+   * base.mjs가 모든 폴더에 KEBAB_CASE를 걸지만 프론트엔드에는 맞지 않아 여기서 끈다.
+   * 세 종류가 각자 정당한 이유로 다르기 때문이다.
+   *
+   * - `app/[id]`, `app/(home)` — Next.js App Router 문법이라 바꿀 방법이 없다
+   * - `components/NowPlaying` — 컴포넌트 폴더는 대표 파일(NowPlaying.tsx)과 이름이 같아야 한다
+   * - `hooks/player`, `components/player/partials` — 그룹·도메인 폴더는 소문자
+   *
+   * 이 셋을 한 패턴으로 표현하려면 읽을 수 없는 extglob이 필요하고, 그렇게까지 해서 잡히는 건
+   * camelCase 폴더 2개(queryKeys, loginButtons)뿐이다. 규칙은 ARCHITECTURE.md의 "폴더명"에 두고,
+   * 그 2개는 파일명 캠페인에서 같이 정리한다.
+   *
+   * 파일명은 계속 강제한다 — .tsx는 위 6번(PascalCase), .ts는 base.mjs(kebab-case).
+   */
+  {
+    files: ['src/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}'],
+    rules: {
+      'check-file/folder-naming-convention': 'off',
     },
   },
 ];
