@@ -16,6 +16,10 @@ node_modules
 # Local compose override (개인 환경별 포트 등)
 compose.local.yml
 
+# Local-only project instructions (coverage/local-notes와 같은 이유로 비공개)
+/CLAUDE.md
+/.claude/
+
 # Testing
 coverage
 test-results

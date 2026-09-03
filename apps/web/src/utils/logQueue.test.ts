@@ -1,9 +1,12 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { LogEventDto } from '@repo/dto';
+import { APP_ACCESS_TOKEN_STORAGE_KEY } from '@/constants/auth';
 
 const mocks = vi.hoisted(() => ({ post: vi.fn() }));
 
-vi.mock('@/api/internal/logsClient', () => ({ logsClient: { post: mocks.post } }));
+vi.mock('@/api/internal/logsClient', () => ({
+  logsClient: { post: mocks.post, defaults: { baseURL: '/api' } },
+}));
 
 /** 버퍼·카운터가 모듈 스코프라 테스트마다 새로 읽어야 서로 간섭하지 않는다. */
 const loadQueue = async () => {
@@ -116,5 +119,81 @@ describe('logQueue 유실 계측', () => {
     snapshot.enqueued = 999;
 
     expect(getLogQueueStats().enqueued).toBe(1);
+  });
+});
+
+describe('logQueue 종료 시점(pagehide) keepalive 전송', () => {
+  beforeEach(() => {
+    mocks.post.mockReset();
+    sessionStorage.clear();
+    sessionStorage.setItem(APP_ACCESS_TOKEN_STORAGE_KEY, 'app-jwt-token');
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('pagehide 시점에는 keepalive fetch로 보내고 시도 건수를 센다', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { enqueueLog, initLogQueue, getLogQueueStats } = await loadQueue();
+    const teardown = initLogQueue();
+
+    enqueueLog(event());
+    window.dispatchEvent(new Event('pagehide'));
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('/api/logs');
+    expect(init.keepalive).toBe(true);
+    expect((init.headers as Record<string, string>).Authorization).toBe('Bearer app-jwt-token');
+    expect(getLogQueueStats().sentOnTerminate).toBe(1);
+
+    teardown();
+  });
+
+  it('토큰이 없으면 시도하지 않는다', async () => {
+    sessionStorage.clear();
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { enqueueLog, initLogQueue, getLogQueueStats } = await loadQueue();
+    const teardown = initLogQueue();
+
+    enqueueLog(event());
+    window.dispatchEvent(new Event('pagehide'));
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(getLogQueueStats().sentOnTerminate).toBe(0);
+
+    teardown();
+  });
+
+  it('예산(약 60KB)을 넘는 만큼은 보내지 않고 버퍼에 남긴다', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { enqueueLog, initLogQueue, getLogQueueStats, flush } = await loadQueue();
+    const teardown = initLogQueue();
+
+    // 이벤트 하나당 대략 7KB, 10개면 70KB로 예산(60KB)을 넘는다.
+    for (let i = 0; i < 10; i += 1) enqueueLog(event({ meta: { blob: 'x'.repeat(7_000) } }));
+
+    window.dispatchEvent(new Event('pagehide'));
+
+    const body = (fetchMock.mock.calls[0]?.[1] as RequestInit).body as string;
+    const sentCount = (JSON.parse(body) as { events: unknown[] }).events.length;
+
+    expect(sentCount).toBeGreaterThan(0);
+    expect(sentCount).toBeLessThan(10); // 전부는 못 담아 일부는 버퍼에 남아야 한다
+    expect(getLogQueueStats().sentOnTerminate).toBe(sentCount);
+
+    // 남은 만큼은 버퍼에 그대로 있어야 다음 flush로 이어 보낼 수 있다.
+    mocks.post.mockResolvedValue({ data: {} });
+    await flush();
+    await vi.waitFor(() => expect(getLogQueueStats().sent).toBe(10 - sentCount));
+
+    teardown();
   });
 });
