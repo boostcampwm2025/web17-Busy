@@ -19,6 +19,7 @@
     "measure:log-batching": "LOG_BATCHING_MEASUREMENT=1 playwright test e2e/log-batching-measurement.spec.ts --project=chromium",
     "measure:log-rate": "LOG_RATE_MEASUREMENT=1 playwright test e2e/log-event-rate-measurement.spec.ts --project=chromium",
     "measure:log-loss": "LOG_LOSS_MEASUREMENT=1 playwright test e2e/log-loss-measurement.spec.ts --project=chromium",
+    "measure:log-terminate": "LOG_TERMINATE_MEASUREMENT=1 playwright test e2e/log-terminate-keepalive-measurement.spec.ts --project=chromium",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
