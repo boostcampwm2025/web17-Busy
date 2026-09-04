@@ -23,9 +23,8 @@ const DEFAULTS: Required<Options> = {
 };
 
 /**
- * fetch keepalive 요청은 페이지의 모든 keepalive 요청이 공유하는 전역 예산(대략 64KB)이 있어
- * 이를 넘으면 요청 자체가 거부된다. 헤더·JSON 구조 오버헤드와 동시에 떠 있을 수 있는 다른
- * keepalive 요청을 감안해 여유 있게 낮춰 잡는다.
+ * keepalive 요청은 페이지 전체가 공유하는 전역 할당량(약 64KB)을 넘으면 거부된다.
+ * 헤더·JSON 오버헤드와 동시에 뜬 다른 keepalive 요청을 감안해 여유 있게 낮춰 잡는다.
  */
 const TERMINATE_MAX_BYTES = 60_000;
 
@@ -60,9 +59,8 @@ export type LogQueueStats = {
    */
   restored: number;
   /**
-   * 종료 시점(pagehide) keepalive 전송을 시도한 수. keepalive는 페이지가 사라진 뒤라 응답을
-   * 기다릴 수 없어 서버 수신을 확인할 수 없다 — sent와 분리해서, 실제 성공률은 서버 수신 로그와
-   * 대조해야 알 수 있다는 걸 수치로도 드러낸다.
+   * 종료 시점(pagehide) keepalive 전송 시도 수. 응답을 못 기다려 서버 수신 여부는 확인
+   * 불가라 sent와 분리한다 — 실제 성공률은 서버 로그와 대조해야 안다.
    */
   sentOnTerminate: number;
 };
@@ -162,9 +160,8 @@ const popBatch = (): LogEventDto[] => {
 };
 
 /**
- * 앞에서부터 TERMINATE_MAX_BYTES 예산 안에 들어오는 만큼만 담는다.
- * 예산을 넘는 나머지는 버퍼에 남는다 — 페이지가 실제로 파괴되면 그대로 유실되고, 이 함수
- * 안에서는 그걸 막을 방법이 없다(더 보낼 곳도, 더 기다릴 시간도 없다).
+ * 앞에서부터 TERMINATE_MAX_BYTES 할당량 안에 드는 만큼만 담는다.
+ * 넘는 나머지는 버퍼에 남고, 페이지가 파괴되면 그대로 유실된다 — 막을 방법이 없다.
  */
 const popTerminationBatch = (): LogEventDto[] => {
   let bytes = 2; // '[]'
@@ -282,11 +279,9 @@ export const flush = async () => {
 };
 
 /**
- * 탭 종료(또는 종료에 가까운) 시점 전용 flush.
- * 일반 flush()는 axios.post라 요청 시작만 보장하고, 페이지가 파괴되면 완료를 기다릴 수 없다.
- * fetch keepalive는 페이지가 사라져도 브라우저가 전송을 이어가 주지만, 응답을 기다릴 수
- * 없어(페이지가 이미 없을 수 있으므로) 실패해도 재시도·버퍼 복구를 할 수 없는 일회성 시도다.
- * sendBeacon 대신 이걸 쓰는 이유는 Authorization 헤더가 필요한 AuthGuard 엔드포인트라서다.
+ * 탭 종료 시점 전용 flush. axios 기반 flush()는 페이지 파괴 시 완료를 보장 못 하지만,
+ * keepalive는 페이지가 사라져도 전송을 이어간다. 응답을 못 받아 재시도·복구는 불가한
+ * 일회성 시도다. sendBeacon은 헤더를 못 붙여서 대신 keepalive fetch를 쓴다.
  */
 const flushOnTerminate = () => {
   if (typeof window === 'undefined') return;
@@ -297,7 +292,7 @@ const flushOnTerminate = () => {
   if (!token) return; // 로그인 전용 정책: 토큰 없으면 시도하지 않는다
 
   const batch = popTerminationBatch();
-  if (batch.length === 0) return; // 첫 이벤트조차 예산을 넘는 극단적인 경우
+  if (batch.length === 0) return; // 첫 이벤트조차 할당량을 넘는 극단적인 경우
 
   try {
     fetch(`${logsClient.defaults.baseURL}/logs`, {
@@ -313,8 +308,7 @@ const flushOnTerminate = () => {
     });
     stats.sentOnTerminate += batch.length;
   } catch {
-    // 브라우저의 keepalive 전역 예산 초과 등으로 fetch 자체가 동기적으로 던지는 경우.
-    // 이미 버퍼에서 뺀 배치를 그대로 잃지 않도록 앞쪽에 되돌린다.
+    // keepalive 전역 할당량 초과 등으로 fetch가 동기적으로 던지는 경우 — 뺀 배치를 잃지 않게 되돌린다.
     buffer = [...batch, ...buffer];
     stats.restored += batch.length;
   }
@@ -323,12 +317,11 @@ const flushOnTerminate = () => {
 /**
  * 앱 시작 시 1회 호출 권장.
  *
- * - visibilitychange(hidden): 탭을 배경으로 전환하는 경우 페이지가 살아있으므로,
- *   재시도 가능한 일반 flush()로 충분하다.
- * - pagehide: visibilitychange보다 실제 파괴 시점에 더 가까운 마지막 기회다. 탭을 즉시
- *   닫는 경우 flush()의 axios.post는 완료를 못 기다리고 끊길 수 있어, 응답을 기다리지 않는
- *   flushOnTerminate()(keepalive)를 여기서 한 번 더 시도한다.
- * - /api/logs는 AuthGuard(Authorization 필요)라 sendBeacon(헤더 불가)은 쓰지 않는다.
+ * - visibilitychange(hidden): 탭이 배경으로 전환돼도 페이지는 살아있으므로 재시도 가능한
+ *   flush()로 충분하다.
+ * - pagehide: 실제 파괴에 더 가까운 마지막 기회. flush()의 axios.post는 여기서 못 끝날 수
+ *   있어, 응답을 기다리지 않는 flushOnTerminate()(keepalive)를 한 번 더 시도한다.
+ * - sendBeacon은 헤더를 못 붙여 AuthGuard 엔드포인트에 못 쓴다.
  */
 export const initLogQueue = (opts?: Options) => {
   if (typeof window === 'undefined') return () => {};
